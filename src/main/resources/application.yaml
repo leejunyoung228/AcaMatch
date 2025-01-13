@@ -1,0 +1,38 @@
+const:
+  default-page-size: 20
+file:
+  directory: D:/LJY/GreenGramTdd/image
+
+jwt:
+  issuer: green@green.kr
+  secret-key: gbeakwlbgeabwkglblaewbhjtagbvjhfrdjvytgfreytgbhleagtgrlauehbgukeahgkuleahtughusehllhraulhgkeahghalegbujkaehgha
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: mappers/**/*.xml
+
+spring:
+  application:
+    name: studyBridge
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mariadb://localhost/greengram_ver3
+    username: root
+    password: green502
+  servlet:
+    multipart:
+      max-file-size: 15MB
+  jackson:
+    default-property-inclusion: non_null
+
+springdoc:
+  swagger-ui:
+    default-model-expand-depth: 10
+    display-request-duration: true
+    groups-order: asc
+    path: /swagger
+    operations-sorter: method
+    tags-sorter: alpha
+  cache:
+    disabled: true
