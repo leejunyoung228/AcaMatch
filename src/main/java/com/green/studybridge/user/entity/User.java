@@ -1,28 +1,28 @@
 package com.green.studybridge.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
 @Entity
 @Table(name = "user")
 public class User {
 
     @Id
-    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Long userId;
 
-    @JoinColumn(name = "roleId", nullable = false)
+    @JoinColumn(name = "role_id", nullable = false)
     private long roleId;
 
-    @Column(name = "signUpType", nullable = false)
+    @Column(name = "sign_up_type", nullable = false)
     private int signUpType;
 
     @Column(name = "name", nullable = false, length = 20)
@@ -34,7 +34,7 @@ public class User {
     @Column(name = "birth", nullable = false)
     private LocalDateTime birth;
 
-    @Column(name = "nickName", nullable = false, length = 20)
+    @Column(name = "nick_name", nullable = false, length = 20)
     private String nickName;
 
     @Column(name = "email", nullable = false, length = 50)
@@ -43,14 +43,13 @@ public class User {
     @Column(name = "upw", nullable = false, length = 20)
     private String upw;
 
-    @Column(name = "userPic", length = 50)
+    @Column(name = "user_pic", length = 50)
     private String userPic;
 
-    @Column(name = "createdAt", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @JsonIgnore
-    @Column(name = "updatedAt")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
