@@ -1,4 +1,4 @@
-package com.green.studybridge.common;
+package com.green.studybridge.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                 .addResourceLocations("file:" + uploadPath + "/");
 
         registry.addResourceHandler("/**")
-                .addResourceLocations("classpath:/static/**")
+                .addResourceLocations("classpath:/static/")
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver() {
                     @Override

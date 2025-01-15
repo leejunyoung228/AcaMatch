@@ -1,6 +1,6 @@
-package com.green.studybridge.common.exception;
+package com.green.studybridge.config.exception;
 
-import com.green.studybridge.common.model.ResultResponse;
+import com.green.studybridge.config.model.ResultResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
