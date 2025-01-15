@@ -17,7 +17,9 @@ public class UserController {
 
     @PostMapping("sign-up")
     public ResultResponse<Integer> signUp(@RequestPart User req, @RequestPart("pic") MultipartFile mf) {
-        int result = userService.signUp(req, mf);
-        return ResultResponse.<Integer> builder().resultMessage("회원 가입 성공").resultData(result).build();
+//        int result = userService.signUp(req, mf);
+//        return ResultResponse.<Integer> builder().resultMessage("회원 가입 성공").resultData(result).build();
+        userService.sendEmail(req, mf);
+        return null;
     }
 }

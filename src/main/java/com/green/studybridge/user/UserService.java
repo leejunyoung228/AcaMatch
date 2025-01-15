@@ -31,4 +31,8 @@ public class UserService {
         }
         return 1;
     }
+
+    public void sendEmail(User req, MultipartFile mf) {
+        UserInfo userInfo = new UserInfo(req, mf);
+    }
 }
