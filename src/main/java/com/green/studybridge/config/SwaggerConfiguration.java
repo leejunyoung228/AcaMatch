@@ -1,4 +1,4 @@
-package com.green.studybridge.common;
+package com.green.studybridge.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "StudyBridge",
-                version = "v1",
-                description = "study bridge"
+                title = "JWT",
+                version = "v0.1",
+                description = "JWT Practice"
         )
         , security = @SecurityRequirement(name = "Authorization")
 )
@@ -23,4 +23,5 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
         scheme = "Bearer"
 )
 public class SwaggerConfiguration {
+
 }

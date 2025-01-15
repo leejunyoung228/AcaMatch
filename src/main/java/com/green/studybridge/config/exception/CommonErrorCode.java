@@ -1,4 +1,4 @@
-package com.green.studybridge.common.exception;
+package com.green.studybridge.config.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
