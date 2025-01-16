@@ -8,6 +8,7 @@ import com.green.studybridge.config.jwt.JwtUser;
 import com.green.studybridge.user.auth.AuthService;
 import com.green.studybridge.user.entity.Role;
 import com.green.studybridge.user.entity.User;
+import com.green.studybridge.user.model.UserSignInReq;
 import com.green.studybridge.user.model.UserSignInRes;
 import com.green.studybridge.user.model.UserSignUpReq;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,9 +42,7 @@ public class UserService {
     public void signUp(String token, HttpServletResponse response, HttpSession session) {
         User user = signUpUserCache.verifyToken(token);
         userRepository.save(user);
-        List<String> roles = new ArrayList<>();
-        roles.add(user.getRole().getRoleName());
-        JwtUser jwtUser = new JwtUser(user.getUserId(), roles);
+        JwtUser jwtUser = generateJwtUserByUser(user);
         String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
         String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
 
@@ -75,5 +74,30 @@ public class UserService {
         String token = UUID.randomUUID().toString();
         authService.sendCodeToEmail(req.getEmail(), "회원가입", token);
         signUpUserCache.saveToken(token, user);
+    }
+
+    public UserSignInRes signIn(UserSignInReq req, HttpServletResponse response) {
+        User user = userRepository.getUserByEmail(req.getEmail());
+        if (user == null || !passwordEncoder.matches(req.getUpw(), user.getUpw())) {
+            throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다");
+        }
+
+        JwtUser jwtUser = generateJwtUserByUser(user);
+        String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
+
+        cookieUtils.setCookie(response, jwtConst.getRefreshTokenCookieName(), refreshToken, jwtConst.getRefreshTokenCookieExpiry());
+
+        return UserSignInRes.builder()
+                .userId(user.getUserId())
+                .name(user.getName())
+                .roleId(user.getRole().getRoleId())
+                .accessToken(accessToken)
+                .build();
+    }
+    private JwtUser generateJwtUserByUser(User user) {
+        List<String> roles = new ArrayList<>();
+        roles.add(user.getRole().getRoleName());
+        return new JwtUser(user.getUserId(), roles);
     }
 }

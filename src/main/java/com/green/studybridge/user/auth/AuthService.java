@@ -1,10 +1,9 @@
 package com.green.studybridge.user.auth;
 
-import com.green.studybridge.config.AuthConst;
+import com.green.studybridge.config.ServerConst;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ import java.util.Map;
 public class AuthService {
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
-    private final AuthConst authConst;
+    private final ServerConst authConst;
 
     public void sendCodeToEmail(String to, String subject, String token) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();

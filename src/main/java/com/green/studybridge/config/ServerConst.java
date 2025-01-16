@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @ToString
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "auth-const")
-public class AuthConst {
-    private String serverUrl;
+@ConfigurationProperties(prefix = "server-const")
+public class ServerConst {
+    private final String serverUrl;
 }

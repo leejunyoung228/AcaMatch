@@ -1,4 +1,4 @@
-auth-const:
+server-const:
   server-url: http://localhost:8080
 
 jwt-const:
