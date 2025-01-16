@@ -1,6 +1,7 @@
 package com.green.studybridge.config.jwt;
 
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
-@Setter
+@AllArgsConstructor
 @EqualsAndHashCode
 public class JwtUser implements UserDetails {
     private long signedUserId;

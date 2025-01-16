@@ -1,13 +1,12 @@
 package com.green.studybridge.user;
 
 import com.green.studybridge.config.model.ResultResponse;
-import com.green.studybridge.user.entity.User;
+import com.green.studybridge.user.model.UserSignInReq;
+import com.green.studybridge.user.model.UserSignInRes;
+import com.green.studybridge.user.model.UserSignUpReq;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("user")
@@ -16,8 +15,16 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("sign-up")
-    public ResultResponse<Integer> signUp(@RequestPart User req, @RequestPart("pic") MultipartFile mf) {
-        int result = userService.signUp(req, mf);
-        return ResultResponse.<Integer> builder().resultMessage("회원 가입 성공").resultData(result).build();
+    public ResultResponse<Integer> signUp(@RequestBody UserSignUpReq req) {
+        userService.sendEmail(req);
+        return null;
+    }
+
+    @PostMapping("sign-in")
+    public ResultResponse<UserSignInRes> signIn(@RequestBody UserSignInReq req, HttpServletResponse response) {
+        UserSignInRes res = userService.signIn(req, response);
+        return ResultResponse.<UserSignInRes>builder()
+                .resultData(res)
+                .build();
     }
 }

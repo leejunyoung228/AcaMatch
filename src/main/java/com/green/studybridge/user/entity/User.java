@@ -1,10 +1,9 @@
 package com.green.studybridge.user.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -19,8 +18,10 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
-    @JoinColumn(name = "role_id", nullable = false)
-    private long roleId;
+    // 'role_id' 컬럼과 'role' 객체 연결
+    @ManyToOne
+    @JoinColumn(name = "role_id", referencedColumnName = "role_id")
+    private Role role;
 
     @Column(name = "sign_up_type", nullable = false)
     private int signUpType;
@@ -32,7 +33,7 @@ public class User {
     private String phone;
 
     @Column(name = "birth", nullable = false)
-    private LocalDateTime birth;
+    private LocalDate birth;
 
     @Column(name = "nick_name", nullable = false, length = 20)
     private String nickName;
@@ -40,7 +41,7 @@ public class User {
     @Column(name = "email", nullable = false, length = 50)
     private String email;
 
-    @Column(name = "upw", nullable = false, length = 20)
+    @Column(name = "upw", nullable = false, length = 100)
     private String upw;
 
     @Column(name = "user_pic", length = 50)

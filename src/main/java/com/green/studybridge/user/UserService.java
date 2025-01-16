@@ -1,34 +1,103 @@
 package com.green.studybridge.user;
 
+import com.green.studybridge.config.CookieUtils;
+import com.green.studybridge.config.JwtConst;
 import com.green.studybridge.config.MyFileUtils;
+import com.green.studybridge.config.jwt.JwtTokenProvider;
+import com.green.studybridge.config.jwt.JwtUser;
+import com.green.studybridge.user.auth.AuthService;
+import com.green.studybridge.user.entity.Role;
 import com.green.studybridge.user.entity.User;
+import com.green.studybridge.user.model.UserSignInReq;
+import com.green.studybridge.user.model.UserSignInRes;
+import com.green.studybridge.user.model.UserSignUpReq;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final MyFileUtils myFileUtils;
+    private final SignUpUserCache signUpUserCache;
+    private final AuthService authService;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final CookieUtils cookieUtils;
+    private final JwtConst jwtConst;
 
     @Transactional
-    public int signUp(User req, MultipartFile mf) {
-        req.setUserPic(myFileUtils.makeRandomFileName(mf));
-        userRepository.save(req);
-        String folderPath = String.format("/user/%d", req.getUserId());
-        myFileUtils.makeFolders(folderPath);
-        String filePath = String.format("%s/%s", folderPath, req.getUserPic());
+    public void signUp(String token, HttpServletResponse response, HttpSession session) {
+        User user = signUpUserCache.verifyToken(token);
+        userRepository.save(user);
+        JwtUser jwtUser = generateJwtUserByUser(user);
+        String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
+
+        cookieUtils.setCookie(response, jwtConst.getRefreshTokenCookieName(), refreshToken, jwtConst.getRefreshTokenCookieExpiry());
+        session.setAttribute("signedUser", UserSignInRes.builder()
+                .userId(user.getUserId())
+                .roleId(user.getRole().getRoleId())
+                .name(user.getName())
+                .accessToken(accessToken)
+                .build());
         try {
-            myFileUtils.transferTo(mf, filePath);
+            response.sendRedirect("/");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return 1;
+    }
+
+    public void sendEmail(UserSignUpReq req) {
+        Role role = roleRepository.searchRoleByRoleId(req.getRoleId());
+        User user = new User();
+        user.setName(req.getName());
+        user.setEmail(req.getEmail());
+        user.setUpw(passwordEncoder.encode(req.getUpw()));
+        user.setBirth(req.getBirth());
+        user.setPhone(req.getPhone());
+        user.setNickName(req.getNickName());
+        user.setSignUpType(req.getSignUpType());
+        user.setRole(role);
+        String token = UUID.randomUUID().toString();
+        authService.sendCodeToEmail(req.getEmail(), "회원가입", token);
+        signUpUserCache.saveToken(token, user);
+    }
+
+    public UserSignInRes signIn(UserSignInReq req, HttpServletResponse response) {
+        User user = userRepository.getUserByEmail(req.getEmail());
+        if (user == null || !passwordEncoder.matches(req.getUpw(), user.getUpw())) {
+            throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다");
+        }
+
+        JwtUser jwtUser = generateJwtUserByUser(user);
+        String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
+
+        cookieUtils.setCookie(response, jwtConst.getRefreshTokenCookieName(), refreshToken, jwtConst.getRefreshTokenCookieExpiry());
+
+        return UserSignInRes.builder()
+                .userId(user.getUserId())
+                .name(user.getName())
+                .roleId(user.getRole().getRoleId())
+                .accessToken(accessToken)
+                .build();
+    }
+    private JwtUser generateJwtUserByUser(User user) {
+        List<String> roles = new ArrayList<>();
+        roles.add(user.getRole().getRoleName());
+        return new JwtUser(user.getUserId(), roles);
     }
 }
