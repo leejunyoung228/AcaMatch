@@ -1,3 +1,6 @@
+server-const:
+  server-url: http://localhost:8080
+
 jwt-const:
   issuer: green@green.kr
   secret: bwrahkgtfjhewsghjvbhjavfhyjaeswgjbeshjabhjewbvnmbdhjtgfvrehjbmfnxdzbhjlgnb
