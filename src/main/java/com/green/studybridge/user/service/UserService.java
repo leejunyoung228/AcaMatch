@@ -101,4 +101,20 @@ public class UserService {
         roles.add(user.getRole().getRoleName());
         return new JwtUser(user.getUserId(), roles);
     }
+
+    public int checkDuplicate(String text, String type) {
+        if (type.equals("nick-name")) {
+            if(userRepository.existsByNickName(text)) {
+                throw new RuntimeException("닉네임이 중복되었습니다");
+            }
+            return 1;
+        }
+        if (type.equals("email")) {
+            if (userRepository.existsByEmail(text)) {
+                throw new RuntimeException("이메일이 중복되었습니다");
+            }
+            return 1;
+        }
+        throw new RuntimeException("지정된 타입이 아닙니다.");
+    }
 }
