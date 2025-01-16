@@ -1,16 +1,17 @@
-package com.green.studybridge.user;
+package com.green.studybridge.user.service;
 
 import com.green.studybridge.config.CookieUtils;
 import com.green.studybridge.config.JwtConst;
 import com.green.studybridge.config.MyFileUtils;
 import com.green.studybridge.config.jwt.JwtTokenProvider;
 import com.green.studybridge.config.jwt.JwtUser;
-import com.green.studybridge.user.auth.AuthService;
 import com.green.studybridge.user.entity.Role;
 import com.green.studybridge.user.entity.User;
 import com.green.studybridge.user.model.UserSignInReq;
 import com.green.studybridge.user.model.UserSignInRes;
 import com.green.studybridge.user.model.UserSignUpReq;
+import com.green.studybridge.user.repository.RoleRepository;
+import com.green.studybridge.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final MyFileUtils myFileUtils;
     private final SignUpUserCache signUpUserCache;
-    private final AuthService authService;
+    private final SignUpUserCache.AuthService authService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtils cookieUtils;

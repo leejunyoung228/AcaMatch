@@ -1,6 +1,7 @@
-package com.green.studybridge.user;
+package com.green.studybridge.user.contoller;
 
 import com.green.studybridge.config.model.ResultResponse;
+import com.green.studybridge.user.service.UserService;
 import com.green.studybridge.user.model.UserSignInReq;
 import com.green.studybridge.user.model.UserSignInRes;
 import com.green.studybridge.user.model.UserSignUpReq;
