@@ -1,8 +1,10 @@
 package com.green.studybridge.user.auth;
 
+import com.green.studybridge.config.AuthConst;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.Map;
 public class AuthService {
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
+    private final AuthConst authConst;
 
     public void sendCodeToEmail(String to, String subject, String token) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -40,7 +43,7 @@ public class AuthService {
 
     private Context getContext(String token) {
         Map<String, Object> dto = new HashMap<>(2);
-        dto.put("tokenLink", String.format("http://localhost:8080/api/auth?token=%s",token));
+        dto.put("tokenLink", String.format("%s/api/auth?token=%s", authConst.getServerUrl(),token));
         dto.put("maxDate", getMaxDate());
         Context context = new Context();
         context.setVariables(dto);
