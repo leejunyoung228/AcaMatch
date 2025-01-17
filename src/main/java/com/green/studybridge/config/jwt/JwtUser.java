@@ -1,6 +1,7 @@
 package com.green.studybridge.config.jwt;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,9 +20,12 @@ public class JwtUser implements UserDetails {
     private long signedUserId;
     private List<String> roles;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(SimpleGrantedAuthority::new).toList();
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
     }
 
     @Override
