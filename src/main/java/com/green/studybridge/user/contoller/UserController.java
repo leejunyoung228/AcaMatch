@@ -4,6 +4,7 @@ import com.green.studybridge.config.model.ResultResponse;
 import com.green.studybridge.user.model.*;
 import com.green.studybridge.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +64,13 @@ public class UserController {
         userService.updateUser(req);
         return ResultResponse.<Integer>builder()
                 .resultData(1)
+                .build();
+    }
+
+    @GetMapping("access-token")
+    public ResultResponse<String> getAccessToken(HttpServletRequest request) {
+        return ResultResponse.<String>builder()
+                .resultData(userService.getAccessToken(request))
                 .build();
     }
 }
