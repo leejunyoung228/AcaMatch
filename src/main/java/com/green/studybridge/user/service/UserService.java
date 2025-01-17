@@ -5,6 +5,7 @@ import com.green.studybridge.config.JwtConst;
 import com.green.studybridge.config.MyFileUtils;
 import com.green.studybridge.config.jwt.JwtTokenProvider;
 import com.green.studybridge.config.jwt.JwtUser;
+import com.green.studybridge.config.security.AuthenticationFacade;
 import com.green.studybridge.user.entity.Role;
 import com.green.studybridge.user.entity.User;
 import com.green.studybridge.user.model.UserSignInReq;
@@ -37,6 +38,7 @@ public class UserService {
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationFacade authenticationFacade;
     private final CookieUtils cookieUtils;
     private final JwtConst jwtConst;
 
@@ -111,7 +113,7 @@ public class UserService {
     }
 
     public void updateUserPic(MultipartFile pic) {
-        long userId = 0;
+        long userId = authenticationFacade.getSignedUserId();
         User user = new User();
         user.setUserId(userId);
         user.setUserPic(myFileUtils.makeRandomFileName(pic));
