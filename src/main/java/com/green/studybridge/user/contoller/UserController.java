@@ -20,7 +20,7 @@ public class UserController {
     @PostMapping("sign-up")
     @Operation(description = "이메일 인증 링크를 누르게 되면 /user/complete-sign-up?token=토큰 값 으로 이동</br>" +
             "token 값을 /user/sign-up?token=토큰값 으로 보내주세요 ")
-    public ResultResponse<Integer> signUp(@RequestBody UserSignUpReq req) {
+    public ResultResponse<Integer> signUp(@Valid @RequestBody UserSignUpReq req) {
         userService.sendEmail(req);
         return null;
     }
