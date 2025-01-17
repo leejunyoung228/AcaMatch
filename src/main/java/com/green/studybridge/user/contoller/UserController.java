@@ -68,6 +68,12 @@ public class UserController {
                 .build();
     }
 
+    @DeleteMapping
+    public ResultResponse<Integer> deleteUser() {
+        userService.deleteUser();
+        return ResultResponse.<Integer>builder().resultData(1).build();
+    }
+
     @GetMapping("access-token")
     public ResultResponse<String> getAccessToken(HttpServletRequest request) {
         return ResultResponse.<String>builder()

@@ -167,4 +167,12 @@ public class UserService {
         JwtUser jwtUser = jwtTokenProvider.getJwtUserFromToken(refreshToken);
         return jwtTokenProvider.generateAccessToken(jwtUser);
     }
+
+    @Transactional
+    public void deleteUser() {
+        long userId = authenticationFacade.getSignedUserId();
+        userRepository.deleteById(userId);
+        String folderPath = String.format("/user/%d", userId);
+        myFileUtils.deleteFolder(folderPath, true);
+    }
 }
