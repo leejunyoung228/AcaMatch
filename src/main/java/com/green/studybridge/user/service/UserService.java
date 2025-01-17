@@ -14,6 +14,7 @@ import com.green.studybridge.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -169,8 +170,12 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser() {
+    public void deleteUser(@Valid UserDeleteReq req) {
         long userId = authenticationFacade.getSignedUserId();
+        User user = getUserById(userId);
+        if (!passwordEncoder.matches(req.getPw(), user.getUpw())) {
+            throw new RuntimeException("비밀번호가 일치하지 않습니다");
+        }
         userRepository.deleteById(userId);
         String folderPath = String.format("/user/%d", userId);
         myFileUtils.deleteFolder(folderPath, true);
