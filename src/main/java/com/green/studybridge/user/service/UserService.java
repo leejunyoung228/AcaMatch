@@ -8,10 +8,7 @@ import com.green.studybridge.config.jwt.JwtUser;
 import com.green.studybridge.config.security.AuthenticationFacade;
 import com.green.studybridge.user.entity.Role;
 import com.green.studybridge.user.entity.User;
-import com.green.studybridge.user.model.UserSignInReq;
-import com.green.studybridge.user.model.UserSignInRes;
-import com.green.studybridge.user.model.UserSignUpReq;
-import com.green.studybridge.user.model.UserUpdateReq;
+import com.green.studybridge.user.model.*;
 import com.green.studybridge.user.repository.RoleRepository;
 import com.green.studybridge.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -74,6 +71,7 @@ public class UserService {
 
         return generateUserSignInResByUser(user, response);
     }
+
     private JwtUser generateJwtUserByUser(User user) {
         List<String> roles = new ArrayList<>();
         roles.add(user.getRole().getRoleName());
@@ -98,7 +96,7 @@ public class UserService {
 
     public int checkDuplicate(String text, String type) {
         if (type.equals("nick-name")) {
-            if(userRepository.existsByNickName(text)) {
+            if (userRepository.existsByNickName(text)) {
                 throw new RuntimeException("닉네임이 중복되었습니다");
             }
             return 1;
@@ -114,12 +112,14 @@ public class UserService {
 
     public void updateUserPic(MultipartFile pic) {
         long userId = authenticationFacade.getSignedUserId();
-        User user = new User();
-        user.setUserId(userId);
+        User user = getUserById(userId);
+        String prePic = user.getUserPic();
         user.setUserPic(myFileUtils.makeRandomFileName(pic));
         userRepository.save(user);
         String folderPath = String.format("/user/%d", userId);
-        myFileUtils.deleteFolder(folderPath, false);
+        if (prePic != null) {
+            myFileUtils.deleteFolder(folderPath, false);
+        }
         myFileUtils.makeFolders(folderPath);
         String filePath = String.format("%s/%s", folderPath, user.getUserPic());
         try {
@@ -130,12 +130,32 @@ public class UserService {
     }
 
     public void updateUser(UserUpdateReq req) {
-        User user = new User();
-        user.setUserId(0L);
+        User user = getUserById(authenticationFacade.getSignedUserId());
         user.setName(req.getName());
         user.setNickName(req.getNickName());
         user.setBirth(req.getBirth());
         user.setPhone(req.getPhone());
         userRepository.save(user);
+    }
+
+    public UserInfo getUserInfo() {
+        User user = getUserById(authenticationFacade.getSignedUserId());
+        return UserInfo.builder()
+                .userId(user.getUserId())
+                .name(user.getName())
+                .roleId(user.getRole().getRoleId())
+                .userPic(user.getUserPic())
+                .email(user.getEmail())
+                .birth(user.getBirth())
+                .phone(user.getPhone())
+                .nickName(user.getNickName())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    private User getUserById(long userId) {
+        return userRepository.findById(authenticationFacade.getSignedUserId())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
     }
 }

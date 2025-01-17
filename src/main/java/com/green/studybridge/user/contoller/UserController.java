@@ -1,14 +1,10 @@
 package com.green.studybridge.user.contoller;
 
 import com.green.studybridge.config.model.ResultResponse;
-import com.green.studybridge.user.model.UserUpdateReq;
+import com.green.studybridge.user.model.*;
 import com.green.studybridge.user.service.UserService;
-import com.green.studybridge.user.model.UserSignInReq;
-import com.green.studybridge.user.model.UserSignInRes;
-import com.green.studybridge.user.model.UserSignUpReq;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +33,13 @@ public class UserController {
         UserSignInRes res = userService.signIn(req, response);
         return ResultResponse.<UserSignInRes>builder()
                 .resultData(res)
+                .build();
+    }
+
+    @GetMapping
+    public ResultResponse<UserInfo> getUserInfo() {
+        return ResultResponse.<UserInfo>builder()
+                .resultData(userService.getUserInfo())
                 .build();
     }
 
