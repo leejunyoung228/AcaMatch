@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.green.studybridge.acaClass.acaClassMapper">
+    <insert id="insAcaClass" useGeneratedKeys="true" keyProperty="classId">
+        INSERT INTO class
+        SET aca_id = #{acaId},
+            class_name = #{className},
+            class_comment = #{classComment},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            price = #{price},
+            `date` = #{date},
+            years = #{years},
+            `level` = #{level}
+    </insert>
+
+    <select id ="existsClass" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM class
+        WHERE aca_id = #{acaId} AND class_name = #{className}
+    </select>
+
+    <select id="selAcaClass">
+        SELECT A.class_id, B.aca_name, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price, A.`date`, A.years, A.`level`
+        FROM class A
+        INNER JOIN academy B
+        ON A.aca_id = B.aca_id
+        WHERE A.aca_id = #{acaId};
+    </select>
+
+    <select id="selAcaClassUser">
+        SELECT B.aca_name, A.class_name, A.start_date, A.end_date, B.aca_pic
+        FROM class A
+        INNER JOIN academy B
+        ON A.aca_id = B.aca_id
+        INNER JOIN joinclass C
+        ON A.class_id = C.class_id
+        INNER JOIN user D
+        ON C.user_id = D.user_id
+        WHERE C.user_id = #{userId};
+    </select>
+
+    <update id="updAcaClass">
+        UPDATE class
+        <set>
+            <if test =" classId != null and classId != '' ">
+                class_id = #{classId},
+            </if>
+            <if test =" className != null and className != '' ">
+                class_name = #{className},
+            </if>
+            <if test =" classComment != null and classComment != '' ">
+                class_comment = #{classComment},
+            </if>
+            <if test =" startDate != null and startDate != '' ">
+                start_date = #{startDate},
+            </if>
+            <if test =" endDate != null and endDate != '' ">
+                end_date = #{endDate},
+            </if>
+            <if test =" startTime != null and startTime != '' ">
+                start_time = #{startTime},
+            </if>
+            <if test =" endTime != null and endTime != '' ">
+                end_time = #{endTime},
+             </if>
+            <if test =" price != null ">
+                price = #{price},
+            </if>
+            <if test =" date != null and date != '' ">
+                date = #{date},
+            </if>
+            <if test =" years != null and years != '' ">
+                years = #{years},
+            </if>
+            <if test =" level != null and level != '' ">
+                level = #{level}
+            </if>
+        </set>
+        WHERE aca_id = #{acaId} AND class_id = #{classId}
+    </update>
+
+    <delete id="delAcaClass">
+        DELETE FROM class
+        WHERE class_id = #{classId} AND aca_id = #{acaId}
+    </delete>
+</mapper>
