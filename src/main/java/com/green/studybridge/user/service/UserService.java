@@ -61,7 +61,7 @@ public class UserService {
         user.setSignUpType(req.getSignUpType());
         user.setRole(role);
         String token = UUID.randomUUID().toString();
-        authService.sendCodeToEmail(req.getEmail(), "회원가입", token);
+        authService.sendCodeToEmail(req.getEmail(), "ACAMATCH 회원가입", token);
         signUpUserCache.saveToken(token, user);
     }
 
