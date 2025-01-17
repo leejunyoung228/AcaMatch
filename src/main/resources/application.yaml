@@ -36,6 +36,8 @@ spring:
       max-file-size: 15MB
   jackson:
     default-property-inclusion: non_null
+  jpa:
+    open-in-view: false
   mail:
     host: smtp.gmail.com
     port: 587
