@@ -22,6 +22,10 @@ public class SecurityConfiguration {
                 .formLogin(form -> form.disable())
                 .csrf(csrf -> csrf.disable())
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(req ->
+                        req.requestMatchers("/api/user").authenticated()
+                                .anyRequest().permitAll()
+                )
                 .build();
     }
 
