@@ -19,5 +19,5 @@ public class JwtConst {
     private final long accessTokenExpiry;
     private final long refreshTokenExpiry;
     private final String refreshTokenCookieName;
-    private final long refreshTokenCookieExpiry;
+    private final int refreshTokenCookieExpiry;
 }
