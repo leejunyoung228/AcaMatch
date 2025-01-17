@@ -24,7 +24,7 @@ public class User {
     private Role role;
 
     @Column(name = "sign_up_type", nullable = false)
-    private int signUpType;
+    private Integer signUpType;
 
     @Column(name = "name", nullable = false, length = 20)
     private String name;
