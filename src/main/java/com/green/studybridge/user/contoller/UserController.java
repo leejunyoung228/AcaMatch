@@ -69,8 +69,8 @@ public class UserController {
     }
 
     @DeleteMapping
-    public ResultResponse<Integer> deleteUser() {
-        userService.deleteUser();
+    public ResultResponse<Integer> deleteUser(@RequestBody UserDeleteReq req) {
+        userService.deleteUser(req);
         return ResultResponse.<Integer>builder().resultData(1).build();
     }
 
