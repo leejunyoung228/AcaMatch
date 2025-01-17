@@ -4,7 +4,9 @@ import com.green.studybridge.config.model.ResultResponse;
 import com.green.studybridge.user.model.*;
 import com.green.studybridge.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +31,7 @@ public class UserController {
     }
 
     @PostMapping("sign-in")
-    public ResultResponse<UserSignInRes> signIn(/*@Valid*/ @RequestBody UserSignInReq req, HttpServletResponse response) {
+    public ResultResponse<UserSignInRes> signIn(@Valid @RequestBody UserSignInReq req, HttpServletResponse response) {
         UserSignInRes res = userService.signIn(req, response);
         return ResultResponse.<UserSignInRes>builder()
                 .resultData(res)
@@ -59,10 +61,17 @@ public class UserController {
     }
 
     @PutMapping
-    public ResultResponse<Integer> updateUser(/*@Valid*/ @RequestBody UserUpdateReq req) {
+    public ResultResponse<Integer> updateUser(@Valid @RequestBody UserUpdateReq req) {
         userService.updateUser(req);
         return ResultResponse.<Integer>builder()
                 .resultData(1)
+                .build();
+    }
+
+    @GetMapping("access-token")
+    public ResultResponse<String> getAccessToken(HttpServletRequest request) {
+        return ResultResponse.<String>builder()
+                .resultData(userService.getAccessToken(request))
                 .build();
     }
 }

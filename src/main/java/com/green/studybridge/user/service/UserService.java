@@ -11,6 +11,8 @@ import com.green.studybridge.user.entity.User;
 import com.green.studybridge.user.model.*;
 import com.green.studybridge.user.repository.RoleRepository;
 import com.green.studybridge.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +61,7 @@ public class UserService {
         user.setSignUpType(req.getSignUpType());
         user.setRole(role);
         String token = UUID.randomUUID().toString();
-        authService.sendCodeToEmail(req.getEmail(), "회원가입", token);
+        authService.sendCodeToEmail(req.getEmail(), "ACAMATCH 회원가입", token);
         signUpUserCache.saveToken(token, user);
     }
 
@@ -155,7 +157,14 @@ public class UserService {
     }
 
     private User getUserById(long userId) {
-        return userRepository.findById(authenticationFacade.getSignedUserId())
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+    }
+
+    public String getAccessToken(HttpServletRequest request) {
+        Cookie cookie = cookieUtils.getCookie(request, jwtConst.getRefreshTokenCookieName());
+        String refreshToken = cookie.getValue();
+        JwtUser jwtUser = jwtTokenProvider.getJwtUserFromToken(refreshToken);
+        return jwtTokenProvider.generateAccessToken(jwtUser);
     }
 }
