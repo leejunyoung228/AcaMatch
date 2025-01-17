@@ -28,7 +28,7 @@ public class UserController {
     }
 
     @GetMapping("sign-up")
-    public ResultResponse<UserSignInRes> finishSignUp(@RequestBody String token, HttpServletResponse response) {
+    public ResultResponse<UserSignInRes> finishSignUp(String token, HttpServletResponse response) {
         return ResultResponse.<UserSignInRes>builder().resultData(userService.signUp(token, response)).build();
     }
 

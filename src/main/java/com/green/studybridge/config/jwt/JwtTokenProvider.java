@@ -7,6 +7,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -55,6 +56,13 @@ public class JwtTokenProvider {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+    public String resolveToken(HttpServletRequest req) {
+        String bearerToken = req.getHeader(jwtConst.getHeaderSchemaName());
+        if (bearerToken == null || !bearerToken.startsWith(jwtConst.getTokenType())) {
+            return null;
+        }
+        return bearerToken.substring(jwtConst.getTokenType().length() + 1);
     }
 
     private Claims getClaims(String token) {
