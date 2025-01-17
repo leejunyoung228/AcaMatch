@@ -1,12 +1,9 @@
-package com.green.studybridge.user.auth;
+package com.green.studybridge.user.contoller;
 
-import com.green.studybridge.config.model.ResultResponse;
-import com.green.studybridge.user.UserService;
-import com.green.studybridge.user.model.UserSignInRes;
+import com.green.studybridge.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
