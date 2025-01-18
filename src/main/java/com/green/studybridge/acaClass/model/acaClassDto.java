@@ -26,7 +26,7 @@ public class acaClassDto {
     private int price;
 
     @Schema(title = "수업일", example = "월")
-    private String date;
+    private String day;
     @Schema(title = "연령", example = "청소년")
     private String years;
     @Schema(title = "수준", example = "초급")

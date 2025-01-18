@@ -9,6 +9,7 @@ import java.util.List;
 public interface acaClassMapper {
     int insAcaClass(acaClassPostReq p);
     int existsClass(long acaId, String className);
+    int insWeek(acaClassDay p);
     List<acaClassDto> selAcaClass(acaClassGetReq p);
     List<acaClassUserDto> selAcaClassUser(acaClassUserGetReq p);
     int updAcaClass(acaClassPutReq p);

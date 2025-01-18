@@ -33,7 +33,17 @@ public class acaClassController {
         }
     }
 
-    @GetMapping("acaClass")
+    @PostMapping("day")
+    @Operation(summary = "요일 등록하기")
+    public ResultResponse<Integer> insWeek(@RequestBody acaClassDay p){
+        Integer result = service.insWeek(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("요일 등록 완료")
+                .resultData(result)
+                .build();
+    }
+
+    @GetMapping
     @Operation(summary = "class 가져오기")
     public ResultResponse<List<acaClassDto>> getClass(@ModelAttribute @ParameterObject acaClassGetReq p) {
         List<acaClassDto> result = service.getClass(p);

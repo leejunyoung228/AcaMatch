@@ -14,7 +14,7 @@ public class SubjectPostReq {
 
     @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private long classId;
-    @Schema(title = "과목 이름", example = "기하와 벡터")
+    @Schema(title = "과목 이름", example = "1차 시험")
     private String subjectName;
     @Schema(title = "과목 유형", example = "1")
     private int scoreType;

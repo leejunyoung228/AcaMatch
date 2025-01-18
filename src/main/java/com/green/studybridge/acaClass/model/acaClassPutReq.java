@@ -30,7 +30,7 @@ public class acaClassPutReq {
     @Schema(title = "수강료", example = "100,000")
     private int price;
     @Schema(title = "수업일", example = "월")
-    private String date;
+    private String day;
     @Schema(title = "연령", example = "청소년")
     private String years;
     @Schema(title = "수준", example = "초급")

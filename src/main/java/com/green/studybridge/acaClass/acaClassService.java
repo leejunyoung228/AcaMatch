@@ -26,6 +26,9 @@ public class acaClassService {
             return result;
         }
 
+        public int insWeek(acaClassDay p) {
+            return mapper.insWeek(p);}
+
         public List<acaClassDto> getClass(acaClassGetReq p) {
             return mapper.selAcaClass(p);
         }

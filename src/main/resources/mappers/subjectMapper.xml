@@ -4,8 +4,7 @@
 <mapper namespace="com.green.studybridge.subject.SubjectMapper">
     <insert id="insSubjectScore" useGeneratedKeys="true" keyProperty="subjectId">
         INSERT INTO subject
-        SET
-            class_id = #{classId},
+        SET class_id = #{classId},
             subject_name = #{subjectName},
             score_type = #{scoreType}
     </insert>
