@@ -17,8 +17,6 @@
         </where>
     </select>
 
-
-
     
 <!--태그 학원등록-->
     <insert id="insAcaTag">

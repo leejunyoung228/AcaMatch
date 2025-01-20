@@ -16,8 +16,10 @@ public class AcademyPostReq {
     @JsonIgnore
     private long acaId;
 
+    @JsonIgnore
     private long userId;
 
+    @JsonIgnore
     private long dongId;
 
     @Schema(title = "학원이름", example = "영재수학학원", requiredMode = Schema.RequiredMode.REQUIRED)

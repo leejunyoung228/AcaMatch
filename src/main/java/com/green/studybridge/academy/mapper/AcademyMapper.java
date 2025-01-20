@@ -1,11 +1,8 @@
 package com.green.studybridge.academy.mapper;
 
 import com.green.studybridge.academy.model.*;
-import com.green.studybridge.academy.model.category.CategoryGetAgeRangeRes;
-import com.green.studybridge.academy.model.category.CategoryGetDaysRes;
-import com.green.studybridge.academy.model.category.CategoryGetLevelRes;
-import com.green.studybridge.academy.model.tag.InsTagWithAcademy;
-import com.green.studybridge.academy.model.tag.SelTagDto;
+import com.green.studybridge.academy.tag.SelTagDto;
+import com.green.studybridge.academy.tag.SelTagReq;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -13,8 +10,11 @@ import java.util.List;
 @Mapper
 public interface AcademyMapper {
 
-    int insAcademy(AcademyPostReq req);
+    List<SelTagDto> selTagDtoList(SelTagReq req);
+    int insAcaTag(long acaId, List<Long>TagIdList);
+    int delAcaTag(AcademyUpdateReq req);
 
+    int insAcademy(AcademyPostReq req);
 
     int updAcademy(AcademyUpdateReq req);
     int delAcademy(AcademyDeleteReq req);

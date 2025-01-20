@@ -1,14 +1,7 @@
 package com.green.studybridge.academy.Service;
 
 import com.green.studybridge.academy.mapper.AcademyMapper;
-import com.green.studybridge.academy.mapper.TagMapper;
 import com.green.studybridge.academy.model.*;
-import com.green.studybridge.academy.model.category.CategoryGetAgeRangeRes;
-import com.green.studybridge.academy.model.category.CategoryGetDaysRes;
-import com.green.studybridge.academy.model.category.CategoryGetLevelRes;
-import com.green.studybridge.academy.model.tag.InsTagWithAcademy;
-import com.green.studybridge.academy.model.tag.SelTagDto;
-import com.green.studybridge.academy.model.tag.SelTagRes;
 import com.green.studybridge.config.MyFileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +18,6 @@ public class AcademyService {
     private final AcademyMapper academyMapper;
     private final MyFileUtils myFileUtils;
     private final UserMessage userMessage;
-    private final TagMapper tagMapper;
-    private InsTagWithAcademy insTagWithAcademy;
 
 
     //학원정보등록
@@ -83,8 +74,8 @@ public class AcademyService {
         }
 
         academyMapper.updAcademy(req);
-        tagMapper.delAcaTag(req);
-        tagMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+        academyMapper.delAcaTag(req);
+        academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
         return 1;
     }
 
