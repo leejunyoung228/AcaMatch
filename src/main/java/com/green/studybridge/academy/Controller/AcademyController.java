@@ -1,5 +1,7 @@
-package com.green.studybridge.academy;
+package com.green.studybridge.academy.Controller;
 
+import com.green.studybridge.academy.Service.AcademyService;
+import com.green.studybridge.academy.Service.TagService;
 import com.green.studybridge.academy.model.*;
 import com.green.studybridge.academy.model.category.CategoryGetAgeRangeRes;
 import com.green.studybridge.academy.model.category.CategoryGetDaysRes;
@@ -23,18 +25,12 @@ import java.util.List;
 @Tag(name = "학원")
 public class AcademyController {
     private final AcademyService academyService;
+    private final TagService tagService;
 
-    @GetMapping("tag")
-    @Operation(summary = "태그종류보기")
-    public ResultResponse<SelTagRes> selTagList() {
-        SelTagRes res = academyService.selTagList();
-        return ResultResponse.<SelTagRes>builder()
-                .resultMessage("태그들")
-                .resultData(res)
-                .build();
-    }
 
-    @GetMapping("age")
+
+    //카테고리는 강좌쪽이라서 일단 주석처리함.
+   /* @GetMapping("age")
     @Operation(summary = "수강연령대 select")
     public ResultResponse<List<CategoryGetAgeRangeRes>> selCategoryAgeRangeList() {
         List<CategoryGetAgeRangeRes> list = academyService.categoryAgeRangeResList();
@@ -62,16 +58,13 @@ public class AcademyController {
                 .resultMessage("요일 select 성공")
                 .resultData(list)
                 .build();
-    }
+    }*/
 
     @PostMapping
     @Operation(summary = "학원정보등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진")
     public ResultResponse<Integer> postAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyPostReq req) {
         academyService.insAcademy(pic, req);
-        academyService.insAcaAgeRange(req);
-        academyService.insAcaLevel(req);
-        academyService.insAcaDays(req);
-        academyService.insAcaTag(req);
+        tagService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage("학원정보등록성공")
                 .resultData(1)
@@ -115,7 +108,7 @@ public class AcademyController {
                 .build();
     }
 
-    @GetMapping("tagList")
+   /* @GetMapping("tagList")
     @Operation(summary = "등록된 태그 불러오기")
     public ResultResponse<List<GetTagList>> getTagList(){
         List<GetTagList> list = academyService.getTagList();
@@ -123,6 +116,6 @@ public class AcademyController {
                 .resultMessage("태그 불러오기")
                 .resultData(list)
                 .build();
-    }
+    }*/ //태그 불러오기 수정필요해서 주석처리했다.
 
 }

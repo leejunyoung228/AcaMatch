@@ -1,4 +1,4 @@
-package com.green.studybridge.academy;
+package com.green.studybridge.academy.mapper;
 
 import com.green.studybridge.academy.model.*;
 import com.green.studybridge.academy.model.category.CategoryGetAgeRangeRes;
@@ -12,19 +12,19 @@ import java.util.List;
 
 @Mapper
 public interface AcademyMapper {
-    List<SelTagDto> selTagDtoList();
 
-    List<CategoryGetAgeRangeRes> selAgeRangeList();
+
+    /*List<CategoryGetAgeRangeRes> selAgeRangeList();
     List<CategoryGetLevelRes> selLevelList();
-    List<CategoryGetDaysRes> selDaysList();
+    List<CategoryGetDaysRes> selDaysList();*/
 
-    int insAcaAgeRange(AcademyPostReq req);
+    /*int insAcaAgeRange(AcademyPostReq req);
     int insAcaLevel(AcademyPostReq req);
-    int insAcaDays(AcademyPostReq req);
-    int insAcaTag(AcademyPostReq req);
+    int insAcaDays(AcademyPostReq req);*/
+
 
     int insAcademy(AcademyPostReq req);
-    int insTagWithAcademy(InsTagWithAcademy p);
+
 
     int updAcademy(AcademyUpdateReq req);
     int delAcademy(AcademyDeleteReq req);

@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class AcademyUpdateReq {
@@ -25,4 +27,6 @@ public class AcademyUpdateReq {
     private String address;
     @Schema(title = "학원사진")
     private String acaPic;
+    @Schema(title = "태그Id 리스트")
+    private List<Long> tagIdList;
 }

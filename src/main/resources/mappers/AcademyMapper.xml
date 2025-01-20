@@ -5,7 +5,7 @@
 
 <mapper namespace="com.green.acamatch_mytest.academy.AcademyMapper">
 
-<!--카테고리 select-->
+<!--&lt;!&ndash;카테고리 select&ndash;&gt;
     <select id="selAgeRangeList">
         SELECT *
         FROM ageRange
@@ -19,7 +19,7 @@
     <select id="selDaysList">
         SELECT *
         FROM weekDays
-    </select>
+    </select>-->
 
 <!--태그 select-->
     <select id="selTagList">
@@ -34,7 +34,7 @@
 
 
 
-<!--카테고리 학원등록-->
+<!--&lt;!&ndash;카테고리 학원등록&ndash;&gt;
     <insert id="insAcaAgeRange">
         INSERT INTO academyAgeRange (aca_id, age_range_id)
         VALUES
@@ -57,7 +57,7 @@
         <foreach collection="daysIdList" item="daysId" separator=",">
             (#{acaId}, #{daysId})
         </foreach>
-    </insert>
+    </insert>-->
     
 <!--태그 학원등록-->
     <insert id="insAcaTag">
@@ -84,11 +84,7 @@
              , aca_pic = #{acaPic}
     </insert>
 
-    <insert id="insTagWithAcademy">
-        INSERT INTO academytag
-        SET aca_id = #{acaId}
-          , tag_id = #{tagId}
-    </insert>
+
 
 
 <!--학원정보수정-->
@@ -122,6 +118,13 @@
         </set>
         WHERE aca_id = #{acaId}
     </update>
+
+<!--학원정보수정에서 태그수정을 위한 삭제처리-->
+    <delete id="delAcaTag">
+        DELETE FROM academytag
+        WHERE aca_id = #{acaId}
+    </delete>
+
 
 <!--학원정보삭제-->
     <delete id="delAcademy">

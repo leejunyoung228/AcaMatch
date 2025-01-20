@@ -1,5 +1,7 @@
-package com.green.studybridge.academy;
+package com.green.studybridge.academy.Service;
 
+import com.green.studybridge.academy.mapper.AcademyMapper;
+import com.green.studybridge.academy.mapper.TagMapper;
 import com.green.studybridge.academy.model.*;
 import com.green.studybridge.academy.model.category.CategoryGetAgeRangeRes;
 import com.green.studybridge.academy.model.category.CategoryGetDaysRes;
@@ -23,19 +25,13 @@ public class AcademyService {
     private final AcademyMapper academyMapper;
     private final MyFileUtils myFileUtils;
     private final UserMessage userMessage;
+    private final TagMapper tagMapper;
     private InsTagWithAcademy insTagWithAcademy;
 
 
-    //모든태그가져오기
-    public SelTagRes selTagList() {
-        List<SelTagDto> list = academyMapper.selTagDtoList();
 
-        SelTagRes res = new SelTagRes();
-        res.setSelTagList(list);
-        return res;
-    }
-
-    //카테고리 select
+    //카테고리는 강좌에서 다루는거라 일단 뱄음
+    /*//카테고리 select
     public List<CategoryGetAgeRangeRes> categoryAgeRangeResList() {
         List<CategoryGetAgeRangeRes> list = academyMapper.selAgeRangeList();
         return list;
@@ -65,13 +61,7 @@ public class AcademyService {
     public int insAcaDays(AcademyPostReq req) {
         int result = academyMapper.insAcaDays(req);
         return result;
-    }
-
-    //학원이 등록한 태그 insert
-    public int insAcaTag(AcademyPostReq req) {
-        int result = academyMapper.insAcaTag(req);
-        return result;
-    }
+    }*/
 
 
     //학원정보등록
@@ -102,10 +92,6 @@ public class AcademyService {
         return result;
     }
 
-    //학원이 등록한 태그 등록
-    public void insTagAndAcademy(InsTagWithAcademy p) {
-        academyMapper.insTagWithAcademy(p);
-    }
 
     //학원정보수정
     public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
@@ -132,6 +118,8 @@ public class AcademyService {
         }
 
         academyMapper.updAcademy(req);
+        tagMapper.delAcaTag(req);
+        tagMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
         return 1;
     }
 
@@ -153,7 +141,5 @@ public class AcademyService {
         return res;
     }
 
-    public List<GetTagList> getTagList(){
-        return academyMapper.getTagList();
-    }
+
 }
