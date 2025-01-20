@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping
+@RequestMapping("tag")
 @RequiredArgsConstructor
 public class TagController {
     private final TagService tagService;
 
 
-    @GetMapping("tag")
+    @GetMapping
     @Operation(summary = "태그종류보기")
     public ResultResponse<SelTagRes> selTagList(@RequestBody SelTagReq req) {
         SelTagRes res = tagService.selTagList(req);
