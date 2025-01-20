@@ -7,7 +7,7 @@
 
 
 <!--태그 select-->
-    <select id="selTagList">
+    <select id="selTagDtoList">
         SELECT tag_id as tagId,tag_name as tagName
         FROM tag
         <where>
@@ -17,7 +17,7 @@
         </where>
     </select>
 
-    
+
 <!--태그 학원등록-->
     <insert id="insAcaTag">
         INSERT INTO academytag (aca_id, tag_id)

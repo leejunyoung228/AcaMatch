@@ -7,10 +7,7 @@ import com.green.studybridge.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -22,7 +19,7 @@ public class TagController {
 
     @GetMapping
     @Operation(summary = "태그종류보기")
-    public ResultResponse<SelTagRes> selTagList(@RequestBody SelTagReq req) {
+    public ResultResponse<SelTagRes> selTagList(@ModelAttribute SelTagReq req) {
         SelTagRes res = tagService.selTagList(req);
         return ResultResponse.<SelTagRes>builder()
                 .resultMessage("태그들")
