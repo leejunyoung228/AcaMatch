@@ -38,7 +38,6 @@ public class UserService {
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationFacade authenticationFacade;
     private final CookieUtils cookieUtils;
     private final JwtConst jwtConst;
 
@@ -114,7 +113,7 @@ public class UserService {
     }
 
     public void updateUserPic(MultipartFile pic) {
-        long userId = authenticationFacade.getSignedUserId();
+        long userId = AuthenticationFacade.getSignedUserId();
         User user = getUserById(userId);
         String prePic = user.getUserPic();
         user.setUserPic(myFileUtils.makeRandomFileName(pic));
@@ -133,7 +132,7 @@ public class UserService {
     }
 
     public void updateUser(UserUpdateReq req) {
-        User user = getUserById(authenticationFacade.getSignedUserId());
+        User user = getUserById(AuthenticationFacade.getSignedUserId());
         user.setName(req.getName());
         user.setNickName(req.getNickName());
         user.setBirth(req.getBirth());
@@ -142,7 +141,7 @@ public class UserService {
     }
 
     public UserInfo getUserInfo() {
-        User user = getUserById(authenticationFacade.getSignedUserId());
+        User user = getUserById(AuthenticationFacade.getSignedUserId());
         return UserInfo.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
@@ -171,7 +170,7 @@ public class UserService {
 
     @Transactional
     public void deleteUser(@Valid UserDeleteReq req) {
-        long userId = authenticationFacade.getSignedUserId();
+        long userId = AuthenticationFacade.getSignedUserId();
         User user = getUserById(userId);
         if (!passwordEncoder.matches(req.getPw(), user.getUpw())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다");
