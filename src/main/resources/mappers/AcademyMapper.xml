@@ -3,23 +3,8 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.green.acamatch_mytest.academy.AcademyMapper">
+<mapper namespace="com.green.studybridge.academy.AcademyMapper">
 
-<!--&lt;!&ndash;카테고리 select&ndash;&gt;
-    <select id="selAgeRangeList">
-        SELECT *
-        FROM ageRange
-    </select>
-
-    <select id="selLevelList">
-        SELECT *
-        FROM level
-    </select>
-
-    <select id="selDaysList">
-        SELECT *
-        FROM weekDays
-    </select>-->
 
 <!--태그 select-->
     <select id="selTagList">
@@ -34,30 +19,6 @@
 
 
 
-<!--&lt;!&ndash;카테고리 학원등록&ndash;&gt;
-    <insert id="insAcaAgeRange">
-        INSERT INTO academyAgeRange (aca_id, age_range_id)
-        VALUES
-        <foreach collection="ageRangeIdList" item="ageRangeId" separator=",">
-            (#{acaId}, #{ageRangeId})
-        </foreach>
-    </insert>
-
-    <insert id="insAcaLevel">
-        INSERT INTO academyLevel (aca_id, level_id)
-        VALUES
-        <foreach collection="levelIdList" item="levelId" separator=",">
-            (#{acaId}, #{levelId})
-        </foreach>
-    </insert>
-
-    <insert id="insAcaDays">
-        INSERT INTO academyDays (aca_id, day_id)
-        VALUES
-        <foreach collection="daysIdList" item="daysId" separator=",">
-            (#{acaId}, #{daysId})
-        </foreach>
-    </insert>-->
     
 <!--태그 학원등록-->
     <insert id="insAcaTag">
