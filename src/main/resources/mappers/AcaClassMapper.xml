@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.green.studybridge.acaClass.acaClassMapper">
+<mapper namespace="com.green.studybridge.acaClass.AcaClassMapper">
     <insert id="insAcaClass" useGeneratedKeys="true" keyProperty="classId">
         INSERT INTO class
         SET aca_id = #{acaId},
@@ -12,7 +12,6 @@
             start_time = #{startTime},
             end_time = #{endTime},
             price = #{price},
-            `date` = #{date},
             years = #{years},
             `level` = #{level}
     </insert>
@@ -37,9 +36,10 @@
         INNER JOIN weekdays C
         ON A.class_id = C.class_id
         WHERE A.aca_id = #{acaId}
+        LIMIT #{startIdx}, #{size}
     </select>
 
-    <select id="selAcaClassUser">
+    <select id="selAcaClassToUser">
         SELECT B.aca_name, A.class_name, A.start_date, A.end_date, B.aca_pic
         FROM class A
         INNER JOIN academy B
@@ -50,6 +50,17 @@
         ON C.user_id = D.user_id
         WHERE C.user_id = #{userId}
         LIMIT #{startIdx},#{size}
+    </select>
+    
+    <select id="selAcaClassUser">
+        SELECT C.user_pic, C.name, C.phone, C.birth
+        FROM joinclass A
+        INNER JOIN class B
+        ON A.class_id = B.class_id
+        INNER JOIN user C
+        ON A.user_id = C.user_id
+        WHERE A.class_id = #{classId}
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <update id="updAcaClass">

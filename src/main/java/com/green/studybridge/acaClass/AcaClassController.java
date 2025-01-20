@@ -14,12 +14,12 @@ import java.util.List;
 @RestController
 @RequestMapping("acaClass")
 @RequiredArgsConstructor
-public class acaClassController {
-    private final acaClassService service;
+public class AcaClassController {
+    private final AcaClassService service;
 
     @PostMapping
     @Operation(summary = "class 등록하기")
-    public ResultResponse<Integer> postAcaClass(@RequestBody acaClassPostReq p) {
+    public ResultResponse<Integer> postAcaClass(@RequestBody AcaClassPostReq p) {
         try {
             Integer result = service.postAcaClass(p);
             return ResultResponse.<Integer>builder()
@@ -35,7 +35,7 @@ public class acaClassController {
 
     @PostMapping("day")
     @Operation(summary = "요일 등록하기")
-    public ResultResponse<Integer> insWeek(@RequestBody acaClassDay p){
+    public ResultResponse<Integer> insWeek(@RequestBody AcaClassDay p){
         Integer result = service.insWeek(p);
         return ResultResponse.<Integer>builder()
                 .resultMessage("요일 등록 완료")
@@ -45,27 +45,37 @@ public class acaClassController {
 
     @GetMapping
     @Operation(summary = "class 가져오기")
-    public ResultResponse<List<acaClassDto>> getClass(@ModelAttribute @ParameterObject acaClassGetReq p) {
-        List<acaClassDto> result = service.getClass(p);
-        return ResultResponse.<List<acaClassDto>>builder()
+    public ResultResponse<List<AcaClassDto>> getClass(@ModelAttribute @ParameterObject AcaClassGetReq p) {
+        List<AcaClassDto> result = service.getClass(p);
+        return ResultResponse.<List<AcaClassDto>>builder()
                              .resultMessage("수업 출력 완료")
                              .resultData(result)
                              .build();
     }
 
-    @GetMapping("userAcaClass")
-    @Operation(summary = "userClass 가져오기")
-    public ResultResponse<List<acaClassUserDto>> getClass(@ModelAttribute @ParameterObject acaClassUserGetReq p) {
-        List<acaClassUserDto> result = service.getUserClass(p);
-        return ResultResponse.<List<acaClassUserDto>>builder()
+    @GetMapping("acaClassToUser")
+    @Operation(summary = "특정user가 등록한 class 가져오기")
+    public ResultResponse<List<AcaClassToUserDto>> getUserClass(@ModelAttribute @ParameterObject AcaClassToUserGetReq p) {
+        List<AcaClassToUserDto> result = service.getUserClass(p);
+        return ResultResponse.<List<AcaClassToUserDto>>builder()
                              .resultMessage("수업 출력 완료")
                              .resultData(result)
                              .build();
+    }
+
+    @GetMapping("acaClassUser")
+    @Operation(summary = "class에 등록한 user 가져오기")
+    public ResultResponse<List<AcaClassUserDto>> getClassUser(@ModelAttribute @ParameterObject AcaClassUserGetReq p) {
+        List<AcaClassUserDto> result = service.getClassUser(p);
+        return ResultResponse.<List<AcaClassUserDto>>builder()
+                .resultMessage("수업에 등록한 사용자 출력 완료")
+                .resultData(result)
+                .build();
     }
 
     @PutMapping
     @Operation(summary = "class 수정하기")
-    public ResultResponse<Integer> putAcaClass(@RequestBody acaClassPutReq p) {
+    public ResultResponse<Integer> putAcaClass(@RequestBody AcaClassPutReq p) {
         Integer result = service.updAcaClass(p);
         return ResultResponse.<Integer>builder()
                              .resultMessage("수업 수정 완료")
@@ -75,7 +85,7 @@ public class acaClassController {
 
     @DeleteMapping
     @Operation(summary = "class 삭제하기")
-    public ResultResponse<Integer> delAcaClass(@ModelAttribute @ParameterObject acaClassDelReq p) {
+    public ResultResponse<Integer> delAcaClass(@ModelAttribute @ParameterObject AcaClassDelReq p) {
        Integer result = service.delAcaClass(p);
        return ResultResponse.<Integer>builder()
                .resultMessage("수업 삭제 완료")

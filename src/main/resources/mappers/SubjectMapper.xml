@@ -8,4 +8,16 @@
             subject_name = #{subjectName},
             score_type = #{scoreType}
     </insert>
+
+    <select id="selSubjectScore">
+        SELECT A.subject_name, B.exam_date,
+        CASE WHEN A.SCORE_TYPE = 0 THEN B.score ELSE CASE WHEN COALESCE(B.PASS, 0) = 0 THEN '불합격' ELSE '합격' END  END score
+        FROM subject A
+        INNER JOIN grade B
+        ON A.subject_id = B.subject_id
+        INNER JOIN joinclass C
+        ON B.join_class_id = C.join_class_id
+        WHERE C.user_id = #{userId}
+        LIMIT #{startIdx}, #{size}
+    </select>
 </mapper>
