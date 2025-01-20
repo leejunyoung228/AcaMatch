@@ -33,15 +33,26 @@ public class AcaClassController {
         }
     }
 
-    @PostMapping("day")
+    @PostMapping("weekdays")
     @Operation(summary = "요일 등록하기")
-    public ResultResponse<Integer> insWeek(@RequestBody AcaClassDay p){
-        Integer result = service.insWeek(p);
+    public ResultResponse<Integer> insWeekDay(@RequestBody AcaClassWeekDay p){
+        Integer result = service.insWeekDay(p);
         return ResultResponse.<Integer>builder()
                 .resultMessage("요일 등록 완료")
                 .resultData(result)
                 .build();
     }
+
+    @PostMapping("classweekdays")
+    @Operation(summary = "요일 관계 등록하기")
+    public ResultResponse<Integer> insAcaClassClassWeekDays(@RequestBody AcaClassClassWeekDays p){
+        Integer result = service.insAcaClassClassWeekDays(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("요일 관계 등록 완료")
+                .resultData(result)
+                .build();
+    }
+
 
     @GetMapping
     @Operation(summary = "class 가져오기")

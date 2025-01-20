@@ -22,19 +22,26 @@
         WHERE aca_id = #{acaId} AND class_name = #{className}
     </select>
 
-    <insert id="insWeek" useGeneratedKeys="true" keyProperty="dayId">
-        INSERT weekDays
+    <insert id="insWeekDay" useGeneratedKeys="true" keyProperty="dayId">
+        INSERT weekdays
+        SET day = #{day}
+    </insert>
+
+    <insert id = "insAcaClassClassWeekDays">
+        INSERT classweekdays
         SET class_id = #{classId},
-            day = #{day}
+        day_id = #{dayId}
     </insert>
 
     <select id="selAcaClass">
-        SELECT A.class_id, B.aca_name, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price, C.day, A.years, A.`level`
+        SELECT A.class_id, B.aca_name, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price, D.day, A.years, A.`level`
         FROM class A
         INNER JOIN academy B
         ON A.aca_id = B.aca_id
-        INNER JOIN weekdays C
-        ON A.class_id = C.class_id
+        INNER JOIN classweekdays C
+        ON C.class_id = A.class_id
+        INNER JOIN weekdays D
+        ON C.day_id = D.day_id
         WHERE A.aca_id = #{acaId}
         LIMIT #{startIdx}, #{size}
     </select>

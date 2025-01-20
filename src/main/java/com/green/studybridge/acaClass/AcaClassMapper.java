@@ -9,7 +9,8 @@ import java.util.List;
 public interface AcaClassMapper {
     int insAcaClass(AcaClassPostReq p);
     int existsClass(long acaId, String className);
-    int insWeek(AcaClassDay p);
+    int insWeekDay(AcaClassWeekDay p);
+    int insAcaClassClassWeekDays(AcaClassClassWeekDays p);
     List<AcaClassDto> selAcaClass(AcaClassGetReq p);
     List<AcaClassToUserDto> selAcaClassToUser(AcaClassToUserGetReq p);
     List<AcaClassUserDto> selAcaClassUser(AcaClassUserGetReq p);

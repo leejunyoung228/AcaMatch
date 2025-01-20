@@ -1,4 +1,4 @@
-package com.green.studybridge.subject.model;
+package com.green.studybridge.grade.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class SubjectGetDto {
+public class GradeGetDto {
     @JsonIgnore
     private long subjectId;
     @Schema(title = "과목 이름", example = "1차 시험")
