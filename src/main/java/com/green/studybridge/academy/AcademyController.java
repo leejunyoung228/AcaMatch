@@ -65,7 +65,7 @@ public class AcademyController {
     }
 
     @PostMapping
-    @Operation(summary = "학원정보등록")
+    @Operation(summary = "학원정보등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진")
     public ResultResponse<Integer> postAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyPostReq req) {
         academyService.insAcademy(pic, req);
         academyService.insAcaAgeRange(req);
@@ -93,18 +93,6 @@ public class AcademyController {
     }
 
 // -------------------------------------------------------------
-
-    /*@PostMapping()
-    @Operation(summary = "학원 등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진")
-    public ResultResponse<Integer> academyPost(@RequestPart postAcademy p,
-                                               @RequestPart MultipartFile pic) {
-        int result = service.postAca(p, pic);
-        log.info("result: {}", result);
-        return ResultResponse.<Integer>builder()
-                .resultMessage("학원 등록 성공")
-                .resultData(result)
-                .build();
-    }*/
 
     @GetMapping("academyList")
     @Operation(summary = "학원 리스트 검색")
