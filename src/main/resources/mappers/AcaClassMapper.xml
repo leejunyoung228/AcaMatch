@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.green.studybridge.acaClass.acaClassMapper">
+<mapper namespace="com.green.studybridge.acaClass.AcaClassMapper">
     <insert id="insAcaClass" useGeneratedKeys="true" keyProperty="classId">
         INSERT INTO class
         SET aca_id = #{acaId},
@@ -12,7 +12,6 @@
             start_time = #{startTime},
             end_time = #{endTime},
             price = #{price},
-            `date` = #{date},
             years = #{years},
             `level` = #{level}
     </insert>
@@ -23,15 +22,24 @@
         WHERE aca_id = #{acaId} AND class_name = #{className}
     </select>
 
+    <insert id="insWeek" useGeneratedKeys="true" keyProperty="dayId">
+        INSERT weekDays
+        SET class_id = #{classId},
+            day = #{day}
+    </insert>
+
     <select id="selAcaClass">
-        SELECT A.class_id, B.aca_name, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price, A.`date`, A.years, A.`level`
+        SELECT A.class_id, B.aca_name, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price, C.day, A.years, A.`level`
         FROM class A
         INNER JOIN academy B
         ON A.aca_id = B.aca_id
-        WHERE A.aca_id = #{acaId};
+        INNER JOIN weekdays C
+        ON A.class_id = C.class_id
+        WHERE A.aca_id = #{acaId}
+        LIMIT #{startIdx}, #{size}
     </select>
 
-    <select id="selAcaClassUser">
+    <select id="selAcaClassToUser">
         SELECT B.aca_name, A.class_name, A.start_date, A.end_date, B.aca_pic
         FROM class A
         INNER JOIN academy B
@@ -40,47 +48,61 @@
         ON A.class_id = C.class_id
         INNER JOIN user D
         ON C.user_id = D.user_id
-        WHERE C.user_id = #{userId};
+        WHERE C.user_id = #{userId}
+        LIMIT #{startIdx},#{size}
+    </select>
+    
+    <select id="selAcaClassUser">
+        SELECT C.user_pic, C.name, C.phone, C.birth
+        FROM joinclass A
+        INNER JOIN class B
+        ON A.class_id = B.class_id
+        INNER JOIN user C
+        ON A.user_id = C.user_id
+        WHERE A.class_id = #{classId}
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <update id="updAcaClass">
-        UPDATE class
+        UPDATE class A
+        INNER JOIN weekdays B
+        ON A.class_id = B.class_id
         <set>
             <if test =" classId != null and classId != '' ">
-                class_id = #{classId},
+                A.class_id = #{classId},
             </if>
             <if test =" className != null and className != '' ">
-                class_name = #{className},
+                A.class_name = #{className},
             </if>
             <if test =" classComment != null and classComment != '' ">
-                class_comment = #{classComment},
+                A.class_comment = #{classComment},
             </if>
             <if test =" startDate != null and startDate != '' ">
-                start_date = #{startDate},
+                A.start_date = #{startDate},
             </if>
             <if test =" endDate != null and endDate != '' ">
-                end_date = #{endDate},
+                A.end_date = #{endDate},
             </if>
             <if test =" startTime != null and startTime != '' ">
-                start_time = #{startTime},
+                A.start_time = #{startTime},
             </if>
             <if test =" endTime != null and endTime != '' ">
-                end_time = #{endTime},
+                A.end_time = #{endTime},
              </if>
             <if test =" price != null ">
-                price = #{price},
+                A.price = #{price},
             </if>
-            <if test =" date != null and date != '' ">
-                date = #{date},
+            <if test =" day != null and day != '' ">
+                B.day = #{day},
             </if>
             <if test =" years != null and years != '' ">
-                years = #{years},
+                A.years = #{years},
             </if>
             <if test =" level != null and level != '' ">
-                level = #{level}
+                A.level = #{level}
             </if>
         </set>
-        WHERE aca_id = #{acaId} AND class_id = #{classId}
+        WHERE A.aca_id = #{acaId} AND A.class_id = #{classId}
     </update>
 
     <delete id="delAcaClass">

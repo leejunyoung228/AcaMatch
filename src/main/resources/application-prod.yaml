@@ -1,5 +1,6 @@
-server-const:
-  server-url: http://112.222.157.156:5223
+constant:
+  server-const:
+    server-url: http://112.222.157.156:5223
 
 file:
   directory: /home/download/image

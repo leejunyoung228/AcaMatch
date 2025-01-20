@@ -1,20 +1,24 @@
-server-const:
-  server-url: http://localhost:8080
+constant:
+  info-const:
+    title: JWT Practice
+    description: JWT + Security 고도화
+    version: v0.1
 
-jwt-const:
-  issuer: green@green.kr
-  secret: bwrahkgtfjhewsghjvbhjavfhyjaeswgjbeshjabhjewbvnmbdhjtgfvrehjbmfnxdzbhjlgnb
-  header-schema-name: Authorization
-  claim-key: signedUser
-  token-name: jwt
-  token-type: Bearer
-  access-token-expiry: 600_000 # 10분 (MS)
-  refresh-token-expiry: 1_296_000_000 # 15일 (MS)
-  refresh-token-cookie-name: refresh-token
-  refresh-token-cookie-expiry: 1_296_000 # 15일 (S)
+  server-const:
+    server-url: http://localhost:8080
 
-const:
-  default-page-size: 20
+  jwt-const:
+    issuer: green@green.kr #토큰 발행자
+    secret: bwrahkgtfjhewsghjvbhjavfhyjaeswgjbeshjabhjewbvnmbdhjtgfvrehjbmfnxdzbhjlgnb
+    header-key: Authorization
+    claim-key: signedUser
+    bearer-format: JWT
+    scheme: Bearer
+    access-token-expiry: 600_000 #10분 (MS)
+    refresh-token-expiry: 1_296_000_000 # 15일 (MS)
+    refresh-token-cookie-name: refresh-token
+    refresh-token-cookie-expiry: 1_296_000 #15일 (S)
+
 file:
   directory: D:/LJY/GreenGramTdd/image
 
@@ -36,6 +40,8 @@ spring:
       max-file-size: 15MB
   jackson:
     default-property-inclusion: non_null
+  jpa:
+    open-in-view: false
   mail:
     host: smtp.gmail.com
     port: 587

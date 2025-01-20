@@ -11,11 +11,11 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class acaClassService {
-    private final acaClassMapper mapper;
+public class AcaClassService {
+    private final AcaClassMapper mapper;
 
         @Transactional
-        public int postAcaClass(acaClassPostReq p) {
+        public int postAcaClass(AcaClassPostReq p) {
 
             int exists = mapper.existsClass(p.getAcaId(),p.getClassName());
             if (exists > 0) {
@@ -26,19 +26,25 @@ public class acaClassService {
             return result;
         }
 
-        public List<acaClassDto> getClass(acaClassGetReq p) {
+        public int insWeek(AcaClassDay p) {
+            return mapper.insWeek(p);}
+
+        public List<AcaClassDto> getClass(AcaClassGetReq p) {
             return mapper.selAcaClass(p);
         }
 
-        public List<acaClassUserDto> getUserClass(acaClassUserGetReq p) {
-            return mapper.selAcaClassUser(p);
+        public List<AcaClassToUserDto> getUserClass(AcaClassToUserGetReq p) {
+            return mapper.selAcaClassToUser(p);
         }
 
-        public int updAcaClass(acaClassPutReq p) {
+        public List<AcaClassUserDto> getClassUser(AcaClassUserGetReq p) {
+            return mapper.selAcaClassUser(p);
+        }
+        public int updAcaClass(AcaClassPutReq p) {
             return mapper.updAcaClass(p);
         }
 
-        public int delAcaClass(acaClassDelReq p) {
+        public int delAcaClass(AcaClassDelReq p) {
             return mapper.delAcaClass(p);
         }
 }

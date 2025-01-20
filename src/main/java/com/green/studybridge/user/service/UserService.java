@@ -1,11 +1,11 @@
 package com.green.studybridge.user.service;
 
 import com.green.studybridge.config.CookieUtils;
-import com.green.studybridge.config.JwtConst;
 import com.green.studybridge.config.MyFileUtils;
 import com.green.studybridge.config.jwt.JwtTokenProvider;
 import com.green.studybridge.config.jwt.JwtUser;
 import com.green.studybridge.config.security.AuthenticationFacade;
+import com.green.studybridge.config.constant.JwtConst;
 import com.green.studybridge.user.entity.Role;
 import com.green.studybridge.user.entity.User;
 import com.green.studybridge.user.model.*;
@@ -14,6 +14,7 @@ import com.green.studybridge.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -166,5 +167,17 @@ public class UserService {
         String refreshToken = cookie.getValue();
         JwtUser jwtUser = jwtTokenProvider.getJwtUserFromToken(refreshToken);
         return jwtTokenProvider.generateAccessToken(jwtUser);
+    }
+
+    @Transactional
+    public void deleteUser(@Valid UserDeleteReq req) {
+        long userId = authenticationFacade.getSignedUserId();
+        User user = getUserById(userId);
+        if (!passwordEncoder.matches(req.getPw(), user.getUpw())) {
+            throw new RuntimeException("비밀번호가 일치하지 않습니다");
+        }
+        userRepository.deleteById(userId);
+        String folderPath = String.format("/user/%d", userId);
+        myFileUtils.deleteFolder(folderPath, true);
     }
 }
