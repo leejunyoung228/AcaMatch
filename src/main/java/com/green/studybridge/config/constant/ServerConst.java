@@ -1,4 +1,4 @@
-package com.green.studybridge.config;
+package com.green.studybridge.config.constant;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @ToString
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "server-const")
+@ConfigurationProperties(prefix = "constant.server-const")
 public class ServerConst {
     private final String serverUrl;
 }

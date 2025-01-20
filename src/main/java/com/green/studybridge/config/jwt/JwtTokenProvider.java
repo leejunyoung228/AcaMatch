@@ -2,7 +2,7 @@ package com.green.studybridge.config.jwt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.green.studybridge.config.JwtConst;
+import com.green.studybridge.config.constant.JwtConst;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -28,7 +28,7 @@ public class JwtTokenProvider {
         this.jwtConst = jwtConst;
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtConst.getSecret()));
     }
-    
+
     public String generateAccessToken(JwtUser jwtUser) {
         return generateToken(jwtUser, jwtConst.getAccessTokenExpiry());
     }
@@ -40,37 +40,51 @@ public class JwtTokenProvider {
     public String generateToken(JwtUser jwtUser, long tokenValidMilliSecond) {
         Date now = new Date();
         return Jwts.builder()
-                .header().type(jwtConst.getTokenName())
+                .header().type(jwtConst.getBearerFormat())
                 .and()
+
                 .issuer(jwtConst.getIssuer())
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + tokenValidMilliSecond))
                 .claim(jwtConst.getClaimKey(), makeClaimByUserToString(jwtUser))
+
                 .signWith(secretKey)
                 .compact();
     }
 
+    //객체 > String : 직렬화(JSON)
     private String makeClaimByUserToString(JwtUser jwtUser) {
+        //객체 자체를 JWT에 담고 싶어서 객체를 직렬화
+        //jwtUser에 담고있는 데이터를 JSON형태의 문자열로 변환
         try {
+            //objectMapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
             return objectMapper.writeValueAsString(jwtUser);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
+
+    //------ 만들어진 토큰(AT, RT)
     public String resolveToken(HttpServletRequest req) {
-        String bearerToken = req.getHeader(jwtConst.getHeaderSchemaName());
-        if (bearerToken == null || !bearerToken.startsWith(jwtConst.getTokenType())) {
+        String bearerToken = req.getHeader(jwtConst.getHeaderKey());
+        if(bearerToken == null || !bearerToken.startsWith(jwtConst.getScheme())) {
             return null;
         }
-        return bearerToken.substring(jwtConst.getTokenType().length() + 1);
+        //토큰이 있고, Bearer로 문자열이 시작한다. 그러면 Bearer 내용을 제외한 토큰값만 리턴한다.
+        //"bearer".length()  >>  6
+        //"bearer dsksdalkjsdaljkdsa".substring(3);  >>> d~끝까지
+        return bearerToken.substring(jwtConst.getScheme().length() + 1); //Bearer(빈칸)까지 index를 설정해야 하기 때문
+        //return bearerToken.substring(jwtConst.getTokenType().length()).trim();
     }
+
+
 
     private Claims getClaims(String token) {
         return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                   .verifyWith(secretKey)
+                   .build()
+                   .parseSignedClaims(token)
+                   .getPayload();
     }
 
     public JwtUser getJwtUserFromToken(String token) {
@@ -85,6 +99,7 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         JwtUser jwtUser = getJwtUserFromToken(token);
-        return new UsernamePasswordAuthenticationToken(jwtUser, "", jwtUser.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(jwtUser, null, jwtUser.getAuthorities());
     }
+
 }

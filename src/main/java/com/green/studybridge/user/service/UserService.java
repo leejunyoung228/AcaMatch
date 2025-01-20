@@ -1,11 +1,11 @@
 package com.green.studybridge.user.service;
 
 import com.green.studybridge.config.CookieUtils;
-import com.green.studybridge.config.JwtConst;
 import com.green.studybridge.config.MyFileUtils;
 import com.green.studybridge.config.jwt.JwtTokenProvider;
 import com.green.studybridge.config.jwt.JwtUser;
 import com.green.studybridge.config.security.AuthenticationFacade;
+import com.green.studybridge.config.constant.JwtConst;
 import com.green.studybridge.user.entity.Role;
 import com.green.studybridge.user.entity.User;
 import com.green.studybridge.user.model.*;

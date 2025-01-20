@@ -1,6 +1,6 @@
 package com.green.studybridge.user.service;
 
-import com.green.studybridge.config.ServerConst;
+import com.green.studybridge.config.constant.ServerConst;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
