@@ -18,7 +18,7 @@
 
     <select id="selDaysList">
         SELECT *
-        FROM days
+        FROM weekDays
     </select>
 
 <!--태그 select-->
@@ -52,7 +52,7 @@
     </insert>
 
     <insert id="insAcaDays">
-        INSERT INTO academyLevel (aca_id, days_id)
+        INSERT INTO academyDays (aca_id, day_id)
         VALUES
         <foreach collection="daysIdList" item="daysId" separator=",">
             (#{acaId}, #{daysId})
