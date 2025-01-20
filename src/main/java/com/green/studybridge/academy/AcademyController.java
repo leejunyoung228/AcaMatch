@@ -1,11 +1,11 @@
 package com.green.studybridge.academy;
 
-import com.green.acamatch_mytest.academy.model.*;
-import com.green.acamatch_mytest.academy.model.category.CategoryGetAgeRangeRes;
-import com.green.acamatch_mytest.academy.model.category.CategoryGetDaysRes;
-import com.green.acamatch_mytest.academy.model.category.CategoryGetLevelRes;
-import com.green.acamatch_mytest.academy.model.tag.SelTagRes;
-import com.green.acamatch_mytest.common.model.ResultResponse;
+import com.green.studybridge.academy.model.*;
+import com.green.studybridge.academy.model.category.CategoryGetAgeRangeRes;
+import com.green.studybridge.academy.model.category.CategoryGetDaysRes;
+import com.green.studybridge.academy.model.category.CategoryGetLevelRes;
+import com.green.studybridge.academy.model.tag.SelTagRes;
+import com.green.studybridge.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class AcademyController {
     public ResultResponse<SelTagRes> selTagList() {
         SelTagRes res = academyService.selTagList();
         return ResultResponse.<SelTagRes>builder()
-                .resultMsg("태그들")
+                .resultMessage("태그들")
                 .resultData(res)
                 .build();
     }
@@ -39,7 +39,7 @@ public class AcademyController {
     public ResultResponse<List<CategoryGetAgeRangeRes>> selCategoryAgeRangeList() {
         List<CategoryGetAgeRangeRes> list = academyService.categoryAgeRangeResList();
         return ResultResponse.<List<CategoryGetAgeRangeRes>>builder()
-                .resultMsg("수강연령대 select 성공")
+                .resultMessage("수강연령대 select 성공")
                 .resultData(list)
                 .build();
     }
@@ -49,7 +49,7 @@ public class AcademyController {
     public ResultResponse<List<CategoryGetLevelRes>> selCategoryLevelList() {
         List<CategoryGetLevelRes> list = academyService.categoryLevelResList();
         return ResultResponse.<List<CategoryGetLevelRes>>builder()
-                .resultMsg("요일 select 성공")
+                .resultMessage("요일 select 성공")
                 .resultData(list)
                 .build();
     }
@@ -59,7 +59,7 @@ public class AcademyController {
     public ResultResponse<List<CategoryGetDaysRes>> selCategoryDaysList() {
         List<CategoryGetDaysRes> list = academyService.categoryDaysResList();
         return ResultResponse.<List<CategoryGetDaysRes>>builder()
-                .resultMsg("요일 select 성공")
+                .resultMessage("요일 select 성공")
                 .resultData(list)
                 .build();
     }
@@ -73,7 +73,7 @@ public class AcademyController {
         academyService.insAcaDays(req);
         academyService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
-                .resultMsg("학원정보등록성공")
+                .resultMessage("학원정보등록성공")
                 .resultData(1)
                 .build();
     }

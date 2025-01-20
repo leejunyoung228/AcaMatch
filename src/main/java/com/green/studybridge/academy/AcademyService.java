@@ -1,13 +1,13 @@
 package com.green.studybridge.academy;
 
-import com.green.acamatch_mytest.academy.model.*;
-import com.green.acamatch_mytest.academy.model.category.CategoryGetAgeRangeRes;
-import com.green.acamatch_mytest.academy.model.category.CategoryGetDaysRes;
-import com.green.acamatch_mytest.academy.model.category.CategoryGetLevelRes;
-import com.green.acamatch_mytest.academy.model.tag.InsTagWithAcademy;
-import com.green.acamatch_mytest.academy.model.tag.SelTagDto;
-import com.green.acamatch_mytest.academy.model.tag.SelTagRes;
-import com.green.acamatch_mytest.common.MyFileUtils;
+import com.green.studybridge.academy.model.*;
+import com.green.studybridge.academy.model.category.CategoryGetAgeRangeRes;
+import com.green.studybridge.academy.model.category.CategoryGetDaysRes;
+import com.green.studybridge.academy.model.category.CategoryGetLevelRes;
+import com.green.studybridge.academy.model.tag.InsTagWithAcademy;
+import com.green.studybridge.academy.model.tag.SelTagDto;
+import com.green.studybridge.academy.model.tag.SelTagRes;
+import com.green.studybridge.config.MyFileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
