@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.green.acamatch_mytest.academy.AcademyMapper">
+
+<!--카테고리 select-->
+    <select id="selAgeRangeList">
+        SELECT *
+        FROM ageRange
+    </select>
+
+    <select id="selLevelList">
+        SELECT *
+        FROM level
+    </select>
+
+    <select id="selDaysList">
+        SELECT *
+        FROM days
+    </select>
+
+<!--태그 select-->
+    <select id="selTagList">
+        SELECT tag_id as tagId,tag_name as tagName
+        FROM tag
+        <where>
+            <if test="searchTag != null and searchTag != ''">
+                tag_name LIKE CONCAT('%', #{searchTag}, '%')
+            </if>
+        </where>
+    </select>
+
+
+
+<!--카테고리 학원등록-->
+    <insert id="insAcaAgeRange">
+        INSERT INTO academyAgeRange (aca_id, age_range_id)
+        VALUES
+        <foreach collection="ageRangeIdList" item="ageRangeId" separator=",">
+            (#{acaId}, #{ageRangeId})
+        </foreach>
+    </insert>
+
+    <insert id="insAcaLevel">
+        INSERT INTO academyLevel (aca_id, level_id)
+        VALUES
+        <foreach collection="levelIdList" item="levelId" separator=",">
+            (#{acaId}, #{levelId})
+        </foreach>
+    </insert>
+
+    <insert id="insAcaDays">
+        INSERT INTO academyLevel (aca_id, days_id)
+        VALUES
+        <foreach collection="daysIdList" item="daysId" separator=",">
+            (#{acaId}, #{daysId})
+        </foreach>
+    </insert>
+    
+<!--태그 학원등록-->
+    <insert id="insAcaTag">
+        INSERT INTO academytag (aca_id, tag_id)
+        VALUES
+        <foreach collection="tagIdList" item="tagId" separator=",">
+            (#{acaId}, #{tagId})
+        </foreach>
+    </insert>
+
+
+<!--학원정보등록-->
+    <insert id="insAcademy" useGeneratedKeys="true" keyProperty="acaId">
+        INSERT INTO academy
+           SET user_id = #{userId}
+             , dong_id = #{dongId}
+             , aca_name = #{acaName}
+             , aca_phone = #{acaPhone}
+             , comment = #{comment}
+             , teacher_num = #{teacherNum}
+             , open_time = #{openTime}
+             , close_time = #{closeTime}
+             , address = #{address}
+             , aca_pic = #{acaPic}
+    </insert>
+
+    <insert id="insTagWithAcademy">
+        INSERT INTO academytag
+        SET aca_id = #{acaId}
+          , tag_id = #{tagId}
+    </insert>
+
+
+<!--학원정보수정-->
+    <update id="updAcademy">
+        UPDATE academy
+        <set>
+            <if test="acaName != null and acaName != ''">
+                aca_name = #{acaName}
+            </if>
+            <if test="acaPhone != null and acaPhone != ''">
+                , aca_phone = #{acaPhone}
+            </if>
+            <if test="comment != null and comment != ''">
+                , comment = #{comment}
+            </if>
+            <if test="teacherNum != null and teacherNum != ''">
+                , teacher_num = #{teacherNum}
+            </if>
+            <if test="openTime != null and openTime != ''">
+                , open_time = #{openTime}
+            </if>
+            <if test="closeTime != null and closeTime != ''">
+                , close_time = #{closeTime}
+            </if>
+            <if test="acaPic != null and acaPic != ''">
+                , aca_pic = #{acaPic}
+            </if>
+            <if test="address != null and address != ''">
+                , address = #{address}
+            </if>
+        </set>
+        WHERE aca_id = #{acaId}
+    </update>
+
+<!--학원정보삭제-->
+    <delete id="delAcademy">
+        DELETE FROM academy
+         WHERE aca_id = #{acaId}
+           AND user_id = #{userId}
+    </delete>
+
+
+    <!--=================================================== -->
+
+    <select id="getAcademy">
+        SELECT A.aca_id AS acaId, A.aca_pic AS acaPic, A.aca_name AS acaName, A.address, D.star AS star, F.tag_name AS tagName
+        FROM academy A
+        JOIN class B
+        ON A.aca_id = B.aca_id
+        JOIN joinclass C
+        ON B.class_id = C.class_id
+        JOIN review D
+        ON C.join_class_id = D.join_class_id
+        JOIN academytag E
+        ON A.aca_id = E.aca_id
+        JOIN tag F
+        ON E.tag_id = F.tag_id
+        JOIN dong G
+        ON A.dong_id = G.dong_id
+        JOIN street H
+        ON G.dong_id = H.street_id
+        JOIN city I
+        ON H.city_id = I.city_id
+        WHERE A.dong_id = #{dongId}
+        AND H.street_id = #{streetId}
+        AND I.city_id = #{cityId}
+        AND F.tag_name = #{tagName}
+        LIMIT #{startIdx}, #{size}
+    </select>
+    <select id="getAcademyDetail">
+        SELECT A.aca_id, A.aca_phone, A.aca_name, A.aca_pic, A.COMMENT, A.teacher_num, A.open_time, A.close_time, address
+        FROM academy A
+        WHERE aca_id = #{acaId}
+    </select>
+    <select id="getTagList">
+        select tag_name AS tagName
+        from tag
+    </select>
+
+
+
+</mapper>
