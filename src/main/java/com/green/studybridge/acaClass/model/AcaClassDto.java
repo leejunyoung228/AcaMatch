@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class acaClassDto {
+public class AcaClassDto {
     @Schema(title = "수업 pk", example = "1")
     private long classId;
 
@@ -16,8 +16,7 @@ public class acaClassDto {
     private String classComment;
     @Schema(title = "수업 시작 날짜", example = "YYYY-MM-DD")
     private String startDate;
-    @Schema(title = "수업 종료 날짜", example = "YYYY-MM-DD")
-    private String endDate;
+
     @Schema(title = "수업 시작 시간", example = "HH:mm")
     private String startTime;
     @Schema(title = "수업 종료 시간", example = "HH:mm")
@@ -26,7 +25,7 @@ public class acaClassDto {
     private int price;
 
     @Schema(title = "수업일", example = "월")
-    private String date;
+    private String day;
     @Schema(title = "연령", example = "청소년")
     private String years;
     @Schema(title = "수준", example = "초급")
