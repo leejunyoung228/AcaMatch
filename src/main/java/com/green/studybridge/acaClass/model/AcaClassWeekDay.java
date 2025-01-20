@@ -7,9 +7,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class AcaClassDay {
-    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long classId;
+public class AcaClassWeekDay {
     @JsonIgnore
     private long dayId;
     @Schema(title = "요일", example = "월", requiredMode = Schema.RequiredMode.REQUIRED)
