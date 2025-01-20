@@ -18,8 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TagService {
     private final AcademyMapper academyMapper;
-    private final MyFileUtils myFileUtils;
-    private InsTagWithAcademy insTagWithAcademy;
 
 
     //모든태그 불러오기
