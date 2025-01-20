@@ -6,6 +6,6 @@ file:
 
 spring:
   datasource:
-      url: jdbc:mariadb://192.168.0.144/db_even_second_3
+      url: jdbc:log4jdbc:mariadb://192.168.0.144/db_even_second_3
       username: even_second_3
       password: electro
