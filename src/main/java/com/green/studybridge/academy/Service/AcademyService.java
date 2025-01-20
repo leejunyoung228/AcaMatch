@@ -29,41 +29,6 @@ public class AcademyService {
     private InsTagWithAcademy insTagWithAcademy;
 
 
-
-    //카테고리는 강좌에서 다루는거라 일단 뱄음
-    /*//카테고리 select
-    public List<CategoryGetAgeRangeRes> categoryAgeRangeResList() {
-        List<CategoryGetAgeRangeRes> list = academyMapper.selAgeRangeList();
-        return list;
-    }
-
-    public List<CategoryGetLevelRes> categoryLevelResList() {
-        List<CategoryGetLevelRes> list = academyMapper.selLevelList();
-        return list;
-    }
-
-    public List<CategoryGetDaysRes> categoryDaysResList() {
-        List<CategoryGetDaysRes> list = academyMapper.selDaysList();
-        return list;
-    }
-
-    //학원이 등록한 카테고리 insert
-    public int insAcaAgeRange(AcademyPostReq req) {
-        int result = academyMapper.insAcaAgeRange(req);
-        return result;
-    }
-
-    public int insAcaLevel(AcademyPostReq req) {
-        int result = academyMapper.insAcaLevel(req);
-        return result;
-    }
-
-    public int insAcaDays(AcademyPostReq req) {
-        int result = academyMapper.insAcaDays(req);
-        return result;
-    }*/
-
-
     //학원정보등록
     public int insAcademy(MultipartFile pic, AcademyPostReq req) {
 
@@ -72,7 +37,7 @@ public class AcademyService {
         req.setAcaPic(savedPicName);
 
         int result = academyMapper.insAcademy(req);
-        insTagWithAcademy.setAcaId(req.getAcaId());
+
 
         if(pic == null){
             userMessage.setMessage("학원정보등록이 완료되었습니다.");

@@ -13,16 +13,6 @@ import java.util.List;
 @Mapper
 public interface AcademyMapper {
 
-
-    /*List<CategoryGetAgeRangeRes> selAgeRangeList();
-    List<CategoryGetLevelRes> selLevelList();
-    List<CategoryGetDaysRes> selDaysList();*/
-
-    /*int insAcaAgeRange(AcademyPostReq req);
-    int insAcaLevel(AcademyPostReq req);
-    int insAcaDays(AcademyPostReq req);*/
-
-
     int insAcademy(AcademyPostReq req);
 
 

@@ -28,38 +28,6 @@ public class AcademyController {
     private final TagService tagService;
 
 
-
-    //카테고리는 강좌쪽이라서 일단 주석처리함.
-   /* @GetMapping("age")
-    @Operation(summary = "수강연령대 select")
-    public ResultResponse<List<CategoryGetAgeRangeRes>> selCategoryAgeRangeList() {
-        List<CategoryGetAgeRangeRes> list = academyService.categoryAgeRangeResList();
-        return ResultResponse.<List<CategoryGetAgeRangeRes>>builder()
-                .resultMessage("수강연령대 select 성공")
-                .resultData(list)
-                .build();
-    }
-
-    @GetMapping("level")
-    @Operation(summary = "수준 select")
-    public ResultResponse<List<CategoryGetLevelRes>> selCategoryLevelList() {
-        List<CategoryGetLevelRes> list = academyService.categoryLevelResList();
-        return ResultResponse.<List<CategoryGetLevelRes>>builder()
-                .resultMessage("요일 select 성공")
-                .resultData(list)
-                .build();
-    }
-
-    @GetMapping("days")
-    @Operation(summary = "요일 select")
-    public ResultResponse<List<CategoryGetDaysRes>> selCategoryDaysList() {
-        List<CategoryGetDaysRes> list = academyService.categoryDaysResList();
-        return ResultResponse.<List<CategoryGetDaysRes>>builder()
-                .resultMessage("요일 select 성공")
-                .resultData(list)
-                .build();
-    }*/
-
     @PostMapping
     @Operation(summary = "학원정보등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진")
     public ResultResponse<Integer> postAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyPostReq req) {
@@ -73,16 +41,22 @@ public class AcademyController {
 
     @PutMapping
     @Operation(summary = "학원정보수정")
-    public int putAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyUpdateReq req) {
-        academyService.updAcademy(pic, req);
-        return 1;
+    public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyUpdateReq req) {
+        int result = academyService.updAcademy(pic, req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("학원 정보 수정 완료")
+                .resultData(result)
+                .build();
     }
 
     @DeleteMapping
     @Operation(summary = "학원정보삭제")
-    public int deleteAcademy(@ModelAttribute AcademyDeleteReq req) {
-        academyService.delAcademy(req);
-        return 1;
+    public ResultResponse<Integer> deleteAcademy(@ModelAttribute AcademyDeleteReq req) {
+        int result = academyService.delAcademy(req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("학원 정보 삭제 완료")
+                .resultData(result)
+                .build();
     }
 
 // -------------------------------------------------------------
