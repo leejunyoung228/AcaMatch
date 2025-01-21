@@ -22,7 +22,7 @@ import java.util.List;
 public class AcademyController {
     private final AcademyService academyService;
     private final TagService tagService;
-    private final UserMessage userMessage;
+    private final AcademyMessage academyMessage;
 
 
     @PostMapping
@@ -31,7 +31,7 @@ public class AcademyController {
         int result1 = academyService.insAcademy(pic, req);
         int result2 = tagService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage())
+                .resultMessage(academyMessage.getMessage())
                 .resultData(result1)
                 .build();
     }
@@ -41,7 +41,7 @@ public class AcademyController {
     public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyUpdateReq req) {
         int result = academyService.updAcademy(pic, req);
         return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage())
+                .resultMessage(academyMessage.getMessage())
                 .resultData(result)
                 .build();
     }
@@ -51,7 +51,7 @@ public class AcademyController {
     public ResultResponse<Integer> deleteAcademy(@ModelAttribute AcademyDeleteReq req) {
         int result = academyService.delAcademy(req);
         return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage())
+                .resultMessage(academyMessage.getMessage())
                 .resultData(result)
                 .build();
     }
