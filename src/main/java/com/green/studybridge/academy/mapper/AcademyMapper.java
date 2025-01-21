@@ -19,6 +19,8 @@ public interface AcademyMapper {
     int updAcademy(AcademyUpdateReq req);
     int delAcademy(AcademyDeleteReq req);
 
+    List<AcademyBestLikeGetRes> getAcademyBest();
+
 
 // ---------------------------------------------------------------
 
