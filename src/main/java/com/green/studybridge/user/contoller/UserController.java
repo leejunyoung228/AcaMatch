@@ -19,7 +19,33 @@ public class UserController {
 
     @PostMapping("sign-up")
     @Operation(description = "이메일 인증 링크를 누르게 되면 /user/complete-sign-up?token=토큰 값 으로 이동</br>" +
-            "token 값을 /user/sign-up?token=토큰값 으로 보내주세요 ")
+            "token 값을 /user/sign-up?token=토큰값 으로 보내주세요</br>" +
+            "<table border=\"1\">\n" +
+            "  <thead>\n" +
+            "    <tr>\n" +
+            "      <th>ROLE_ID</th>\n" +
+            "      <th>Title</th>\n" +
+            "    </tr>\n" +
+            "  </thead>\n" +
+            "  <tbody>\n" +
+            "    <tr>\n" +
+            "      <td>1</td>\n" +
+            "      <td>ROLE_STUDENT</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td>2</td>\n" +
+            "      <td>ROLE_PARENT</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td>3</td>\n" +
+            "      <td>ROLE_ACADEMY</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td>4</td>\n" +
+            "      <td>ROLE_TEACHER</td>\n" +
+            "    </tr>\n" +
+            "  </tbody>\n" +
+            "</table>")
     public ResultResponse<Integer> signUp(@Valid @RequestBody UserSignUpReq req) {
         userService.sendEmail(req);
         return null;

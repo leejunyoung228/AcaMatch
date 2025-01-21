@@ -26,10 +26,4 @@ public class JwtUser{
                 .map(SimpleGrantedAuthority::new)
                 .toList();
     }
-
-    public JwtUser(User user) {
-        signedUserId = user.getUserId();
-        roles = new ArrayList<>();
-        roles.add(user.getRole().getRoleName());
-    }
 }
