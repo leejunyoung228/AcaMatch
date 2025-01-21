@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 public class AcademyUpdateReq {
     private long acaId;
+    private long userId;
 
     @Schema(title = "학원이름")
     private String acaName;

@@ -16,10 +16,8 @@ public class AcademyPostReq {
     @JsonIgnore
     private long acaId;
 
-    @JsonIgnore
     private long userId;
 
-    @JsonIgnore
     private long dongId;
 
     @Schema(title = "학원이름", example = "영재수학학원", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -44,12 +42,6 @@ public class AcademyPostReq {
     @Schema(title = "학원사진")
     private String acaPic;
 
-    /*@Schema(title = "수강 연령대 리스트")
-    private List<Long> ageRangeIdList;
-    @Schema(title = "수준 리스트")
-    private List<Long> levelIdList;
-    @Schema(title = "요일 리스트")
-    private List<Long> daysIdList;*/
 
     @Schema(title = "태그Id 리스트")
     private List<Long> tagIdList;

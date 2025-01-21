@@ -16,22 +16,23 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("academy")
+@RequestMapping("/academy")
 @RequiredArgsConstructor
 @Tag(name = "학원")
 public class AcademyController {
     private final AcademyService academyService;
     private final TagService tagService;
+    private final UserMessage userMessage;
 
 
     @PostMapping
     @Operation(summary = "학원정보등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진")
     public ResultResponse<Integer> postAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyPostReq req) {
-        academyService.insAcademy(pic, req);
-        tagService.insAcaTag(req);
+        int result1 = academyService.insAcademy(pic, req);
+        int result2 = tagService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
-                .resultMessage("학원정보등록성공")
-                .resultData(1)
+                .resultMessage((result1 == 1? "학원정보등록성공" : "학원정보등록실패"))
+                .resultData(result1)
                 .build();
     }
 

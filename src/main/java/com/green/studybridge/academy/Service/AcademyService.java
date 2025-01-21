@@ -29,6 +29,10 @@ public class AcademyService {
 
         int result = academyMapper.insAcademy(req);
 
+        if(result ==0) {
+            userMessage.setMessage("학원정보등록이 실패하였습니다.");
+            return result;
+        }
 
         if(pic == null){
             userMessage.setMessage("학원정보등록이 완료되었습니다.");
@@ -45,6 +49,8 @@ public class AcademyService {
         }catch (IOException e){
             e.printStackTrace();
         }
+
+        userMessage.setMessage("학원정보등록이 완료되었습니다.");
         return result;
     }
 
@@ -73,10 +79,12 @@ public class AcademyService {
             }
         }
 
-        academyMapper.updAcademy(req);
-        academyMapper.delAcaTag(req);
-        academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
-        return 1;
+        int result = academyMapper.updAcademy(req);
+        if(req.getTagIdList() != null) {
+            academyMapper.delAcaTag(req);
+            academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+        }
+        return result;
     }
 
     //학원정보삭제

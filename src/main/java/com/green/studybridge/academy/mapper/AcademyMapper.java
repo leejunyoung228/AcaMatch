@@ -11,7 +11,7 @@ import java.util.List;
 public interface AcademyMapper {
 
     List<SelTagDto> selTagDtoList(SelTagReq req);
-    int insAcaTag(long acaId, List<Long>TagIdList);
+    int insAcaTag(long acaId, List<Long>tagIdList);
     int delAcaTag(AcademyUpdateReq req);
 
     int insAcademy(AcademyPostReq req);
