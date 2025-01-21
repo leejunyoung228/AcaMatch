@@ -55,6 +55,9 @@ public class UserService {
     }
 
     public void sendEmail(UserSignUpReq req) {
+        checkDuplicate(req.getEmail(), "email");
+        checkDuplicate(req.getNickName(), "nick-name");
+
         User user = generateUserByUserSignUpReq(req);
         String token = UUID.randomUUID().toString();
         authService.sendCodeToEmail(req.getEmail(), token);
