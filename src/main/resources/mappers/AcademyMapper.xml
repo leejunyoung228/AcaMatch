@@ -97,7 +97,7 @@
           FROM `like`
          GROUP BY aca_id
          ORDER BY likeCount DESC
-         LIMIT 4;
+         LIMIT #{startIdx}, #{size}
     </select>
 
     <!--=================================================== -->
