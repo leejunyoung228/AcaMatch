@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class getAcademyRes {
+public class GetAcademyRes {
     @Schema(title = "학원 PK", example = "1")
     private long acaId;
 

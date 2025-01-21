@@ -102,7 +102,7 @@
 
     <!-- 학원 검색 -->
 
-    <resultMap id="searchResultMap" type = "com.green.acamatch.academy.model.getAcademyRes">
+    <resultMap id="searchResultMap" type = "com.green.acamatch.academy.model.GetAcademyRes">
         <id property="acaId" column="acaId" />
         <result property="acaPic" column="acaPic" />
         <result property="acaName" column="acaName" />
@@ -111,7 +111,7 @@
         <collection property="tagName" resultMap="getTagDtoResultMap" />
     </resultMap>
 
-    <resultMap id="getTagDtoResultMap" type="com.green.studybridge.academy.model.getAcademyTagDto">
+    <resultMap id="getTagDtoResultMap" type="com.green.acamatch.academy.model.GetAcademyTagDto">
         <id property="tagId" column="tagId" />
         <result property="tagName" column="tagName" />
     </resultMap>
