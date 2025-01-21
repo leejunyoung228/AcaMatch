@@ -22,11 +22,11 @@ public class getAcademyRes {
     private String address;
 
     @Schema(title = "학원 별점", example = "4.5")
-    private int star;
+    private double star;
 
     @Schema(title = "태그 PK", example = "1")
     private long tagId;
 
     @Schema(title = "학원이 등록한 태그List", example = "국어, 영어...")
-    private List<String> tagName;
+    private List<GetAcademyTagDto> tagName;
 }
