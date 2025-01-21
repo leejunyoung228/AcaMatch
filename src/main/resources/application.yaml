@@ -40,7 +40,7 @@ spring:
     name: studyBridge
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: jdbc:log4jdbc:mariadb://localhost/acamatch
+    url: jdbc:log4jdbc:mariadb://localhost/2project
     username: root
     password: green502
   servlet:
@@ -50,6 +50,9 @@ spring:
     default-property-inclusion: non_null
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
   mail:
     host: smtp.gmail.com
     port: 587
