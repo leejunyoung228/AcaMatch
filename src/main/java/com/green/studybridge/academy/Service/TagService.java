@@ -16,11 +16,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TagService {
     private final AcademyMapper academyMapper;
+    private final UserMessage userMessage;
 
 
     //모든태그 불러오기
     public SelTagRes selTagList(SelTagReq req) {
         List<SelTagDto> list = academyMapper.selTagDtoList(req);
+        if(list == null) {
+            userMessage.setMessage("관련 태그가 없습니다.");
+            SelTagRes res = new SelTagRes();
+            res.setSelTagList(list);
+            return res;
+        }
 
         SelTagRes res = new SelTagRes();
         res.setSelTagList(list);

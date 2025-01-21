@@ -1,6 +1,7 @@
 package com.green.studybridge.academy.Controller;
 
 import com.green.studybridge.academy.Service.TagService;
+import com.green.studybridge.academy.model.UserMessage;
 import com.green.studybridge.academy.tag.SelTagReq;
 import com.green.studybridge.academy.tag.SelTagRes;
 import com.green.studybridge.config.model.ResultResponse;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TagController {
     private final TagService tagService;
+    private final UserMessage userMessage;
 
 
     @GetMapping
@@ -22,7 +24,7 @@ public class TagController {
     public ResultResponse<SelTagRes> selTagList(@ModelAttribute SelTagReq req) {
         SelTagRes res = tagService.selTagList(req);
         return ResultResponse.<SelTagRes>builder()
-                .resultMessage("태그들")
+                .resultMessage(userMessage.getMessage())
                 .resultData(res)
                 .build();
     }

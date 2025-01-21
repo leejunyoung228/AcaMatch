@@ -31,7 +31,7 @@ public class AcademyController {
         int result1 = academyService.insAcademy(pic, req);
         int result2 = tagService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
-                .resultMessage((result1 == 1? "학원정보등록성공" : "학원정보등록실패"))
+                .resultMessage(userMessage.getMessage())
                 .resultData(result1)
                 .build();
     }
@@ -41,7 +41,7 @@ public class AcademyController {
     public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyUpdateReq req) {
         int result = academyService.updAcademy(pic, req);
         return ResultResponse.<Integer>builder()
-                .resultMessage("학원 정보 수정 완료")
+                .resultMessage(userMessage.getMessage())
                 .resultData(result)
                 .build();
     }
