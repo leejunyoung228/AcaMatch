@@ -2,7 +2,6 @@ package com.green.studybridge.academy.Controller;
 
 import com.green.studybridge.academy.Service.AcademyService;
 import com.green.studybridge.academy.Service.TagService;
-import com.green.studybridge.academy.mapper.AcademyMapper;
 import com.green.studybridge.academy.model.*;
 import com.green.studybridge.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
