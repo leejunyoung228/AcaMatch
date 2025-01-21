@@ -24,7 +24,7 @@ public class AcademyController {
     private final AcademyService academyService;
     private final TagService tagService;
     private final AcademyMessage academyMessage;
-    private final AcademyMapper academyMapper;
+
 
 
     @PostMapping

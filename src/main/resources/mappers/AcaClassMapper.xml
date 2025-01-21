@@ -2,6 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.green.studybridge.acaClass.AcaClassMapper">
+
+    <!-- class 등록하기 -->
     <insert id="insAcaClass" useGeneratedKeys="true" keyProperty="classId">
         INSERT INTO class
         SET aca_id = #{acaId},
@@ -11,30 +13,54 @@
             end_date = #{endDate},
             start_time = #{startTime},
             end_time = #{endTime},
-            price = #{price},
-            years = #{years},
-            `level` = #{level}
+            price = #{price}
     </insert>
 
+    <!-- 존재하는 class인지 중복체크-->
     <select id ="existsClass" parameterType="map" resultType="int">
         SELECT COUNT(*)
         FROM class
         WHERE aca_id = #{acaId} AND class_name = #{className}
     </select>
 
+    <!-- 요일 등록하기 -->
     <insert id="insWeekDay" useGeneratedKeys="true" keyProperty="dayId">
         INSERT weekdays
         SET day = #{day}
     </insert>
 
+    <!-- class와 요일을 잇는 관계 테이블 등록하기 -->
     <insert id = "insAcaClassClassWeekDays">
         INSERT classweekdays
         SET class_id = #{classId},
         day_id = #{dayId}
     </insert>
 
-    <select id="selAcaClass">
-        SELECT A.class_id, B.aca_name, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price, D.day, A.years, A.`level`
+    <!-- class 상세 정보 가져오기
+    중복된 내용은 나오지 않게 하기위해 resultmap 사용 -->
+    <resultMap id="ClassResultMap" type = "com.green.studybridge.acaClass.model.AcaClassDto">
+        <id property="classId" column="class_id" />
+        <result property="className" column="class_name" />
+        <result property="classComment" column="class_comment" />
+        <result property="startDate" column="start_date" />
+        <result property="endDate" column="end_date" />
+        <result property="startTime" column="start_time" />
+        <result property="endTime" column="end_time" />
+        <result property="price" column="price" />
+        <result property="day" column="day" />
+        <result property="years" column="years" />
+        <result property="level" column="level" />
+        <collection property="AcaClassWeekDay" resultMap="AcaClassWeekDayResultMap" />
+    </resultMap>
+    
+    <resultMap id="AcaClassWeekDayResultMap" type="com.green.studybridge.acaClass.model.AcaClassWeekDay">
+        <id property="dayId" column="day_id" />
+        <result property="day" column="day" />
+    </resultMap>
+
+    <select id="selAcaClass" resultMap="ClassResultMap">
+        SELECT A.class_id, B.aca_name, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price,
+        GROUP_CONCAT(D.`day` ORDER BY D.day_id SEPARATOR ',') AS `day`, A.years, A.`level`
         FROM class A
         INNER JOIN academy B
         ON A.aca_id = B.aca_id
@@ -43,6 +69,7 @@
         INNER JOIN weekdays D
         ON C.day_id = D.day_id
         WHERE A.aca_id = #{acaId}
+        ORDER BY D.day_id
         LIMIT #{startIdx}, #{size}
     </select>
 

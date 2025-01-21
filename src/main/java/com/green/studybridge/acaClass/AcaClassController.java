@@ -55,7 +55,7 @@ public class AcaClassController {
 
 
     @GetMapping
-    @Operation(summary = "class 가져오기")
+    @Operation(summary = "class 상세 정보 가져오기")
     public ResultResponse<List<AcaClassDto>> getClass(@ModelAttribute @ParameterObject AcaClassGetReq p) {
         List<AcaClassDto> result = service.getClass(p);
         return ResultResponse.<List<AcaClassDto>>builder()
@@ -65,7 +65,7 @@ public class AcaClassController {
     }
 
     @GetMapping("acaClassToUser")
-    @Operation(summary = "특정user가 등록한 class 가져오기")
+    @Operation(summary = "특정 user가 등록한 class 가져오기")
     public ResultResponse<List<AcaClassToUserDto>> getUserClass(@ModelAttribute @ParameterObject AcaClassToUserGetReq p) {
         List<AcaClassToUserDto> result = service.getUserClass(p);
         return ResultResponse.<List<AcaClassToUserDto>>builder()
