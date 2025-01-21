@@ -4,8 +4,16 @@ constant:
     description: JWT + Security 고도화
     version: v0.1
 
-  server-const:
-    server-url: http://localhost:8080
+  email-const:
+    base-url: http://localhost:8080
+    url: user/complete-sign-up
+    key: token
+    template-name: emailTemplate
+    expired-time: 900_000
+    subject: ACAMATCH 회원가입
+
+  user-const:
+    user-pic-file-path: /user/%d # %d는 유저 아이디 값이 들어갈 자리
 
   jwt-const:
     issuer: green@green.kr #토큰 발행자

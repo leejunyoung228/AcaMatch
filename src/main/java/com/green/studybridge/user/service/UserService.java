@@ -2,6 +2,7 @@ package com.green.studybridge.user.service;
 
 import com.green.studybridge.config.CookieUtils;
 import com.green.studybridge.config.MyFileUtils;
+import com.green.studybridge.config.constant.UserConst;
 import com.green.studybridge.config.exception.CommonErrorCode;
 import com.green.studybridge.config.exception.CustomException;
 import com.green.studybridge.config.exception.UserErrorCode;
@@ -26,8 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -36,13 +35,14 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final MyFileUtils myFileUtils;
-    private final SignUpUserCache signUpUserCache;
-    private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final SignUpUserCache signUpUserCache;
+    private final MyFileUtils myFileUtils;
     private final CookieUtils cookieUtils;
     private final JwtConst jwtConst;
+    private final UserConst userConst;
 
     @Transactional
     public UserSignInRes signUp(String token, HttpServletResponse response) {
@@ -53,18 +53,9 @@ public class UserService {
     }
 
     public void sendEmail(UserSignUpReq req) {
-        Role role = roleRepository.searchRoleByRoleId(req.getRoleId());
-        User user = new User();
-        user.setName(req.getName());
-        user.setEmail(req.getEmail());
-        user.setUpw(passwordEncoder.encode(req.getUpw()));
-        user.setBirth(req.getBirth());
-        user.setPhone(req.getPhone());
-        user.setNickName(req.getNickName());
-        user.setSignUpType(req.getSignUpType());
-        user.setRole(role);
+        User user = generateUserByUserSignUpReq(req);
         String token = UUID.randomUUID().toString();
-        authService.sendCodeToEmail(req.getEmail(), "ACAMATCH 회원가입", token);
+        authService.sendCodeToEmail(req.getEmail(), token);
         signUpUserCache.saveToken(token, user);
     }
 
@@ -75,28 +66,6 @@ public class UserService {
         }
 
         return generateUserSignInResByUser(user, response);
-    }
-
-    private JwtUser generateJwtUserByUser(User user) {
-        List<String> roles = new ArrayList<>();
-        roles.add(user.getRole().getRoleName());
-        return new JwtUser(user.getUserId(), roles);
-    }
-
-    private UserSignInRes generateUserSignInResByUser(User user, HttpServletResponse response) {
-        JwtUser jwtUser = generateJwtUserByUser(user);
-
-        String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
-
-        cookieUtils.setCookie(response, jwtConst.getRefreshTokenCookieName(), refreshToken, jwtConst.getRefreshTokenCookieExpiry());
-
-        return UserSignInRes.builder()
-                .userId(user.getUserId())
-                .name(user.getName())
-                .roleId(user.getRole().getRoleId())
-                .accessToken(accessToken)
-                .build();
     }
 
     public int checkDuplicate(String text, String type) {
@@ -125,7 +94,7 @@ public class UserService {
         user.setUserPic(myFileUtils.makeRandomFileName(pic));
         userRepository.save(user);
 
-        String folderPath = String.format("/user/%d", userId);
+        String folderPath = String.format(userConst.getUserPicFilePath(), userId);
         if (prePic != null) {
             myFileUtils.deleteFolder(folderPath, false);
         }
@@ -163,9 +132,16 @@ public class UserService {
                 .build();
     }
 
-    private User getUserById(long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    @Transactional
+    public void deleteUser(@Valid UserDeleteReq req) {
+        long userId = AuthenticationFacade.getSignedUserId();
+        User user = getUserById(userId);
+        if (!passwordEncoder.matches(req.getPw(), user.getUpw())) {
+            throw new CustomException(UserErrorCode.INCORRECT_PW);
+        }
+        userRepository.deleteById(userId);
+        String folderPath = String.format(userConst.getUserPicFilePath(), userId);
+        myFileUtils.deleteFolder(folderPath, true);
     }
 
     public String getAccessToken(HttpServletRequest request) {
@@ -175,15 +151,43 @@ public class UserService {
         return jwtTokenProvider.generateAccessToken(jwtUser);
     }
 
-    @Transactional
-    public void deleteUser(@Valid UserDeleteReq req) {
-        long userId = AuthenticationFacade.getSignedUserId();
-        User user = getUserById(userId);
-        if (!passwordEncoder.matches(req.getPw(), user.getUpw())) {
-            throw new CustomException(UserErrorCode.INCORRECT_PW);
-        }
-        userRepository.deleteById(userId);
-        String folderPath = String.format("/user/%d", userId);
-        myFileUtils.deleteFolder(folderPath, true);
+
+//--------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    private User generateUserByUserSignUpReq(UserSignUpReq req) {
+        Role role = roleRepository.searchRoleByRoleId(req.getRoleId());
+        User user = new User();
+        user.setName(req.getName());
+        user.setEmail(req.getEmail());
+        user.setUpw(passwordEncoder.encode(req.getUpw()));
+        user.setBirth(req.getBirth());
+        user.setPhone(req.getPhone());
+        user.setNickName(req.getNickName());
+        user.setSignUpType(req.getSignUpType());
+        user.setRole(role);
+        return user;
+    }
+
+    private UserSignInRes generateUserSignInResByUser(User user, HttpServletResponse response) {
+        JwtUser jwtUser = new JwtUser(user);
+
+        String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
+
+        cookieUtils.setCookie(response, jwtConst.getRefreshTokenCookieName(), refreshToken, jwtConst.getRefreshTokenCookieExpiry());
+
+        return UserSignInRes.builder()
+                .userId(user.getUserId())
+                .name(user.getName())
+                .roleId(user.getRole().getRoleId())
+                .accessToken(accessToken)
+                .build();
+    }
+
+    private User getUserById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
 }

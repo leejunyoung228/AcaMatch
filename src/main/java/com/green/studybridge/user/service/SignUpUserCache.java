@@ -2,10 +2,12 @@ package com.green.studybridge.user.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.green.studybridge.config.constant.EmailConst;
 import com.green.studybridge.config.exception.CustomException;
 import com.green.studybridge.config.exception.EmailErrorCode;
 import com.green.studybridge.user.entity.User;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,9 +19,10 @@ public class SignUpUserCache {
     private final Cache<String, User> tokenCache;
     private final Cache<String, Boolean> emailCache;
 
-    public SignUpUserCache() {
-        this.tokenCache = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build();
-        this.emailCache = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build();
+    @Autowired
+    public SignUpUserCache(EmailConst emailConst) {
+        this.tokenCache = CacheBuilder.newBuilder().expireAfterWrite(emailConst.getExpiredTime(), TimeUnit.MINUTES).build();
+        this.emailCache = CacheBuilder.newBuilder().expireAfterWrite(emailConst.getExpiredTime(), TimeUnit.MINUTES).build();
     }
 
     public void saveToken(String token, User user) {
