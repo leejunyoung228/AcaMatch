@@ -34,43 +34,10 @@ public class AcademyController {
                 .build();
     }
 
-    @GetMapping("age")
-    @Operation(summary = "수강연령대 select")
-    public ResultResponse<List<CategoryGetAgeRangeRes>> selCategoryAgeRangeList() {
-        List<CategoryGetAgeRangeRes> list = academyService.categoryAgeRangeResList();
-        return ResultResponse.<List<CategoryGetAgeRangeRes>>builder()
-                .resultMessage("수강연령대 select 성공")
-                .resultData(list)
-                .build();
-    }
-
-    @GetMapping("level")
-    @Operation(summary = "수준 select")
-    public ResultResponse<List<CategoryGetLevelRes>> selCategoryLevelList() {
-        List<CategoryGetLevelRes> list = academyService.categoryLevelResList();
-        return ResultResponse.<List<CategoryGetLevelRes>>builder()
-                .resultMessage("요일 select 성공")
-                .resultData(list)
-                .build();
-    }
-
-    @GetMapping("days")
-    @Operation(summary = "요일 select")
-    public ResultResponse<List<CategoryGetDaysRes>> selCategoryDaysList() {
-        List<CategoryGetDaysRes> list = academyService.categoryDaysResList();
-        return ResultResponse.<List<CategoryGetDaysRes>>builder()
-                .resultMessage("요일 select 성공")
-                .resultData(list)
-                .build();
-    }
-
     @PostMapping
     @Operation(summary = "학원정보등록")
     public ResultResponse<Integer> postAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyPostReq req) {
         academyService.insAcademy(pic, req);
-        academyService.insAcaAgeRange(req);
-        academyService.insAcaLevel(req);
-        academyService.insAcaDays(req);
         academyService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage("학원정보등록성공")
@@ -127,14 +94,5 @@ public class AcademyController {
                 .build();
     }
 
-    @GetMapping("tagList")
-    @Operation(summary = "등록된 태그 불러오기")
-    public ResultResponse<List<GetTagList>> getTagList(){
-        List<GetTagList> list = academyService.getTagList();
-        return ResultResponse.<List<GetTagList>>builder()
-                .resultMessage("태그 불러오기")
-                .resultData(list)
-                .build();
-    }
 
 }
