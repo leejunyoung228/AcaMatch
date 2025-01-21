@@ -21,21 +21,16 @@ public class AcaClassDto {
     private String startDate;
     @Schema(title = "수업 시작 날짜", example = "YYYY-MM-DD")
     private String endDate;
-
     @Schema(title = "수업 시작 시간", example = "HH:mm")
     private String startTime;
     @Schema(title = "수업 종료 시간", example = "HH:mm")
     private String endTime;
     @Schema(title = "수강료", example = "100,000")
     private int price;
+//    @Schema(title = "수업일", example = "월")
+//    private String day;
 
-    @Schema(title = "수업일", example = "월")
-    private String day;
-    @Schema(title = "연령", example = "청소년")
-    private String years;
-    @Schema(title = "수준", example = "초급")
-    private String level;
+    private List<String> day;
 
-    @JsonIgnore
-    private List<AcaClassWeekDay> AcaClassWeekDay;
+    private List<String > YearsAndLevel;
 }
