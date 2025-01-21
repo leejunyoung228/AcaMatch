@@ -76,6 +76,7 @@
             </if>
         </set>
         WHERE aca_id = #{acaId}
+        AND user_id = #{user_id}
     </update>
 
 <!--학원정보수정에서 태그수정을 위한 삭제처리-->

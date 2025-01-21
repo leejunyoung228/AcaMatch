@@ -11,6 +11,7 @@ import java.util.List;
 public class AcademyUpdateReq {
     private long acaId;
     private long userId;
+    private long dongId;
 
     @Schema(title = "학원이름")
     private String acaName;
