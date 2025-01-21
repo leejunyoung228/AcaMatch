@@ -1,4 +1,4 @@
-package com.green.studybridge.academy.model.tag;
+package com.green.studybridge.academy.tag;
 
 import lombok.Getter;
 import lombok.Setter;

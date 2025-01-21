@@ -1,12 +1,7 @@
-package com.green.studybridge.academy;
+package com.green.studybridge.academy.Service;
 
+import com.green.studybridge.academy.mapper.AcademyMapper;
 import com.green.studybridge.academy.model.*;
-import com.green.studybridge.academy.model.category.CategoryGetAgeRangeRes;
-import com.green.studybridge.academy.model.category.CategoryGetDaysRes;
-import com.green.studybridge.academy.model.category.CategoryGetLevelRes;
-import com.green.studybridge.academy.model.tag.InsTagWithAcademy;
-import com.green.studybridge.academy.model.tag.SelTagDto;
-import com.green.studybridge.academy.model.tag.SelTagRes;
 import com.green.studybridge.config.MyFileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,55 +18,6 @@ public class AcademyService {
     private final AcademyMapper academyMapper;
     private final MyFileUtils myFileUtils;
     private final UserMessage userMessage;
-    private InsTagWithAcademy insTagWithAcademy;
-
-
-    //모든태그가져오기
-    public SelTagRes selTagList() {
-        List<SelTagDto> list = academyMapper.selTagDtoList();
-
-        SelTagRes res = new SelTagRes();
-        res.setSelTagList(list);
-        return res;
-    }
-
-    //카테고리 select
-    public List<CategoryGetAgeRangeRes> categoryAgeRangeResList() {
-        List<CategoryGetAgeRangeRes> list = academyMapper.selAgeRangeList();
-        return list;
-    }
-
-    public List<CategoryGetLevelRes> categoryLevelResList() {
-        List<CategoryGetLevelRes> list = academyMapper.selLevelList();
-        return list;
-    }
-
-    public List<CategoryGetDaysRes> categoryDaysResList() {
-        List<CategoryGetDaysRes> list = academyMapper.selDaysList();
-        return list;
-    }
-
-    //학원이 등록한 카테고리 insert
-    public int insAcaAgeRange(AcademyPostReq req) {
-        int result = academyMapper.insAcaAgeRange(req);
-        return result;
-    }
-
-    public int insAcaLevel(AcademyPostReq req) {
-        int result = academyMapper.insAcaLevel(req);
-        return result;
-    }
-
-    public int insAcaDays(AcademyPostReq req) {
-        int result = academyMapper.insAcaDays(req);
-        return result;
-    }
-
-    //학원이 등록한 태그 insert
-    public int insAcaTag(AcademyPostReq req) {
-        int result = academyMapper.insAcaTag(req);
-        return result;
-    }
 
 
     //학원정보등록
@@ -82,7 +28,11 @@ public class AcademyService {
         req.setAcaPic(savedPicName);
 
         int result = academyMapper.insAcademy(req);
-        insTagWithAcademy.setAcaId(req.getAcaId());
+
+        if(result ==0) {
+            userMessage.setMessage("학원정보등록이 실패하였습니다.");
+            return result;
+        }
 
         if(pic == null){
             userMessage.setMessage("학원정보등록이 완료되었습니다.");
@@ -99,13 +49,11 @@ public class AcademyService {
         }catch (IOException e){
             e.printStackTrace();
         }
+
+        userMessage.setMessage("학원정보등록이 완료되었습니다.");
         return result;
     }
 
-    //학원이 등록한 태그 등록
-    public void insTagAndAcademy(InsTagWithAcademy p) {
-        academyMapper.insTagWithAcademy(p);
-    }
 
     //학원정보수정
     public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
@@ -131,8 +79,12 @@ public class AcademyService {
             }
         }
 
-        academyMapper.updAcademy(req);
-        return 1;
+        int result = academyMapper.updAcademy(req);
+        if(req.getTagIdList() != null) {
+            academyMapper.delAcaTag(req);
+            academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+        }
+        return result;
     }
 
     //학원정보삭제
@@ -153,7 +105,5 @@ public class AcademyService {
         return res;
     }
 
-    public List<GetTagList> getTagList(){
-        return academyMapper.getTagList();
-    }
+
 }
