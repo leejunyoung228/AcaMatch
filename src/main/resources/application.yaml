@@ -50,6 +50,9 @@ spring:
     default-property-inclusion: non_null
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
   mail:
     host: smtp.gmail.com
     port: 587

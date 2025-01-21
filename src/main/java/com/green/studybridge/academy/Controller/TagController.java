@@ -1,6 +1,7 @@
 package com.green.studybridge.academy.Controller;
 
 import com.green.studybridge.academy.Service.TagService;
+import com.green.studybridge.academy.model.AcademyMessage;
 import com.green.studybridge.academy.tag.SelTagReq;
 import com.green.studybridge.academy.tag.SelTagRes;
 import com.green.studybridge.config.model.ResultResponse;
@@ -15,14 +16,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TagController {
     private final TagService tagService;
+    private final AcademyMessage academyMessage;
 
 
     @GetMapping
-    @Operation(summary = "태그종류보기")
+    @Operation(summary = "태그종류보기", description = "입력한 글자를 가진 태그를 검색 할 수 있습니다.(한 글자라도 가지고 있으면 검색가능)")
     public ResultResponse<SelTagRes> selTagList(@ModelAttribute SelTagReq req) {
         SelTagRes res = tagService.selTagList(req);
         return ResultResponse.<SelTagRes>builder()
-                .resultMessage("태그들")
+                .resultMessage(academyMessage.getMessage())
                 .resultData(res)
                 .build();
     }
