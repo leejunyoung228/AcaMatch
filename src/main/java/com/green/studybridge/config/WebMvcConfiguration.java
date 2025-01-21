@@ -47,7 +47,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("*").allowCredentials(true);
+        registry.addMapping("/**")
+                .allowedOrigins("*");
     }
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
