@@ -12,7 +12,7 @@ public interface AcademyMapper {
 
     List<SelTagDto> selTagDtoList(SelTagReq req);
     int insAcaTag(long acaId, List<Long>tagIdList);
-    int delAcaTag(AcademyUpdateReq req);
+    int delAcaTag(long acaId);
 
     int insAcademy(AcademyPostReq req);
 

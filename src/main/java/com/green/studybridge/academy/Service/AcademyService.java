@@ -80,17 +80,35 @@ public class AcademyService {
         }
 
         int result = academyMapper.updAcademy(req);
-        if(req.getTagIdList() != null) {
-            academyMapper.delAcaTag(req);
-            academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+        if(result == 0) {
+            userMessage.setMessage("학원정보수정을 실패하였습니다.");
+            return result;
         }
+
+        if(req.getTagIdList() != null) {
+            academyMapper.delAcaTag(req.getAcaId());
+            int result2 = academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+            if(result2 == 0){
+                userMessage.setMessage("태그문제로 정보수정이 실패하였습니다.");
+                return result2;
+            }
+        }
+        userMessage.setMessage("학원정보수정이 완료되었습니다.");
         return result;
     }
 
     //학원정보삭제
     public int delAcademy(AcademyDeleteReq req) {
-        academyMapper.delAcademy(req);
-        return 1;
+        academyMapper.delAcaTag(req.getAcaId());
+        int result = academyMapper.delAcademy(req);
+
+        if(result == 1) {
+            userMessage.setMessage("학원정보가 삭제되었습니다.");
+            return result;
+        } else {
+            userMessage.setMessage("학원정보 삭제가 실패하였습니다.");
+            return result;
+        }
     }
 
 // --------------------------------------------------------------
