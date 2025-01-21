@@ -32,4 +32,33 @@
         WHERE l.user_id = #{userId}
     </select>
 
+    <!-- 유저 ID 존재 여부 확인 -->
+    <select id="checkUserExists">
+        SELECT COUNT(*)
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+
+    <!-- 학원 ID 존재 여부 확인 -->
+    <select id="checkAcaExists">
+        SELECT COUNT(*)
+        FROM academy a
+        WHERE aca_id = #{acaId}
+    </select>
+
+
+
+    <select id="isUserManagingAcademy">
+        SELECT CASE
+        WHEN EXISTS (
+        SELECT 1
+        FROM academy
+        WHERE aca_id = #{acaId}
+        AND user_id = #{userId}
+        ) THEN TRUE
+        ELSE FALSE
+        END
+    </select>
+
 </mapper>
