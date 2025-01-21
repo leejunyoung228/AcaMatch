@@ -1,6 +1,8 @@
 package com.green.studybridge.user.service;
 
 import com.green.studybridge.config.constant.ServerConst;
+import com.green.studybridge.config.exception.CustomException;
+import com.green.studybridge.config.exception.EmailErrorCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,7 @@ public class AuthService {
             helper.setText(getHtmlTemplate(token), true);
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            throw new RuntimeException("이메일 전송 실패");
+            throw new CustomException(EmailErrorCode.EMAIL_SEND_FAIL);
         }
     }
 

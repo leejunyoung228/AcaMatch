@@ -1,5 +1,7 @@
 package com.green.studybridge.config.security;
 
+import com.green.studybridge.config.exception.CustomException;
+import com.green.studybridge.config.exception.UserErrorCode;
 import com.green.studybridge.config.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +30,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
-                throw new RuntimeException("토큰 만료");
+                throw new CustomException(UserErrorCode.EXPIRED_TOKEN);
             }
         }
 

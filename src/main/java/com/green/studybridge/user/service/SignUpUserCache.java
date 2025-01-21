@@ -2,10 +2,13 @@ package com.green.studybridge.user.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.green.studybridge.config.exception.CustomException;
+import com.green.studybridge.config.exception.EmailErrorCode;
 import com.green.studybridge.user.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -21,17 +24,16 @@ public class SignUpUserCache {
 
     public void saveToken(String token, User user) {
         if (emailCache.getIfPresent(user.getEmail()) != null) {
-            throw new RuntimeException("인증 메일이 이미 전송 되었습니다.");
+            throw new CustomException(EmailErrorCode.EMAIL_ALREADY_SENT);
         }
         this.tokenCache.put(token, user);
         this.emailCache.put(user.getEmail(), Boolean.TRUE);
     }
 
     public User verifyToken(String token) {
-        User user = this.tokenCache.getIfPresent(token);
-        if (user == null) {
-            throw new RuntimeException("유효하지 않은 토큰 입니다");
-        }
+        User user = Optional.ofNullable(this.tokenCache.getIfPresent(token)).orElseThrow(() ->
+                new CustomException(EmailErrorCode.EXPIRED_OR_INVALID_TOKEN)
+        );
         tokenCache.invalidate(token);
         emailCache.invalidate(user.getEmail());
         return user;
