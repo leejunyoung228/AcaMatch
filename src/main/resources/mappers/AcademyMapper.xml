@@ -44,8 +44,6 @@
     </insert>
 
 
-
-
 <!--학원정보수정-->
     <update id="updAcademy">
         UPDATE academy
@@ -76,7 +74,7 @@
             </if>
         </set>
         WHERE aca_id = #{acaId}
-        AND user_id = #{user_id}
+        AND user_id = #{userId}
     </update>
 
 <!--학원정보수정에서 태그수정을 위한 삭제처리-->
