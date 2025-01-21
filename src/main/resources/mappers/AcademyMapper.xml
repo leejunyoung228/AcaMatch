@@ -91,7 +91,14 @@
            AND user_id = #{userId}
     </delete>
 
-
+<!--학원 좋아요 순-->
+    <select id="getAcademyBest" resultType="com.green.studybridge.academy.model.AcademyBestLikeGetRes">
+        SELECT aca_id AS acaId, COUNT(aca_id) AS likeCount
+          FROM `like`
+         GROUP BY aca_id
+         ORDER BY likeCount DESC
+         LIMIT 4;
+    </select>
 
     <!--=================================================== -->
 

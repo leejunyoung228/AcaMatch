@@ -20,7 +20,7 @@ public class TagController {
 
 
     @GetMapping
-    @Operation(summary = "태그종류보기")
+    @Operation(summary = "태그종류보기", description = "입력한 글자를 가진 태그를 검색 할 수 있습니다.(한 글자라도 가지고 있으면 검색가능)")
     public ResultResponse<SelTagRes> selTagList(@ModelAttribute SelTagReq req) {
         SelTagRes res = tagService.selTagList(req);
         return ResultResponse.<SelTagRes>builder()

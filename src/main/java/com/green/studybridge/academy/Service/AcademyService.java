@@ -111,6 +111,18 @@ public class AcademyService {
         }
     }
 
+    //학원좋아요순
+    public List<AcademyBestLikeGetRes> getAcademyBest() {
+        List<AcademyBestLikeGetRes> list = academyMapper.getAcademyBest();
+
+        if(list == null) {
+            academyMessage.setMessage("좋아요를 받은 학원이 없습니다.");
+            return null;
+        }
+        academyMessage.setMessage("좋아요를 많이 받은 학원 순서입니다.");
+        return list;
+    }
+
 // --------------------------------------------------------------
 
     public List<getAcademyRes> getAcademyRes(getAcademyReq p){

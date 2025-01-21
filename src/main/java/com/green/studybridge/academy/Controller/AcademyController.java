@@ -25,8 +25,9 @@ public class AcademyController {
     private final AcademyMessage academyMessage;
 
 
+
     @PostMapping
-    @Operation(summary = "학원정보등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진")
+    @Operation(summary = "학원정보등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진, 태그")
     public ResultResponse<Integer> postAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyPostReq req) {
         int result1 = academyService.insAcademy(pic, req);
         int result2 = tagService.insAcaTag(req);
@@ -37,7 +38,7 @@ public class AcademyController {
     }
 
     @PutMapping
-    @Operation(summary = "학원정보수정")
+    @Operation(summary = "학원정보수정", description = "acaId, userId는 필수로 받고, 수정하기 원하는 항목 값을 입력합니다.")
     public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyUpdateReq req) {
         int result = academyService.updAcademy(pic, req);
         return ResultResponse.<Integer>builder()
@@ -47,12 +48,22 @@ public class AcademyController {
     }
 
     @DeleteMapping
-    @Operation(summary = "학원정보삭제")
+    @Operation(summary = "학원정보삭제", description = "acaId, userId 필수로 받아야 삭제가 가능합니다.")
     public ResultResponse<Integer> deleteAcademy(@ModelAttribute AcademyDeleteReq req) {
         int result = academyService.delAcademy(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(result)
+                .build();
+    }
+
+    @GetMapping("best")
+    @Operation(summary = "학원들의 좋아요 순", description = "좋아요 순으로 학원나열했고, 상위 4개까지 나옵니다.")
+    public ResultResponse<List<AcademyBestLikeGetRes>> getAcademyBest() {
+        List<AcademyBestLikeGetRes> list = academyService.getAcademyBest();
+        return ResultResponse.<List<AcademyBestLikeGetRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(list)
                 .build();
     }
 
