@@ -32,5 +32,5 @@ public class AcaClassDto {
 
     private List<String> day;
 
-    private List<String > YearsAndLevel;
+    private List<String> YearsAndLevel;
 }

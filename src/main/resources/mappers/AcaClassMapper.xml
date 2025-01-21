@@ -78,6 +78,7 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
+    <!-- class에 등록한 user 가져오기 -->
     <select id="selAcaClassToUser">
         SELECT B.aca_name, A.class_name, A.start_date, A.end_date, B.aca_pic
         FROM class A
@@ -90,7 +91,8 @@
         WHERE C.user_id = #{userId}
         LIMIT #{startIdx},#{size}
     </select>
-    
+
+    <!-- 특정 user가 등록한 class 가져오기 -->
     <select id="selAcaClassUser">
         SELECT C.user_pic, C.name, C.phone, C.birth
         FROM joinclass A
@@ -106,6 +108,10 @@
         UPDATE class A
         INNER JOIN weekdays B
         ON A.class_id = B.class_id
+        INNER JOIN classcategory C
+        ON A.class_id = C.class_id
+        INNER JOIN category D
+        ON C.category_id = D.category_id
         <set>
             <if test =" classId != null and classId != '' ">
                 A.class_id = #{classId},
@@ -134,11 +140,8 @@
             <if test =" day != null and day != '' ">
                 B.day = #{day},
             </if>
-            <if test =" years != null and years != '' ">
-                A.years = #{years},
-            </if>
-            <if test =" level != null and level != '' ">
-                A.level = #{level}
+            <if test =" categoryName != null and categoryName != '' ">
+                A.category_name = #{yearsAndLevel}
             </if>
         </set>
         WHERE A.aca_id = #{acaId} AND A.class_id = #{classId}
