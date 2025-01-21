@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @ToString
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "constant.server-const")
-public class ServerConst {
-    private final String serverUrl;
+@ConfigurationProperties(prefix = "constant.user-const")
+public class UserConst {
+    private final String userPicFilePath;
 }
