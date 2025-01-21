@@ -81,7 +81,7 @@ public class AcademyService {
 
         int result = academyMapper.updAcademy(req);
         if(req.getTagIdList() != null) {
-            academyMapper.delAcaTag(req);
+            academyMapper.delAcaTag(req.getAcaId());
             academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
         }
         return result;
@@ -89,8 +89,16 @@ public class AcademyService {
 
     //학원정보삭제
     public int delAcademy(AcademyDeleteReq req) {
-        academyMapper.delAcademy(req);
-        return 1;
+        academyMapper.delAcaTag(req.getAcaId());
+        int result = academyMapper.delAcademy(req);
+
+        if(result == 1) {
+            userMessage.setMessage("학원정보가 삭제되었습니다.");
+            return result;
+        } else {
+            userMessage.setMessage("학원정보 삭제가 실패하였습니다.");
+            return result;
+        }
     }
 
 // --------------------------------------------------------------

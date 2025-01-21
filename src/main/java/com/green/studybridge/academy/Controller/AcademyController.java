@@ -51,7 +51,7 @@ public class AcademyController {
     public ResultResponse<Integer> deleteAcademy(@ModelAttribute AcademyDeleteReq req) {
         int result = academyService.delAcademy(req);
         return ResultResponse.<Integer>builder()
-                .resultMessage("학원 정보 삭제 완료")
+                .resultMessage(userMessage.getMessage())
                 .resultData(result)
                 .build();
     }
