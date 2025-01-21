@@ -2,6 +2,9 @@ package com.green.studybridge.user.service;
 
 import com.green.studybridge.config.CookieUtils;
 import com.green.studybridge.config.MyFileUtils;
+import com.green.studybridge.config.exception.CommonErrorCode;
+import com.green.studybridge.config.exception.CustomException;
+import com.green.studybridge.config.exception.UserErrorCode;
 import com.green.studybridge.config.jwt.JwtTokenProvider;
 import com.green.studybridge.config.jwt.JwtUser;
 import com.green.studybridge.config.security.AuthenticationFacade;
@@ -68,7 +71,7 @@ public class UserService {
     public UserSignInRes signIn(UserSignInReq req, HttpServletResponse response) {
         User user = userRepository.getUserByEmail(req.getEmail());
         if (user == null || !passwordEncoder.matches(req.getUpw(), user.getUpw())) {
-            throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다");
+            throw new CustomException(UserErrorCode.INCORRECT_ID_PW);
         }
 
         return generateUserSignInResByUser(user, response);
@@ -97,27 +100,31 @@ public class UserService {
     }
 
     public int checkDuplicate(String text, String type) {
-        if (type.equals("nick-name")) {
-            if (userRepository.existsByNickName(text)) {
-                throw new RuntimeException("닉네임이 중복되었습니다");
-            }
-            return 1;
+        switch (type) {
+            case "nick-name":
+                if (userRepository.existsByNickName(text)) {
+                    throw new CustomException(UserErrorCode.DUPLICATE_USER_NICKNAME);
+                }
+                break;
+            case "email":
+                if (userRepository.existsByEmail(text)) {
+                    throw new CustomException(UserErrorCode.DUPLICATE_USER_EMAIL);
+                }
+                break;
+            default:
+                throw new CustomException(UserErrorCode.INCORRECT_DUPLICATE_CHECK_TYPE);
         }
-        if (type.equals("email")) {
-            if (userRepository.existsByEmail(text)) {
-                throw new RuntimeException("이메일이 중복되었습니다");
-            }
-            return 1;
-        }
-        throw new RuntimeException("지정된 타입이 아닙니다.");
+        return 1;
     }
 
     public void updateUserPic(MultipartFile pic) {
         long userId = AuthenticationFacade.getSignedUserId();
         User user = getUserById(userId);
+
         String prePic = user.getUserPic();
         user.setUserPic(myFileUtils.makeRandomFileName(pic));
         userRepository.save(user);
+
         String folderPath = String.format("/user/%d", userId);
         if (prePic != null) {
             myFileUtils.deleteFolder(folderPath, false);
@@ -127,7 +134,7 @@ public class UserService {
         try {
             myFileUtils.transferTo(pic, filePath);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -158,7 +165,7 @@ public class UserService {
 
     private User getUserById(long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
 
     public String getAccessToken(HttpServletRequest request) {
@@ -173,7 +180,7 @@ public class UserService {
         long userId = AuthenticationFacade.getSignedUserId();
         User user = getUserById(userId);
         if (!passwordEncoder.matches(req.getPw(), user.getUpw())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다");
+            throw new CustomException(UserErrorCode.INCORRECT_PW);
         }
         userRepository.deleteById(userId);
         String folderPath = String.format("/user/%d", userId);
