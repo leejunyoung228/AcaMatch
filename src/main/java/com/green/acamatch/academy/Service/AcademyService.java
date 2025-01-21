@@ -125,8 +125,8 @@ public class AcademyService {
 
 // --------------------------------------------------------------
 
-    public List<getAcademyRes> getAcademyRes(getAcademyReq p){
-        List<getAcademyRes> res = academyMapper.getAcademy(p);
+    public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
+        List<GetAcademyRes> res = academyMapper.getAcademy(p);
         return res;
     }
 

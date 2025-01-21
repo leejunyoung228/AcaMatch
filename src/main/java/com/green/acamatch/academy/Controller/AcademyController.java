@@ -70,9 +70,9 @@ public class AcademyController {
 
     @GetMapping("academyList")
     @Operation(summary = "학원 리스트 검색")
-    public ResultResponse<List<getAcademyRes>> getAcademyList(@ParameterObject @ModelAttribute getAcademyReq p){
-        List<getAcademyRes> res = academyService.getAcademyRes(p);
-        return ResultResponse.<List<getAcademyRes>>builder()
+    public ResultResponse<List<GetAcademyRes>> getAcademyList(@ParameterObject @ModelAttribute GetAcademyReq p){
+        List<GetAcademyRes> res = academyService.getAcademyRes(p);
+        return ResultResponse.<List<GetAcademyRes>>builder()
                 .resultMessage("학원리스트 검색 성공")
                 .resultData(res)
                 .build();

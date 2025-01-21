@@ -24,7 +24,7 @@ public interface AcademyMapper {
 
 // ---------------------------------------------------------------
 
-    List<getAcademyRes> getAcademy(getAcademyReq p);
+    List<GetAcademyRes> getAcademy(GetAcademyReq p);
     GetAcademyDetail getAcademyDetail(Long acaId);
     List<GetTagList> getTagList();
 
