@@ -112,8 +112,8 @@ public class AcademyService {
     }
 
     //학원좋아요순
-    public List<AcademyBestLikeGetRes> getAcademyBest() {
-        List<AcademyBestLikeGetRes> list = academyMapper.getAcademyBest();
+    public List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req) {
+        List<AcademyBestLikeGetRes> list = academyMapper.getAcademyBest(req);
 
         if(list == null) {
             academyMessage.setMessage("좋아요를 받은 학원이 없습니다.");
