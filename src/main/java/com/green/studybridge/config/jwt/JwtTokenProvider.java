@@ -3,6 +3,8 @@ package com.green.studybridge.config.jwt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.studybridge.config.constant.JwtConst;
+import com.green.studybridge.config.exception.CommonErrorCode;
+import com.green.studybridge.config.exception.CustomException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -60,7 +62,7 @@ public class JwtTokenProvider {
             //objectMapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
             return objectMapper.writeValueAsString(jwtUser);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -93,7 +95,7 @@ public class JwtTokenProvider {
         try {
             return objectMapper.readValue(json, JwtUser.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 

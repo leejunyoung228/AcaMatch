@@ -3,9 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.green.acamatch_mytest.academy.AcademyMapper">
+<mapper namespace="com.green.studybridge.academy.mapper.AcademyMapper">
+
+
 <!--태그 select-->
-    <select id="selTagList">
+    <select id="selTagDtoList">
         SELECT tag_id as tagId,tag_name as tagName
         FROM tag
         <where>
@@ -14,6 +16,7 @@
             </if>
         </where>
     </select>
+
 
 <!--태그 학원등록-->
     <insert id="insAcaTag">
@@ -38,12 +41,6 @@
              , close_time = #{closeTime}
              , address = #{address}
              , aca_pic = #{acaPic}
-    </insert>
-
-    <insert id="insTagWithAcademy">
-        INSERT INTO academytag
-        SET aca_id = #{acaId}
-          , tag_id = #{tagId}
     </insert>
 
 
@@ -77,7 +74,15 @@
             </if>
         </set>
         WHERE aca_id = #{acaId}
+        AND user_id = #{userId}
     </update>
+
+<!--학원정보수정에서 태그수정을 위한 삭제처리-->
+    <delete id="delAcaTag">
+        DELETE FROM academytag
+        WHERE aca_id = #{acaId}
+    </delete>
+
 
 <!--학원정보삭제-->
     <delete id="delAcademy">
@@ -86,11 +91,19 @@
            AND user_id = #{userId}
     </delete>
 
+<!--학원 좋아요 순-->
+    <select id="getAcademyBest" resultType="com.green.studybridge.academy.model.AcademyBestLikeGetRes">
+        SELECT aca_id AS acaId, COUNT(aca_id) AS likeCount
+          FROM `like`
+         GROUP BY aca_id
+         ORDER BY likeCount DESC
+         LIMIT 4;
+    </select>
 
     <!--=================================================== -->
 
     <select id="getAcademy">
-        SELECT A.aca_id AS acaId, A.aca_pic AS acaPic, A.aca_name AS acaName, A.address, D.star AS star, F.tag_name AS tagName, F.tag_id AS tagId
+        SELECT A.aca_id AS acaId, A.aca_pic AS acaPic, A.aca_name AS acaName, A.address, D.star AS star, F.tag_name AS tagName
         FROM academy A
         JOIN class B
         ON A.aca_id = B.aca_id
@@ -119,4 +132,11 @@
         FROM academy A
         WHERE aca_id = #{acaId}
     </select>
+    <select id="getTagList">
+        select tag_name AS tagName
+        from tag
+    </select>
+
+
+
 </mapper>

@@ -1,5 +1,6 @@
 package com.green.studybridge.like;
 
+import com.green.studybridge.config.exception.UserMessage;
 import com.green.studybridge.config.model.ResultResponse;
 import com.green.studybridge.like.dto.LikedAcademyDto;
 import com.green.studybridge.like.dto.LikedUserDto;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequestMapping("like")
 public class LikeController {
     private final LikeService service;
+    private final UserMessage userMessage;
 
 
     /**
@@ -31,7 +33,7 @@ public class LikeController {
     public ResultResponse<AcaLikeRes> addLike(@ParameterObject @ModelAttribute AcaLikeReq p) {
         AcaLikeRes response = service.addLike(p);
         return ResultResponse.<AcaLikeRes>builder()
-                .resultMessage("좋아요 등록 완료")
+                .resultMessage(userMessage.getMessage())
                 .resultData(response)
                 .build();
     }
@@ -46,7 +48,7 @@ public class LikeController {
     public ResultResponse<AcaLikeRes> removeLike(@ParameterObject @ModelAttribute AcaDelLikeReq p) {
         AcaLikeRes response = service.removeLike(p);
         return ResultResponse.<AcaLikeRes>builder()
-                .resultMessage("좋아요 취소 완료")
+                .resultMessage(userMessage.getMessage())
                 .resultData(response)
                 .build();
     }
@@ -61,7 +63,7 @@ public class LikeController {
     public ResultResponse<List<LikedAcademyDto>> getUserLikes(@Parameter(description = "유저 ID") @RequestParam long userId) {
         List<LikedAcademyDto> likedAcademies = service.getUserLikesWithPics(userId);
         return ResultResponse.<List<LikedAcademyDto>>builder()
-                .resultMessage("좋아요 한 학원 목록 및 학원 사진 조회 완료")
+                .resultMessage(userMessage.getMessage())
                 .resultData(likedAcademies)
                 .build();
     }
@@ -77,7 +79,7 @@ public class LikeController {
     public ResultResponse<List<LikedUserDto>> getLikedUserPics(@Parameter(description = "학원 ID") @RequestParam long acaId) {
         List<LikedUserDto> likedUserPics = service.getLikedUserDetails(acaId);
         return ResultResponse.<List<LikedUserDto>>builder()
-                .resultMessage("좋아요 한 유저 목록 및 프로필 조회 완료")
+                .resultMessage(userMessage.getMessage())
                 .resultData(likedUserPics)
                 .build();
     }

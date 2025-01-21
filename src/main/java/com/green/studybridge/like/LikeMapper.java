@@ -29,4 +29,13 @@ public interface LikeMapper {
     //특정 유저가 좋아요한 학원의 사진 리스트 조회
     List<LikedAcademyDto> getUserLikesWithPics(long userId);
 
+    // 특정 유저 ID가 존재하는지 확인
+    int checkUserExists(long userId);
+    // 특정 학원 ID가 존재하는지 확인
+    int checkAcaExists (long acaId);
+
+    // 본인이 관리하는 학원인지 확인
+    boolean isUserManagingAcademy(long userId, long acaId);
+
+
 }

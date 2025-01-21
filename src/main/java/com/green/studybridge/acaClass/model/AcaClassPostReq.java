@@ -25,13 +25,6 @@ public class AcaClassPostReq {
     private String startTime;
     @Schema(title = "수업 종료 시간", example = "18:00")
     private String endTime;
-    @Schema(title = "수강료", example = "100,000")
+    @Schema(title = "수강료", example = "100000")
     private int price;
-
-    @Schema(title = "수업일", example = "월")
-    private String date;
-    @Schema(title = "연령", example = "청소년")
-    private String years;
-    @Schema(title = "수준", example = "초급")
-    private String level;
 }

@@ -1,56 +1,61 @@
 package com.green.studybridge.user.service;
 
-import com.green.studybridge.config.constant.ServerConst;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import com.green.studybridge.config.CookieUtils;
+import com.green.studybridge.config.constant.JwtConst;
+import com.green.studybridge.config.exception.CustomException;
+import com.green.studybridge.config.exception.UserErrorCode;
+import com.green.studybridge.config.jwt.JwtTokenProvider;
+import com.green.studybridge.config.jwt.JwtUser;
+import com.green.studybridge.user.UserUtils;
+import com.green.studybridge.user.entity.User;
+import com.green.studybridge.user.model.UserSignInReq;
+import com.green.studybridge.user.model.UserSignInRes;
+import com.green.studybridge.user.model.UserSignUpReq;
+import com.green.studybridge.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final JavaMailSender javaMailSender;
-    private final TemplateEngine templateEngine;
-    private final ServerConst authConst;
+    private final EmailService emailService;
+    private final SignUpUserCache signUpUserCache;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtConst jwtConst;
+    private final CookieUtils cookieUtils;
+    private final UserUtils userUtils;
 
-    public void sendCodeToEmail(String to, String subject, String token) {
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper;
-        try {
-            helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(getHtmlTemplate(token), true);
-            javaMailSender.send(mimeMessage);
-        } catch (MessagingException e) {
-            throw new RuntimeException("이메일 전송 실패");
+    public UserSignInRes signIn(UserSignInReq req, HttpServletResponse response) {
+        User user = userRepository.getUserByEmail(req.getEmail());
+        if (user == null || !passwordEncoder.matches(req.getUpw(), user.getUpw())) {
+            throw new CustomException(UserErrorCode.INCORRECT_ID_PW);
         }
+
+        return userUtils.generateUserSignInResByUser(user, response);
     }
 
-    private String getHtmlTemplate(String token) {
-        return templateEngine.process("emailTemplate", getContext(token));
+    public void sendSignUpEmail(UserSignUpReq req) {
+        userUtils.checkDuplicate(req.getEmail(), "email");
+        userUtils.checkDuplicate(req.getNickName(), "nick-name");
+
+        User user = userUtils.generateUserByUserSignUpReq(req);
+        String token = UUID.randomUUID().toString();
+        emailService.sendCodeToEmail(req.getEmail(), token);
+        signUpUserCache.saveToken(token, user);
     }
 
-    private Context getContext(String token) {
-        Map<String, Object> dto = new HashMap<>(2);
-        dto.put("tokenLink", String.format("%s/user/complete-sign-up?token=%s", authConst.getServerUrl(),token));
-        dto.put("maxDate", getMaxDate());
-        Context context = new Context();
-        context.setVariables(dto);
-        return context;
-    }
-
-    private String getMaxDate() {
-        Date now = new Date();
-        return new SimpleDateFormat("yyyy년 MM월 dd일 HH:mm:ss").format(new Date(now.getTime() + (900_000)));
+    public String getAccessToken(HttpServletRequest request) {
+        Cookie cookie = cookieUtils.getCookie(request, jwtConst.getRefreshTokenCookieName());
+        String refreshToken = cookie.getValue();
+        JwtUser jwtUser = jwtTokenProvider.getJwtUserFromToken(refreshToken);
+        return jwtTokenProvider.generateAccessToken(jwtUser);
     }
 }
