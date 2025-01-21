@@ -1,8 +1,11 @@
 package com.green.studybridge.acaClass.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -16,6 +19,8 @@ public class AcaClassDto {
     private String classComment;
     @Schema(title = "수업 시작 날짜", example = "YYYY-MM-DD")
     private String startDate;
+    @Schema(title = "수업 시작 날짜", example = "YYYY-MM-DD")
+    private String endDate;
 
     @Schema(title = "수업 시작 시간", example = "HH:mm")
     private String startTime;
@@ -30,4 +35,7 @@ public class AcaClassDto {
     private String years;
     @Schema(title = "수준", example = "초급")
     private String level;
+
+    @JsonIgnore
+    private List<AcaClassWeekDay> AcaClassWeekDay;
 }

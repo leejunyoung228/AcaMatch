@@ -22,4 +22,14 @@
         WHERE C.user_id = #{userId}
         LIMIT #{startIdx}, #{size}
     </select>
+
+    <update id="updGradeScore">
+        UPDATE grade
+        <set>
+            <if test =" score != null and score != '' ">
+                score = #{score}
+            </if>
+        </set>
+        WHERE grade_id = #{gradeId}
+    </update>
 </mapper>
