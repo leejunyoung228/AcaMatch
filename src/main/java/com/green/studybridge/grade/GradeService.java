@@ -3,6 +3,7 @@ package com.green.studybridge.grade;
 import com.green.studybridge.grade.model.GradePostReq;
 import com.green.studybridge.grade.model.GradeGetDto;
 import com.green.studybridge.grade.model.GradeGetReq;
+import com.green.studybridge.grade.model.GradePutReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,5 +20,9 @@ public class GradeService {
 
     public List<GradeGetDto> selGradeScore(GradeGetReq p) {
         return mapper.selGradeScore(p);
+    }
+
+    public int updGradeScore(GradePutReq p) {
+        return mapper.updGradeScore(p);
     }
 }
