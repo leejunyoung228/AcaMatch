@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "시험 회차 관리", description = "시험 회차 등록, 시험 회차 점수 불러오기, 수정, 삭제")
+@Tag(name = "시험 회차 관리", description = "시험 회차 등록")
 @RestController
 @RequestMapping("subject")
 @RequiredArgsConstructor

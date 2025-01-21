@@ -51,4 +51,8 @@ public class AcaClassService {
         public int delAcaClass(AcaClassDelReq p) {
             return mapper.delAcaClass(p);
         }
+
+        public int delAcaClassDay(AcaClassClassWeekDays p){
+            return mapper.delAcaClassDay(p);
+        }
 }

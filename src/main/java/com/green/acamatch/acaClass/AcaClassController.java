@@ -103,4 +103,14 @@ public class AcaClassController {
                .resultData(result)
                .build();
     }
+
+    @DeleteMapping("acaClassDay")
+    @Operation(summary = "class 요일 삭제하기")
+    public ResultResponse<Integer> delAcaClassDay(@ModelAttribute @ParameterObject AcaClassClassWeekDays p) {
+        Integer result = service.delAcaClassDay(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("수업 요일 삭제 완료")
+                .resultData(result)
+                .build();
+    }
 }

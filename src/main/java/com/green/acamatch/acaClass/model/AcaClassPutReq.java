@@ -28,8 +28,4 @@ public class AcaClassPutReq {
     private String endTime;
     @Schema(title = "수강료", example = "100,000")
     private int price;
-    @Schema(title = "수업일", example = "월")
-    private String day;
-    @Schema(title = "연령과 수준")
-    private String yearsAndLevel;
 }
