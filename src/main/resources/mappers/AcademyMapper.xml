@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.green.studybridge.academy.mapper.AcademyMapper">
+<mapper namespace="com.green.acamatch.academy.mapper.AcademyMapper">
 
 
 <!--태그 select-->
@@ -92,7 +92,7 @@
     </delete>
 
 <!--학원 좋아요 순-->
-    <select id="getAcademyBest" resultType="com.green.studybridge.academy.model.AcademyBestLikeGetRes">
+    <select id="getAcademyBest" resultType="com.green.acamatch.academy.model.AcademyBestLikeGetRes">
         SELECT aca_id AS acaId, COUNT(aca_id) AS likeCount
           FROM `like`
          GROUP BY aca_id
@@ -102,7 +102,7 @@
 
     <!-- 학원 검색 -->
 
-    <resultMap id="searchResultMap" type = "com.green.studybridge.academy.model.getAcademyRes">
+    <resultMap id="searchResultMap" type = "com.green.acamatch.academy.model.getAcademyRes">
         <id property="acaId" column="acaId" />
         <result property="acaPic" column="acaPic" />
         <result property="acaName" column="acaName" />
