@@ -29,7 +29,7 @@
         SET day = #{day}
     </insert>
 
-    <!-- class와 요일을 잇는 관계 테이블 등록하기 -->
+    <!-- 수업과 요일을 잇는 관계 테이블 등록하기 -->
     <insert id = "insAcaClassClassWeekDays">
         INSERT classweekdays
         SET class_id = #{classId},
@@ -78,7 +78,7 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
-    <!-- class에 등록한 user 가져오기 -->
+    <!-- 특정 수업에 등록한 user 가져오기 -->
     <select id="selAcaClassToUser">
         SELECT B.aca_name, A.class_name, A.start_date, A.end_date, B.aca_pic
         FROM class A
@@ -92,7 +92,7 @@
         LIMIT #{startIdx},#{size}
     </select>
 
-    <!-- 특정 user가 등록한 class 가져오기 -->
+    <!-- 특정 user가 등록한 수업 가져오기 -->
     <select id="selAcaClassUser">
         SELECT C.user_pic, C.name, C.phone, C.birth
         FROM joinclass A
@@ -104,51 +104,46 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
+    <!-- 수업 수정하기 -->
     <update id="updAcaClass">
-        UPDATE class A
-        INNER JOIN weekdays B
-        ON A.class_id = B.class_id
-        INNER JOIN classcategory C
-        ON A.class_id = C.class_id
-        INNER JOIN category D
-        ON C.category_id = D.category_id
+        UPDATE class
         <set>
             <if test =" classId != null and classId != '' ">
-                A.class_id = #{classId},
+                class_id = #{classId},
             </if>
             <if test =" className != null and className != '' ">
-                A.class_name = #{className},
+                class_name = #{className},
             </if>
             <if test =" classComment != null and classComment != '' ">
-                A.class_comment = #{classComment},
+                class_comment = #{classComment},
             </if>
             <if test =" startDate != null and startDate != '' ">
-                A.start_date = #{startDate},
+                start_date = #{startDate},
             </if>
             <if test =" endDate != null and endDate != '' ">
-                A.end_date = #{endDate},
+                end_date = #{endDate},
             </if>
             <if test =" startTime != null and startTime != '' ">
-                A.start_time = #{startTime},
+                start_time = #{startTime},
             </if>
             <if test =" endTime != null and endTime != '' ">
-                A.end_time = #{endTime},
+                end_time = #{endTime},
              </if>
             <if test =" price != null ">
-                A.price = #{price},
-            </if>
-            <if test =" day != null and day != '' ">
-                B.day = #{day},
-            </if>
-            <if test =" categoryName != null and categoryName != '' ">
-                A.category_name = #{yearsAndLevel}
+                price = #{price}
             </if>
         </set>
-        WHERE A.aca_id = #{acaId} AND A.class_id = #{classId}
+        WHERE aca_id = #{acaId} AND class_id = #{classId}
     </update>
 
+    <!-- 학원 수업 삭제하기 -->
     <delete id="delAcaClass">
         DELETE FROM class
         WHERE class_id = #{classId} AND aca_id = #{acaId}
+    </delete>
+
+    <delete id ="delAcaClassDay">
+        DELETE FROM classweekdays
+        WHERE class_id = #{classId} AND day_id = #{dayId}
     </delete>
 </mapper>

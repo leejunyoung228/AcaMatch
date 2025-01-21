@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "join class 관리", description = "join class 등록")
+@Tag(name = "사용자 수업 등록, 삭제 관리", description = "user 수업 등록")
 @RestController
 @RequestMapping("joinClass")
 @RequiredArgsConstructor
@@ -17,21 +17,21 @@ public class JoinClassController {
     private final JoinClassService service;
 
     @PostMapping
-    @Operation(summary = "class에 user 등록하기")
+    @Operation(summary = "user 수업에 등록하기")
     public ResultResponse<Integer> postJoinClass(@RequestBody JoinClassPostReq p) {
         Integer result = service.postJoinClass(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("class에 user 등록 완료")
+                .resultMessage("사용자 수업에 등록 완료")
                 .resultData(result)
                 .build();
     }
 
     @DeleteMapping
-    @Operation(summary = "등록한 class에 user 삭제하기")
+    @Operation(summary = "등록한 수업에 user 삭제하기")
     public ResultResponse<Integer> deleteJoinClass(@ModelAttribute @ParameterObject JoinClassDel p) {
         Integer result = service.delJoinClass(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("등록한 class에 user 삭제 완료")
+                .resultMessage("등록한 수업에 사용자 삭제 완료")
                 .resultData(result)
                 .build();
     }

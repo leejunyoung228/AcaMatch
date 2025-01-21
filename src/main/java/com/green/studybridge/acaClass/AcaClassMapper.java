@@ -16,4 +16,5 @@ public interface AcaClassMapper {
     List<AcaClassUserDto> selAcaClassUser(AcaClassUserGetReq p);
     int updAcaClass(AcaClassPutReq p);
     int delAcaClass(AcaClassDelReq p);
+    int delAcaClassDay(AcaClassClassWeekDays p);
 }
