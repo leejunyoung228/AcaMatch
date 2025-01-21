@@ -47,20 +47,21 @@
         <result property="startTime" column="start_time" />
         <result property="endTime" column="end_time" />
         <result property="price" column="price" />
-        <result property="day" column="day" />
-        <result property="years" column="years" />
-        <result property="level" column="level" />
-        <collection property="AcaClassWeekDay" resultMap="AcaClassWeekDayResultMap" />
+        <collection property="day" resultMap="AcaClassWeekDayResultMap" />
+        <collection property="YearsAndLevel" resultMap="YearsAndLevelResultMap" />
     </resultMap>
     
-    <resultMap id="AcaClassWeekDayResultMap" type="com.green.studybridge.acaClass.model.AcaClassWeekDay">
-        <id property="dayId" column="day_id" />
-        <result property="day" column="day" />
+    <resultMap id="AcaClassWeekDayResultMap" type="String">
+        <id property="day" column="day" />
+    </resultMap>
+
+    <resultMap id="YearsAndLevelResultMap" type="String">
+        <id property="categoryName" column="category_name" />
     </resultMap>
 
     <select id="selAcaClass" resultMap="ClassResultMap">
         SELECT A.class_id, B.aca_name, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price,
-        GROUP_CONCAT(D.`day` ORDER BY D.day_id SEPARATOR ',') AS `day`, A.years, A.`level`
+        D.`day`, F.category_name
         FROM class A
         INNER JOIN academy B
         ON A.aca_id = B.aca_id
@@ -68,11 +69,16 @@
         ON C.class_id = A.class_id
         INNER JOIN weekdays D
         ON C.day_id = D.day_id
+        INNER JOIN classcategory E
+        ON A.class_id = E.class_id
+        INNER JOIN category F
+        ON E.category_id = F.category_id
         WHERE A.aca_id = #{acaId}
         ORDER BY D.day_id
         LIMIT #{startIdx}, #{size}
     </select>
 
+    <!-- class에 등록한 user 가져오기 -->
     <select id="selAcaClassToUser">
         SELECT B.aca_name, A.class_name, A.start_date, A.end_date, B.aca_pic
         FROM class A
@@ -85,7 +91,8 @@
         WHERE C.user_id = #{userId}
         LIMIT #{startIdx},#{size}
     </select>
-    
+
+    <!-- 특정 user가 등록한 class 가져오기 -->
     <select id="selAcaClassUser">
         SELECT C.user_pic, C.name, C.phone, C.birth
         FROM joinclass A
@@ -101,6 +108,10 @@
         UPDATE class A
         INNER JOIN weekdays B
         ON A.class_id = B.class_id
+        INNER JOIN classcategory C
+        ON A.class_id = C.class_id
+        INNER JOIN category D
+        ON C.category_id = D.category_id
         <set>
             <if test =" classId != null and classId != '' ">
                 A.class_id = #{classId},
@@ -129,11 +140,8 @@
             <if test =" day != null and day != '' ">
                 B.day = #{day},
             </if>
-            <if test =" years != null and years != '' ">
-                A.years = #{years},
-            </if>
-            <if test =" level != null and level != '' ">
-                A.level = #{level}
+            <if test =" categoryName != null and categoryName != '' ">
+                A.category_name = #{yearsAndLevel}
             </if>
         </set>
         WHERE A.aca_id = #{acaId} AND A.class_id = #{classId}
