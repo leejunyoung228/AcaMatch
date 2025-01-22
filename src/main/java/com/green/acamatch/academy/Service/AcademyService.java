@@ -126,12 +126,25 @@ public class AcademyService {
 // --------------------------------------------------------------
 
     public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
+        PostAcademySearch search = new PostAcademySearch();
+        search.setTagId(p.getTagId());
+        int post = academyMapper.postSearch(search);
         List<GetAcademyRes> res = academyMapper.getAcademy(p);
+        if(res.size() == 0) {
+            academyMessage.setMessage("학원 검색을 실패했습니다.");
+            return null;
+        }
+        academyMessage.setMessage("학원 검색을 성공했습니다.");
         return res;
     }
 
     public GetAcademyDetail getAcademyDetail(Long acaId){
         GetAcademyDetail res = academyMapper.getAcademyDetail(acaId);
+        if(res == null) {
+            academyMessage.setMessage("학원의 상세 정보 불러오기를 실패했습니다.");
+            return null;
+        }
+        academyMessage.setMessage("학원의 상세 정보 불러오기를 성공했습니다.");
         return res;
     }
 

@@ -26,6 +26,7 @@ public interface AcademyMapper {
 
     List<GetAcademyRes> getAcademy(GetAcademyReq p);
     GetAcademyDetail getAcademyDetail(Long acaId);
-    List<GetTagList> getTagList();
+    List<GetAcademyRes> getCategorySearch(GetCategorySearch p);
+    int postSearch(PostAcademySearch p);
 
 }
