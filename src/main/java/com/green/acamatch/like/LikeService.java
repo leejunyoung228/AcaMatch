@@ -140,10 +140,10 @@ public class LikeService {
             }
 
             // 성공 메시지 설정
-            userMessage.setMessage("유저가 좋아요한 학원 목록 조회가 완료되었습니다.");
+            userMessage.setMessage("해당 유저가 좋아요한 학원 목록 조회가 완료되었습니다.");
             return likedAcademies;
         } catch (Exception e) {
-            userMessage.setMessage("좋아요 학원 목록 조회 중 오류가 발생했습니다.");
+            userMessage.setMessage("해당 유저의 좋아요 학원 목록 조회 중 오류가 발생했습니다.");
             return Collections.emptyList();
         }
     }

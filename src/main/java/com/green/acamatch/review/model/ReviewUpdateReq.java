@@ -9,7 +9,7 @@ import lombok.Setter;
 @Schema(description = "리뷰 수정 요청")
 public class ReviewUpdateReq {
 
-    @Schema(title = "유저 ID", description = "리뷰 삭제 요청을 한 유저의 ID", example = "2128")
+    @Schema(title = "유저 ID", description = "리뷰 삭제 요청을 한 유저의 ID", example = "1")
     private long userId;
 
     @Schema(title = "수업 참여 ID", description = "리뷰를 수정할 수업 참여 ID", example = "1")
