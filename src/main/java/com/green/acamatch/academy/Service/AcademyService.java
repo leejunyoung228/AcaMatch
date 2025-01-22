@@ -194,5 +194,8 @@ public class AcademyService {
         return res;
     }
 
+    public List<GetAcademyTagDto> getTagList(Long acaId){
+        return academyMapper.getTagList(acaId);
+    }
 
 }
