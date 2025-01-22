@@ -1,11 +1,18 @@
 package com.green.acamatch.academy.Service;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.config.MyFileUtils;
+import com.green.acamatch.config.exception.AcademyException;
+import com.green.acamatch.config.exception.CommonErrorCode;
+import com.green.acamatch.config.exception.CustomException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,22 +28,22 @@ public class AcademyService {
 
 
     //학원정보등록
+    @Transactional
     public int insAcademy(MultipartFile pic, AcademyPostReq req) {
 
         String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
 
         req.setAcaPic(savedPicName);
 
-        int result = academyMapper.insAcademy(req);
-
-        if(result ==0) {
-            academyMessage.setMessage("학원정보등록이 실패하였습니다.");
-            return result;
+        try {
+            int result = academyMapper.insAcademy(req);
+        } catch (Exception e) {
+            throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
         }
 
-        if(pic == null){
+        if (pic == null) {
             academyMessage.setMessage("학원정보등록이 완료되었습니다.");
-            return result;
+            return 1;
         }
 
         long acaId = req.getAcaId();
@@ -44,18 +51,21 @@ public class AcademyService {
         myFileUtils.makeFolders(middlePath);
         String filePath = String.format("%s/%s", middlePath, savedPicName);
 
-        try{
+        try {
             myFileUtils.transferTo(pic, filePath);
-        }catch (IOException e){
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
         }
 
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
-        return result;
+        return 1;
+
+
     }
 
 
     //학원정보수정
+    @Transactional
     public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
         // 프로필 사진 처리
         if (pic != null && !pic.isEmpty()) {
@@ -72,23 +82,23 @@ public class AcademyService {
             // 파일 저장
             String filePath = String.format("%s/%s", targetDir, savedFileName);
 
-            try{
+            try {
                 myFileUtils.transferTo(pic, filePath);
-            }catch (IOException e){
-                e.printStackTrace();
+            } catch (IOException e) {
+                throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
             }
         }
 
         int result = academyMapper.updAcademy(req);
-        if(result == 0) {
+        if (result == 0) {
             academyMessage.setMessage("학원정보수정을 실패하였습니다.");
             return result;
         }
 
-        if(req.getTagIdList() != null) {
+        if (req.getTagIdList() != null) {
             academyMapper.delAcaTag(req.getAcaId());
             int result2 = academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
-            if(result2 == 0){
+            if (result2 == 0) {
                 academyMessage.setMessage("태그문제로 정보수정이 실패하였습니다.");
                 return result2;
             }
@@ -100,9 +110,9 @@ public class AcademyService {
     //학원정보삭제
     public int delAcademy(AcademyDeleteReq req) {
         academyMapper.delAcaTag(req.getAcaId());
-        int result = academyMapper.delAcademy(req);
+        int result = academyMapper.delAcademy(req.getAcaId(), req.getUserId());
 
-        if(result == 1) {
+        if (result == 1) {
             academyMessage.setMessage("학원정보가 삭제되었습니다.");
             return result;
         } else {
@@ -115,7 +125,7 @@ public class AcademyService {
     public List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req) {
         List<AcademyBestLikeGetRes> list = academyMapper.getAcademyBest(req);
 
-        if(list == null) {
+        if (list == null) {
             academyMessage.setMessage("좋아요를 받은 학원이 없습니다.");
             return null;
         }
@@ -125,12 +135,12 @@ public class AcademyService {
 
 // --------------------------------------------------------------
 
-    public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
+    public List<GetAcademyRes> getAcademyRes(GetAcademyReq p) {
         List<GetAcademyRes> res = academyMapper.getAcademy(p);
         return res;
     }
 
-    public GetAcademyDetail getAcademyDetail(Long acaId){
+    public GetAcademyDetail getAcademyDetail(Long acaId) {
         GetAcademyDetail res = academyMapper.getAcademyDetail(acaId);
         return res;
     }
