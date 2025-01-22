@@ -21,6 +21,7 @@ public class ChatController {
     }
 
     @GetMapping("log")
+    @Operation(description = "sender-type : {0: user-> aca, 1: aca -> user}")
     public ResultResponse<List<ChatLogRes>> getQnas(@ParameterObject @ModelAttribute ChatReq req) {
         return ResultResponse.<List<ChatLogRes>>builder().resultData(chatService.getQna(req)).build();
     }
