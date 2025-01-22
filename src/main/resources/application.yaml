@@ -48,7 +48,7 @@ spring:
     name: studyBridge
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: jdbc:log4jdbc:mariadb://localhost/acamatch
+    url: jdbc:log4jdbc:mariadb://localhost/acamatch2
     username: root
     password: green502
   servlet:
