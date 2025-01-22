@@ -52,6 +52,7 @@ public class TagService {
         }
     }
 
+
     //학원태그 수정을 위한 delete
     public int delAcaTag(AcademyUpdateReq req) {
         int result = academyMapper.delAcaTag(req.getAcaId());

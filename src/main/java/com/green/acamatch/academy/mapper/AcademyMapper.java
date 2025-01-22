@@ -6,6 +6,7 @@ import com.green.acamatch.academy.tag.SelTagReq;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface AcademyMapper {
@@ -17,6 +18,7 @@ public interface AcademyMapper {
     int insAcademy(AcademyPostReq req);
 
     int updAcademy(AcademyUpdateReq req);
+    Optional<String> getAcademyAddress(long acaId);
     int delAcademy(long acaId, long userId);
 
     List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req);

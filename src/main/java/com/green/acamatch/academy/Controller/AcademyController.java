@@ -39,7 +39,7 @@ public class AcademyController {
 
     @PutMapping
     @Operation(summary = "학원정보수정", description = "acaId, userId는 필수로 받고, 수정하기 원하는 항목 값을 입력합니다.")
-    public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyUpdateReq req) {
+    public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart AcademyUpdateReq req) {
         int result = academyService.updAcademy(pic, req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())

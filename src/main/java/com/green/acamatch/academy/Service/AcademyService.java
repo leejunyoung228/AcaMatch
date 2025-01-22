@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -60,9 +61,7 @@ public class AcademyService {
 
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;
-
     }
-
 
     //학원정보수정
     @Transactional
@@ -92,6 +91,22 @@ public class AcademyService {
             }
         }
 
+        if (req.getAddressDto() != null) {
+            AddressDto dto = addressDecoding(academyMapper.getAcademyAddress(req.getAcaId()).orElseThrow(() ->
+                    new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION
+                    )));
+            AddressDto reqDto = req.getAddressDto();
+            if (reqDto.getAddress() == null || reqDto.getAddress().isEmpty()) {
+                reqDto.setAddress(dto.getAddress());
+            }
+            if (reqDto.getDetailAddress() == null || reqDto.getDetailAddress().isEmpty()) {
+                reqDto.setDetailAddress((dto.getDetailAddress()));
+            }
+            if (reqDto.getPostNum() == null || reqDto.getPostNum().isEmpty()) {
+                reqDto.setPostNum((dto.getPostNum()));
+            }
+            req.setAddress(addressEncoding(reqDto));
+        }
         int result = academyMapper.updAcademy(req);
 
 
@@ -100,13 +115,16 @@ public class AcademyService {
             return result;
         }
 
-        if(req.getTagIdList() != null) {
-            academyMapper.delAcaTag(req.getAcaId());
-            int result2 = academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
-            if(result2 == 0){
-                academyMessage.setMessage("태그문제로 정보수정이 실패하였습니다.");
-                return result2;
+        if (req.getTagIdList() != null) {
+            try {
+                academyMapper.delAcaTag(req.getAcaId());
+                academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+
+            } catch (DataIntegrityViolationException e) {
+                throw new CustomException(AcademyException.DUPLICATE_TAG);
+
             }
+
         }
         academyMessage.setMessage("학원정보수정이 완료되었습니다.");
         return result;
@@ -163,7 +181,7 @@ public class AcademyService {
                 address.substring(
                         address.indexOf(addressConst.getStartSep() + addressConst.getPostNumSep())
                                 + addressConst.getStartSep().length() + addressConst.getPostNumSep().length(),
-                        address.indexOf(addressConst.getEndSep()+addressConst.getPostNumSep())
+                        address.indexOf(addressConst.getEndSep() + addressConst.getPostNumSep())
                 ));
         return res;
     }

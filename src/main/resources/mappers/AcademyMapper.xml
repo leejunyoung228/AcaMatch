@@ -77,6 +77,13 @@
         AND user_id = #{userId}
     </update>
 
+
+    <select id="getAcademyAddress">
+        SELECT address
+        FROM academy
+        WHERE aca_id = #{acaId}
+    </select>
+
 <!--학원정보수정에서 태그수정을 위한 삭제처리-->
     <delete id="delAcaTag">
         DELETE FROM academytag

@@ -30,7 +30,6 @@ public class AcademyUpdateReq {
     @Schema(title = "학원마감시간")
     private LocalTime closeTime;
 
-    @Schema(title = "학원주소")
     @JsonIgnore
     private String address;
     @Schema(title = "학원주소")
