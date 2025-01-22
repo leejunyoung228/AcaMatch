@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetCategorySearch {
-    private String categoryName;
+public class GetCategorySearchRes {
+    private long categoryId;
 }

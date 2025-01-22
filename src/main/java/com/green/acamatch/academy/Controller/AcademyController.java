@@ -90,14 +90,14 @@ public class AcademyController {
                 .build();
     }
 
-   /* @GetMapping("tagList")
+    @GetMapping("tagList/{acaId}")
     @Operation(summary = "등록된 태그 불러오기")
-    public ResultResponse<List<GetTagList>> getTagList(){
-        List<GetTagList> list = academyService.getTagList();
-        return ResultResponse.<List<GetTagList>>builder()
+    public ResultResponse<List<GetAcademyTagDto>> getTagList(@PathVariable @ModelAttribute Long acaId){
+        List<GetAcademyTagDto> list = academyService.getTagList(acaId);
+        return ResultResponse.<List<GetAcademyTagDto>>builder()
                 .resultMessage("태그 불러오기")
                 .resultData(list)
                 .build();
-    }*/ //태그 불러오기 수정필요해서 주석처리했다.
+    }
 
 }

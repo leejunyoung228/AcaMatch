@@ -113,26 +113,41 @@
 
     <resultMap id="getTagDtoResultMap" type="com.green.acamatch.academy.model.GetAcademyTagDto">
         <id property="tagId" column="tagId" />
-        <result property="tagName" column="tagName" />
+        <result property="tagName" column="tagName" javaType="java.lang.String"/>
     </resultMap>
 
     <select id="getAcademy" resultMap="searchResultMap">
-        SELECT A.aca_id AS acaId, A.aca_name AS acaName, A.aca_pic AS acaPic, A.address,  F.tag_name AS tagName
-        ,F.tag_id AS tagId , F.`tag_name` AS tagName, G.star
+        SELECT *
+        FROM (
+        SELECT A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        A.aca_pic AS acaPic,
+        A.address,
+        F.tag_id AS tagId,
+        F.tag_name AS tagName,
+        G.star
         FROM academy A
-        JOIN class B
-        ON A.aca_id = B.aca_id
-        JOIN joinclass C
-        ON B.class_id = C.class_id
-        JOIN academytag E
-        ON A.aca_id = E.aca_id
-        JOIN tag F
-        ON E.tag_id = F.tag_id
-        join (select round(avg(star), 2) as star, join_class_id from review group by join_class_id) G
-        on C.join_class_id = G.join_class_id
-        WHERE A.dong_id = 778
-        AND F.tag_name like concat ('%', #{tagName}, '%')
+        JOIN class B ON A.aca_id = B.aca_id
+        JOIN joinclass C ON B.class_id = C.class_id
+        JOIN academytag E ON A.aca_id = E.aca_id
+        JOIN tag F ON E.tag_id = F.tag_id
+        JOIN (
+        SELECT ROUND(AVG(star), 2) AS star, join_class_id
+        FROM review
+        GROUP BY join_class_id
+        ) G ON C.join_class_id = G.join_class_id
+        WHERE A.dong_id = #{dongId}
+        AND A.aca_id IN (
+        SELECT DISTINCT A.aca_id
+        FROM academy A
+        JOIN academytag E ON A.aca_id = E.aca_id
+        JOIN tag F ON E.tag_id = F.tag_id
+        WHERE F.tag_name LIKE CONCAT('%', #{tagName}, '%')
+        )
+        ) AS result
+        group by acaId
         LIMIT #{startIdx}, #{size}
+
     </select>
     <select id="getAcademyDetail">
         SELECT A.aca_id, A.aca_phone, A.aca_name, A.aca_pic, A.COMMENT, A.teacher_num, A.open_time, A.close_time, address
@@ -140,8 +155,13 @@
         WHERE aca_id = #{acaId}
     </select>
     <select id="getTagList">
-        select tag_name AS tagName
-        from tag
+        SELECT A.tag_id, A.tag_name
+        FROM tag A
+        JOIN academytag B
+        ON A.tag_id = B.tag_id
+        JOIN academy C
+        ON B.aca_id = C.aca_id
+        WHERE C.aca_id = #{acaId}
     </select>
     <select id="getCategorySearch">
         SELECT DISTINCT F.aca_name
@@ -163,5 +183,6 @@
         insert into search
         set tag_id = #{tagId}
     </insert>
+
 
 </mapper>

@@ -1,16 +1,11 @@
 package com.green.acamatch.academy.Service;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.config.MyFileUtils;
-import com.green.acamatch.config.exception.AcademyException;
-import com.green.acamatch.config.exception.CommonErrorCode;
-import com.green.acamatch.config.exception.CustomException;
-import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -109,7 +104,7 @@ public class AcademyService {
     //학원정보삭제
     public int delAcademy(AcademyDeleteReq req) {
         academyMapper.delAcaTag(req.getAcaId());
-        int result = academyMapper.delAcademy(req);
+        int result = academyMapper.delAcademy(req.getAcaId(), req.getUserId());
 
         if(result == 1) {
             academyMessage.setMessage("학원정보가 삭제되었습니다.");
@@ -157,5 +152,8 @@ public class AcademyService {
         return res;
     }
 
+    public List<GetAcademyTagDto> getTagList(Long acaId){
+        return academyMapper.getTagList(acaId);
+    }
 
 }
