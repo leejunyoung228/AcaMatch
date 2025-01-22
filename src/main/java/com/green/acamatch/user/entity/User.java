@@ -25,31 +25,31 @@ public class User {
     @JoinColumn(name = "role_id", referencedColumnName = "role_id")
     private Role role;
 
-    @Column(name = "sign_up_type")
+    @Column(name = "sign_up_type", nullable = false)
     private Integer signUpType;
 
-    @Column(name = "name", length = 20)
+    @Column(name = "name", length = 20, nullable = false)
     private String name;
 
-    @Column(name = "phone", length = 15)
+    @Column(name = "phone", length = 15, nullable = false)
     private String phone;
 
-    @Column(name = "birth")
+    @Column(name = "birth", nullable = false)
     private LocalDate birth;
 
-    @Column(name = "nick_name", length = 20)
+    @Column(name = "nick_name", length = 20, nullable = false, unique = true)
     private String nickName;
 
-    @Column(name = "email", length = 50)
+    @Column(name = "email", length = 50, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "upw", length = 100)
+    @Column(name = "upw", length = 100, nullable = false)
     private String upw;
 
     @Column(name = "user_pic", length = 50)
     private String userPic;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
