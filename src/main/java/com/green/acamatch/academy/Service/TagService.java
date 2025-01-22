@@ -7,10 +7,15 @@ import com.green.acamatch.academy.model.AcademyUpdateReq;
 import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
 import com.green.acamatch.academy.tag.SelTagRes;
+import com.green.acamatch.config.exception.AcademyException;
+import com.green.acamatch.config.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 @Slf4j
@@ -38,8 +43,13 @@ public class TagService {
 
     //학원등록할때 태그 insert
     public int insAcaTag(AcademyPostReq req) {
-        int result = academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
-        return result;
+        try {
+            int result = academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+            return result;
+        } catch (DataIntegrityViolationException e) {
+            academyMapper.delAcademy(req.getAcaId(), req.getUserId());
+            throw new CustomException(AcademyException.DUPLICATE_TAG);
+        }
     }
 
     //학원태그 수정을 위한 delete

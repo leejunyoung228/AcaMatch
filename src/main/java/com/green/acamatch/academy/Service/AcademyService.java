@@ -1,11 +1,18 @@
 package com.green.acamatch.academy.Service;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.config.MyFileUtils;
+import com.green.acamatch.config.exception.AcademyException;
+import com.green.acamatch.config.exception.CommonErrorCode;
+import com.green.acamatch.config.exception.CustomException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,6 +28,7 @@ public class AcademyService {
 
 
     //학원정보등록
+    @Transactional
     public int insAcademy(MultipartFile pic, AcademyPostReq req) {
 
         String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
@@ -56,6 +64,7 @@ public class AcademyService {
 
 
     //학원정보수정
+    @Transactional
     public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
         // 프로필 사진 처리
         if (pic != null && !pic.isEmpty()) {

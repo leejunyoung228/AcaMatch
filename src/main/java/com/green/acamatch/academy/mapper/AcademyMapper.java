@@ -17,7 +17,7 @@ public interface AcademyMapper {
     int insAcademy(AcademyPostReq req);
 
     int updAcademy(AcademyUpdateReq req);
-    int delAcademy(AcademyDeleteReq req);
+    int delAcademy(long acaId, long userId);
 
     List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req);
 
