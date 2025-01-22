@@ -19,6 +19,7 @@
         ON A.user_id = C.user_id
         WHERE A.user_id = #{userId}
         AND A.aca_id = #{acaId}
+        ORDER BY qna_id DESC
         LIMIT #{startIdx}, #{size}
     </select>
     <select id="selUserList">
