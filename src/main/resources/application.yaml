@@ -1,4 +1,10 @@
 constant:
+  address-const:
+    start-sep: "@"
+    end-sep: "#"
+    detail-address-sep: detail
+    post-num-sep: post
+
   info-const:
     title: JWT Practice
     description: JWT + Security 고도화

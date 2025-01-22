@@ -44,11 +44,13 @@ public class AcademyPostReq {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime closeTime;
 
-    @NotEmpty
+    @JsonIgnore
     @Schema(title = "학원주소", example = "대구 달서천로100길 10-100", requiredMode = Schema.RequiredMode.REQUIRED)
     private String address;
     @Schema(title = "학원사진")
     private String acaPic;
+
+    private AddressDto addressDto;
 
 
     @Schema(title = "태그Id 리스트")

@@ -1,5 +1,6 @@
 package com.green.acamatch.academy.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
@@ -28,8 +29,13 @@ public class AcademyUpdateReq {
     private LocalTime openTime;
     @Schema(title = "학원마감시간")
     private LocalTime closeTime;
+
     @Schema(title = "학원주소")
+    @JsonIgnore
     private String address;
+    @Schema(title = "학원주소")
+    private AddressDto addressDto;
+
     @Schema(title = "학원사진")
     private String acaPic;
     @Schema(title = "태그Id 리스트")
