@@ -1,15 +1,12 @@
 package com.green.acamatch.academy.Service;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AddressConst;
 import com.green.acamatch.config.exception.AcademyException;
-import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserMessage;
-import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -89,7 +86,7 @@ public class AcademyService {
             // 파일 저장
             String filePath = String.format("%s/%s", targetDir, savedFileName);
 
-            try {
+            try{
                 myFileUtils.transferTo(pic, filePath);
             } catch (IOException e) {
                 throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
@@ -128,7 +125,6 @@ public class AcademyService {
             } catch (DataIntegrityViolationException e) {
                 throw new CustomException(AcademyException.DUPLICATE_TAG);
             }
-
         }
         academyMessage.setMessage("학원정보수정이 완료되었습니다.");
         return result;
@@ -139,7 +135,7 @@ public class AcademyService {
         academyMapper.delAcaTag(req.getAcaId());
         int result = academyMapper.delAcademy(req.getAcaId(), req.getUserId());
 
-        if (result == 1) {
+        if(result == 1) {
             academyMessage.setMessage("학원정보가 삭제되었습니다.");
             return result;
         } else {
@@ -152,7 +148,7 @@ public class AcademyService {
     public List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req) {
         List<AcademyBestLikeGetRes> list = academyMapper.getAcademyBest(req);
 
-        if (list == null) {
+        if(list == null) {
             academyMessage.setMessage("좋아요를 받은 학원이 없습니다.");
             return null;
         }
@@ -193,14 +189,31 @@ public class AcademyService {
 
 // --------------------------------------------------------------
 
-    public List<GetAcademyRes> getAcademyRes(GetAcademyReq p) {
+    public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
+        PostAcademySearch search = new PostAcademySearch();
+        search.setTagId(p.getTagId());
+        int post = academyMapper.postSearch(search);
         List<GetAcademyRes> res = academyMapper.getAcademy(p);
+        if(res.size() == 0) {
+            academyMessage.setMessage("학원 검색을 실패했습니다.");
+            return null;
+        }
+        academyMessage.setMessage("학원 검색을 성공했습니다.");
         return res;
     }
 
-    public GetAcademyDetail getAcademyDetail(Long acaId) {
+    public GetAcademyDetail getAcademyDetail(Long acaId){
         GetAcademyDetail res = academyMapper.getAcademyDetail(acaId);
+        if(res == null) {
+            academyMessage.setMessage("학원의 상세 정보 불러오기를 실패했습니다.");
+            return null;
+        }
+        academyMessage.setMessage("학원의 상세 정보 불러오기를 성공했습니다.");
         return res;
+    }
+
+    public List<GetAcademyTagDto> getTagList(Long acaId){
+        return academyMapper.getTagList(acaId);
     }
 
 }
