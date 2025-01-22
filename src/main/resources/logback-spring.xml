@@ -8,6 +8,10 @@
     <property name="LOG_PATTERN_FILE" value="[%d{yyyy-MM-dd HH:mm:ss} %-6level%thread] [%logger] %msg%n" />
     <property name="LOG_PATTERN_CONSOLE" value="[%d{yyyy-MM-dd HH:mm:ss} %color(%-6level){}%thread] %color([%logger]){cyan} %msg%n" />
 
+    <typeHandlers>
+        <typeHandler handler="com.green.acamatch.config.exception.StringToListTypeHandler" javaType="java.util.List" jdbcType="VARCHAR" />
+    </typeHandlers>
+
     <!-- 로그 파일 세팅 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 로그 파일 위치 -->

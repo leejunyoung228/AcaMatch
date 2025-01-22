@@ -100,4 +100,33 @@ public class AcademyController {
                 .build();
     }
 
+    @GetMapping("getCity")
+    @Operation(summary = "도시 리스트 불러오기")
+    public ResultResponse<List<GetCityRes>> getCityList(){
+        List<GetCityRes> res = academyService.getCityList();
+        return ResultResponse.<List<GetCityRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("getStreet")
+    @Operation(summary = "시/군/구 리스트 불러오기")
+    public ResultResponse<List<GetStreetRes>> getStreetList(GetStreetReq p){
+        List<GetStreetRes> res = academyService.getStreetList(p);
+        return ResultResponse.<List<GetStreetRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("getDong")
+    @Operation(summary = "동 리스트 불러오기")
+    public ResultResponse<List<GetDongRes>> getDongList(GetDongReq p) {
+        List<GetDongRes> res = academyService.getDongList(p);
+        return ResultResponse.<List<GetDongRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
 }
