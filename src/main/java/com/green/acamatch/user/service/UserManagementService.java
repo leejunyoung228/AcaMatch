@@ -63,10 +63,10 @@ public class UserManagementService {
 
     public void updateUser(UserUpdateReq req) {
         User user = userUtils.getUserById(AuthenticationFacade.getSignedUserId());
-        user.setName(req.getName());
-        user.setNickName(req.getNickName());
-        user.setBirth(req.getBirth());
-        user.setPhone(req.getPhone());
+        if(req.getName() != null) user.setName(req.getName());
+        if(req.getNickName() != null) user.setNickName(req.getNickName());
+        if(req.getBirth() != null) user.setBirth(req.getBirth());
+        if(req.getPhone() != null) user.setPhone(req.getPhone());
         userRepository.save(user);
     }
 
