@@ -30,4 +30,13 @@ public interface AcademyMapper {
     int postSearch(PostAcademySearch p);
     List<GetAcademyTagDto> getTagList(Long acaId);
 
+    // 도시 리스트 가져오기
+    List<GetCityRes> getCity();
+
+    // 시/군/구 리스트 가져오기
+    List<GetStreetRes> getStreet(GetStreetReq p);
+
+    // 동 리스트 가져오기
+    List<GetDongRes> getDong(GetDongReq p);
+
 }

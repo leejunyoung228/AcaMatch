@@ -198,4 +198,26 @@ public class AcademyService {
         return academyMapper.getTagList(acaId);
     }
 
+    // 도시 리스트 가져오기
+    public List<GetCityRes> getCityList() {return academyMapper.getCity();}
+
+    // 시/군/구 리스트 가져오기
+    public List<GetStreetRes> getStreetList(GetStreetReq p) {
+        List<GetStreetRes> list = academyMapper.getStreet(p);
+        if(list == null){
+            academyMessage.setMessage("시/군/구 리스트를 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("시/군/구 리스트를 불러오기 성공");
+        return academyMapper.getStreet(p);}
+
+    // 동 리스트 가져오기
+    public List<GetDongRes> getDongList(GetDongReq p) {
+        List<GetDongRes> list = academyMapper.getDong(p);
+        if(list == null){
+            academyMessage.setMessage("동 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("동 리스트 불러오기 성공");
+        return academyMapper.getDong(p);}
 }
