@@ -50,7 +50,7 @@
         <collection property="day" resultMap="AcaClassWeekDayResultMap" />
         <collection property="YearsAndLevel" resultMap="YearsAndLevelResultMap" />
     </resultMap>
-    
+
     <resultMap id="AcaClassWeekDayResultMap" type="String">
         <id property="day" column="day" />
     </resultMap>

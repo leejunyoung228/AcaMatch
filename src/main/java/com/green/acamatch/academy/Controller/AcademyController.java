@@ -70,11 +70,11 @@ public class AcademyController {
 // -------------------------------------------------------------
 
     @GetMapping("academyList")
-    @Operation(summary = "학원 리스트 검색")
+    @Operation(summary = "학원 리스트 검색", description = "startIdx, size 값은 지우고 해보시면 됩니다, 완성이라고 생각했는데, 생각했던거랑 다르게 돌아가야 할것 같아서 아직 미완성입니다. ㅠㅠ")
     public ResultResponse<List<GetAcademyRes>> getAcademyList(@ParameterObject @ModelAttribute GetAcademyReq p){
         List<GetAcademyRes> res = academyService.getAcademyRes(p);
         return ResultResponse.<List<GetAcademyRes>>builder()
-                .resultMessage("학원리스트 검색 성공")
+                .resultMessage(academyMessage.getMessage())
                 .resultData(res)
                 .build();
     }
@@ -85,19 +85,19 @@ public class AcademyController {
         GetAcademyDetail res = academyService.getAcademyDetail(acaId);
         log.info("result: {}", res);
         return ResultResponse.<GetAcademyDetail>builder()
-                .resultMessage("학원 상세보기 성공")
+                .resultMessage(academyMessage.getMessage())
                 .resultData(res)
                 .build();
     }
 
-   /* @GetMapping("tagList")
+    @GetMapping("tagList/{acaId}")
     @Operation(summary = "등록된 태그 불러오기")
-    public ResultResponse<List<GetTagList>> getTagList(){
-        List<GetTagList> list = academyService.getTagList();
-        return ResultResponse.<List<GetTagList>>builder()
+    public ResultResponse<List<GetAcademyTagDto>> getTagList(@PathVariable @ModelAttribute Long acaId){
+        List<GetAcademyTagDto> list = academyService.getTagList(acaId);
+        return ResultResponse.<List<GetAcademyTagDto>>builder()
                 .resultMessage("태그 불러오기")
                 .resultData(list)
                 .build();
-    }*/ //태그 불러오기 수정필요해서 주석처리했다.
+    }
 
 }
