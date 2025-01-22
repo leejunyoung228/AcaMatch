@@ -3,6 +3,7 @@ package com.green.acamatch.academy.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,8 +21,10 @@ public class AcademyPostReq {
 
     private long dongId;
 
+    @NotEmpty
     @Schema(title = "학원이름", example = "영재수학학원", requiredMode = Schema.RequiredMode.REQUIRED)
     private String acaName;
+    @NotEmpty
     @Schema(title = "학원전화번호", example = "01012341234", requiredMode = Schema.RequiredMode.REQUIRED)
     private String acaPhone;
     @Schema(title = "학원내용", example = "여기는 수학전문학원입니다.")
@@ -37,6 +40,7 @@ public class AcademyPostReq {
     @JsonFormat(pattern = "HH:mm")
     private String closeTime;
 
+    @NotEmpty
     @Schema(title = "학원주소", example = "대구 달서천로100길 10-100", requiredMode = Schema.RequiredMode.REQUIRED)
     private String address;
     @Schema(title = "학원사진")
