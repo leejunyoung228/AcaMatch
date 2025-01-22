@@ -34,13 +34,19 @@ public class UserController {
     )
     public ResultResponse<Integer> signUp(@Valid @RequestBody UserSignUpReq req) {
         authService.sendSignUpEmail(req);
-        return null;
+        return ResultResponse.<Integer>builder()
+                .resultMessage("이메일 발송 성공")
+                .resultData(1)
+                .build();
     }
 
     @GetMapping("sign-up")
     @Operation(summary = "회원가입 완료")
     public ResultResponse<UserSignInRes> finishSignUp(String token, HttpServletResponse response) {
-        return ResultResponse.<UserSignInRes>builder().resultData(userManagementService.signUp(token, response)).build();
+        return ResultResponse.<UserSignInRes>builder()
+                .resultMessage("회원 가입 성공")
+                .resultData(userManagementService.signUp(token, response))
+                .build();
     }
 
     @PostMapping("sign-in")
@@ -48,6 +54,7 @@ public class UserController {
     public ResultResponse<UserSignInRes> signIn(@Valid @RequestBody UserSignInReq req, HttpServletResponse response) {
         UserSignInRes res = authService.signIn(req, response);
         return ResultResponse.<UserSignInRes>builder()
+                .resultMessage("로그인 성공")
                 .resultData(res)
                 .build();
     }
@@ -56,6 +63,7 @@ public class UserController {
     @Operation(summary = "회원 정보 조회")
     public ResultResponse<UserInfo> getUserInfo() {
         return ResultResponse.<UserInfo>builder()
+                .resultMessage("회원 정보 조회 성공")
                 .resultData(userService.getUserInfo())
                 .build();
     }
@@ -66,8 +74,10 @@ public class UserController {
             description = "<strong>type</strong> : email 또는 nick-name 중 택 일</br><strong>text</strong> : 검사할 문자"
     )
     public ResultResponse<Integer> checkDuplicate(@RequestParam String text, @PathVariable String type) {
-        int res = userUtils.checkDuplicate(text, type);
-        return ResultResponse.<Integer>builder().resultData(res).build();
+        return ResultResponse.<Integer>builder()
+                .resultMessage("중복 되지 않습니다")
+                .resultData(userUtils.checkDuplicate(text, type))
+                .build();
     }
 
     @PatchMapping
@@ -75,6 +85,7 @@ public class UserController {
     public ResultResponse<Integer> updateUserPic(@RequestPart MultipartFile pic) {
         userManagementService.updateUserPic(pic);
         return ResultResponse.<Integer>builder()
+                .resultMessage("프로필 사진 업로드 성공")
                 .resultData(1)
                 .build();
     }
@@ -84,6 +95,7 @@ public class UserController {
     public ResultResponse<Integer> updateUser(@Valid @RequestBody UserUpdateReq req) {
         userManagementService.updateUser(req);
         return ResultResponse.<Integer>builder()
+                .resultMessage("회원 정보 수정 성공")
                 .resultData(1)
                 .build();
     }
@@ -92,13 +104,17 @@ public class UserController {
     @Operation(summary = "회원 탈퇴")
     public ResultResponse<Integer> deleteUser(@RequestBody UserDeleteReq req) {
         userManagementService.deleteUser(req);
-        return ResultResponse.<Integer>builder().resultData(1).build();
+        return ResultResponse.<Integer>builder()
+                .resultMessage("회원 탈퇴 성공")
+                .resultData(1)
+                .build();
     }
 
     @GetMapping("access-token")
     @Operation(summary = "액세스 토큰 재발행")
     public ResultResponse<String> getAccessToken(HttpServletRequest request) {
         return ResultResponse.<String>builder()
+                .resultMessage("액세스 토큰 재발행 성공")
                 .resultData(authService.getAccessToken(request))
                 .build();
     }
