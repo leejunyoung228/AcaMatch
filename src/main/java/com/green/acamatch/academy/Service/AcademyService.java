@@ -3,9 +3,10 @@ package com.green.acamatch.academy.Service;
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.config.MyFileUtils;
+import com.green.acamatch.config.constant.AddressConst;
+import com.green.acamatch.config.exception.UserMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,11 +21,15 @@ public class AcademyService {
     private final AcademyMapper academyMapper;
     private final MyFileUtils myFileUtils;
     private final AcademyMessage academyMessage;
+    private final UserMessage userMessage;
+    private final AddressConst addressConst;
 
 
     //학원정보등록
     @Transactional
     public int insAcademy(MultipartFile pic, AcademyPostReq req) {
+
+        req.setAddress(addressEncoding(req.getAddressDto()));
 
         String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
 
@@ -54,13 +59,17 @@ public class AcademyService {
         }
 
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
-        return result;
+        return 1;
+
     }
 
 
     //학원정보수정
     @Transactional
     public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
+        //아무것도 입력안했을 때
+
+
         // 프로필 사진 처리
         if (pic != null && !pic.isEmpty()) {
             String targetDir = String.format("%s/%d", "academy", req.getAcaId());
@@ -84,7 +93,9 @@ public class AcademyService {
         }
 
         int result = academyMapper.updAcademy(req);
-        if(result == 0) {
+
+
+        if (result == 0) {
             academyMessage.setMessage("학원정보수정을 실패하였습니다.");
             return result;
         }
@@ -127,6 +138,37 @@ public class AcademyService {
         return list;
     }
 
+    //주소 인코딩
+    public String addressEncoding(AddressDto addressDto) {
+        return addressDto.getAddress() +
+                addressConst.getStartSep() + addressConst.getDetailAddressSep()
+                + addressDto.getDetailAddress() +
+                addressConst.getEndSep() + addressConst.getDetailAddressSep() +
+
+                addressConst.getStartSep() + addressConst.getPostNumSep()
+                + addressDto.getPostNum() +
+                addressConst.getEndSep() + addressConst.getPostNumSep();
+    }
+
+    //주소 디코딩
+    public AddressDto addressDecoding(String address) {
+        AddressDto res = new AddressDto();
+        res.setAddress(address.substring(0, address.indexOf(addressConst.getStartSep())));
+        res.setDetailAddress(
+                address.substring(
+                        address.indexOf(addressConst.getStartSep() + addressConst.getDetailAddressSep())
+                                + addressConst.getStartSep().length() + addressConst.getDetailAddressSep().length(),
+                        address.indexOf(addressConst.getEndSep() + addressConst.getDetailAddressSep())));
+        res.setPostNum(
+                address.substring(
+                        address.indexOf(addressConst.getStartSep() + addressConst.getPostNumSep())
+                                + addressConst.getStartSep().length() + addressConst.getPostNumSep().length(),
+                        address.indexOf(addressConst.getEndSep()+addressConst.getPostNumSep())
+                ));
+        return res;
+    }
+
+
 // --------------------------------------------------------------
 
     public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
@@ -152,8 +194,5 @@ public class AcademyService {
         return res;
     }
 
-    public List<GetAcademyTagDto> getTagList(Long acaId){
-        return academyMapper.getTagList(acaId);
-    }
 
 }

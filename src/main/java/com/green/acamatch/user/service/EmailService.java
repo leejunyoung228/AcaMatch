@@ -3,7 +3,6 @@ package com.green.acamatch.user.service;
 import com.green.acamatch.config.constant.EmailConst;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.EmailErrorCode;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -29,11 +28,12 @@ public class EmailService {
         MimeMessageHelper helper;
         try {
             helper = new MimeMessageHelper(mimeMessage, true);
+            helper.setFrom(emailConst.getFromEmail(), emailConst.getAlias());
             helper.setTo(to);
             helper.setSubject(emailConst.getSubject());
             helper.setText(getHtmlTemplate(token), true);
             javaMailSender.send(mimeMessage);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             throw new CustomException(EmailErrorCode.EMAIL_SEND_FAIL);
         }
     }
