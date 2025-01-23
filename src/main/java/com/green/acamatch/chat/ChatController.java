@@ -3,6 +3,7 @@ package com.green.acamatch.chat;
 import com.green.acamatch.chat.model.*;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("chat")
+@Tag(name = "채팅")
 public class ChatController {
     private final ChatService chatService;
     @PostMapping
