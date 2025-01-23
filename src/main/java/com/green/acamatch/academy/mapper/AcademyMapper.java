@@ -12,8 +12,11 @@ import java.util.Optional;
 public interface AcademyMapper {
 
     List<SelTagDto> selTagDtoList(SelTagReq req);
+
     int insAcaTag(long acaId, List<Long>tagIdList);
     int delAcaTag(long acaId);
+
+    AcademyGetDongPkRes selAddressDong(String dongName);
 
     int insAcademy(AcademyPostReq req);
 

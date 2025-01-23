@@ -6,12 +6,14 @@ import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AddressConst;
 import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.ErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -38,6 +40,8 @@ public class AcademyService {
         String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
 
         req.setAcaPic(savedPicName);
+
+        req.getAddressDto().getAddress();
 
         try {
             int result = academyMapper.insAcademy(req);
@@ -69,7 +73,13 @@ public class AcademyService {
     @Transactional
     public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
         //아무것도 입력안했을 때
-
+        if (!isValidValue(pic) && !isValidValue(req.getAcaName())
+            && !isValidValue(req.getAcaPhone()) && !isValidValue(req.getComment())
+            && !isValidValue(req.getTeacherNum()) && !isValidValue(req.getOpenTime())
+            && !isValidValue(req.getCloseTime()) && !isValidValue(req.getAddressDto())
+            && !isValidValue(req.getTagIdList().isEmpty())) {
+            throw new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION);
+        }
 
         // 프로필 사진 처리
         if (pic != null && !pic.isEmpty()) {
@@ -156,6 +166,7 @@ public class AcademyService {
         return list;
     }
 
+
     //주소 인코딩
     public String addressEncoding(AddressDto addressDto) {
         return addressDto.getAddress() +
@@ -184,6 +195,21 @@ public class AcademyService {
                         address.indexOf(addressConst.getEndSep() + addressConst.getPostNumSep())
                 ));
         return res;
+    }
+
+    //빈값인지 확인하는 메소드(String, int, long )
+    private boolean isValidValue(Object value) {
+        if (value instanceof String) {
+            return StringUtils.hasText((String) value);
+        } else if (value instanceof Integer || value instanceof Long) {
+            return value != null && ((Number) value).longValue() != 0;
+        }
+        return false;
+    }
+
+    //dong_id 가져오는 메소드
+    private AcademyGetDongPkRes getDongPkRes(String dongName) {
+        return academyMapper.selAddressDong(dongName);
     }
 
 

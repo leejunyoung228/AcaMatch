@@ -27,6 +27,13 @@
         </foreach>
     </insert>
 
+<!--학원 주소 동pk 뽑아내기-->
+    <select id="selAddressDong">
+        SELECT dong_id
+        FROM dong
+        WHERE dong_name LIKE CONCAT('%', #{dongName}, '%');
+    </select>
+
 
 <!--학원정보등록-->
     <insert id="insAcademy" useGeneratedKeys="true" keyProperty="acaId">
