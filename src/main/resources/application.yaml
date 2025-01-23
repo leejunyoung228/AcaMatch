@@ -12,7 +12,7 @@ constant:
 
   email-const:
     base-url: http://localhost:8080
-    url: user/complete-sign-up
+    url: api/user/sign-up
     key: token
     template-name: emailTemplate
     expired-time: 900_000

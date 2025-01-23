@@ -35,7 +35,11 @@ public class UserManagementService {
     public UserSignInRes signUp(String token, HttpServletResponse response) {
         User user = signUpUserCache.verifyToken(token);
         userRepository.save(user);
-
+        try {
+            response.sendRedirect("/");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return userUtils.generateUserSignInResByUser(user, response);
     }
 
