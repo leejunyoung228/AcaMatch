@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 
 @Getter
 @Setter
-@ToString
-public class GetAcademyRes {
+public class GetAcademyBySearchNameRes {
     @Schema(title = "학원 PK", example = "1")
     private long acaId;
 
@@ -27,12 +25,10 @@ public class GetAcademyRes {
     @Schema(title = "학원 별점", example = "4.5")
     private double star;
 
-//    @Schema(title = "태그 PK", example = "1")
-//    private long tagId;
-
     @JsonIgnore
     private AddressDto addressDto;
 
     @Schema(title = "학원이 등록한 태그List", example = "국어, 영어...")
     private List<GetAcademyTagDto> tagName;
+
 }

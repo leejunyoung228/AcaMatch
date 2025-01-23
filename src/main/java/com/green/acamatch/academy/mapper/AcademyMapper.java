@@ -47,5 +47,12 @@ public interface AcademyMapper {
     // 동 리스트 가져오기
     List<GetDongRes> getDong(GetDongReq p);
 
+    //동만 입력해서 학원 리스트 불러오기
     List<GetAcademyByDongRes> getAcademyListByDong(GetAcademyByDongReq p);
+
+    //동과 검색어를 입력받아 학원 리스트 불러오기
+    List<GetAcademyBySearchNameRes> getAcademyListBySearchName(GetAcademyBySearchNameReq p);
+
+    //검색어만 입력받아 학원 리스트 불러오기
+    List<GetAcademyByOnlySearchNameRes> getAcademyByOnlySearchName(GetAcademyByOnlySearchNameReq p);
 }

@@ -111,18 +111,13 @@
         <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler" />
     </resultMap>
 
-    <resultMap id="getTagDtoResultMap" type="com.green.acamatch.academy.model.GetAcademyTagDto">
-        <id property="tagId" column="tagId" />
-        <result property="tagName" column="tag_name" javaType="java.lang.String" />
-    </resultMap>
-
     <select id="getAcademy" resultMap="searchResultMap">
         SELECT
         A.aca_id AS acaId,
         A.aca_name AS acaName,
         A.aca_pic AS acaPic,
-        A.address,
-        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_name SEPARATOR ', '), '') AS tagName,
+        A.address AS address,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
         COALESCE(G.star, 0) AS star
         FROM academy A
         LEFT JOIN academytag E
@@ -148,7 +143,7 @@
         WHERE F.tag_name LIKE CONCAT('%', #{tagName}, '%')
         )
         GROUP BY A.aca_id
-        ORDER BY A.aca_id
+        ORDER BY G.star DESC
         LIMIT #{startIdx}, #{size};
     </select>
 
@@ -216,6 +211,7 @@
         WHERE B.street_id = #{streetId}
         AND city_id = #{cityId};
     </select>
+
     <!-- 동까지만 입력받아 학원 리스트 불러오기-->
     <select id = "getAcademyListByDong">
         SELECT
@@ -223,7 +219,7 @@
         A.aca_name AS acaName,
         A.aca_pic AS acaPic,
         A.address,
-        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_name SEPARATOR ', '), '') AS tagName,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
         COALESCE(G.star, 0) AS star
         FROM academy A
         LEFT JOIN academytag E
@@ -242,7 +238,68 @@
         ON G.aca_id = A.aca_id
         WHERE A.dong_id = #{dongId}
         GROUP BY A.aca_id
-        ORDER BY A.aca_id
+        ORDER BY G.star DESC
         LIMIT #{startIdx}, #{size};
+    </select>
+
+    <!-- 검색어 입력받아서 학원 검색하기-->
+    <select id="getAcademyListBySearchName">
+        SELECT
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        A.aca_pic AS acaPic,
+        A.address AS address,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
+        COALESCE(G.star, 0) AS star
+        FROM academy A
+        LEFT JOIN academytag E
+        ON A.aca_id = E.aca_id
+        LEFT JOIN tag F
+        ON E.tag_id = F.tag_id
+        LEFT JOIN (
+        SELECT
+        ROUND(AVG(R.star), 2) AS star,
+        C.aca_id
+        FROM review R
+        JOIN class C
+        ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id
+        ) G
+        ON G.aca_id = A.aca_id
+        WHERE A.dong_id = #{dongId}
+        AND A.aca_name like concat ('%', #{searchName}, '%')
+        GROUP BY A.aca_id
+        ORDER BY G.star DESC
+        LIMIT #{startIdx}, #{size}
+    </select>
+
+    <!-- 검색어만 입력받아 학원 리스트 출력하기-->
+    <select id="getAcademyByOnlySearchName">
+        SELECT
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        A.aca_pic AS acaPic,
+        A.address AS address,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
+        COALESCE(G.star, 0) AS star
+        FROM academy A
+        LEFT JOIN academytag E
+        ON A.aca_id = E.aca_id
+        LEFT JOIN tag F
+        ON E.tag_id = F.tag_id
+        LEFT JOIN (
+        SELECT
+        ROUND(AVG(R.star), 2) AS star,
+        C.aca_id
+        FROM review R
+        JOIN class C
+        ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id
+        ) G
+        ON G.aca_id = A.aca_id
+        WHERE A.aca_name like concat ('%', #{searchName}, '%')
+        GROUP BY A.aca_id
+        ORDER BY A.aca_id ASC
+        LIMIT #{startIdx}, #{size}
     </select>
 </mapper>

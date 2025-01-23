@@ -24,6 +24,8 @@ public class GetAcademyByDongRes {
     @Schema(title = "학원 별점", example = "4.5")
     private double star;
 
+    private AddressDto addressDto;
+
     @Schema(title = "학원이 등록한 태그List", example = "국어, 영어...")
     private List<GetAcademyTagDto> tagName;
 }
