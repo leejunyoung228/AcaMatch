@@ -42,7 +42,7 @@ public class AuthService {
         return userUtils.generateUserSignInResByUser(user, response);
     }
 
-    public void sendSignUpEmail(UserSignUpReq req) {
+    public int sendSignUpEmail(UserSignUpReq req) {
         userUtils.checkDuplicate(req.getEmail(), "email");
         userUtils.checkDuplicate(req.getNickName(), "nick-name");
 
@@ -50,6 +50,7 @@ public class AuthService {
         String token = UUID.randomUUID().toString();
         emailService.sendCodeToEmail(req.getEmail(), token);
         signUpUserCache.saveToken(token, user);
+        return 1;
     }
 
     public String getAccessToken(HttpServletRequest request) {
