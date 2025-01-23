@@ -1,12 +1,12 @@
 package com.green.acamatch.joinClass;
 
 import com.green.acamatch.config.exception.UserMessage;
-import com.green.acamatch.joinClass.model.JoinClassDel;
-import com.green.acamatch.joinClass.model.JoinClassPostReq;
-import com.green.acamatch.joinClass.model.JoinClassPutReq;
+import com.green.acamatch.joinClass.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +23,10 @@ public class JoinClassService {
         }
         int result = mapper.insJoinClass(p);
         return result;
+    }
+
+    public List<JoinClassDto> selJoinClass(JoinClassGetReq p) {
+        return mapper.selJoinClass(p);
     }
 
     public int putJoinClass(JoinClassPutReq p) {

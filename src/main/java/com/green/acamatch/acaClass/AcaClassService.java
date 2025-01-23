@@ -2,15 +2,12 @@ package com.green.acamatch.acaClass;
 
 import com.green.acamatch.acaClass.model.*;
 import com.green.acamatch.config.exception.UserMessage;
-import com.green.acamatch.config.model.ResultResponse;
-import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -46,7 +43,7 @@ public class AcaClassService {
 
     //개강날 등록
     @Transactional
-    public int insAcaClassClassWeekDays(AcaClassClassWeekDays p) {
+    public int insAcaClassClassWeekDays(AcaClassWeekDaysRelation p) {
 
         int exists = mapper.existsClassWeekDays(p.getDayId(), p.getClassId());
         if (exists > 0) {
@@ -130,7 +127,7 @@ public class AcaClassService {
     }
 
     // 수업이 열리는 요일 삭제하기
-    public int delAcaClassDay(AcaClassClassWeekDays p) {
+    public int delAcaClassDay(AcaClassWeekDaysRelation p) {
         int result = mapper.delAcaClassDay(p);
 
         if (result == 1) {

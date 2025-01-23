@@ -15,6 +15,6 @@ public class GradePutReq {
     @Schema(title = "성적 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private long gradeId;
 
-    @Schema(title = "성적", example = "90")
+    @Schema(title = "성적", example = "10")
     private int score;
 }
