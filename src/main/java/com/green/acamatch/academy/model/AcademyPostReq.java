@@ -3,6 +3,7 @@ package com.green.acamatch.academy.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
@@ -44,11 +45,15 @@ public class AcademyPostReq {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime closeTime;
 
-    @NotEmpty
+    @JsonIgnore
     @Schema(title = "학원주소", example = "대구 달서천로100길 10-100", requiredMode = Schema.RequiredMode.REQUIRED)
     private String address;
+    @Valid
+    private AddressDto addressDto;
+
     @Schema(title = "학원사진")
     private String acaPic;
+
 
 
     @Schema(title = "태그Id 리스트")

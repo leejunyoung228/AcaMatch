@@ -9,6 +9,7 @@ import com.green.acamatch.like.model.AcaLikeReq;
 import com.green.acamatch.like.model.AcaLikeRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("like")
+@Tag(name = "학원 좋아요 관리")
 public class LikeController {
     private final LikeService service;
     private final UserMessage userMessage;
@@ -58,8 +60,8 @@ public class LikeController {
      * @param userId 유저 ID
      * @return 유저가 좋아요한 학원의 ID와 사진 리스트
      */
-    @GetMapping
-    @Operation(summary = "좋아요 한 학원 목록 및 사진 조회", description = "특정 유저가 좋아요한 학원의 목록 및 사진을 조회합니다.")
+    @GetMapping("/user")
+    @Operation(summary = "좋아요 한 학원 목록 및 사진 조회", description = "유저 본인이 좋아요한 학원의 목록 및 사진을 조회합니다.")
     public ResultResponse<List<LikedAcademyDto>> getUserLikes(@Parameter(description = "유저 ID") @RequestParam long userId) {
         List<LikedAcademyDto> likedAcademies = service.getUserLikesWithPics(userId);
         return ResultResponse.<List<LikedAcademyDto>>builder()

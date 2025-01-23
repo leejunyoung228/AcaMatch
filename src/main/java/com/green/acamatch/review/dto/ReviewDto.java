@@ -11,7 +11,7 @@ public class ReviewDto {
     @Schema(title = "수업 참여 ID", description = "리뷰가 연결된 수업 참여 ID", example = "5")
     private Long joinClassId;
 
-    @Schema(title = "작성자 ID", description = "리뷰 작성자의 유저 ID", example = "2136")
+    @Schema(title = "작성자 ID", description = "리뷰 작성자의 유저 ID", example = "1")
     private Long userId;
 
     @Schema(title = "작성자 닉네임", description = "리뷰 작성자의 닉네임", example = "Student123")

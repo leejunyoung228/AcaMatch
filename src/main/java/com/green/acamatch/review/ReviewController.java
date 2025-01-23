@@ -8,6 +8,7 @@ import com.green.acamatch.review.model.ReviewDelReq;
 import com.green.acamatch.review.model.ReviewPostReq;
 import com.green.acamatch.review.model.ReviewUpdateReq;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/review")
+@Tag(name = "학원 리뷰 관리")
 public class ReviewController {
     private final ReviewService service;
     private final UserMessage userMessage;
