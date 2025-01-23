@@ -151,11 +151,15 @@
         ORDER BY A.aca_id
         LIMIT #{startIdx}, #{size};
     </select>
+
+    <!-- 학원 상세 정보 보기 -->
     <select id="getAcademyDetail">
         SELECT A.aca_id, A.aca_phone, A.aca_name, A.aca_pic, A.COMMENT, A.teacher_num, A.open_time, A.close_time, address
         FROM academy A
         WHERE aca_id = #{acaId}
     </select>
+
+    <!-- 학원 태그 리스트 불러오기 -->
     <select id="getTagList">
         SELECT A.tag_id, A.tag_name
         FROM tag A
@@ -165,6 +169,8 @@
         ON B.aca_id = C.aca_id
         WHERE C.aca_id = #{acaId}
     </select>
+
+    <!-- 카테고리로 필터링하기-->
     <select id="getCategorySearch">
         SELECT DISTINCT F.aca_name
         FROM categorytype A
@@ -181,19 +187,27 @@
         AND D2.class_id = E.class_id
         )
     </select>
+
+    <!-- 검색시에 search 테이블에 post-->
     <insert id="postSearch" useGeneratedKeys="true" keyProperty="searchId">
         insert into search
         set tag_id = #{tagId}
     </insert>
+
+    <!-- 도시 리스트 불러오기-->
     <select id="getCity">
         SELECT city_id, city_name
         FROM city
     </select>
+
+    <!-- 시/군/구 리스트 불러오기-->
     <select id="getStreet">
         SELECT street_id, street_name
         FROM street
         WHERE city_id = #{cityId}
     </select>
+
+    <!-- 동 리스트 불러오기-->
     <select id="getDong">
         SELECT A.dong_id, A.dong_name
         FROM dong A
@@ -202,5 +216,33 @@
         WHERE B.street_id = #{streetId}
         AND city_id = #{cityId};
     </select>
-
+    <!-- 동까지만 입력받아 학원 리스트 불러오기-->
+    <select id = "getAcademyListByDong">
+        SELECT
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        A.aca_pic AS acaPic,
+        A.address,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_name SEPARATOR ', '), '') AS tagName,
+        COALESCE(G.star, 0) AS star
+        FROM academy A
+        LEFT JOIN academytag E
+        ON A.aca_id = E.aca_id
+        LEFT JOIN tag F
+        ON E.tag_id = F.tag_id
+        LEFT JOIN (
+        SELECT
+        ROUND(AVG(R.star), 2) AS star,
+        C.aca_id
+        FROM review R
+        JOIN class C
+        ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id
+        ) G
+        ON G.aca_id = A.aca_id
+        WHERE A.dong_id = #{dongId}
+        GROUP BY A.aca_id
+        ORDER BY A.aca_id
+        LIMIT #{startIdx}, #{size};
+    </select>
 </mapper>

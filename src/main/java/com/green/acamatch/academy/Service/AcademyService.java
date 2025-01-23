@@ -170,7 +170,7 @@ public class AcademyService {
 
 
 // --------------------------------------------------------------
-
+    //동과 태그를 입력받아 검색하고 search 테이블에 검색한 태그를 저장
     public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
         PostAcademySearch search = new PostAcademySearch();
         search.setTagId(p.getTagId());
@@ -184,6 +184,7 @@ public class AcademyService {
         return res;
     }
 
+    //학원 PK를 받아 학원 상세 정보 불러오기
     public GetAcademyDetail getAcademyDetail(Long acaId){
         GetAcademyDetail res = academyMapper.getAcademyDetail(acaId);
         if(res == null) {
@@ -194,6 +195,7 @@ public class AcademyService {
         return res;
     }
 
+    //태그 리스트 가져오기
     public List<GetAcademyTagDto> getTagList(Long acaId){
         return academyMapper.getTagList(acaId);
     }
@@ -209,7 +211,8 @@ public class AcademyService {
             return null;
         }
         academyMessage.setMessage("시/군/구 리스트를 불러오기 성공");
-        return academyMapper.getStreet(p);}
+        return academyMapper.getStreet(p);
+    }
 
     // 동 리스트 가져오기
     public List<GetDongRes> getDongList(GetDongReq p) {
@@ -219,5 +222,17 @@ public class AcademyService {
             return null;
         }
         academyMessage.setMessage("동 리스트 불러오기 성공");
-        return academyMapper.getDong(p);}
+        return list;
+    }
+
+    //동만 입력받아 학원 리스트 불러오기
+    public List<GetAcademyByDongRes> getAcademyByDongResList(GetAcademyByDongReq p){
+        List<GetAcademyByDongRes> list = academyMapper.getAcademyListByDong(p);
+        if(list == null){
+            academyMessage.setMessage("동만 입력받아 학원 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("동만 입력받아 학원 리스트 불러오기 성공");
+        return list;
+    }
 }

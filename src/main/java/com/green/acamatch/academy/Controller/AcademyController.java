@@ -129,4 +129,14 @@ public class AcademyController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("getAcademyListByDong")
+    @Operation(summary = "동만 입력받아 학원 리스트 불러오기")
+    public ResultResponse<List<GetAcademyByDongRes>> getAcademyByDongList(@ParameterObject @ModelAttribute GetAcademyByDongReq p){
+        List<GetAcademyByDongRes> list = academyService.getAcademyByDongResList(p);
+        return ResultResponse.<List<GetAcademyByDongRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(list)
+                .build();
+    }
 }
