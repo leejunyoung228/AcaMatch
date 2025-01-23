@@ -16,6 +16,17 @@
         WHERE class_id = #{classId} AND user_id = #{userId}
     </select>
 
+    <select id= "selJoinClass">
+        SELECT C.aca_pic, C.aca_name, B.class_name
+        FROM joinclass A
+        INNER JOIN class B
+        ON A.class_id = B.class_id
+        INNER JOIN academy C
+        ON B.aca_id = C.aca_id
+        WHERE A.user_id = #{userId}
+        LIMIT #{startIdx}, #{size}
+    </select>
+
     <update id = "updJoinClass">
         UPDATE joinclass
         <set>
