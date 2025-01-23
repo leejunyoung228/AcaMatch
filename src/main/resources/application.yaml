@@ -5,6 +5,13 @@ constant:
     detail-address-sep: detail
     post-num-sep: post
 
+#API 사용하려고
+  post-address-api-const:
+    base-url: https://api.odsay.com/v2/api # 얘는 나중에 git올리기전 빼고
+    search-pub-trans-path-url: /local/search/address.json?query=우편번호
+    param-api-key-name: apiKey
+    param-api-key-value: GxXDL514Ds52H/04R8HPPo+2TZlcR7sQrmNnwb8+Sxw
+
   info-const:
     title: JWT Practice
     description: JWT + Security 고도화
@@ -54,8 +61,11 @@ spring:
   servlet:
     multipart:
       max-file-size: 15MB
+
+  # API때문에 이걸로 바꿈
   jackson:
-    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
   jpa:
     open-in-view: false
     properties:
