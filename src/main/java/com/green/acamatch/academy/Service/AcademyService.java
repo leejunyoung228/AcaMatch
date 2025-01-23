@@ -39,16 +39,15 @@ public class AcademyService {
 
         req.setAcaPic(savedPicName);
 
-        int result = academyMapper.insAcademy(req);
-
-        if(result ==0) {
-            academyMessage.setMessage("학원정보등록이 실패하였습니다.");
-            return result;
+        try {
+            int result = academyMapper.insAcademy(req);
+        } catch (Exception e) {
+            throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
         }
 
-        if(pic == null){
+        if (pic == null) {
             academyMessage.setMessage("학원정보등록이 완료되었습니다.");
-            return result;
+            return 1;
         }
 
         long acaId = req.getAcaId();
@@ -56,10 +55,10 @@ public class AcademyService {
         myFileUtils.makeFolders(middlePath);
         String filePath = String.format("%s/%s", middlePath, savedPicName);
 
-        try{
+        try {
             myFileUtils.transferTo(pic, filePath);
-        }catch (IOException e){
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
         }
 
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
@@ -89,8 +88,8 @@ public class AcademyService {
 
             try{
                 myFileUtils.transferTo(pic, filePath);
-            }catch (IOException e){
-                e.printStackTrace();
+            } catch (IOException e) {
+                throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
             }
         }
 
@@ -125,9 +124,7 @@ public class AcademyService {
 
             } catch (DataIntegrityViolationException e) {
                 throw new CustomException(AcademyException.DUPLICATE_TAG);
-
             }
-
         }
         academyMessage.setMessage("학원정보수정이 완료되었습니다.");
         return result;
