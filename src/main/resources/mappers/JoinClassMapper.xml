@@ -10,6 +10,25 @@
         certification = #{certification}
     </insert>
 
+    <select id = "existsJoinClass" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM joinclass
+        WHERE class_id = #{classId} AND user_id = #{userId}
+    </select>
+
+    <update id = "updJoinClass">
+        UPDATE joinclass
+        <set>
+            <if test =" discount != null">
+                discount = #{discount},
+            </if>
+            <if test =" certification != null">
+                certification = #{certification}
+            </if>
+        </set>
+        WHERE join_class_id = #{joinClassId}
+    </update>
+
     <delete id = "delJoinClass">
         DELETE FROM joinclass
         WHERE join_class_id = #{joinClassId}

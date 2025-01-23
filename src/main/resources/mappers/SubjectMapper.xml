@@ -8,4 +8,10 @@
             subject_name = #{subjectName},
             score_type = #{scoreType}
     </insert>
+
+    <select id ="existsSubject" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM subject
+        WHERE class_id = #{classId} AND subject_name = #{subjectName}
+    </select>
 </mapper>
