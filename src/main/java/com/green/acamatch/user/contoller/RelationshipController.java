@@ -57,7 +57,7 @@ public class RelationshipController {
                 .build();
     }
 
-    @GetMapping({"{type}"})
+    @GetMapping("list/{type}")
     @Operation(summary = "관계 조회", description = "type : {1:부모 입장, 2:학생 입장}</br>등록된 관계 인물 조회")
     public ResultResponse<List<UserInfo>> getRelationships(@PathVariable int type) {
         List<UserInfo> res = relationshipService.getRelationships(type);
