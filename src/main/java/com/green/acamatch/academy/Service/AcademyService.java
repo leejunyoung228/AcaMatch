@@ -220,6 +220,10 @@ public class AcademyService {
         search.setTagId(p.getTagId());
         int post = academyMapper.postSearch(search);
         List<GetAcademyRes> res = academyMapper.getAcademy(p);
+        for(GetAcademyRes re : res) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
         if(res.size() == 0) {
             academyMessage.setMessage("학원 검색을 실패했습니다.");
             return null;
@@ -272,6 +276,40 @@ public class AcademyService {
     //동만 입력받아 학원 리스트 불러오기
     public List<GetAcademyByDongRes> getAcademyByDongResList(GetAcademyByDongReq p){
         List<GetAcademyByDongRes> list = academyMapper.getAcademyListByDong(p);
+        for(GetAcademyByDongRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+        if(list == null){
+            academyMessage.setMessage("동만 입력받아 학원 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("동만 입력받아 학원 리스트 불러오기 성공");
+        return list;
+    }
+
+    //동과 검색어를 입력받아 학원 리스트 불러오기
+    public List<GetAcademyBySearchNameRes> getAcademyListBySearchName(GetAcademyBySearchNameReq p){
+        List<GetAcademyBySearchNameRes> list = academyMapper.getAcademyListBySearchName(p);
+        for(GetAcademyBySearchNameRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+        if(list == null){
+            academyMessage.setMessage("동과 검색어를 입력받아 학원 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("동과 검색어를 입력받아 학원 리스트 불러오기 성공");
+        return list;
+    }
+
+    //동만 입력받아 학원 리스트 불러오기
+    public List<GetAcademyByOnlySearchNameRes> getAcademyByOnlySearchName(GetAcademyByOnlySearchNameReq p){
+        List<GetAcademyByOnlySearchNameRes> list = academyMapper.getAcademyByOnlySearchName(p);
+        for(GetAcademyByOnlySearchNameRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
         if(list == null){
             academyMessage.setMessage("동만 입력받아 학원 리스트 불러오기 실패");
             return null;
