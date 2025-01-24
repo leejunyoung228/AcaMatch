@@ -28,8 +28,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthService {
     private final EmailService emailService;
-    private final SignUpUserCache signUpUserCache;
-    private final TempPwCache tempPwCache;
+    private final UserCache userCache;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -59,7 +58,7 @@ public class AuthService {
                 emailService.getHtmlTemplate(emailConst.getSignUpTemplateName(),
                         emailService.getContext(emailConst.getSignUpUrl(), emailConst.getTokenKey(), token))
         );
-        signUpUserCache.saveToken(token, user);
+        userCache.saveToken(token, user);
         return 1;
     }
 
@@ -69,7 +68,7 @@ public class AuthService {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
         String pw = CodeGenerate.generateCode(8);
-        tempPwCache.save(user.getUserId(), pw);
+        userCache.saveTempPw(user.getUserId(), pw);
         emailService.sendCodeToEmail(
                 req.getEmail(),
                 emailConst.getFindPwSubject(),
