@@ -12,11 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -27,6 +27,7 @@ public class AcademyService {
     private final AcademyMessage academyMessage;
     private final UserMessage userMessage;
     private final AddressConst addressConst;
+    private final KakaoApiExample kakaoApiExample;
 
 
     //학원정보등록
@@ -38,6 +39,14 @@ public class AcademyService {
         String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
 
         req.setAcaPic(savedPicName);
+
+        //req.getAddressDto().getAddress();
+
+        //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
+        String dongName = kakaoApiExample.addressSearchMain(req);
+        // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+        Long dongPk = academyMapper.selAddressDong(dongName);
+        req.setDongId(dongPk);
 
         try {
             int result = academyMapper.insAcademy(req);
@@ -69,7 +78,13 @@ public class AcademyService {
     @Transactional
     public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
         //아무것도 입력안했을 때
-
+        if (!isValidValue(pic) && !isValidValue(req.getAcaName())
+            && !isValidValue(req.getAcaPhone()) && !isValidValue(req.getComment())
+            && !isValidValue(req.getTeacherNum()) && !isValidValue(req.getOpenTime())
+            && !isValidValue(req.getCloseTime()) && !isValidValue(req.getAddressDto())
+            && !isValidValue(req.getTagIdList().isEmpty())) {
+            throw new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION);
+        }
 
         // 프로필 사진 처리
         if (pic != null && !pic.isEmpty()) {
@@ -156,6 +171,7 @@ public class AcademyService {
         return list;
     }
 
+
     //주소 인코딩
     public String addressEncoding(AddressDto addressDto) {
         return addressDto.getAddress() +
@@ -186,6 +202,17 @@ public class AcademyService {
         return res;
     }
 
+    //빈값인지 확인하는 메소드(String, int, long )
+    private boolean isValidValue(Object value) {
+        if (value instanceof String) {
+            return StringUtils.hasText((String) value);
+        } else if (value instanceof Integer || value instanceof Long) {
+            return value != null && ((Number) value).longValue() != 0;
+        }
+        return false;
+    }
+
+
 
 // --------------------------------------------------------------
     //동과 태그를 입력받아 검색하고 search 테이블에 검색한 태그를 저장
@@ -194,6 +221,10 @@ public class AcademyService {
         search.setTagId(p.getTagId());
         int post = academyMapper.postSearch(search);
         List<GetAcademyRes> res = academyMapper.getAcademy(p);
+        for(GetAcademyRes re : res) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
         if(res.size() == 0) {
             academyMessage.setMessage("학원 검색을 실패했습니다.");
             return null;
@@ -235,7 +266,7 @@ public class AcademyService {
     // 동 리스트 가져오기
     public List<GetDongRes> getDongList(GetDongReq p) {
         List<GetDongRes> list = academyMapper.getDong(p);
-        if(list == null){
+        if(list.size() == 0){
             academyMessage.setMessage("동 리스트 불러오기 실패");
             return null;
         }
@@ -246,11 +277,71 @@ public class AcademyService {
     //동만 입력받아 학원 리스트 불러오기
     public List<GetAcademyByDongRes> getAcademyByDongResList(GetAcademyByDongReq p){
         List<GetAcademyByDongRes> list = academyMapper.getAcademyListByDong(p);
-        if(list == null){
+        for(GetAcademyByDongRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+        if(list.size() == 0){
             academyMessage.setMessage("동만 입력받아 학원 리스트 불러오기 실패");
             return null;
         }
         academyMessage.setMessage("동만 입력받아 학원 리스트 불러오기 성공");
+        return list;
+    }
+
+    //동과 검색어를 입력받아 학원 리스트 불러오기
+    public List<GetAcademyBySearchNameRes> getAcademyListBySearchName(GetAcademyBySearchNameReq p){
+        List<GetAcademyBySearchNameRes> list = academyMapper.getAcademyListBySearchName(p);
+        for(GetAcademyBySearchNameRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+        if(list.size() == 0){
+            academyMessage.setMessage("동과 검색어를 입력받아 학원 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("동과 검색어를 입력받아 학원 리스트 불러오기 성공");
+        return list;
+    }
+
+    //동만 입력받아 학원 리스트 불러오기
+    public List<GetAcademyByOnlySearchNameRes> getAcademyByOnlySearchName(GetAcademyByOnlySearchNameReq p){
+        List<GetAcademyByOnlySearchNameRes> list = academyMapper.getAcademyByOnlySearchName(p);
+        for(GetAcademyByOnlySearchNameRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+        if(list.size() == 0){
+            academyMessage.setMessage("동만 입력받아 학원 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("동만 입력받아 학원 리스트 불러오기 성공");
+        return list;
+    }
+
+    //검색어를 입력받아 태그 리스트 불러오기
+    public List<GetTagListBySearchNameRes> getTagListBySearchName(GetTagListBySearchNameReq p){
+        List<GetTagListBySearchNameRes> list = academyMapper.getTagListBySearchName(p);
+        if(p.getTagName() == null){
+            List<GetTagListBySearchNameRes> allTagList = academyMapper.getAllTagList();
+            return allTagList;
+        }
+        if(list.size() == 0){
+            academyMessage.setMessage("태그 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("태그 리스트 불러오기 성공!");
+        return list;
+    }
+
+    //로그인한 유저의 PK를 받아 그 유저가 등록한 학원 리스트 불러오기
+    public List<GetAcademyListByUserIdRes> getAcademyListByUserId(GetAcademyListByUserIdReq p){
+        List<GetAcademyListByUserIdRes> list = academyMapper.getAcademyListByUserId(p);
+        if(list.size() == 0){
+            academyMessage.setMessage("학원 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("학원 리스트 불러오기 성공");
         return list;
     }
 }

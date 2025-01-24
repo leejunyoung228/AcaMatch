@@ -11,6 +11,7 @@ import java.util.List;
 @Mapper
 public interface GradeMapper {
     int insGrade(GradePostReq p);
+    int existsGrade(long userId, long classId, long subjectId);
     List<GradeGetDto> selGradeScore(GradeGetReq p);
     int updGradeScore(GradePutReq p);
 }

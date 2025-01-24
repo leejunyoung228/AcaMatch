@@ -2,16 +2,20 @@ package com.green.acamatch.academy.Service;
 
 import com.green.acamatch.academy.model.AddressDto;
 import com.green.acamatch.config.constant.AddressConst;
+import com.green.acamatch.config.constant.JwtConst;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 @ExtendWith(MockitoExtension.class)
 class AcademyServiceTest {
+
     @InjectMocks
     private AcademyService academyService;
 

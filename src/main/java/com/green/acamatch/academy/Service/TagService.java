@@ -1,9 +1,7 @@
 package com.green.acamatch.academy.Service;
 
 import com.green.acamatch.academy.mapper.AcademyMapper;
-import com.green.acamatch.academy.model.AcademyMessage;
-import com.green.acamatch.academy.model.AcademyPostReq;
-import com.green.acamatch.academy.model.AcademyUpdateReq;
+import com.green.acamatch.academy.model.*;
 import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
 import com.green.acamatch.academy.tag.SelTagRes;

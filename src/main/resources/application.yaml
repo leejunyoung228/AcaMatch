@@ -5,6 +5,8 @@ constant:
     detail-address-sep: detail
     post-num-sep: post
 
+
+
   info-const:
     title: JWT Practice
     description: JWT + Security 고도화
@@ -59,8 +61,11 @@ spring:
   servlet:
     multipart:
       max-file-size: 15MB
+
+  # API때문에 이걸로 바꿈
   jackson:
-    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
   jpa:
     open-in-view: false
     properties:

@@ -11,9 +11,17 @@
         AND class_id = #{classId}
     </insert>
 
+    <select id ="existsGrade">
+        SELECT COUNT(*)
+        FROM grade A
+        INNER JOIN joinclass B
+        ON A.join_class_id = B.join_class_id
+        WHERE B.user_id = #{userId} AND B.class_id = #{classId} AND A.subject_id = #{subjectId}
+    </select>
+
     <select id="selGradeScore">
         SELECT A.subject_name, B.exam_date,
-        CASE WHEN A.SCORE_TYPE = 0 THEN B.score ELSE CASE WHEN COALESCE(B.PASS, 0) = 0 THEN '불합격' ELSE '합격' END  END score
+        CASE WHEN A.SCORE_TYPE = 0 THEN B.score ELSE CASE WHEN COALESCE(B.PASS, 0) = 0 THEN '불합격' ELSE '합격' END  END result
         FROM subject A
         INNER JOIN grade B
         ON A.subject_id = B.subject_id
