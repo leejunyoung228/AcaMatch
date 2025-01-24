@@ -26,6 +26,7 @@ public class UserManagementService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SignUpUserCache signUpUserCache;
+    private final TempPwCache tempPwCache;
     private final UserUtils userUtils;
     private final MyFileUtils myFileUtils;
     private final UserConst userConst;
@@ -65,10 +66,14 @@ public class UserManagementService {
 
     public int updateUser(UserUpdateReq req) {
         User user = userUtils.getUserById(AuthenticationFacade.getSignedUserId());
+        if(!passwordEncoder.matches(req.getCurrentPw(), user.getUpw())) {
+            throw new CustomException(UserErrorCode.INCORRECT_PW);
+        }
         if(req.getName() != null) user.setName(req.getName());
         if(req.getNickName() != null) user.setNickName(req.getNickName());
         if(req.getBirth() != null) user.setBirth(req.getBirth());
         if(req.getPhone() != null) user.setPhone(req.getPhone());
+        if(req.getNewPw() != null) user.setUpw(passwordEncoder.encode(req.getNewPw()));
         userRepository.save(user);
         return 1;
     }
@@ -84,5 +89,17 @@ public class UserManagementService {
         String folderPath = String.format(userConst.getUserPicFilePath(), userId);
         myFileUtils.deleteFolder(folderPath, true);
         return 1;
+    }
+
+    public void setTempPw(long id, HttpServletResponse response) {
+        String pw = tempPwCache.get(id);
+        User user = userUtils.getUserById(id);
+        user.setUpw(passwordEncoder.encode(pw));
+        userRepository.save(user);
+        try {
+            response.sendRedirect(userConst.getRedirectUrl());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

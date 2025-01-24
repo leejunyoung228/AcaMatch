@@ -12,11 +12,15 @@ constant:
 
   email-const:
     base-url: http://localhost:8080
-    url: api/user/sign-up
-    key: token
-    template-name: emailTemplate
+    sign-up-url: api/user/sign-up
+    temp-pw-url: api/user/temp-pw
+    token-key: token
+    pk-key: pk
+    sign-up-template-name: emailTemplate
+    find-pw-template-name: pwEmailTemplate
     expired-time: 900_000
-    subject: ACAMATCH 회원가입
+    sign-up-subject: ACAMATCH 회원가입
+    find-pw-subject: ACAMATCH 비밀번호 찾기
     alias: AcaMatch
     from-email: 0ca2sa0@gmail.com
 

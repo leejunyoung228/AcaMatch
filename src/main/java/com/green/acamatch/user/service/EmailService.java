@@ -23,28 +23,37 @@ public class EmailService {
     private final TemplateEngine templateEngine;
     private final EmailConst emailConst;
 
-    public void sendCodeToEmail(String to, String token) {
+    public void sendCodeToEmail(String to, String subject, String template) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper;
         try {
             helper = new MimeMessageHelper(mimeMessage, true);
             helper.setFrom(emailConst.getFromEmail(), emailConst.getAlias());
             helper.setTo(to);
-            helper.setSubject(emailConst.getSubject());
-            helper.setText(getHtmlTemplate(token), true);
+            helper.setSubject(subject);
+            helper.setText(template, true);
             javaMailSender.send(mimeMessage);
         } catch (Exception e) {
             throw new CustomException(EmailErrorCode.EMAIL_SEND_FAIL);
         }
     }
 
-    private String getHtmlTemplate(String token) {
-        return templateEngine.process( emailConst.getTemplateName(), getContext(token));
+    public String getHtmlTemplate(String templateName, Context context) {
+        return templateEngine.process(templateName, context);
     }
 
-    private Context getContext(String token) {
+    public Context getContext(String url, String key, String value) {
         Map<String, Object> dto = new HashMap<>(2);
-        dto.put("tokenLink", String.format("%s/%s?%s=%s", emailConst.getBaseUrl(), emailConst.getUrl(), emailConst.getKey(),token));
+        dto.put("tokenLink", String.format("%s/%s?%s=%s", emailConst.getBaseUrl(), url, key,value));
+        dto.put("maxDate", getMaxDate());
+        Context context = new Context();
+        context.setVariables(dto);
+        return context;
+    }
+    public Context getContext(String url, Long userId, String pw) {
+        Map<String, Object> dto = new HashMap<>(3);
+        dto.put("value", pw);
+        dto.put("tokenLink", String.format("%s/%s/%s", emailConst.getBaseUrl(), url, userId));
         dto.put("maxDate", getMaxDate());
         Context context = new Context();
         context.setVariables(dto);
@@ -55,4 +64,5 @@ public class EmailService {
         Date now = new Date();
         return new SimpleDateFormat("yyyy년 MM월 dd일 HH:mm:ss").format(new Date(now.getTime() + emailConst.getExpiredTime()));
     }
+
 }
