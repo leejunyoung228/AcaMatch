@@ -42,39 +42,34 @@ public class UserManagementService {
         }
     }
 
-    public int updateUserPic(MultipartFile pic) {
-        long userId = AuthenticationFacade.getSignedUserId();
-        User user = userUtils.getUserById(userId);
-
-        String prePic = user.getUserPic();
-        user.setUserPic(myFileUtils.makeRandomFileName(pic));
-        userRepository.save(user);
-
-        String folderPath = String.format(userConst.getUserPicFilePath(), userId);
-        if (prePic != null) {
-            myFileUtils.deleteFolder(folderPath, false);
-        }
-        myFileUtils.makeFolders(folderPath);
-        String filePath = String.format("%s/%s", folderPath, user.getUserPic());
-        try {
-            myFileUtils.transferTo(pic, filePath);
-        } catch (IOException e) {
-            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-        }
-        return 1;
-    }
-
-    public int updateUser(UserUpdateReq req) {
+    @Transactional
+    public int updateUser(UserUpdateReq req, MultipartFile pic) {
         User user = userUtils.getUserById(AuthenticationFacade.getSignedUserId());
-        if(!passwordEncoder.matches(req.getCurrentPw(), user.getUpw())) {
+        if (!passwordEncoder.matches(req.getCurrentPw(), user.getUpw())) {
             throw new CustomException(UserErrorCode.INCORRECT_PW);
         }
-        if(req.getName() != null) user.setName(req.getName());
-        if(req.getNickName() != null) user.setNickName(req.getNickName());
-        if(req.getBirth() != null) user.setBirth(req.getBirth());
-        if(req.getPhone() != null) user.setPhone(req.getPhone());
-        if(req.getNewPw() != null) user.setUpw(passwordEncoder.encode(req.getNewPw()));
+        if (req.getName() != null) user.setName(req.getName());
+        if (req.getNickName() != null) user.setNickName(req.getNickName());
+        if (req.getBirth() != null) user.setBirth(req.getBirth());
+        if (req.getPhone() != null) user.setPhone(req.getPhone());
+        if (req.getNewPw() != null) user.setUpw(passwordEncoder.encode(req.getNewPw()));
+        if (pic != null) {
+            String prePic = user.getUserPic();
+            user.setUserPic(myFileUtils.makeRandomFileName(pic));
+            String folderPath = String.format(userConst.getUserPicFilePath(), user.getUserId());
+            if (prePic != null) {
+                myFileUtils.deleteFolder(folderPath, false);
+            }
+            myFileUtils.makeFolders(folderPath);
+            String filePath = String.format("%s/%s", folderPath, user.getUserPic());
+            try {
+                myFileUtils.transferTo(pic, filePath);
+            } catch (IOException e) {
+                throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+            }
+        }
         userRepository.save(user);
+
         return 1;
     }
 
