@@ -114,6 +114,17 @@ public class UserController {
                 .build();
     }
 
+
+    @PostMapping("log-out")
+    @Operation(summary = "로그아웃", description = "쿠키 삭제")
+    public ResultResponse<Integer> logout(HttpServletResponse response) {
+        int res = authService.logOutUser(response);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("로그아웃 성공")
+                .resultData(res)
+                .build();
+    }
+
     @GetMapping("access-token")
     @Operation(summary = "액세스 토큰 재발행")
     public ResultResponse<String> getAccessToken(HttpServletRequest request) {
