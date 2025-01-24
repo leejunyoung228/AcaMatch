@@ -41,11 +41,21 @@ public class JoinClassController {
     }
 
     @GetMapping
-    @Operation(summary = "학원명/강좌명/성적확인 / null일 경우 resultData 반환 값이 없습니다.")
+    @Operation(summary = "학원명/강좌명 / null일 경우 resultData 반환 값이 없습니다.")
     public ResultResponse<List<JoinClassDto>> selJoinClass(@ModelAttribute @ParameterObject JoinClassGetReq p) {
         List<JoinClassDto> result = service.selJoinClass(p);
         return ResultResponse.<List<JoinClassDto>>builder()
-                .resultMessage("성공하였습니다.")
+                .resultMessage(userMessage.getMessage())
+                .resultData(result)
+                .build();
+    }
+
+    @GetMapping("classUserGrade")
+    @Operation(summary = "class에따른 user 성적 가져오기")
+    public ResultResponse<List<JoinClassUserGradeDto>> selJoinClassUserGrade(@ModelAttribute @ParameterObject JoinClassUserGradeGetReq p) {
+        List<JoinClassUserGradeDto> result = service.selJoinClassUserGrade(p);
+        return ResultResponse.<List<JoinClassUserGradeDto>>builder()
+                .resultMessage(userMessage.getMessage())
                 .resultData(result)
                 .build();
     }
