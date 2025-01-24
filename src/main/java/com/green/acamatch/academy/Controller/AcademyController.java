@@ -159,4 +159,24 @@ public class AcademyController {
                 .resultData(list)
                 .build();
     }
+
+    @GetMapping("getTagListBySearchName/")
+    @Operation(summary = "태그 리스트 불러오기", description = "공백을 입력해도 됩니다.")
+    public ResultResponse<List<GetTagListBySearchNameRes>> getTagListBySearchName(@ParameterObject  @ModelAttribute GetTagListBySearchNameReq p) {
+        List<GetTagListBySearchNameRes> res = academyService.getTagListBySearchName(p);
+        return ResultResponse.<List<GetTagListBySearchNameRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("getAcademyListByUserId")
+    @Operation(summary = "signedUserId를 입력받아 그 유저가 등록한 학원 리스트 불러오기")
+    public ResultResponse<List<GetAcademyListByUserIdRes>> getAcademyListByUserId(@ParameterObject @ModelAttribute GetAcademyListByUserIdReq p) {
+        List<GetAcademyListByUserIdRes> list = academyService.getAcademyListByUserId(p);
+        return ResultResponse.<List<GetAcademyListByUserIdRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(list)
+                .build();
+    }
 }

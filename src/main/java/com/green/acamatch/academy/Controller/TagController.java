@@ -2,6 +2,8 @@ package com.green.acamatch.academy.Controller;
 
 import com.green.acamatch.academy.Service.TagService;
 import com.green.acamatch.academy.model.AcademyMessage;
+import com.green.acamatch.academy.model.GetTagListBySearchNameReq;
+import com.green.acamatch.academy.model.GetTagListBySearchNameRes;
 import com.green.acamatch.academy.tag.SelTagReq;
 import com.green.acamatch.academy.tag.SelTagRes;
 import com.green.acamatch.config.model.ResultResponse;
@@ -9,7 +11,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -30,4 +35,6 @@ public class TagController {
                 .resultData(res)
                 .build();
     }
+
+
 }
