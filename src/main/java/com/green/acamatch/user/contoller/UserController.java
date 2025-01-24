@@ -42,12 +42,8 @@ public class UserController {
 
     @GetMapping("sign-up")
     @Operation(summary = "회원가입 완료")
-    public ResultResponse<Integer> finishSignUp(String token, HttpServletResponse response) {
+    public void finishSignUp(String token, HttpServletResponse response) {
         userManagementService.signUp(token, response);
-        return ResultResponse.<Integer>builder()
-                .resultMessage("회원 가입 성공")
-                .resultData(1)
-                .build();
     }
 
     @PostMapping("sign-in")
@@ -101,6 +97,21 @@ public class UserController {
                 .resultMessage("회원 정보 수정 성공")
                 .resultData(res)
                 .build();
+    }
+
+    @PostMapping("temp-pw")
+    @Operation(summary = "임시 비밀번호 요청")
+    public ResultResponse<Integer> tempPwRequest(@Valid @RequestBody FindPwReq req) {
+        int res = authService.sendTempPwEmail(req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("임시 비밀번호 전송 성공")
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("temp-pw/{id}")
+    public void getTempPw(HttpServletResponse response, @PathVariable long id) {
+        userManagementService.setTempPw(id, response);
     }
 
     @DeleteMapping
