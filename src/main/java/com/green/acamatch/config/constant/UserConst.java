@@ -11,4 +11,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "constant.user-const")
 public class UserConst {
     private final String userPicFilePath;
+    private final String redirectUrl;
 }

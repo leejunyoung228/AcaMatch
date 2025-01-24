@@ -4,6 +4,7 @@ import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.user.entity.Relationship;
+import com.green.acamatch.user.entity.RelationshipId;
 import com.green.acamatch.user.entity.User;
 import com.green.acamatch.user.model.RelationshipReq;
 import com.green.acamatch.user.model.UserInfo;
@@ -52,10 +53,15 @@ public class RelationshipService {
 
     public int addRelationship(RelationshipReq req) {
         User parent = userRepository.getUserByEmail(req.getEmail());
+
+        RelationshipId relationshipId = new RelationshipId();
+        relationshipId.setParentsId(parent.getUserId());
+        relationshipId.setStudentId(getSignedUser().getUserId());
+
         Relationship relationship = new Relationship();
-        relationship.setParent(parent);
-        relationship.setStudent(getSignedUser());
+        relationship.setId(relationshipId);
         relationship.setCertification(0);
+
         relationshipRepository.save(relationship);
         return 1;
     }
@@ -64,6 +70,9 @@ public class RelationshipService {
         User student = getSignedUser();
         User parent = userRepository.getUserByEmail(req.getEmail());
         Relationship relationship = relationshipRepository.findRelationshipByParentAndStudentAndCertification(parent, student, 0);
+        if (relationship == null) {
+            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
+        }
         relationshipRepository.delete(relationship);
         return 1;
     }

@@ -9,7 +9,6 @@ import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.user.entity.User;
 import com.green.acamatch.user.model.UserDeleteReq;
-import com.green.acamatch.user.model.UserSignInRes;
 import com.green.acamatch.user.model.UserUpdateReq;
 import com.green.acamatch.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,15 +31,14 @@ public class UserManagementService {
     private final UserConst userConst;
 
     @Transactional
-    public UserSignInRes signUp(String token, HttpServletResponse response) {
+    public void signUp(String token, HttpServletResponse response) {
         User user = signUpUserCache.verifyToken(token);
         userRepository.save(user);
         try {
-            response.sendRedirect("/");
+            response.sendRedirect(userConst.getRedirectUrl());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return userUtils.generateUserSignInResByUser(user, response);
     }
 
     public int updateUserPic(MultipartFile pic) {
