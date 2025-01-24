@@ -79,20 +79,10 @@ public class UserController {
                 .build();
     }
 
-    @PatchMapping
-    @Operation(summary = "회원 프로필 사진 업로드")
-    public ResultResponse<Integer> updateUserPic(@RequestPart MultipartFile pic) {
-        int res = userManagementService.updateUserPic(pic);
-        return ResultResponse.<Integer>builder()
-                .resultMessage("프로필 사진 업로드 성공")
-                .resultData(res)
-                .build();
-    }
-
     @PutMapping
     @Operation(summary = "회원 정보 수정")
-    public ResultResponse<Integer> updateUser(@Valid @RequestBody UserUpdateReq req) {
-        int res = userManagementService.updateUser(req);
+    public ResultResponse<Integer> updateUser(@Valid @RequestPart UserUpdateReq req, @RequestPart(required = false) MultipartFile pic ) {
+        int res = userManagementService.updateUser(req, pic);
         return ResultResponse.<Integer>builder()
                 .resultMessage("회원 정보 수정 성공")
                 .resultData(res)
