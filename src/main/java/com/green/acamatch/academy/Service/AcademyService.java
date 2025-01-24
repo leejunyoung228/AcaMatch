@@ -344,4 +344,30 @@ public class AcademyService {
         academyMessage.setMessage("학원 리스트 불러오기 성공");
         return list;
     }
+
+    //동과 카테고리를 입력받아 학원 리스트 출력하기
+    public List<GetCategorySearchRes> getCategorySearch(GetCategorySearchReq p){
+        List<GetCategorySearchRes> list = academyMapper.getCategorySearch(p);
+        if(list.size() == 0){
+            academyMessage.setMessage("학원 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("학원 리스트 불러오기 성공");
+        return list;
+    }
+
+    //모든 입력을 받아 학원 리스트 출력하기
+    public List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p){
+        List<GetAcademyListRes> list = academyMapper.getAcademyListByAll(p);
+        for(GetAcademyListRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+        if(list.size() == 0){
+            academyMessage.setMessage("학원 리스트 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("학원 리스트 불러오기 성공");
+        return list;
+    }
 }

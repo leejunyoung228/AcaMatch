@@ -179,4 +179,24 @@ public class AcademyController {
                 .resultData(list)
                 .build();
     }
+
+    @GetMapping("getAcademyListByCategory")
+    @Operation(summary = "카테고리와 동을 입력받아 학원 리스트 출력하기")
+    public ResultResponse<List<GetCategorySearchRes>> getAcademyListByCategory(@ParameterObject @ModelAttribute GetCategorySearchReq p) {
+        List<GetCategorySearchRes> list = academyService.getCategorySearch(p);
+        return ResultResponse.<List<GetCategorySearchRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(list)
+                .build();
+    }
+
+    @GetMapping("getAcademyListByAll")
+    @Operation(summary = "모든 입력을 받아 학원 출력하기")
+    public ResultResponse<List<GetAcademyListRes>> getAcademyListByAll(@ParameterObject @ModelAttribute GetAcademyListReq p) {
+        List<GetAcademyListRes> list = academyService.getAcademyListByAll(p);
+        return ResultResponse.<List<GetAcademyListRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(list)
+                .build();
+    }
 }

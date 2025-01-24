@@ -38,7 +38,7 @@ public interface AcademyMapper {
     GetAcademyDetail getAcademyDetail(Long acaId);
 
     //카테고리로 학원 필터링하기
-    List<GetAcademyRes> getCategorySearch(GetCategorySearchRes p);
+    List<GetCategorySearchRes> getCategorySearch(GetCategorySearchReq p);
 
     //학원이 등록한 태그 리스트 불러오기
     List<GetAcademyTagDto> getTagList(Long acaId);
@@ -70,4 +70,6 @@ public interface AcademyMapper {
     //userId를 입력받으면 그 유저가 등록한 학원리스트 불러오기
     List<GetAcademyListByUserIdRes> getAcademyListByUserId(GetAcademyListByUserIdReq p);
 
+    //모든 입력을 받아 출력하기
+    List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p);
 }
