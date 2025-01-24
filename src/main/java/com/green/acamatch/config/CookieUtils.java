@@ -1,5 +1,7 @@
 package com.green.acamatch.config;
 
+import com.green.acamatch.config.exception.CommonErrorCode;
+import com.green.acamatch.config.exception.CustomException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,10 +16,10 @@ import java.util.Optional;
 public class CookieUtils {
     public Cookie getCookie(HttpServletRequest request, String name) {
         return Arrays.stream(Optional.ofNullable(request.getCookies())
-                        .orElseThrow(() -> new RuntimeException("Cookie not found")))
+                        .orElseThrow(() -> new CustomException(CommonErrorCode.COOKIE_NOT_FOUND)))
                 .filter(item -> item.getName().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cookie not found"));
+                .orElseThrow(() -> new CustomException(CommonErrorCode.COOKIE_NOT_FOUND));
     }
 
     public void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
