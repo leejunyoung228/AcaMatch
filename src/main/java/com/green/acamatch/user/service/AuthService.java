@@ -84,4 +84,9 @@ public class AuthService {
         JwtUser jwtUser = jwtTokenProvider.getJwtUserFromToken(refreshToken);
         return jwtTokenProvider.generateAccessToken(jwtUser);
     }
+
+    public int logOutUser(HttpServletResponse response) {
+        cookieUtils.deleteCookie(response, jwtConst.getRefreshTokenCookieName());
+        return 1;
+    }
 }
