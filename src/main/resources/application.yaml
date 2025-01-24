@@ -22,6 +22,7 @@ constant:
 
   user-const:
     user-pic-file-path: /user/%d # %d는 유저 아이디 값이 들어갈 자리
+    redirect-url: /
 
   jwt-const:
     issuer: green@green.kr #토큰 발행자

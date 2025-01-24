@@ -42,11 +42,11 @@ public class UserController {
 
     @GetMapping("sign-up")
     @Operation(summary = "회원가입 완료")
-    public ResultResponse<UserSignInRes> finishSignUp(String token, HttpServletResponse response) {
-        UserSignInRes res = userManagementService.signUp(token, response);
-        return ResultResponse.<UserSignInRes>builder()
+    public ResultResponse<Integer> finishSignUp(String token, HttpServletResponse response) {
+        userManagementService.signUp(token, response);
+        return ResultResponse.<Integer>builder()
                 .resultMessage("회원 가입 성공")
-                .resultData(res)
+                .resultData(1)
                 .build();
     }
 
