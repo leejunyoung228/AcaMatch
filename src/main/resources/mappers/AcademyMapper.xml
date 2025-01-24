@@ -179,6 +179,19 @@
         WHERE C.aca_id = #{acaId}
     </select>
 
+    <!-- 검색어를 입력받아 태그 불러오기 -->
+    <select id="getTagListBySearchName">
+        SELECT tag_id AS tagId, tag_name AS tagName
+        FROM tag
+        WHERE tag_name LIKE CONCAT('%', #{tagName}, '%')
+    </select>
+
+    <!-- 검색어가 없을때 모든 태그 리스트 출력하기-->
+    <select id="getAllTagList">
+        SELECT tag_id, tag_name
+        FROM tag
+    </select>
+
     <!-- 카테고리로 필터링하기-->
     <select id="getCategorySearch">
         SELECT DISTINCT F.aca_name
@@ -187,12 +200,12 @@
         INNER JOIN classcategory D ON B.category_id = D.category_id
         INNER JOIN class E ON E.class_id = D.class_id
         INNER JOIN academy F ON E.aca_id = F.aca_id
-        WHERE B.category_name IN (#{categoryName})  -- 추가할 카테고리 이름을 여기에 나열
+        WHERE B.category_name IN (#{categoryName})
         AND EXISTS (
         SELECT 1
         FROM category B2
         INNER JOIN classcategory D2 ON B2.category_id = D2.category_id
-        WHERE B2.category_name IN (#{categoryName})  -- 추가할 카테고리 이름을 여기에 나열
+        WHERE B2.category_name IN (#{categoryName})
         AND D2.class_id = E.class_id
         )
     </select>
@@ -315,5 +328,12 @@
         GROUP BY A.aca_id
         ORDER BY A.aca_id ASC
         LIMIT #{startIdx}, #{size}
+    </select>
+
+    <!-- 학원 관리자가 본인이 등록한 학원 리스트 보기-->
+    <select id="getAcademyListByUserId">
+        SELECT A.aca_id, A.aca_name, A.created_at
+        FROM academy A
+        WHERE user_id = #{signedUserId}
     </select>
 </mapper>

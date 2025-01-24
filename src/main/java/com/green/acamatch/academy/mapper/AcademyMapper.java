@@ -60,4 +60,14 @@ public interface AcademyMapper {
 
     //검색어만 입력받아 학원 리스트 불러오기
     List<GetAcademyByOnlySearchNameRes> getAcademyByOnlySearchName(GetAcademyByOnlySearchNameReq p);
+
+    //검색어를 입력받아 태그 리스트 불러오기
+    List<GetTagListBySearchNameRes> getTagListBySearchName(GetTagListBySearchNameReq p);
+
+    //검색어가 없을 경우 모든 태그 리스트 출력하기
+    List<GetTagListBySearchNameRes> getAllTagList();
+
+    //userId를 입력받으면 그 유저가 등록한 학원리스트 불러오기
+    List<GetAcademyListByUserIdRes> getAcademyListByUserId(GetAcademyListByUserIdReq p);
+
 }
