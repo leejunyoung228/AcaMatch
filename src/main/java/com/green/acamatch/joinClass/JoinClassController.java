@@ -51,7 +51,7 @@ public class JoinClassController {
     }
 
     @GetMapping("classUserGrade")
-    @Operation(summary = "class에따른 user 성적 가져오기")
+    @Operation(summary = "강좌 시험에 따른 user 성적 가져오기")
     public ResultResponse<List<JoinClassUserGradeDto>> selJoinClassUserGrade(@ModelAttribute @ParameterObject JoinClassUserGradeGetReq p) {
         List<JoinClassUserGradeDto> result = service.selJoinClassUserGrade(p);
         return ResultResponse.<List<JoinClassUserGradeDto>>builder()
