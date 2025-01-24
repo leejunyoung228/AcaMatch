@@ -9,7 +9,6 @@ import com.green.acamatch.like.model.AcaLikeReq;
 import com.green.acamatch.like.model.AcaLikeRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("like")
-@Tag(name = "학원 좋아요 관리")
 public class LikeController {
     private final LikeService service;
     private final UserMessage userMessage;

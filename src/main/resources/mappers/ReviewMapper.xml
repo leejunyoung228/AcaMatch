@@ -115,25 +115,54 @@
         JOIN class c ON j.class_id = c.class_id
         JOIN user u ON j.user_id = u.user_id
         WHERE c.aca_id = #{acaId}
-        ORDER BY r.created_at DESC;
+        ORDER BY r.created_at DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
 
     <!-- 학원 상세페이지에서 학원에 달린 리뷰 리스트 조회 -->
     <select id="getAcademyReviewsForPublic">
         SELECT
-        r.join_class_id AS joinClassId,  <!-- 수업 참여 ID -->
-        u.nick_name AS writerName,       <!-- 작성자 닉네임 -->
-        u.user_pic AS writerPic,         <!-- 작성자 프로필 사진 -->
-        r.comment AS comment,            <!-- 리뷰 내용 -->
-        r.star AS star,                  <!-- 별점 -->
-        r.created_at AS createdAt        <!-- 작성일 -->
-        FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
-        JOIN class c ON j.class_id = c.class_id
-        JOIN user u ON j.user_id = u.user_id
-        WHERE c.aca_id = #{acaId}
-        ORDER BY r.created_at DESC
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        COALESCE(G.starAvg, 0) AS starAvg,
+        COALESCE(G.reviewCount, 0) AS reviewCount,
+        R.comment AS reviewComment,
+        R.created_at AS reviewDate,
+        U.nick_name AS userNickname,
+        U.user_pic AS userProfilePic
+        FROM academy A
+        LEFT JOIN (
+        SELECT
+        C.aca_id,
+        ROUND(AVG(R.star), 2) AS starAvg,
+        COUNT(R.star) AS reviewCount
+        FROM review R
+        JOIN joinclass JC
+        ON R.join_class_id = JC.join_class_id
+        JOIN class C
+        ON JC.class_id = C.class_id
+        GROUP BY C.aca_id
+        ) G
+        ON G.aca_id = A.aca_id
+        LEFT JOIN review R
+        ON R.join_class_id IN (
+        SELECT JC.join_class_id
+        FROM joinclass JC
+        JOIN class C
+        ON JC.class_id = C.class_id
+        WHERE C.aca_id = A.aca_id
+        )
+        LEFT JOIN user U
+        ON U.user_id = (
+        SELECT JC.user_id
+        FROM joinclass JC
+        WHERE JC.join_class_id = R.join_class_id
+        LIMIT 1
+        )
+        WHERE A.aca_id = #{acaId}
+        ORDER BY R.created_at DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
 
@@ -162,7 +191,8 @@
         WHERE
         j.user_id = #{userId}
         ORDER BY
-        r.created_at DESC;
+        r.created_at DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
 

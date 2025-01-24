@@ -1,12 +1,13 @@
 package com.green.acamatch.review.dto;
 
+import com.green.acamatch.config.model.Paging;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MyReviewDto {
+public class MyReviewDto extends Paging {
 
     @Schema(title = "수업 참여 ID", description = "리뷰가 연결된 수업 참여 ID", example = "5")
     private long joinClassId;  // 리뷰 ID
@@ -28,4 +29,8 @@ public class MyReviewDto {
 
     @Schema(title = "작성자 프로필 사진", description = "리뷰 작성자의 프로필 사진 파일명", example = "default_user_pic.jpg")
     private String userPic;
+
+    public MyReviewDto(Integer page, Integer size) {
+        super(page, size);
+    }
 }

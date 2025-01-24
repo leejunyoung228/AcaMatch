@@ -8,6 +8,7 @@ import com.green.acamatch.like.model.AcaLikeReq;
 import com.green.acamatch.like.model.AcaLikeRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,17 +61,21 @@ public class LikeService {
         return new AcaLikeRes(null, true);
     }
 
+
     // 좋아요 삭제
+    @Transactional
     public AcaLikeRes removeLike(AcaDelLikeReq req) {
         // 유저 존재 여부 검증
         if (checkUserExists(req.getUserId()) == 0) {
+            userMessage.setMessage("유효하지 않은 유저 ID입니다.");
             return new AcaLikeRes(null, false);
         }
 
+        // 학원 존재 여부 검증
         if (checkAcaExists(req.getAcaId()) == 0) {
+            userMessage.setMessage("유효하지 않은 학원 ID입니다.");
             return new AcaLikeRes(null, false);
         }
-
 
         // 학원 ID 검증
         if (req.getAcaId() <= 0) {
@@ -81,19 +86,25 @@ public class LikeService {
         try {
             // 좋아요 삭제
             int rowsAffected = mapper.deleteLike(req);
+
             if (rowsAffected == 0) {
                 userMessage.setMessage("좋아요 삭제에 실패했습니다. 좋아요가 존재하지 않을 수 있습니다.");
-                return new AcaLikeRes(null, false);
+                return new AcaLikeRes(Collections.emptyList(), false); // 실패 시 빈 리스트 반환
             }
-        } catch (Exception e) {
-            userMessage.setMessage("좋아요 삭제 중 오류가 발생했습니다.");
-            return new AcaLikeRes(null, false);
-        }
 
-        // 성공 메시지 설정
-        userMessage.setMessage("좋아요가 성공적으로 삭제되었습니다.");
-        return new AcaLikeRes(null, false);
+            // 성공 시 삭제된 유저 정보 포함
+            LikedUserDto deletedUser = new LikedUserDto();
+            List<LikedUserDto> likedUsers = Collections.singletonList(deletedUser);
+
+            userMessage.setMessage("좋아요가 성공적으로 삭제되었습니다.");
+            return new AcaLikeRes(likedUsers, true); // 삭제된 유저 정보 포함
+        } catch (Exception e) {
+            userMessage.setMessage("좋아요 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+            return new AcaLikeRes(Collections.emptyList(), false); // 실패 시 빈 리스트 반환
+        }
     }
+
 
     // 특정 학원에 좋아요 한 유저와 유저 사진 조회
     public List<LikedUserDto> getLikedUserDetails(long acaId) {
@@ -166,7 +177,7 @@ public class LikeService {
     }
 
 
-    // 유저 존재 여부 확인
+    // 학원 존재 여부 확인
     public int checkAcaExists(long acaId) {
         if (acaId <= 0) {
             userMessage.setMessage("유효하지 않은 학원 ID입니다.");
