@@ -12,7 +12,8 @@ public enum AcademyException implements ErrorCode{
     DUPLICATE_TAG(HttpStatus.BAD_REQUEST, "태그가 중복 선택되었습니다."),
     PHOTO_SAVE_FAILED(HttpStatus.BAD_REQUEST, "사진 형식이 올바르지 않습니다."),
     INVALID_FORMAT(HttpStatus.BAD_REQUEST, "입력 형식이 잘못되었습니다."),
-    MISSING_UPDATE_FILED_EXCEPTION(HttpStatus.BAD_REQUEST, "수정할 값을 하나 이상 입력해주세요.")
+    MISSING_UPDATE_FILED_EXCEPTION(HttpStatus.BAD_REQUEST, "수정할 값을 하나 이상 입력해주세요."),
+    NO_SUCH_ELEMENT_EXCEPTION(HttpStatus.NOT_FOUND, "값을 가져올수 없습니다.");
 
     ;
 

@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -43,10 +44,14 @@ public class AcademyService {
         //req.getAddressDto().getAddress();
 
         //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
-        String dongName = kakaoApiExample.addressSearchMain(req);
-        // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
-        Long dongPk = academyMapper.selAddressDong(dongName);
-        req.setDongId(dongPk);
+        try {
+            String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
+            // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+            Long dongPk = academyMapper.selAddressDong(dongName);
+            req.setDongId(dongPk);
+        } catch (NullPointerException e) {
+            throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
+        }
 
         try {
             int result = academyMapper.insAcademy(req);
@@ -124,6 +129,21 @@ public class AcademyService {
             }
             req.setAddress(addressEncoding(reqDto));
         }
+
+        //주소수정을 하려고 할때
+        if(isValidValue(req.getAddressDto().getAddress())
+                        && isValidValue(req.getAddressDto().getDetailAddress())
+                        && isValidValue(req.getAddressDto().getPostNum()))  {
+            try {
+                String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
+                Long dongPk = academyMapper.selAddressDong(dongName);
+                req.setDongId(dongPk);
+            } catch (NoSuchElementException e) {
+                throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
+            }
+
+        }
+
         int result = academyMapper.updAcademy(req);
 
 

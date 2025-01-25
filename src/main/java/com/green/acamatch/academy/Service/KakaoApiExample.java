@@ -7,16 +7,17 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import com.green.acamatch.academy.model.AcademyPostReq;
+import com.green.acamatch.academy.model.AddressDto;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 @Component
 public class KakaoApiExample {
-    public static String addressSearchMain(AcademyPostReq req) {
+    public static String addressSearchMain(AddressDto dto) {
         try {
             // 요청 주소
-            String address = req.getAddressDto().getAddress();
+            String address = dto.getAddress();
             if (address == null || address.trim().isEmpty()) {
                 return "입력 주소가 비어 있습니다.";
             }
