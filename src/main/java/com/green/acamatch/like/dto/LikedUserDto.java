@@ -8,5 +8,4 @@ import lombok.Setter;
 public class LikedUserDto {
     private Long userId;
     private String userPic;
-    private String nickName;
 }

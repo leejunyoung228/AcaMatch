@@ -1,13 +1,11 @@
 package com.green.acamatch.review.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 @Schema(description = "리뷰 등록 요청")
 public class ReviewPostReq {
     @Schema(title = "수업 참여 ID", description = "수업 참여의 고유 ID", example = "1", required = true)
