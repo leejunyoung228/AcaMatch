@@ -25,15 +25,14 @@ import java.io.IOException;
 public class UserManagementService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SignUpUserCache signUpUserCache;
-    private final TempPwCache tempPwCache;
+    private final UserCache userCache;
     private final UserUtils userUtils;
     private final MyFileUtils myFileUtils;
     private final UserConst userConst;
 
     @Transactional
     public void signUp(String token, HttpServletResponse response) {
-        User user = signUpUserCache.verifyToken(token);
+        User user = userCache.verifyToken(token);
         userRepository.save(user);
         try {
             response.sendRedirect(userConst.getRedirectUrl());
@@ -87,7 +86,7 @@ public class UserManagementService {
     }
 
     public void setTempPw(long id, HttpServletResponse response) {
-        String pw = tempPwCache.get(id);
+        String pw = userCache.getTempPw(id);
         User user = userUtils.getUserById(id);
         user.setUpw(passwordEncoder.encode(pw));
         userRepository.save(user);

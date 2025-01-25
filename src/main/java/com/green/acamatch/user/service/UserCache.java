@@ -15,14 +15,16 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-public class SignUpUserCache {
+public class UserCache {
     private final Cache<String, User> tokenCache;
     private final Cache<String, Boolean> emailCache;
+    private final Cache<Long, String > pwCache;
 
     @Autowired
-    public SignUpUserCache(EmailConst emailConst) {
+    public UserCache(EmailConst emailConst) {
         this.tokenCache = CacheBuilder.newBuilder().expireAfterWrite(emailConst.getExpiredTime(), TimeUnit.MINUTES).build();
         this.emailCache = CacheBuilder.newBuilder().expireAfterWrite(emailConst.getExpiredTime(), TimeUnit.MINUTES).build();
+        this.pwCache = CacheBuilder.newBuilder().expireAfterWrite(emailConst.getExpiredTime(), TimeUnit.MINUTES).build();
     }
 
     public void saveToken(String token, User user) {
@@ -40,5 +42,13 @@ public class SignUpUserCache {
         tokenCache.invalidate(token);
         emailCache.invalidate(user.getEmail());
         return user;
+    }
+
+    public String getTempPw(Long id) {
+        return pwCache.getIfPresent(id);
+    }
+
+    public void saveTempPw(long id, String pw) {
+        pwCache.put(id, pw);
     }
 }
