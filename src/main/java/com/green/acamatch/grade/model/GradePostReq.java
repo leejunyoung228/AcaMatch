@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class GradePostReq {
-
     @JsonIgnore
     private long joinClassId;
 
@@ -24,4 +23,6 @@ public class GradePostReq {
     private Integer pass;
     @Schema(title = "시험 날짜", example = "2025-01-23")
     private String examDate;
+    @Schema(title = "처리 상태", example = "0")
+    private int processingStatus;
 }

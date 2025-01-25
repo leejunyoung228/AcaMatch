@@ -1,8 +1,5 @@
 package com.green.acamatch.joinClass;
 
-import com.green.acamatch.acaClass.model.AcaClassDto;
-import com.green.acamatch.acaClass.model.AcaClassGetReq;
-import com.green.acamatch.acaClass.model.AcaClassPutReq;
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.joinClass.model.*;
@@ -12,10 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.transform.Result;
 import java.util.List;
 
-@Tag(name = "수강 신청, 수정, 삭제 관리", description = "수강 신청, 수정, 삭제")
+@Tag(name = "수강 관리", description = "수강 신청, 불러오기, 수정, 삭제")
 @RestController
 @RequestMapping("joinClass")
 @RequiredArgsConstructor

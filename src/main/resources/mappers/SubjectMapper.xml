@@ -14,4 +14,17 @@
         FROM subject
         WHERE class_id = #{classId} AND subject_name = #{subjectName}
     </select>
+
+    <select id = "selSubject">
+        SELECT A.aca_pic, C.subject_name, D.exam_date, D.processing_status
+        FROM academy A
+        INNER JOIN class B
+        ON A.aca_id = B.aca_id
+        INNER JOIN subject C
+        ON B.class_id = C.class_id
+        INNER JOIN grade D
+        ON C.subject_id = D.subject_id
+        WHERE A.aca_id = #{acaId} AND B.class_id = #{classId}
+        LIMIT #{startIdx}, #{size}
+    </select>
 </mapper>

@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class AcaClassGetReq extends Paging {
-    @Schema(title = "학원 PK", example = "1611", requiredMode = Schema.RequiredMode.REQUIRED)
+public class AcaClassDetailGetReq extends Paging {
+    @Schema(title = "학원 PK", example = "324", requiredMode = Schema.RequiredMode.REQUIRED)
     private long acaId;
 
-    public AcaClassGetReq(Integer page, Integer size, long acaId) {
+    public AcaClassDetailGetReq(Integer page, Integer size, long acaId) {
         super(page, size);
         this.acaId = acaId;
     }

@@ -1,4 +1,4 @@
-package com.green.acamatch.acaClass.model;
+package com.green.acamatch.subject.model;
 
 import com.green.acamatch.config.model.Paging;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -7,12 +7,15 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class AcaClassGetReq extends Paging {
+public class SubjectGetReq extends Paging {
     @Schema(title = "학원 PK", example = "1611", requiredMode = Schema.RequiredMode.REQUIRED)
     private long acaId;
+    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private long classId;
 
-    public AcaClassGetReq(Integer page, Integer size, long acaId) {
+    public SubjectGetReq(Integer page, Integer size, long acaId, long classId) {
         super(page, size);
         this.acaId = acaId;
+        this.classId = classId;
     }
 }
