@@ -115,7 +115,8 @@
         JOIN class c ON j.class_id = c.class_id
         JOIN user u ON j.user_id = u.user_id
         WHERE c.aca_id = #{acaId}
-        ORDER BY r.created_at DESC;
+        ORDER BY r.created_at DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
 
@@ -134,8 +135,16 @@
         JOIN user u ON j.user_id = u.user_id
         WHERE c.aca_id = #{acaId}
         ORDER BY r.created_at DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
+
+    <!-- 학원 ID 유효성 검사 -->
+    <select id="checkAcaExists">
+        SELECT COUNT(*)
+        FROM academy
+        WHERE aca_id = #{acaId}
+    </select>
 
 
     <!-- 유저가 본인 마이페이지에서 작성한 리뷰 리스트 조회 -->
@@ -148,7 +157,8 @@
         c.aca_id AS acaId,
         a.aca_name AS acaName,
         u.user_id AS userId,
-        u.user_pic AS userPic
+        u.user_pic AS userPic,
+        u.nick_name AS writerName
         FROM
         review r
         JOIN
@@ -162,7 +172,8 @@
         WHERE
         j.user_id = #{userId}
         ORDER BY
-        r.created_at DESC;
+        r.created_at DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
 
