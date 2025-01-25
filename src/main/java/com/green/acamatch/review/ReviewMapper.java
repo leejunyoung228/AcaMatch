@@ -2,7 +2,9 @@ package com.green.acamatch.review;
 
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
-import com.green.acamatch.review.model.*;
+import com.green.acamatch.review.model.ReviewDelReq;
+import com.green.acamatch.review.model.ReviewPostReq;
+import com.green.acamatch.review.model.ReviewUpdateReq;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -45,14 +47,11 @@ public interface ReviewMapper {
 
 
     // 학원의 리뷰 목록 가져오기
-    List<ReviewDto> getAcademyReviews(ReviewListGetReq req);
-
-    // 본인이 작성한 리뷰 조회
-    List<MyReviewDto> getReviewsByUserId(MyReviewGetReq req);
+    List<ReviewDto> getAcademyReviews(long acaId);
 
     // 학원 상세 페이지에서 학원의 리뷰 목록 조회
-    List<ReviewDto> getAcademyReviewsForPublic(ReviewListGetReq req);
+    List<ReviewDto> getAcademyReviewsForPublic(long acaId);
 
-    // 학원 ID 존재 여부 확인
-    int checkAcaExists(long acaId);
+    // 본인이 작성한 리뷰 목록 조회
+    List<MyReviewDto> getReviewsByUserId(long userId);
 }
