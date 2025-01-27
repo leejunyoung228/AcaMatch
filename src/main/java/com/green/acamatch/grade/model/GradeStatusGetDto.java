@@ -1,4 +1,4 @@
-package com.green.acamatch.subject.model;
+package com.green.acamatch.grade.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public class SubjectGetDto {
+public class GradeStatusGetDto {
     @Schema(title = "학원 사진")
     private String acaPic;
     @Schema(title = "시험 이름", example = "1차 시험")

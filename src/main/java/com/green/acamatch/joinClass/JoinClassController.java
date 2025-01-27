@@ -2,6 +2,8 @@ package com.green.acamatch.joinClass;
 
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
+import com.green.acamatch.grade.model.GradeUserDto;
+import com.green.acamatch.grade.model.GradeUserGetReq;
 import com.green.acamatch.joinClass.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,16 +43,6 @@ public class JoinClassController {
     public ResultResponse<List<JoinClassDto>> selJoinClass(@ModelAttribute @ParameterObject JoinClassGetReq p) {
         List<JoinClassDto> result = service.selJoinClass(p);
         return ResultResponse.<List<JoinClassDto>>builder()
-                .resultMessage(userMessage.getMessage())
-                .resultData(result)
-                .build();
-    }
-
-    @GetMapping("classUserGrade")
-    @Operation(summary = "강좌 시험에 따른 user 성적 가져오기")
-    public ResultResponse<List<JoinClassUserGradeDto>> selJoinClassUserGrade(@ModelAttribute @ParameterObject JoinClassUserGradeGetReq p) {
-        List<JoinClassUserGradeDto> result = service.selJoinClassUserGrade(p);
-        return ResultResponse.<List<JoinClassUserGradeDto>>builder()
                 .resultMessage(userMessage.getMessage())
                 .resultData(result)
                 .build();
