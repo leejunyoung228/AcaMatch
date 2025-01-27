@@ -27,34 +27,6 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
-    <resultMap id="JoinClassUserResultMap" type="com.green.acamatch.joinClass.model.JoinClassUserGradeDto">
-        <result property="userPic" column="user_pic" />
-        <result property="userName" column="name" />
-        <result property="examDate" column="exam_date" />
-        <result property="score" column="result_score" />
-        <result property="pass" column="result_pass" />
-    </resultMap>
-
-    <select id="selJoinClassUserGrade" resultMap="JoinClassUserResultMap">
-        SELECT E.user_pic, E.name, D.exam_date,
-        CASE WHEN F.SCORE_TYPE = 0 THEN D.score ELSE NULL END AS result_score,
-        CASE WHEN F.SCORE_TYPE != 0 THEN
-        CASE WHEN COALESCE(D.PASS, 0) = 0 THEN '불합격' ELSE '합격' END ELSE NULL END AS result_pass
-        FROM academy A
-        INNER JOIN class B
-        ON A.aca_id = B.aca_id
-        INNER JOIN joinclass C
-        ON B.class_id = C.class_id
-        INNER JOIN grade D
-        ON C.join_class_id = D.join_class_id
-        INNER JOIN `user` E
-        ON E.user_id = C.user_id
-        INNER JOIN `subject` F
-        ON F.subject_id = D.subject_id
-        WHERE F.subject_id = #{subjectId}
-        LIMIT #{startIdx}, #{size}
-    </select>
-
     <update id = "updJoinClass">
         UPDATE joinclass
         <set>

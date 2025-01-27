@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class AcaClassPutReq {
+
     @Schema(title = "학원 PK", example = "324", requiredMode = Schema.RequiredMode.REQUIRED)
     private long acaId;
 

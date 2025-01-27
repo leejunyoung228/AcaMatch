@@ -8,13 +8,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class GradePostReq {
-    @JsonIgnore
-    private long joinClassId;
 
-    @Schema(title = "사용자 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long userId;
-    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long classId;
+    @Schema(title = "수강생 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private long joinClassId;
     @Schema(title = "과목 점수 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private long subjectId;
     @Schema(title = "과목 점수", example = "90")
