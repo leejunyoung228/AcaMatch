@@ -6,6 +6,7 @@ import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AddressConst;
 import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.ErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -383,5 +386,46 @@ public class AcademyService {
         }
         academyMessage.setMessage("상세 정보 불러오기 성공");
         return res;
+    }
+
+    private static Map<String, List<GetAcademyRandomRes>> academyCache = new HashMap<>();
+
+    // 학원 리스트를 가져오는 메소드
+    public List<GetAcademyRandomRes> getAcademyListByAll() {
+        // 오늘 날짜 계산
+        String todayDate = LocalDate.now().toString();  // 오늘 날짜를 'yyyy-MM-dd' 형식으로 가져옴
+
+        // 오늘 학원 리스트가 캐시에 있는지 확인
+        if (academyCache.containsKey(todayDate)) {
+            return academyCache.get(todayDate);  // 캐시에 있으면 기존 리스트 반환
+        }
+
+        // 학원 리스트 랜덤 생성
+        List<GetAcademyRandomRes> list = academyMapper.getAcademyListDefault();
+        list = generateRandomAcademyList(list, todayDate);
+
+        // 리스트를 캐시에 저장하여 자정까지 유지
+        academyCache.put(todayDate, list);
+
+        // 주소 디코딩
+        for (GetAcademyRandomRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+
+        // 리스트가 비었으면 실패 메시지 반환
+        if (list.size() == 0) {
+            academyMessage.setMessage("학원 리스트 불러오기 실패");
+            return null;
+        }
+
+        academyMessage.setMessage("학원 리스트 불러오기 성공");
+        return list;
+    }
+
+    private List<GetAcademyRandomRes> generateRandomAcademyList(List<GetAcademyRandomRes> list, String todayDate) {
+        Random random = new Random(todayDate.hashCode());  // 날짜 기반으로 랜덤 시드 설정
+        Collections.shuffle(list, random);  // 학원 리스트 랜덤 섞기
+        return list;
     }
 }

@@ -482,6 +482,14 @@
             <result property="classDay" column="classDay"/>
             <result property="classCategoryName" column="classCategoryName"/>
         </collection>
+
+        <!-- 리뷰 정보 매핑 (하위 리스트) -->
+        <collection property="reviews" ofType="com.green.acamatch.academy.model.ReviewDto">
+            <result property="comment" column="reviewComment"/>
+            <result property="star" column="reviewStar"/>
+            <result property="createdAt" column="reviewCreatedAt"/>
+            <result property="userId" column="reviewUserId"/>
+        </collection>
     </resultMap>
 
     <select id="getAcademyWithClasses" resultMap="AcademyResultMap">
@@ -509,7 +517,13 @@
         C.end_time AS classEndTime,
         C.price AS classPrice,
         GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,
-        GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName
+        GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
+
+        RV.comment AS reviewComment,
+        RV.star AS reviewStar,
+        RV.created_at AS reviewCreatedAt,
+        JC.user_id AS reviewUserId
+
         FROM academy A
         LEFT JOIN (
         SELECT
@@ -540,9 +554,38 @@
         FROM `like`
         WHERE user_id = #{signedUserId}
         ) UL ON UL.aca_id = A.aca_id
+        LEFT JOIN review RV ON RV.join_class_id = C.class_id
+        LEFT JOIN joinclass JC ON RV.join_class_id = JC.join_class_id
         WHERE A.aca_id = #{acaId}
-        GROUP BY A.aca_id, C.class_id
+        GROUP BY A.aca_id, C.class_id, RV.comment, RV.star, RV.created_at, JC.user_id
         ORDER BY C.class_id;
     </select>
 
+    <select id="getAcademyListDefault">
+        SELECT
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        A.aca_pic AS acaPic,
+        A.address AS address,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
+        COALESCE(G.star, 0) AS star
+        FROM academy A
+        LEFT JOIN academytag E
+        ON A.aca_id = E.aca_id
+        LEFT JOIN tag F
+        ON E.tag_id = F.tag_id
+        LEFT JOIN (
+        SELECT
+        ROUND(AVG(R.star), 2) AS star,
+        C.aca_id
+        FROM review R
+        JOIN class C
+        ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id
+        ) G
+        ON G.aca_id = A.aca_id
+        GROUP BY A.aca_id
+        ORDER BY RAND()
+        LIMIT 0, 4;
+    </select>
 </mapper>
