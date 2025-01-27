@@ -76,4 +76,7 @@ public interface AcademyMapper {
     int postToSearch(String p);
 
     GetAcademyDetailRes getAcademyWithClasses(GetAcademyDetailReq p);
+
+    List<GetAcademyRandomRes> getAcademyListDefault();
+
 }

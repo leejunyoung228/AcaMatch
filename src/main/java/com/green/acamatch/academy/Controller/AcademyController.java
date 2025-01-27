@@ -209,4 +209,15 @@ public class AcademyController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("AcademyDefault")
+    @Operation(summary = "메인 페이지에 랜덤한 학원 띄우기")
+    public ResultResponse<List<GetAcademyRandomRes>> getAcademyListRandom(){
+        List<GetAcademyRandomRes> res = academyService.getAcademyListByAll();
+        return ResultResponse.<List<GetAcademyRandomRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+
+    }
 }
