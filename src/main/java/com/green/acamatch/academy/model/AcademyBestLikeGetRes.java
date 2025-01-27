@@ -8,4 +8,7 @@ import lombok.Setter;
 public class AcademyBestLikeGetRes {
     private long acaId;
     private int likeCount;
+    private double starCount;
+    private int reviewCount;
+    private String pic;
 }

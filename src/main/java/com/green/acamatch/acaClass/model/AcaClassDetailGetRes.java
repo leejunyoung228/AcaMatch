@@ -7,6 +7,6 @@ import java.util.List;
 
 @Setter
 @Getter
-public class AcaClassToUserGetRes {
-    private List<AcaClassToUserDto> userClassList;
+public class AcaClassDetailGetRes {
+    private List<AcaClassDetailDto> classList;
 }

@@ -16,7 +16,7 @@ public interface AcademyMapper {
     int insAcaTag(long acaId, List<Long>tagIdList);
     int delAcaTag(long acaId);
 
-    AcademyGetDongPkRes selAddressDong(String dongName);
+    Long selAddressDong(String dongName);
 
     int insAcademy(AcademyPostReq req);
 

@@ -4,11 +4,10 @@
 <mapper namespace="com.green.acamatch.grade.GradeMapper">
     <insert id="insGrade">
         INSERT INTO grade
-        ( join_class_id, subject_id, score, pass, exam_date)
-        SELECT join_class_id, #{subjectId}, #{score}, #{pass}, #{examDate}
+        ( join_class_id, subject_id, score, pass, exam_date, processing_status)
+        SELECT join_class_id, #{subjectId}, #{score}, #{pass}, #{examDate}, #{processingStatus}
         FROM joinclass
-        WHERE user_id = #{userId}
-        AND class_id = #{classId}
+        WHERE join_class_id = #{joinClassId}
     </insert>
 
     <select id ="existsGrade">
@@ -16,26 +15,82 @@
         FROM grade A
         INNER JOIN joinclass B
         ON A.join_class_id = B.join_class_id
-        WHERE B.user_id = #{userId} AND B.class_id = #{classId} AND A.subject_id = #{subjectId}
+        WHERE B.join_class_id = #{joinClassId} AND A.subject_id = #{subjectId}
     </select>
 
-    <select id="selGradeScore">
+    <resultMap id="selGradeScoreResultMap" type="com.green.acamatch.grade.model.GradeGetDto">
+        <result property="subjectName" column="subject_name" />
+        <result property="examDate" column="exam_date" />
+        <result property="score" column="result_score" />
+        <result property="pass" column="result_pass" />
+    </resultMap>
+
+    <select id="selGradeScore" resultMap="selGradeScoreResultMap">
         SELECT A.subject_name, B.exam_date,
-        CASE WHEN A.SCORE_TYPE = 0 THEN B.score ELSE CASE WHEN COALESCE(B.PASS, 0) = 0 THEN '불합격' ELSE '합격' END  END score
+        CASE WHEN A.SCORE_TYPE = 0 THEN B.score ELSE NULL END AS result_score,
+        CASE WHEN A.SCORE_TYPE != 0 THEN
+        CASE WHEN COALESCE(B.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass
         FROM subject A
         INNER JOIN grade B
         ON A.subject_id = B.subject_id
         INNER JOIN joinclass C
         ON B.join_class_id = C.join_class_id
-        WHERE C.user_id = #{userId}
+        WHERE C.join_class_id = #{joinClassId}
+        LIMIT #{startIdx}, #{size}
+    </select>
+
+    <select id = "selGradeStatus">
+        SELECT A.aca_pic, C.subject_name, D.exam_date, D.processing_status
+        FROM academy A
+        INNER JOIN class B
+        ON A.aca_id = B.aca_id
+        INNER JOIN subject C
+        ON B.class_id = C.class_id
+        INNER JOIN grade D
+        ON C.subject_id = D.subject_id
+        WHERE A.aca_id = #{acaId} AND B.class_id = #{classId}
+        LIMIT #{startIdx}, #{size}
+    </select>
+
+    <resultMap id="gradeUserResultMap" type="com.green.acamatch.grade.model.GradeUserDto">
+        <result property="userPic" column="user_pic" />
+        <result property="userName" column="name" />
+        <result property="examDate" column="exam_date" />
+        <result property="score" column="result_score" />
+        <result property="pass" column="result_pass" />
+    </resultMap>
+
+    <select id="selGradeUser" resultMap="gradeUserResultMap">
+        SELECT E.user_pic, E.name, D.exam_date,
+        CASE WHEN F.SCORE_TYPE = 0 THEN D.score ELSE NULL END AS result_score,
+        CASE WHEN F.SCORE_TYPE != 0 THEN
+        CASE WHEN COALESCE(D.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass
+        FROM academy A
+        INNER JOIN class B
+        ON A.aca_id = B.aca_id
+        INNER JOIN joinclass C
+        ON B.class_id = C.class_id
+        INNER JOIN grade D
+        ON C.join_class_id = D.join_class_id
+        INNER JOIN `user` E
+        ON E.user_id = C.user_id
+        INNER JOIN `subject` F
+        ON F.subject_id = D.subject_id
+        WHERE F.subject_id = #{subjectId}
         LIMIT #{startIdx}, #{size}
     </select>
 
     <update id="updGradeScore">
         UPDATE grade
         <set>
-            <if test =" score != null and score != '' ">
-                score = #{score}
+            <if test =" score != null">
+                score = #{score},
+            </if>
+            <if test =" pass != null">
+                pass = #{pass},
+            </if>
+            <if test =" processingStatus != null">
+                processing_status = #{processingStatus}
             </if>
         </set>
         WHERE grade_id = #{gradeId}

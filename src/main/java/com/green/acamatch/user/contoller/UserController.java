@@ -42,12 +42,8 @@ public class UserController {
 
     @GetMapping("sign-up")
     @Operation(summary = "회원가입 완료")
-    public ResultResponse<UserSignInRes> finishSignUp(String token, HttpServletResponse response) {
-        UserSignInRes res = userManagementService.signUp(token, response);
-        return ResultResponse.<UserSignInRes>builder()
-                .resultMessage("회원 가입 성공")
-                .resultData(res)
-                .build();
+    public void finishSignUp(String token, HttpServletResponse response) {
+        userManagementService.signUp(token, response);
     }
 
     @PostMapping("sign-in")
@@ -83,24 +79,29 @@ public class UserController {
                 .build();
     }
 
-    @PatchMapping
-    @Operation(summary = "회원 프로필 사진 업로드")
-    public ResultResponse<Integer> updateUserPic(@RequestPart MultipartFile pic) {
-        int res = userManagementService.updateUserPic(pic);
-        return ResultResponse.<Integer>builder()
-                .resultMessage("프로필 사진 업로드 성공")
-                .resultData(res)
-                .build();
-    }
-
     @PutMapping
     @Operation(summary = "회원 정보 수정")
-    public ResultResponse<Integer> updateUser(@Valid @RequestBody UserUpdateReq req) {
-        int res = userManagementService.updateUser(req);
+    public ResultResponse<Integer> updateUser(@Valid @RequestPart UserUpdateReq req, @RequestPart(required = false) MultipartFile pic ) {
+        int res = userManagementService.updateUser(req, pic);
         return ResultResponse.<Integer>builder()
                 .resultMessage("회원 정보 수정 성공")
                 .resultData(res)
                 .build();
+    }
+
+    @PostMapping("temp-pw")
+    @Operation(summary = "임시 비밀번호 요청")
+    public ResultResponse<Integer> tempPwRequest(@Valid @RequestBody FindPwReq req) {
+        int res = authService.sendTempPwEmail(req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("임시 비밀번호 전송 성공")
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("temp-pw/{id}")
+    public void getTempPw(HttpServletResponse response, @PathVariable long id) {
+        userManagementService.setTempPw(id, response);
     }
 
     @DeleteMapping
@@ -109,6 +110,17 @@ public class UserController {
         int res = userManagementService.deleteUser(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage("회원 탈퇴 성공")
+                .resultData(res)
+                .build();
+    }
+
+
+    @PostMapping("log-out")
+    @Operation(summary = "로그아웃", description = "쿠키 삭제")
+    public ResultResponse<Integer> logout(HttpServletResponse response) {
+        int res = authService.logOutUser(response);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("로그아웃 성공")
                 .resultData(res)
                 .build();
     }

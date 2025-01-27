@@ -21,17 +21,20 @@ public class AcademyPostReq {
     @JsonIgnore
     private long acaId;
 
+    @JsonIgnore
+    private long dongId;
+
     private long userId;
 
-    private long dongId;
 
     @NotEmpty
     @Schema(title = "학원이름", example = "영재수학학원", requiredMode = Schema.RequiredMode.REQUIRED)
     private String acaName;
     @NotEmpty
-    @Schema(title = "학원전화번호", example = "01012341234", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "학원전화번호", requiredMode = Schema.RequiredMode.REQUIRED)
     @Pattern(regexp = "^(0[0-9][0-9])-\\d{3,4}-\\d{4}$", message = "Invalid phone number format. Example: 010-1234-5678")
     private String acaPhone;
+
     @Schema(title = "학원내용", example = "여기는 수학전문학원입니다.")
     private String comment;
     @Schema(title = "강사 수", example = "3")
@@ -51,6 +54,7 @@ public class AcademyPostReq {
     @Valid
     private AddressDto addressDto;
 
+    @JsonIgnore
     @Schema(title = "학원사진")
     private String acaPic;
 

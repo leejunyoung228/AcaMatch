@@ -6,11 +6,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Embeddable
 @EqualsAndHashCode
-public class RelationshipId {
+public class RelationshipId implements Serializable {
     @Column(name = "parents_id")
     private Long parentsId;
 

@@ -8,4 +8,5 @@ import lombok.Setter;
 public class LikedAcademyDto {
     private Long acaId;
     private String acaPic;
+    private String acaName; // 학원 이름 필드 추가
 }

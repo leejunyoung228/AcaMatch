@@ -1,9 +1,6 @@
 package com.green.acamatch.grade;
 
-import com.green.acamatch.grade.model.GradePostReq;
-import com.green.acamatch.grade.model.GradeGetDto;
-import com.green.acamatch.grade.model.GradeGetReq;
-import com.green.acamatch.grade.model.GradePutReq;
+import com.green.acamatch.grade.model.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -11,7 +8,9 @@ import java.util.List;
 @Mapper
 public interface GradeMapper {
     int insGrade(GradePostReq p);
-    int existsGrade(long userId, long classId, long subjectId);
+    int existsGrade(long joinClassId, long subjectId);
     List<GradeGetDto> selGradeScore(GradeGetReq p);
+    List<GradeUserDto> selGradeUser(GradeUserGetReq p);
+    List<GradeStatusGetDto> selGradeStatus(GradeStatusGetReq p);
     int updGradeScore(GradePutReq p);
 }
