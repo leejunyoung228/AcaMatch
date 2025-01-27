@@ -4,8 +4,8 @@
 <mapper namespace="com.green.acamatch.grade.GradeMapper">
     <insert id="insGrade">
         INSERT INTO grade
-        ( join_class_id, subject_id, score, pass, exam_date)
-        SELECT join_class_id, #{subjectId}, #{score}, #{pass}, #{examDate}
+        ( join_class_id, subject_id, score, pass, exam_date, processing_status)
+        SELECT join_class_id, #{subjectId}, #{score}, #{pass}, #{examDate}, #{processingStatus}
         FROM joinclass
         WHERE user_id = #{userId}
         AND class_id = #{classId}
@@ -34,8 +34,14 @@
     <update id="updGradeScore">
         UPDATE grade
         <set>
-            <if test =" score != null and score != '' ">
-                score = #{score}
+            <if test =" score != null">
+                score = #{score},
+            </if>
+            <if test =" pass != null">
+                pass = #{pass},
+            </if>
+            <if test =" processingStatus != null">
+                processing_status = #{processingStatus}
             </if>
         </set>
         WHERE grade_id = #{gradeId}
