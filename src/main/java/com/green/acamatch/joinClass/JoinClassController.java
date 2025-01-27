@@ -1,10 +1,9 @@
 package com.green.acamatch.joinClass;
 
-import com.green.acamatch.acaClass.model.AcaClassDto;
-import com.green.acamatch.acaClass.model.AcaClassGetReq;
-import com.green.acamatch.acaClass.model.AcaClassPutReq;
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
+import com.green.acamatch.grade.model.GradeUserDto;
+import com.green.acamatch.grade.model.GradeUserGetReq;
 import com.green.acamatch.joinClass.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,10 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.transform.Result;
 import java.util.List;
 
-@Tag(name = "수강 신청, 수정, 삭제 관리", description = "수강 신청, 수정, 삭제")
+@Tag(name = "수강 관리", description = "수강 신청, 불러오기, 수정, 삭제")
 @RestController
 @RequestMapping("joinClass")
 @RequiredArgsConstructor
@@ -41,11 +39,11 @@ public class JoinClassController {
     }
 
     @GetMapping
-    @Operation(summary = "학원명/강좌명/성적확인 / null일 경우 resultData 반환 값이 없습니다.")
+    @Operation(summary = "학원명/강좌명 / null일 경우 resultData 반환 값이 없습니다.")
     public ResultResponse<List<JoinClassDto>> selJoinClass(@ModelAttribute @ParameterObject JoinClassGetReq p) {
         List<JoinClassDto> result = service.selJoinClass(p);
         return ResultResponse.<List<JoinClassDto>>builder()
-                .resultMessage("성공하였습니다.")
+                .resultMessage(userMessage.getMessage())
                 .resultData(result)
                 .build();
     }

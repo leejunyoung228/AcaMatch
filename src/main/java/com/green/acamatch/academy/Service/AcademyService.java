@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -29,6 +30,7 @@ public class AcademyService {
     private final AcademyMessage academyMessage;
     private final UserMessage userMessage;
     private final AddressConst addressConst;
+    private final KakaoApiExample kakaoApiExample;
 
 
     //학원정보등록
@@ -41,7 +43,13 @@ public class AcademyService {
 
         req.setAcaPic(savedPicName);
 
-        req.getAddressDto().getAddress();
+        //req.getAddressDto().getAddress();
+
+        //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
+        String dongName = kakaoApiExample.addressSearchMain(req);
+        // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+        Long dongPk = academyMapper.selAddressDong(dongName);
+        req.setDongId(dongPk);
 
         try {
             int result = academyMapper.insAcademy(req);
@@ -207,10 +215,6 @@ public class AcademyService {
         return false;
     }
 
-    //dong_id 가져오는 메소드
-    private AcademyGetDongPkRes getDongPkRes(String dongName) {
-        return academyMapper.selAddressDong(dongName);
-    }
 
 
 // --------------------------------------------------------------

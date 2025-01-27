@@ -1,8 +1,9 @@
 package com.green.acamatch.config.security;
 
-import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,8 +30,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             try {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } catch (Exception e) {
-                throw new CustomException(UserErrorCode.EXPIRED_TOKEN);
+            } catch (ExpiredJwtException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, UserErrorCode.EXPIRED_TOKEN.getMessage());
+                return;
+            } catch (MalformedJwtException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, UserErrorCode.UNAUTHENTICATED.getMessage());
+                return;
             }
         }
 

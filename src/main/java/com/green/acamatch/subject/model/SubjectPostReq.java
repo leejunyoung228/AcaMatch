@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class SubjectPostReq {
-
     @JsonIgnore
     private long subjectId;
 

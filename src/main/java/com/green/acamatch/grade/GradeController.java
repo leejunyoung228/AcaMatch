@@ -2,10 +2,7 @@ package com.green.acamatch.grade;
 
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.grade.model.GradePostReq;
-import com.green.acamatch.grade.model.GradeGetDto;
-import com.green.acamatch.grade.model.GradeGetReq;
-import com.green.acamatch.grade.model.GradePutReq;
+import com.green.acamatch.grade.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -40,10 +37,31 @@ public class GradeController {
     }
 
     @GetMapping
-    @Operation(summary = "시험 점수 가져오기/ null일 경우 resultData 반환 값이 없습니다.")
+    @Operation(summary = "수강생 한 명의 시험 점수 가져오기/ null일 경우 resultData 반환 값이 없습니다.")
     public ResultResponse<List<GradeGetDto>> selGradeScore(@ModelAttribute @ParameterObject GradeGetReq p) {
         List<GradeGetDto> result = service.selGradeScore(p);
         return ResultResponse.<List<GradeGetDto>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(result)
+                .build();
+    }
+
+    @GetMapping("gradeUser")
+    @Operation(summary = "시험에 따른 user들 성적 가져오기")
+    public ResultResponse<List<GradeUserDto>> selGradeUser(@ModelAttribute @ParameterObject GradeUserGetReq p) {
+        List<GradeUserDto> result = service.selGradeUser(p);
+        return ResultResponse.<List<GradeUserDto>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(result)
+                .build();
+    }
+
+
+    @GetMapping("status")
+    @Operation(summary = "시험 처리 상태 가져오기/ null일 경우 resultData 반환 값이 없습니다.")
+    public ResultResponse<List<GradeStatusGetDto>> selGradeStatus(@ModelAttribute @ParameterObject GradeStatusGetReq p) {
+        List<GradeStatusGetDto> result = service.selGradeStatus(p);
+        return ResultResponse.<List<GradeStatusGetDto>>builder()
                 .resultMessage(userMessage.getMessage())
                 .resultData(result)
                 .build();

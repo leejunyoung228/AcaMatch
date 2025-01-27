@@ -8,13 +8,11 @@ import lombok.Setter;
 @Setter
 @Getter
 public class GradeGetReq extends Paging {
-    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long classId;
-    @Schema(title = "사용자 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long userId;
+    @Schema(title = "수강생 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private long joinClassId;
 
-    public GradeGetReq(Integer page, Integer size, long classId) {
+    public GradeGetReq(Integer page, Integer size, long joinClassId) {
         super(page, size);
-        this.classId = classId;
+        this.joinClassId = joinClassId;
     }
 }

@@ -1,6 +1,8 @@
 package com.green.acamatch.joinClass;
 
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.grade.model.GradeUserDto;
+import com.green.acamatch.grade.model.GradeUserGetReq;
 import com.green.acamatch.joinClass.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,14 +28,25 @@ public class JoinClassService {
     }
 
     public List<JoinClassDto> selJoinClass(JoinClassGetReq p) {
-        return mapper.selJoinClass(p);
+        try {
+            List<JoinClassDto> result = mapper.selJoinClass(p);
+            if (result == null || result.isEmpty()) {
+                userMessage.setMessage("성적확인을 위한 학원명/강좌명 불러오기에 실패하였습니다.");
+                return null;
+            }
+            userMessage.setMessage("성적확인을 위한 학원명/강좌명 불러오기에 성공하였습니다.");
+            return result;
+        } catch (Exception e) {
+            userMessage.setMessage("기타 오류 사항으로 성적확인을위한 불러오지 못했습니다.");
+            return null;
+        }
     }
 
     public int putJoinClass(JoinClassPutReq p) {
-       try {
+        try {
             int result = mapper.updJoinClass(p);
 
-            if(result == 0) {
+            if (result == 0) {
                 userMessage.setMessage("수정에 실패하였습니다.");
                 return 0;
             }
