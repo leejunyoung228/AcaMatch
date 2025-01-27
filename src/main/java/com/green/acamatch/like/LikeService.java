@@ -4,6 +4,7 @@ import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.like.dto.LikedAcademyDto;
 import com.green.acamatch.like.dto.LikedUserDto;
 import com.green.acamatch.like.model.*;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

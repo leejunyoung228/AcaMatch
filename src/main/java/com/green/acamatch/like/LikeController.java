@@ -6,6 +6,21 @@ import com.green.acamatch.like.dto.LikedAcademyDto;
 import com.green.acamatch.like.dto.LikedUserDto;
 import com.green.acamatch.like.model.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.config.model.ResultResponse;
+import com.green.acamatch.like.dto.LikedAcademyDto;
+import com.green.acamatch.like.dto.LikedUserDto;
+import com.green.acamatch.like.model.*;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
