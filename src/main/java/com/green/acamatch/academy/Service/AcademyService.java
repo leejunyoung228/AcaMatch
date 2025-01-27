@@ -357,6 +357,7 @@ public class AcademyService {
 
     //모든 입력을 받아 학원 리스트 출력하기
     public List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p){
+        int post = academyMapper.postToSearch(p.getTagName());
         List<GetAcademyListRes> list = academyMapper.getAcademyListByAll(p);
         for(GetAcademyListRes re : list) {
             re.setAddressDto(addressDecoding(re.getAddress()));
@@ -368,5 +369,18 @@ public class AcademyService {
         }
         academyMessage.setMessage("학원 리스트 불러오기 성공");
         return list;
+    }
+
+    //학원 상세 모든 정보 보기
+    public GetAcademyDetailRes getAcademyDetail(GetAcademyDetailReq p){
+        GetAcademyDetailRes res = academyMapper.getAcademyWithClasses(p);
+        res.setAddressDto(addressDecoding(res.getAddress()));
+        res.setAddress(res.getAddressDto().getAddress());
+        if(res == null){
+            academyMessage.setMessage("상세 정보 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("상세 정보 불러오기 성공");
+        return res;
     }
 }

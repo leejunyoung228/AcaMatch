@@ -72,4 +72,8 @@ public interface AcademyMapper {
 
     //모든 입력을 받아 출력하기
     List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p);
+
+    int postToSearch(String p);
+
+    GetAcademyDetailRes getAcademyWithClasses(GetAcademyDetailReq p);
 }
