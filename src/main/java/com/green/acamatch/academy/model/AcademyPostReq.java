@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class AcademyPostReq {
     @Schema(title = "학원주소", example = "대구 달서천로100길 10-100", requiredMode = Schema.RequiredMode.REQUIRED)
     private String address;
     @Valid
-    private AddressDto addressDto;
+    private AddressDto addressUpdateDto;
 
     @JsonIgnore
     @Schema(title = "학원사진")

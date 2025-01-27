@@ -35,7 +35,7 @@ public class AcademyService {
     @Transactional
     public int insAcademy(MultipartFile pic, AcademyPostReq req) {
 
-        req.setAddress(addressEncoding(req.getAddressDto()));
+        req.setAddress(addressEncoding(req.getAddressUpdateDto()));
 
         String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
 
@@ -45,7 +45,7 @@ public class AcademyService {
 
         //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
         try {
-            String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
+            String dongName = kakaoApiExample.addressSearchMain(req.getAddressUpdateDto());
             // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
             Long dongPk = academyMapper.selAddressDong(dongName);
             req.setDongId(dongPk);
@@ -83,11 +83,15 @@ public class AcademyService {
     @Transactional
     public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
         //아무것도 입력안했을 때
-        if (!isValidValue(pic) && !isValidValue(req.getAcaName())
-            && !isValidValue(req.getAcaPhone()) && !isValidValue(req.getComment())
-            && !isValidValue(req.getTeacherNum()) && !isValidValue(req.getOpenTime())
-            && !isValidValue(req.getCloseTime()) && !isValidValue(req.getAddressDto())
-            && !isValidValue(req.getTagIdList().isEmpty())) {
+        if ((pic == null || pic.toString().trim().isEmpty()) &&
+                (req.getAcaName() == null || req.getAcaName().trim().isEmpty()) &&
+                (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) &&
+                (req.getComment() == null || req.getComment().trim().isEmpty()) &&
+                (req.getTeacherNum() == 0 ) && // int 타입은 null 체크 불필요
+                (req.getOpenTime() == null || req.getOpenTime().trim().isEmpty()) &&
+                (req.getCloseTime() == null || req.getCloseTime().trim().isEmpty()) &&
+                (req.getAddressDto() == null || req.getAddressDto().toString().trim().isEmpty()) &&
+                (req.getTagIdList() == null || req.getTagIdList().isEmpty())) {
             throw new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION);
         }
 
@@ -113,6 +117,37 @@ public class AcademyService {
             }
         }
 
+        //전화번호 형식 무시할수 있게
+        if (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) {
+            // acaPhone이 빈 값일 경우에는 유효성 검사를 건너뜁니다.
+            req.setAcaPhone(null);
+        } else {
+            // acaPhone이 비어 있지 않으면 유효성 검사 로직이 진행됩니다.
+            if (!req.getAcaPhone().matches("^(0[0-9][0-9])-\\d{3,4}-\\d{4}$")) {
+                throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
+            }
+        }
+
+
+        //주소수정을 하려고 할때(셋다 값이 들어있을때)
+        if(isValidValue(req.getAddressDto().getAddress())
+                && isValidValue(req.getAddressDto().getDetailAddress())
+                && isValidValue(req.getAddressDto().getPostNum()))  {
+            try {
+                String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
+                Long dongPk = academyMapper.selAddressDong(dongName);
+                req.setDongId(dongPk);
+            } catch (NoSuchElementException e) {
+                throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
+            }
+        } else if(!isValidValue(req.getAddressDto().getAddress())
+                && !isValidValue(req.getAddressDto().getDetailAddress())
+                && !isValidValue(req.getAddressDto().getPostNum())) {
+            req.getAddressDto().setAddress(null);
+            req.getAddressDto().setDetailAddress(null);
+            req.getAddressDto().setPostNum(null);
+        }
+
         if (req.getAddressDto() != null) {
             AddressDto dto = addressDecoding(academyMapper.getAcademyAddress(req.getAcaId()).orElseThrow(() ->
                     new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION
@@ -128,20 +163,8 @@ public class AcademyService {
                 reqDto.setPostNum((dto.getPostNum()));
             }
             req.setAddress(addressEncoding(reqDto));
-        }
-
-        //주소수정을 하려고 할때
-        if(isValidValue(req.getAddressDto().getAddress())
-                        && isValidValue(req.getAddressDto().getDetailAddress())
-                        && isValidValue(req.getAddressDto().getPostNum()))  {
-            try {
-                String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
-                Long dongPk = academyMapper.selAddressDong(dongName);
-                req.setDongId(dongPk);
-            } catch (NoSuchElementException e) {
-                throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
-            }
-
+        }else {
+            req.setAddress(null);
         }
 
         int result = academyMapper.updAcademy(req);
@@ -225,7 +248,8 @@ public class AcademyService {
     //빈값인지 확인하는 메소드(String, int, long )
     private boolean isValidValue(Object value) {
         if (value instanceof String) {
-            return StringUtils.hasText((String) value);
+            String strValue = (String) value;
+            return strValue != null && !strValue.isEmpty() && StringUtils.hasText(strValue);
         } else if (value instanceof Integer || value instanceof Long) {
             return value != null && ((Number) value).longValue() != 0;
         }

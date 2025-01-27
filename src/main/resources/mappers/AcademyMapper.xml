@@ -55,8 +55,11 @@
     <update id="updAcademy">
         UPDATE academy
         <set>
+            <if test="dongId != ''">
+                dong_id = #{dongId}
+            </if>
             <if test="acaName != null and acaName != ''">
-                aca_name = #{acaName}
+                , aca_name = #{acaName}
             </if>
             <if test="acaPhone != null and acaPhone != ''">
                 , aca_phone = #{acaPhone}
@@ -67,7 +70,7 @@
             <if test="teacherNum != null and teacherNum != ''">
                 , teacher_num = #{teacherNum}
             </if>
-            <if test="openTime != null and openTime != ''">
+            <if test="openTime != null and openTime != ''" >
                 , open_time = #{openTime}
             </if>
             <if test="closeTime != null and closeTime != ''">
