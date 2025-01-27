@@ -199,4 +199,14 @@ public class AcademyController {
                 .resultData(list)
                 .build();
     }
+
+    @GetMapping
+    @Operation(summary = "학원 상세 모든 정보 불러오기")
+    public ResultResponse<GetAcademyDetailRes> getAcademyDetail(@ParameterObject @ModelAttribute GetAcademyDetailReq p) {
+        GetAcademyDetailRes res = academyService.getAcademyDetail(p);
+        return ResultResponse.<GetAcademyDetailRes>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
 }
