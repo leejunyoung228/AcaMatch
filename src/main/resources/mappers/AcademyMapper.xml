@@ -110,11 +110,26 @@
 
 <!--학원 좋아요 순-->
     <select id="getAcademyBest" resultType="com.green.acamatch.academy.model.AcademyBestLikeGetRes">
-        SELECT aca_id AS acaId, COUNT(aca_id) AS likeCount
-          FROM `like`
-         GROUP BY aca_id
-         ORDER BY likeCount DESC
-         LIMIT #{startIdx}, #{size}
+        SELECT a.aca_id,
+                COUNT(DISTINCT a.user_id) AS like_count,
+                b.aca_pic,
+                GROUP_CONCAT(DISTINCT c.tag_id ORDER BY c.tag_id ASC) AS tag_ids,
+                AVG(f.star) AS star_avg,
+                COUNT(DISTINCT f.`comment`) AS review_count
+         FROM `like` a
+         LEFT JOIN `academy` b
+           ON a.aca_id = b.aca_id
+         LEFT JOIN `academytag` c
+           ON a.aca_id = c.aca_id
+         LEFT JOIN `class` d
+           ON b.aca_id = d.aca_id
+         LEFT JOIN `joinclass` e
+           ON d.class_id = e.class_id
+         LEFT JOIN `review` f
+           ON e.join_classa_id = f.join_classa_id
+        GROUP BY a.aca_id
+        ORDER BY like_count DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <!-- 학원 검색 -->

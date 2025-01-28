@@ -15,7 +15,7 @@ public enum AcademyException implements ErrorCode{
     MISSING_UPDATE_FILED_EXCEPTION(HttpStatus.BAD_REQUEST, "수정할 값을 하나 이상 입력해주세요."),
     NO_SUCH_ELEMENT_EXCEPTION(HttpStatus.NOT_FOUND, "값을 가져올수 없습니다.");
 
-    ;
+
 
     private final HttpStatus httpStatus;
     private final String message;
