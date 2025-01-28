@@ -119,10 +119,10 @@ public class AcademyService {
 
         //전화번호 형식 무시할수 있게
         if (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) {
-            // acaPhone이 빈 값일 경우에는 유효성 검사를 건너뜁니다.
+            // acaPhone이 빈 값일 경우에는 유효성 검사를 건너뛴다.
             req.setAcaPhone(null);
         } else {
-            // acaPhone이 비어 있지 않으면 유효성 검사 로직이 진행됩니다.
+            // acaPhone이 비어 있지 않으면 유효성 검사 로직이 진행된다.
             if (!req.getAcaPhone().matches("^(0[0-9][0-9])-\\d{3,4}-\\d{4}$")) {
                 throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
             }
@@ -148,6 +148,7 @@ public class AcademyService {
             req.getAddressDto().setPostNum(null);
         }
 
+        //주소는 수정을 안할때
         if (req.getAddressDto() != null) {
             AddressDto dto = addressDecoding(academyMapper.getAcademyAddress(req.getAcaId()).orElseThrow(() ->
                     new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION
@@ -165,6 +166,13 @@ public class AcademyService {
             req.setAddress(addressEncoding(reqDto));
         }else {
             req.setAddress(null);
+        }
+
+        AcademyUpdatesGetRes academyUpdatesGetRes = academyMapper.selAcademyUpdatesAddress(req);
+        if(academyUpdatesGetRes == null) {
+            academyMapper.insAcademyAddress(req);
+        }else{
+            academyMapper.updAcademyAddress(req);
         }
 
         int result = academyMapper.updAcademy(req);

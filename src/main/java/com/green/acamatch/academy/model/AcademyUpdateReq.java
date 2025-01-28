@@ -27,7 +27,7 @@ public class AcademyUpdateReq {
     private String comment;
     @Schema(title = "강사 수")
     private int teacherNum;
-    @Schema(title = "오픈시간", example = "9:00")
+    @Schema(title = "오픈시간", example = "10:00")
     @JsonFormat(pattern = "HH:mm")
     private String openTime;
     @Schema(title = "마감시간", example = "20:00")
@@ -37,7 +37,6 @@ public class AcademyUpdateReq {
     @JsonIgnore
     private String address;
     @Schema(title = "학원주소")
-    @Valid
     private AddressDto addressDto;
 
     @Schema(title = "학원사진")
