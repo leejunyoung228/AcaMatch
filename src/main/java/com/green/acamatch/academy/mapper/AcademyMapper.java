@@ -25,7 +25,7 @@ public interface AcademyMapper {
     AcademyUpdatesGetRes selAcademyUpdatesAddress(AcademyUpdateReq req);
     int updAcademyAddress(AcademyUpdateReq req);
 
-    Optional<String> getAcademyAddress(long acaId);
+    AcademyUpdatesGetRes getAcademyAddress(long acaId);
     int delAcademy(long acaId, long userId);
 
     List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req);

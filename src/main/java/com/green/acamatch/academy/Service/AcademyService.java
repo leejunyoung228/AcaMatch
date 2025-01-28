@@ -128,46 +128,78 @@ public class AcademyService {
             }
         }
 
-
-        //주소수정을 하려고 할때(셋다 값이 들어있을때)
-        if(isValidValue(req.getAddressDto().getAddress())
-                && isValidValue(req.getAddressDto().getDetailAddress())
-                && isValidValue(req.getAddressDto().getPostNum()))  {
-            try {
-                String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
-                Long dongPk = academyMapper.selAddressDong(dongName);
-                req.setDongId(dongPk);
-            } catch (NoSuchElementException e) {
-                throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
+        if(req.getAddressDto() != null) {
+            //주소수정을 하려고 할때(셋다 값이 들어있을때)
+            if(isValidValue(req.getAddressDto().getAddress())
+                    && isValidValue(req.getAddressDto().getDetailAddress())
+                    && isValidValue(req.getAddressDto().getPostNum()))  {
+                try {
+                    String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
+                    Long dongPk = academyMapper.selAddressDong(dongName);
+                    req.setDongId(dongPk);
+                } catch (NoSuchElementException e) {
+                    throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
+                }
             }
-        } else if(!isValidValue(req.getAddressDto().getAddress())
-                && !isValidValue(req.getAddressDto().getDetailAddress())
-                && !isValidValue(req.getAddressDto().getPostNum())) {
-            req.getAddressDto().setAddress(null);
-            req.getAddressDto().setDetailAddress(null);
-            req.getAddressDto().setPostNum(null);
+
+            //주소수정을 하려고 할때(셋다 값이 들어오지않을때)
+            if(!isValidValue(req.getAddressDto().getAddress())
+                    && !isValidValue(req.getAddressDto().getDetailAddress())
+                    && !isValidValue(req.getAddressDto().getPostNum())) {
+
+                if (academyMapper.selAcademyUpdatesAddress(req).getAddress() != null) {
+                    AddressDto dto = addressDecoding(academyMapper.selAcademyUpdatesAddress(req).getAddress());
+                    AddressDto reqDto = req.getAddressDto();
+                    if (reqDto.getAddress() == null || reqDto.getAddress().isEmpty()) {
+                        reqDto.setAddress(dto.getAddress());
+                    }
+                    if (reqDto.getDetailAddress() == null || reqDto.getDetailAddress().isEmpty()) {
+                        reqDto.setDetailAddress((dto.getDetailAddress()));
+                    }
+                    if (reqDto.getPostNum() == null || reqDto.getPostNum().isEmpty()) {
+                        reqDto.setPostNum((dto.getPostNum()));
+                    }
+                    req.setAddress(addressEncoding(reqDto));
+                } else if (academyMapper.selAcademyUpdatesAddress(req).getAddress() == null) {
+                    AddressDto dto = addressDecoding(academyMapper.getAcademyAddress(req.getAcaId()).getAddress());
+                    AddressDto reqDto = req.getAddressDto();
+                    if (reqDto.getAddress() == null || reqDto.getAddress().isEmpty()) {
+                        reqDto.setAddress(dto.getAddress());
+                    }
+                    if (reqDto.getDetailAddress() == null || reqDto.getDetailAddress().isEmpty()) {
+                        reqDto.setDetailAddress((dto.getDetailAddress()));
+                    }
+                    if (reqDto.getPostNum() == null || reqDto.getPostNum().isEmpty()) {
+                        reqDto.setPostNum((dto.getPostNum()));
+                    }
+                    req.setAddress(addressEncoding(reqDto));
+                } else {
+                    req.setAddress(null);
+                }
+            }
         }
 
-        //주소는 수정을 안할때
-        if (req.getAddressDto() != null) {
-            AddressDto dto = addressDecoding(academyMapper.getAcademyAddress(req.getAcaId()).orElseThrow(() ->
-                    new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION
-                    )));
-            AddressDto reqDto = req.getAddressDto();
-            if (reqDto.getAddress() == null || reqDto.getAddress().isEmpty()) {
-                reqDto.setAddress(dto.getAddress());
-            }
-            if (reqDto.getDetailAddress() == null || reqDto.getDetailAddress().isEmpty()) {
-                reqDto.setDetailAddress((dto.getDetailAddress()));
-            }
-            if (reqDto.getPostNum() == null || reqDto.getPostNum().isEmpty()) {
-                reqDto.setPostNum((dto.getPostNum()));
-            }
-            req.setAddress(addressEncoding(reqDto));
-        }else {
-            req.setAddress(null);
-        }
+            // address, detailAddress, postNum 중 하나 또는 두 개가 비어있으면 에러
+            String address = req.getAddressDto().getAddress();
+            String detailAddress = req.getAddressDto().getDetailAddress();
+            String postNum = req.getAddressDto().getPostNum();
 
+            int emptyCount = 0;
+            if (address == null || address.trim().isEmpty()) {
+                emptyCount++;
+            }
+            if (detailAddress == null || detailAddress.trim().isEmpty()) {
+                emptyCount++;
+            }
+            if (postNum == null || postNum.trim().isEmpty()) {
+                emptyCount++;
+            }
+            // 3개 중 하나 또는 두 개가 비어있으면 예외를 발생시킴
+            if (emptyCount > 0 && emptyCount < 3) {
+                throw new CustomException(AcademyException.ILLEGAL_ARGUMENT_EXCEPTION);
+            }
+
+        //academyupdates 테이블 값 넣거나 수정할때
         AcademyUpdatesGetRes academyUpdatesGetRes = academyMapper.selAcademyUpdatesAddress(req);
         if(academyUpdatesGetRes == null) {
             academyMapper.insAcademyAddress(req);
@@ -257,7 +289,8 @@ public class AcademyService {
     private boolean isValidValue(Object value) {
         if (value instanceof String) {
             String strValue = (String) value;
-            return strValue != null && !strValue.isEmpty() && StringUtils.hasText(strValue);
+            // "" (빈 문자열)도 포함하여 처리
+            return strValue != null && !strValue.trim().isEmpty();
         } else if (value instanceof Integer || value instanceof Long) {
             return value != null && ((Number) value).longValue() != 0;
         }
