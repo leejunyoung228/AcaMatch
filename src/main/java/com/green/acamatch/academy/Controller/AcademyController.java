@@ -33,7 +33,7 @@ public class AcademyController {
         int result2 = tagService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result1)
+                .resultData(result1 != 0 ? 1 : 0)
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class AcademyController {
         int result = academyService.updAcademy(pic, req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result)
+                .resultData(result != 0 ? 1 : 0)
                 .build();
     }
 
@@ -53,7 +53,7 @@ public class AcademyController {
         int result = academyService.delAcademy(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result)
+                .resultData(result != 0 ? 1 : 0)
                 .build();
     }
 
