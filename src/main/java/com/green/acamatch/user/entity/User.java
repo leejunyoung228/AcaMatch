@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,55 +12,38 @@ import java.time.LocalDateTime;
 @Entity
 @DynamicUpdate
 @Table(name = "user")
-public class User {
+public class User extends UpdatedAt{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
     private Long userId;
 
     // 'role_id' 컬럼과 'role' 객체 연결
     @ManyToOne
-    @JoinColumn(name = "role_id", referencedColumnName = "role_id")
+    @JoinColumn(name = "role_id")
     private Role role;
 
-    @Column(name = "sign_up_type", nullable = false)
+    @Column(nullable = false)
     private Integer signUpType;
 
-    @Column(name = "name", length = 20, nullable = false)
+    @Column(length = 20, nullable = false)
     private String name;
 
-    @Column(name = "phone", length = 15, nullable = false)
+    @Column(length = 15, nullable = false)
     private String phone;
 
-    @Column(name = "birth", nullable = false)
+    @Column(nullable = false)
     private LocalDate birth;
 
-    @Column(name = "nick_name", length = 20, nullable = false, unique = true)
+    @Column(length = 20, nullable = false, unique = true)
     private String nickName;
 
-    @Column(name = "email", length = 50, nullable = false, unique = true)
+    @Column(length = 50, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "upw", length = 100, nullable = false)
+    @Column(length = 100, nullable = false)
     private String upw;
 
-    @Column(name = "user_pic", length = 50)
+    @Column(length = 50)
     private String userPic;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }
