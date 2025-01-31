@@ -2,7 +2,7 @@ package com.green.acamatch.user.service;
 
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.user.UserUtils;
-import com.green.acamatch.user.entity.User;
+import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.UserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

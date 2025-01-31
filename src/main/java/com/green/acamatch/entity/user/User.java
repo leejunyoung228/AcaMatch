@@ -1,10 +1,13 @@
-package com.green.acamatch.user.entity;
+package com.green.acamatch.entity.user;
 
+import com.green.acamatch.entity.academy.Chat;
+import com.green.acamatch.entity.datetime.UpdatedAt;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,7 +15,7 @@ import java.time.LocalDate;
 @Entity
 @DynamicUpdate
 @Table(name = "user")
-public class User extends UpdatedAt{
+public class User extends UpdatedAt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
