@@ -21,7 +21,7 @@ public class AcademyUpdateReq {
     @Schema(title = "학원이름")
     private String acaName;
     @Schema(title = "학원전화번호")
-    //@Pattern(regexp = "^(0[0-9][0-9])-\\d{3,4}-\\d{4}$", message = "Invalid phone number format. Example: 010-1234-5678")
+    @Pattern(regexp = "^(0[0-9][0-9])-\\d{3,4}-\\d{4}$", message = "Invalid phone number format. Example: 010-1234-5678")
     private String acaPhone;
     @Schema(title = "학원내용")
     private String comment;
