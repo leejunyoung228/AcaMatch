@@ -377,6 +377,7 @@
     <select id="getAcademyListByAll" resultMap="searchResultMap">
         SELECT
         A.aca_id AS acaId,
+        count(A.aca_id) AS totalAcademy,
         A.aca_name AS acaName,
         A.aca_pic AS acaPic,
         A.address AS address,
@@ -557,13 +558,13 @@
         LEFT JOIN (
         SELECT aca_id, user_id
         FROM `like`
-        WHERE user_id = 2119
+        WHERE user_id = #{signedUserId}
         ) UL ON UL.aca_id = A.aca_id
         LEFT JOIN review RV ON RV.join_class_id = C.class_id
         LEFT JOIN joinclass JC ON RV.join_class_id = JC.join_class_id
         LEFT JOIN user U ON JC.user_id = U.user_id
         LEFT JOIN class RC ON RV.join_class_id = RC.class_id
-        WHERE A.aca_id = 324
+        WHERE A.aca_id = #{acaId}
         GROUP BY A.aca_id, C.class_id, RV.comment, RV.star, RV.created_at, JC.user_id, U.nick_name, RC.class_name
         ORDER BY C.class_id
     </select>
@@ -593,7 +594,7 @@
         ON G.aca_id = A.aca_id
         GROUP BY A.aca_id
         ORDER BY RAND()
-        LIMIT 0, 4;
+        LIMIT 0, 5;
     </select>
 
     <select id="getAcademyListByStudent">

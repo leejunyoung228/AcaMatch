@@ -15,4 +15,5 @@ public class GetAcademyListRes {
     private double star;
     private AddressDto addressDto;
     private List<GetAcademyTagDto> tagName;
+    private long totalAcademy;
 }
