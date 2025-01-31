@@ -77,52 +77,48 @@ public class ReviewService {
         return true;
     }
 
-    /**  리뷰 등록 */
+    // 리뷰 등록
     @Transactional
     public int addReview(ReviewPostReq req) {
         long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
         long requestUserId = req.getUserId();
-        //  유효성 검사 적용
-        validateReviewRequest(req);
-        if (!validateReviewRequest(req)) {
-            return 0;
-        }
 
+        // 1. 본인 계정 검증
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
             return 0;
         }
 
-        //  유효성 검사에서 설정된 에러 메시지가 있다면 요청 중단
-        if (userMessage.getMessage() != null) {
-            return 0;
-        }
-        //  유저 존재 여부 확인 (추가)
+        // 2. 유효한 유저인지 확인
         validateUserExists(requestUserId);
 
-        //  요청 바디의 userId가 0이면 메시지 설정 후 요청 중단
-        if (requestUserId == 0) {
-            userMessage.setMessage("유효하지 않은 요청입니다. 올바른 유저 ID를 입력하세요.");
+        validateReviewRequest(req);
+        if (!validateReviewRequest(req)) {
             return 0;
         }
 
-
-        //  JWT userId와 요청 userId 비교
-        if (jwtUserId != requestUserId) {
-            String errorMessage = String.format("로그인한 유저의 아이디(%d)와 요청한 유저의 아이디(%d)가 일치하지 않습니다.", jwtUserId, requestUserId);
-            userMessage.setMessage(errorMessage);
+        // 3. 수업 참여 여부 확인 (joinClassId 조회)
+        Long joinClassId = mapper.findJoinClassIdByClassAndUser(req.getClassId(), requestUserId);
+        if (joinClassId == null) {
+            userMessage.setMessage("해당 수업에 등록된 기록이 없습니다.");
             return 0;
         }
 
-
+        // 4. 리뷰 등록 (중복 예외 처리 포함)
         try {
-            mapper.insertReview(req);
+            log.info("리뷰 등록 시도 - joinClassId: {}, userId: {}, comment: {}, star: {}",
+                    joinClassId, requestUserId, req.getComment(), req.getStar());
+
+            mapper.insertReview(joinClassId, req.getUserId(), req.getComment(), req.getStar());
+
+            log.info("리뷰 등록 성공 - joinClassId: {}, userId: {}", joinClassId, requestUserId);
         } catch (DuplicateKeyException ex) {
-            userMessage.setMessage("이미 등록된 리뷰입니다.");
-            return 0;
+            log.error("이미 등록된 리뷰입니다. joinClassId: {}, userId: {}", joinClassId, requestUserId);
+            throw new  CustomException(ReviewErrorCode.CONFLICT_REVIEW_ALREADY_EXISTS);
         } catch (Exception ex) {
-            userMessage.setMessage("리뷰 등록 중 오류가 발생했습니다.");
-            return 0;
+            log.error("리뷰 등록 중 오류 발생 - joinClassId: {}, userId: {}, 오류: {}",
+                    joinClassId, requestUserId, ex.getMessage(), ex);
+            throw new RuntimeException("리뷰 등록 중 오류가 발생했습니다.", ex);
         }
 
         userMessage.setMessage("리뷰 등록이 완료되었습니다.");
@@ -301,24 +297,37 @@ public class ReviewService {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
     }
+
+
     private boolean validateReviewRequest(ReviewPostReq req) {
-        if (req.getJoinClassId() == null || req.getJoinClassId() <= 0 || mapper.isValidJoinClassId(req.getJoinClassId()) == 0) {
-            userMessage.setMessage("유효하지 않은 수업 참여 ID입니다.");
+        // 1. 수업 참여 ID 조회 (classId + userId 기반으로 조회)
+        Long joinClassId = mapper.findJoinClassIdByClassAndUser(req.getClassId(), req.getUserId());
+
+        if (joinClassId == null) {
+            userMessage.setMessage("해당 수업에 등록된 기록이 없습니다.");
             return false;
         }
-        if (mapper.checkEnrollment(req.getJoinClassId(), req.getUserId()) == 0) {
+
+        // 2. 사용자가 수업을 정상적으로 수료했는지 확인
+        if (mapper.checkEnrollment(joinClassId, req.getUserId()) == 0) {
             userMessage.setMessage("수업에 참여한 사용자만 리뷰를 작성할 수 있습니다.");
             return false;
         }
+
+        // 3. 별점 유효성 검사
         if (req.getStar() < 1 || req.getStar() > 5) {
             userMessage.setMessage("별점은 1~5 사이의 값이어야 합니다.");
             return false;
         }
+
+        // 4. 리뷰 내용 검증 (빈 문자열 허용)
         if (req.getComment() == null || req.getComment().trim().isEmpty()) {
             req.setComment(""); // 빈 문자열로 설정
         }
+
         return true;
     }
+    
     private boolean validateReviewRequest(ReviewUpdateReq req) {
         if (req.getJoinClassId() == null || req.getJoinClassId() <= 0 || mapper.isValidJoinClassId(req.getJoinClassId()) == 0) {
             userMessage.setMessage("유효하지 않은 수업 참여 ID입니다.");
