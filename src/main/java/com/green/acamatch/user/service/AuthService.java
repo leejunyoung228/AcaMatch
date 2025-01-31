@@ -9,7 +9,7 @@ import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
 import com.green.acamatch.config.jwt.JwtUser;
 import com.green.acamatch.user.UserUtils;
-import com.green.acamatch.user.entity.User;
+import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.FindPwReq;
 import com.green.acamatch.user.model.UserSignInReq;
 import com.green.acamatch.user.model.UserSignInRes;

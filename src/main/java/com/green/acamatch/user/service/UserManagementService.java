@@ -7,7 +7,7 @@ import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.user.UserUtils;
-import com.green.acamatch.user.entity.User;
+import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.UserDeleteReq;
 import com.green.acamatch.user.model.UserUpdateReq;
 import com.green.acamatch.user.repository.UserRepository;

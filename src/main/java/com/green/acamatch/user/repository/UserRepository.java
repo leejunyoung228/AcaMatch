@@ -1,6 +1,6 @@
 package com.green.acamatch.user.repository;
 
-import com.green.acamatch.user.entity.User;
+import com.green.acamatch.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
