@@ -4,11 +4,10 @@ import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
-import com.green.acamatch.review.model.ReviewDelReq;
-import com.green.acamatch.review.model.ReviewPostReq;
-import com.green.acamatch.review.model.ReviewUpdateReq;
+import com.green.acamatch.review.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/review")
-@Tag(name = "학원 리뷰 관리")
 public class ReviewController {
     private final ReviewService service;
     private final UserMessage userMessage;
@@ -81,40 +79,52 @@ public class ReviewController {
     )
     public ResultResponse<List<ReviewDto>> getAcademyReviews(
             @RequestParam long acaId,
-            @RequestParam long userId) {
-        List<ReviewDto> reviews = service.getAcademyReviews(acaId, userId);
+            @RequestParam long userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        ReviewListGetReq req = new ReviewListGetReq(page, size); // 페이징 정보를 포함한 요청 객체 생성
+        req.setAcaId(acaId); // 학원 ID 설정
+        req.setUserId(userId); // 유저 ID 설정
+        List<ReviewDto> reviews = service.getAcademyReviews(req); // 서비스 호출
         return ResultResponse.<List<ReviewDto>>builder()
-                .resultMessage(userMessage.getMessage()) // 서비스에서 설정된 메시지 사용
-                .resultData(reviews)
+                .resultMessage(userMessage.getMessage()) // 사용자 메시지 반환
+                .resultData(reviews) // 리뷰 데이터 반환
                 .build();
     }
 
     // 학원 상세페이지에서 리뷰 조회
     @GetMapping("/academy")
     @Operation(summary = "학원 리뷰 조회", description = "특정 학원의 상세페이지 리뷰를 조회합니다.")
-    public ResultResponse<List<ReviewDto>> getAcademyReviewsForPublic(@RequestParam long acaId) {
-        List<ReviewDto> reviews = service.getAcademyReviewsForPublic(acaId);
+    public ResultResponse<List<ReviewDto>> getAcademyReviewsForPublic(
+            @RequestParam long acaId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        ReviewListGetReq req = new ReviewListGetReq(page, size);
+        req.setAcaId(acaId); // acaId 설정
+        List<ReviewDto> reviews = service.getAcademyReviewsForPublic(req);
         return ResultResponse.<List<ReviewDto>>builder()
-                .resultMessage(userMessage.getMessage()) // 서비스에서 설정된 메시지 사용
+                .resultMessage("리뷰 조회 성공")
                 .resultData(reviews)
                 .build();
     }
 
-
-    // 본인이 작성한 리뷰 목록 조회 API
+    // 본인이 작성한 리뷰 목록 조회
     @GetMapping("/user")
     @Operation(
             summary = "본인이 작성한 리뷰 목록 조회",
             description = "특정 사용자가 본인이 작성한 리뷰 목록을 불러옵니다."
     )
-    public ResultResponse<List<MyReviewDto>> getReviewsByUser(@RequestParam long userId) {
-        // 서비스 호출
-        List<MyReviewDto> reviews = service.getReviewsByUserId(userId);
-
-        // 서비스에서 설정한 메시지 반환
+    public ResultResponse<List<MyReviewDto>> getReviewsByUser(
+            @RequestParam long userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        MyReviewGetReq req = new MyReviewGetReq(page, size); // 페이징 정보를 포함한 요청 객체 생성
+        req.setUserId(userId); // 유저 ID 설정
+        List<MyReviewDto> reviews = service.getReviewsByUserId(req); // 서비스 호출
         return ResultResponse.<List<MyReviewDto>>builder()
-                .resultMessage(userMessage.getMessage()) // 서비스에서 설정된 메시지 사용
-                .resultData(reviews) // 빈 리스트 또는 데이터
+                .resultMessage(userMessage.getMessage()) // 사용자 메시지 반환
+                .resultData(reviews) // 리뷰 데이터 반환
                 .build();
     }
+
 }

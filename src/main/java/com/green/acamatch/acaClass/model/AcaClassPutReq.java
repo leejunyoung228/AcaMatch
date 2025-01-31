@@ -8,11 +8,11 @@ import lombok.Setter;
 @Getter
 public class AcaClassPutReq {
 
-    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long classId;
-
     @Schema(title = "학원 PK", example = "324", requiredMode = Schema.RequiredMode.REQUIRED)
     private long acaId;
+
+    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private long classId;
 
     @Schema(title = "수업 이름", example = "원어민 영어")
     private String className;
