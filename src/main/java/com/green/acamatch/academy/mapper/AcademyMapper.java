@@ -21,10 +21,15 @@ public interface AcademyMapper {
     int insAcademy(AcademyPostReq req);
 
     int updAcademy(AcademyUpdateReq req);
-    Optional<String> getAcademyAddress(long acaId);
+    /*int insAcademyAddress(AcademyUpdateReq req);
+    AcademyUpdatesGetRes selAcademyUpdatesAddress(AcademyUpdateReq req);
+    int updAcademyAddress(AcademyUpdateReq req);*/
+
+    AcademyUpdatesGetRes getAcademyAddress(long acaId);
     int delAcademy(long acaId, long userId);
 
     List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req);
+
 
 
 // ---------------------------------------------------------------
@@ -73,6 +78,9 @@ public interface AcademyMapper {
     //모든 입력을 받아 출력하기
     List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p);
 
+
+    List<GetAcademyListRes> getAcademy(Long acaId);
+
     int postToSearch(String p);
 
     GetAcademyDetailRes getAcademyWithClasses(GetAcademyDetailReq p);
@@ -82,4 +90,5 @@ public interface AcademyMapper {
     List<GetAcademyListByStudentRes> getAcademyListByStudent(GetAcademyListByStudentReq p);
 
     List<PopularSearchRes> popularSearch();
+
 }

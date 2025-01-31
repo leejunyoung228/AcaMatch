@@ -20,25 +20,19 @@
         WHERE join_class_id = #{joinClassId};
     </select>
 
-    <!-- 학원 ID 존재 여부 확인 -->
-    <select id="isValidAcademyId">
-        SELECT COUNT(*) > 0
-        FROM academy
-        WHERE aca_id = #{acaId}
-    </select>
-
     <!-- 수업 참여 인증 여부 확인 -->
     <select id="checkEnrollment">
         SELECT COUNT(*)
         FROM joinclass
         WHERE join_class_id = #{joinClassId}
+        AND user_id = #{userId}
         AND certification = 1;
     </select>
 
     <!-- 리뷰 등록 -->
     <insert id="insertReview">
-        INSERT INTO review (join_class_id, comment, star)
-        VALUES (#{joinClassId}, #{comment}, #{star});
+        INSERT INTO review (join_class_id, user_id, comment, star)
+        VALUES (#{joinClassId}, #{userId}, #{comment}, #{star});
     </insert>
 
 
@@ -54,8 +48,12 @@
 
     <!-- 학원 관계자 리뷰 삭제 -->
     <delete id="deleteReviewByAcademy">
-        DELETE FROM review
-        WHERE join_class_id = #{joinClassId}
+        DELETE r
+        FROM review r
+        JOIN joinclass j ON r.join_class_id = j.join_class_id
+        JOIN class c ON j.class_id = c.class_id
+        WHERE r.join_class_id = #{joinClassId}
+        AND c.aca_id = #{acaId}  <!-- 학원 ID 추가 -->
     </delete>
 
     <!-- 본인 리뷰 삭제 -->
@@ -68,13 +66,6 @@
         AND j.user_id = #{userId};
     </delete>
 
-
-    <!-- Role 검증 -->
-    <select id="getUserRoleId">
-        SELECT role_id
-        FROM user
-        WHERE user_id = #{userId};
-    </select>
 
     <!-- 학원-사용자 연관 확인 -->
     <select id="isUserLinkedToAcademy">
@@ -100,7 +91,7 @@
     </select>
 
 
-    <!-- 리뷰 조회 -->
+    <!-- 학원 관리자가 본인 학원 리뷰 조회 -->
     <select id="getAcademyReviews">
         SELECT
         r.join_class_id AS joinClassId,
@@ -144,6 +135,12 @@
         SELECT COUNT(*)
         FROM academy
         WHERE aca_id = #{acaId}
+    </select>
+
+    <select id="checkUserExists">
+        SELECT COUNT(*)
+        FROM user
+        WHERE user_id = #{userId}
     </select>
 
 

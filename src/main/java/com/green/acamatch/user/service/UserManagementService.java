@@ -34,17 +34,13 @@ public class UserManagementService {
     public void signUp(String token, HttpServletResponse response) {
         User user = userCache.verifyToken(token);
         userRepository.save(user);
-        try {
-            response.sendRedirect(userConst.getRedirectUrl());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        redirectTo(response, userConst.getRedirectUrl());
     }
 
     @Transactional
     public int updateUser(UserUpdateReq req, MultipartFile pic) {
         User user = userUtils.getUserById(AuthenticationFacade.getSignedUserId());
-        if (!passwordEncoder.matches(req.getCurrentPw(), user.getUpw())) {
+        if (req.getCurrentPw() == null || !passwordEncoder.matches(req.getCurrentPw(), user.getUpw())) {
             throw new CustomException(UserErrorCode.INCORRECT_PW);
         }
         if (req.getName() != null) user.setName(req.getName());
@@ -52,21 +48,8 @@ public class UserManagementService {
         if (req.getBirth() != null) user.setBirth(req.getBirth());
         if (req.getPhone() != null) user.setPhone(req.getPhone());
         if (req.getNewPw() != null) user.setUpw(passwordEncoder.encode(req.getNewPw()));
-        if (pic != null) {
-            String prePic = user.getUserPic();
-            user.setUserPic(myFileUtils.makeRandomFileName(pic));
-            String folderPath = String.format(userConst.getUserPicFilePath(), user.getUserId());
-            if (prePic != null) {
-                myFileUtils.deleteFolder(folderPath, false);
-            }
-            myFileUtils.makeFolders(folderPath);
-            String filePath = String.format("%s/%s", folderPath, user.getUserPic());
-            try {
-                myFileUtils.transferTo(pic, filePath);
-            } catch (IOException e) {
-                throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-            }
-        }
+        if (pic != null && !pic.isEmpty()) updateUserProfile(user, pic);
+
         userRepository.save(user);
 
         return 1;
@@ -90,8 +73,28 @@ public class UserManagementService {
         User user = userUtils.getUserById(id);
         user.setUpw(passwordEncoder.encode(pw));
         userRepository.save(user);
+        redirectTo(response, userConst.getRedirectUrl());
+    }
+
+    private void updateUserProfile(User user, MultipartFile pic) {
+        String prePic = user.getUserPic();
+        String folderPath = String.format(userConst.getUserPicFilePath(), user.getUserId());
+        String filePath = String.format("%s/%s", folderPath, user.getUserPic());
+        user.setUserPic(myFileUtils.makeRandomFileName(pic));
+        if (prePic != null) {
+            myFileUtils.deleteFolder(folderPath, false);
+        }
+        myFileUtils.makeFolders(folderPath);
         try {
-            response.sendRedirect(userConst.getRedirectUrl());
+            myFileUtils.transferTo(pic, filePath);
+        } catch (IOException e) {
+            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void redirectTo(HttpServletResponse response, String url) {
+        try {
+            response.sendRedirect(url);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
