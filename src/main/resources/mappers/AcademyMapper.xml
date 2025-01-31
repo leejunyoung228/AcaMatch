@@ -489,6 +489,8 @@
             <result property="star" column="reviewStar"/>
             <result property="createdAt" column="reviewCreatedAt"/>
             <result property="userId" column="reviewUserId"/>
+            <result property="nickName" column="reviewUserNickName"/>
+            <result property="className" column="reviewClassName"/>
         </collection>
     </resultMap>
 
@@ -508,6 +510,8 @@
         WHEN UL.user_id IS NOT NULL THEN TRUE
         ELSE FALSE
         END AS isLiked,
+
+        -- 클래스 정보
         C.class_id AS classId,
         C.class_name AS className,
         C.class_comment AS classComment,
@@ -519,16 +523,17 @@
         GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,
         GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
 
+        -- 리뷰 정보
         RV.comment AS reviewComment,
         RV.star AS reviewStar,
         RV.created_at AS reviewCreatedAt,
-        JC.user_id AS reviewUserId
+        JC.user_id AS reviewUserId,
+        U.nick_name AS reviewUserNickName,
+        RC.class_name AS reviewClassName
 
         FROM academy A
         LEFT JOIN (
-        SELECT
-        ROUND(AVG(R.star), 2) AS star,
-        C.aca_id
+        SELECT ROUND(AVG(R.star), 2) AS star, C.aca_id
         FROM review R
         JOIN class C ON R.join_class_id = C.class_id
         GROUP BY C.aca_id
@@ -552,13 +557,15 @@
         LEFT JOIN (
         SELECT aca_id, user_id
         FROM `like`
-        WHERE user_id = #{signedUserId}
+        WHERE user_id = 2119
         ) UL ON UL.aca_id = A.aca_id
         LEFT JOIN review RV ON RV.join_class_id = C.class_id
         LEFT JOIN joinclass JC ON RV.join_class_id = JC.join_class_id
-        WHERE A.aca_id = #{acaId}
-        GROUP BY A.aca_id, C.class_id, RV.comment, RV.star, RV.created_at, JC.user_id
-        ORDER BY C.class_id;
+        LEFT JOIN user U ON JC.user_id = U.user_id
+        LEFT JOIN class RC ON RV.join_class_id = RC.class_id
+        WHERE A.aca_id = 324
+        GROUP BY A.aca_id, C.class_id, RV.comment, RV.star, RV.created_at, JC.user_id, U.nick_name, RC.class_name
+        ORDER BY C.class_id
     </select>
 
     <select id="getAcademyListDefault">
