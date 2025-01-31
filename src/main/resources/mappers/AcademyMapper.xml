@@ -55,7 +55,7 @@
     <update id="updAcademy">
         UPDATE academy
         <set>
-            <if test="dongId != ''">
+            <if test="dongId != '' and dongId != null">
                 dong_id = #{dongId}
             </if>
             <if test="acaName != null and acaName != ''">
@@ -76,7 +76,7 @@
             <if test="closeTime != null and closeTime != ''">
                 , close_time = #{closeTime}
             </if>
-            <if test="acaPic != null and acaPic != ''">
+            <if test="acaPic != null">
                 , aca_pic = #{acaPic}
             </if>
             <if test="address != null and address != ''">
@@ -144,7 +144,7 @@
     <select id="getAcademyBest" resultType="com.green.acamatch.academy.model.AcademyBestLikeGetRes">
         SELECT a.aca_id,
                 COUNT(DISTINCT a.user_id) AS like_count,
-                b.aca_pic,
+                b.aca_name, b.aca_pic,
                 GROUP_CONCAT(DISTINCT c.tag_id ORDER BY c.tag_id ASC) AS tag_ids,
                 AVG(f.star) AS star_avg,
                 COUNT(DISTINCT f.`comment`) AS review_count
@@ -158,7 +158,7 @@
          LEFT JOIN `joinclass` e
            ON d.class_id = e.class_id
          LEFT JOIN `review` f
-           ON e.join_class_id = f.join_class_id
+           ON e.join_classa_id = f.join_classa_id
         GROUP BY a.aca_id
         ORDER BY like_count DESC
         LIMIT #{startIdx}, #{size}
