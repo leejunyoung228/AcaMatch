@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.green.acamatch.like.LikeMapper">
+
+    <!-- 좋아요 등록 -->
+    <insert id="insertLike">
+        INSERT INTO `like` (user_id, aca_id)
+        VALUES (#{userId}, #{acaId})
+    </insert>
+
+    <!-- 좋아요 삭제 -->
+    <delete id="deleteLike">
+        DELETE FROM `like`
+        WHERE user_id = #{userId} AND aca_id = #{acaId}
+    </delete>
+
+    <!-- 특정 학원을 좋아요한 유저들의 ID와 프로필 사진 조회 -->
+    <select id="getLikedUserDetails">
+        SELECT u.user_id AS userId, u.user_pic AS userPic
+        FROM `like` l
+        JOIN user u ON l.user_id = u.user_id
+        WHERE l.aca_id = #{acaId}
+        LIMIT #{startIdx}, #{size}
+    </select>
+
+
+    <!-- 특정 유저가 좋아요한 학원의 ID와 사진 조회 -->
+    <select id="getUserLikesWithPics">
+        SELECT a.aca_id AS acaId, a.aca_pic AS acaPic, a.aca_name AS acaName
+        FROM `like` l
+        JOIN academy a ON l.aca_id = a.aca_id
+        WHERE l.user_id = #{userId}
+        LIMIT #{startIdx}, #{size}
+    </select>
+
+    <!-- 유저 ID 존재 여부 확인 -->
+    <select id="checkUserExists">
+        SELECT COUNT(*)
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 학원 ID 존재 여부 확인 -->
+    <select id="checkAcaExists">
+        SELECT COUNT(*)
+        FROM academy
+        WHERE aca_id = #{acaId}
+    </select>
+
+    <select id="isUserManagingAcademy">
+        SELECT CASE
+        WHEN EXISTS (
+        SELECT 1
+        FROM academy
+        WHERE aca_id = #{acaId}
+        AND user_id = #{userId}
+        ) THEN TRUE
+        ELSE FALSE
+        END
+    </select>
+
+    <select id="checkLikeExists">
+        SELECT COUNT(*)
+        FROM `like`
+        WHERE user_id = #{userId}
+        AND aca_id = #{acaId}
+    </select>
+
+</mapper>
