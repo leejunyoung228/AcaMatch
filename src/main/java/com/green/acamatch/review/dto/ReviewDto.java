@@ -9,8 +9,11 @@ import lombok.Setter;
 @Setter
 public class ReviewDto {
 
-    @Schema(title = "수업 참여 ID", description = "리뷰가 연결된 수업 참여 ID", example = "5")
-    private Long joinClassId;
+    @Schema(title = "수업 ID", description = "개설된 수업강좌 ID", example = "5")
+    private Long classId;
+
+    @Schema(title = "강좌 이름", description = "개설된 수업강좌 이름", example = "원어민 영어")
+    private String className;
 
     @Schema(title = "작성자 ID", description = "리뷰 작성자의 유저 ID", example = "1")
     private Long userId;
