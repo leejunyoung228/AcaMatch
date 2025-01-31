@@ -48,7 +48,7 @@ public class AcademyPostReq {
     private LocalTime closeTime;
 
     @JsonIgnore
-    @Schema(title = "학원주소", example = "대구 달서천로100길 10-100", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "학원주소", example = "대구 중구 중앙대로394", requiredMode = Schema.RequiredMode.REQUIRED)
     private String address;
     @Valid
     private AddressDto addressDto;

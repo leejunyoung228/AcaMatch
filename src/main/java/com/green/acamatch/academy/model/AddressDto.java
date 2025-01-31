@@ -12,7 +12,7 @@ import lombok.ToString;
 @ToString
 public class AddressDto {
     @NotEmpty
-    @Schema(title = "기본주소", example = "서울 강남구 학동로20길 12")
+    @Schema(title = "기본주소", example = "대구 중구 중앙대로394")
     private String address;
     @NotEmpty
     @Schema(title = "상세주소", example = "그린빌딩 5층 502호")

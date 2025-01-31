@@ -9,6 +9,7 @@ import java.util.List;
 @Setter
 public class AcademyBestLikeGetRes {
     private long acaId;
+    private String acaName;
     private int likeCount;
     private double starAvg;
     private int reviewCount;

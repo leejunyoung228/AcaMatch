@@ -180,9 +180,6 @@ public class AcademyService {
                     req.setAddress(null);
                 }
             }*/
-        }
-
-            // address, detailAddress, postNum 중 하나 또는 두 개가 비어있으면 에러
             String address = req.getAddressDto().getAddress();
             String detailAddress = req.getAddressDto().getDetailAddress();
             String postNum = req.getAddressDto().getPostNum();
@@ -201,6 +198,9 @@ public class AcademyService {
             if (emptyCount > 0 && emptyCount < 3) {
                 throw new CustomException(AcademyException.ILLEGAL_ARGUMENT_EXCEPTION);
             }
+        }
+
+            // address, detailAddress, postNum 중 하나 또는 두 개가 비어있으면 에러
 
         /*//academyupdates 테이블 값 넣거나 수정할때
         AcademyUpdatesGetRes academyUpdatesGetRes = academyMapper.selAcademyUpdatesAddress(req);
@@ -209,6 +209,31 @@ public class AcademyService {
         }else{
             academyMapper.updAcademyAddress(req);
         }*/
+
+        //태그만 값을 가질때
+        if (req.getTagIdList() != null && !req.getTagIdList().isEmpty() &&
+                (req.getAcaName() == null || req.getAcaName().isEmpty()) &&
+                (req.getAcaPhone() == null || req.getAcaPhone().isEmpty()) &&
+                (req.getComment() == null || req.getComment().isEmpty()) &&
+                req.getTeacherNum() == 0 &&
+                (req.getOpenTime() == null || req.getOpenTime().isEmpty()) &&
+                (req.getCloseTime() == null || req.getCloseTime().isEmpty()) &&
+                (req.getAddress() == null || req.getAddress().isEmpty()) &&
+                req.getAddressDto() == null &&
+                (req.getAcaPic() == null || req.getAcaPic().isEmpty())) {
+
+            if (req.getTagIdList() != null) {
+                try {
+                    academyMapper.delAcaTag(req.getAcaId());
+                    academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+
+                } catch (DataIntegrityViolationException e) {
+                    throw new CustomException(AcademyException.DUPLICATE_TAG);
+                }
+            }
+            academyMessage.setMessage("학원정보수정이 완료되었습니다.");
+            return 1;
+        }
 
         int result = academyMapper.updAcademy(req);
 
