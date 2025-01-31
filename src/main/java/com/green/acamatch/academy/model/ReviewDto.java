@@ -10,4 +10,6 @@ public class ReviewDto {
     private double star;
     private String createdAt;
     private long userId;
+    private String nickName;
+    private String className;
 }
