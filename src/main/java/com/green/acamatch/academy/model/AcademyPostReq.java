@@ -51,7 +51,7 @@ public class AcademyPostReq {
     @Schema(title = "학원주소", example = "대구 달서천로100길 10-100", requiredMode = Schema.RequiredMode.REQUIRED)
     private String address;
     @Valid
-    private AddressDto addressUpdateDto;
+    private AddressDto addressDto;
 
     @JsonIgnore
     @Schema(title = "학원사진")

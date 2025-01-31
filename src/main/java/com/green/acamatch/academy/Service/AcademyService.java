@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -35,7 +34,7 @@ public class AcademyService {
     @Transactional
     public int insAcademy(MultipartFile pic, AcademyPostReq req) {
 
-        req.setAddress(addressEncoding(req.getAddressUpdateDto()));
+        req.setAddress(addressEncoding(req.getAddressDto()));
 
         String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
 
@@ -45,7 +44,7 @@ public class AcademyService {
 
         //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
         try {
-            String dongName = kakaoApiExample.addressSearchMain(req.getAddressUpdateDto());
+            String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
             // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
             Long dongPk = academyMapper.selAddressDong(dongName);
             req.setDongId(dongPk);
