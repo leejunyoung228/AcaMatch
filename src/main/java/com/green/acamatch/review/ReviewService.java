@@ -31,7 +31,7 @@ public class ReviewService {
         if (authentication == null || !authentication.isAuthenticated() ||
                 authentication.getPrincipal().equals("anonymousUser")) {
             userMessage.setMessage("로그인이 필요합니다.");
-            throw new CustomException(ReviewErrorCode.UNAUTHENTICATED_USER);
+            throw new CustomException(UserErrorCode.UNAUTHENTICATED);
         }
 
         Object principal = authentication.getPrincipal();
