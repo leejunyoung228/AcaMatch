@@ -20,7 +20,7 @@ public interface ReviewMapper {
     int checkEnrollment(Long joinClassId, long userId);
 
     // 리뷰 등록
-    void insertReview(ReviewPostReq req);
+    void insertReview(Long joinClassId, Long userId, String comment, int star);
 
     // 리뷰 수정
     int updateReview(ReviewUpdateReq req);
@@ -53,4 +53,7 @@ public interface ReviewMapper {
     int checkAcaExists(long acaId);
 
     int checkUserAcademyOwnership(Long userId, Long acaId);
+
+    Long findJoinClassIdByClassAndUser( Long classId, Long userId);
+
 }

@@ -29,10 +29,10 @@
         AND certification = 1;
     </select>
 
-    <!-- 리뷰 등록 -->
+    <!-- 변경된 리뷰 등록 쿼리 -->
     <insert id="insertReview">
-        INSERT INTO review (join_class_id, user_id, comment, star)
-        VALUES (#{joinClassId}, #{userId}, #{comment}, #{star});
+        INSERT INTO review (join_class_id, comment, star)
+        VALUES (#{joinClassId}, #{comment}, #{star});
     </insert>
 
 
@@ -183,6 +183,15 @@
         <if test="acaId != null">  <!-- acaId가 있을 때만 필터링 -->
             AND a.aca_id = #{acaId}
         </if>
+    </select>
+
+    <!-- classId와 userId로 joinClassId 찾기 -->
+    <select id="findJoinClassIdByClassAndUser">
+        SELECT join_class_id
+        FROM joinclass
+        WHERE class_id = #{classId}
+        AND user_id = #{userId}
+        AND certification = 1;
     </select>
 
 
