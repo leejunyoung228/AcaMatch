@@ -92,7 +92,7 @@
 
 
     <!-- 학원 관리자가 본인 학원 리뷰 조회 -->
-    <select id="getAcademyReviews">
+    <select id="getMyAcademyReviews">
         SELECT
         r.join_class_id AS joinClassId,
         a.user_id AS userId,
@@ -104,8 +104,8 @@
         FROM review r
         JOIN joinclass j ON r.join_class_id = j.join_class_id
         JOIN class c ON j.class_id = c.class_id
-        JOIN `user` u on j.user_id = u.user_id
-        JOIN academy a on a.aca_id = c.aca_id
+        JOIN `user` u ON j.user_id = u.user_id
+        JOIN academy a ON a.aca_id = c.aca_id
         WHERE a.user_id = #{userId}
         ORDER BY r.created_at DESC
         LIMIT #{startIdx}, #{size}
@@ -172,6 +172,17 @@
         ORDER BY
         r.created_at DESC
         LIMIT #{startIdx}, #{size}
+    </select>
+
+    <select id="checkUserAcademyOwnership">
+        SELECT COUNT(*)
+        FROM academy a
+        JOIN user u ON a.user_id = u.user_id
+        WHERE u.user_id = #{userId}
+        AND u.role_id = 3
+        <if test="acaId != null">  <!-- acaId가 있을 때만 필터링 -->
+            AND a.aca_id = #{acaId}
+        </if>
     </select>
 
 

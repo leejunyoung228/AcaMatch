@@ -72,26 +72,26 @@ public class ReviewController {
                 .build();
     }
 
+
     // 본인 학원 리뷰 조회
     @GetMapping("/my-academy")
     @Operation(
             summary = "학원 관계자의 본인 학원 리뷰 조회",
             description = "학원 관계자가 본인의 학원에 대해 작성된 리뷰를 조회합니다."
     )
-    public ResultResponse<List<ReviewDto>> getAcademyReviews(
-            @RequestParam long acaId,
+    public ResultResponse<List<ReviewDto>> getMyAcademyReviews(
             @RequestParam long userId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
-        ReviewListGetReq req = new ReviewListGetReq(page, size); // 페이징 정보를 포함한 요청 객체 생성
-        req.setAcaId(acaId); // 학원 ID 설정
+        MyAcademyReviewListGetReq req = new MyAcademyReviewListGetReq(page, size); // 페이징 정보를 포함한 요청 객체 생성
         req.setUserId(userId); // 유저 ID 설정
-        List<ReviewDto> reviews = service.getAcademyReviews(req); // 서비스 호출
+        List<ReviewDto> reviews = service.getMyAcademyReviews(req); // 서비스 호출
         return ResultResponse.<List<ReviewDto>>builder()
                 .resultMessage(userMessage.getMessage()) // 사용자 메시지 반환
                 .resultData(reviews) // 리뷰 데이터 반환
                 .build();
     }
+
 
     // 학원 상세페이지에서 리뷰 조회
     @GetMapping("/academy")

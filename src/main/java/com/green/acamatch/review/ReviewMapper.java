@@ -13,7 +13,6 @@ public interface ReviewMapper {
     // 리뷰 작성자 확인 (joinClassId 기반)
     Integer isUserAuthorOfReview(long joinClassId, long userId);
 
-
     // join_class_id 유효성 확인
     int isValidJoinClassId(long joinClassId);
 
@@ -41,9 +40,8 @@ public interface ReviewMapper {
     // 사용자가 요청한 학원과 연결되어 있는지 확인
     Integer isUserLinkedToAcademy(long acaId, long userId);
 
-
-    // 학원의 리뷰 목록 가져오기
-    List<ReviewDto> getAcademyReviews(ReviewListGetReq req);
+    // 내 학원의 리뷰 목록 가져오기
+    List<ReviewDto> getMyAcademyReviews(MyAcademyReviewListGetReq req);
 
     // 본인이 작성한 리뷰 조회
     List<MyReviewDto> getReviewsByUserId(MyReviewGetReq req);
@@ -53,4 +51,6 @@ public interface ReviewMapper {
 
     // 학원 ID 존재 여부 확인
     int checkAcaExists(long acaId);
+
+    int checkUserAcademyOwnership(Long userId, Long acaId);
 }

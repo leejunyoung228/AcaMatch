@@ -196,7 +196,7 @@ public class ReviewService {
         validateUserExists(req.getUserId());
 
         validateAuthenticatedUser(req.getUserId());
-        validateAcademyOwnership(req.getAcaId(), req.getUserId());
+        checkUserAcademyOwnership(req.getAcaId(), req.getUserId());
 
 
         validateReviewRequest(req);
@@ -221,20 +221,18 @@ public class ReviewService {
         return 1;
     }
 
-    /**  학원 리뷰 조회 (로그인 필요) */
+    /**  학원 관리자의 자신의 모든 학원 리뷰 조회 (로그인 필요) */
     @Transactional
-    public List<ReviewDto> getAcademyReviews(ReviewListGetReq req) {
-        validateAcademy(req.getAcaId());
+    public List<ReviewDto> getMyAcademyReviews (MyAcademyReviewListGetReq req) {
+
         //  유저 존재 여부 확인 (추가)
         validateUserExists(req.getUserId());
         validateAuthenticatedUser(req.getUserId());
-        validateAcademy(req.getAcaId());
 
+//        // 학원 관계자 권한 검증 (본인이 관리하는 학원의 리뷰만 조회 가능)
+//        checkUserAcademyOwnership(req.getAcaId(), req.getUserId());
 
-        // 학원 관계자 권한 검증 (본인이 관리하는 학원의 리뷰만 조회 가능)
-        validateAcademyOwnership(req.getAcaId(), req.getUserId());
-
-        List<ReviewDto> reviews = mapper.getAcademyReviews(req);
+        List<ReviewDto> reviews = mapper.getMyAcademyReviews(req);
         if (reviews.isEmpty()) {
             userMessage.setMessage("리뷰가 존재하지 않습니다.");
             return Collections.emptyList();
@@ -243,6 +241,8 @@ public class ReviewService {
         userMessage.setMessage("리뷰 조회가 완료되었습니다.");
         return reviews;
     }
+
+
 
     /**  본인이 작성한 리뷰 목록 조회 */
     @Transactional
@@ -372,7 +372,7 @@ public class ReviewService {
     }
 
     /**  학원 관계자 권한 검증 */
-    private void validateAcademyOwnership(long acaId, long userId) {
+    private void checkUserAcademyOwnership(long acaId, long userId) {
         if (!isUserLinkedToAcademy(acaId, userId)) {
             throw new CustomException(ReviewErrorCode.UNAUTHORIZED_ACADEMY_ACCESS);
         }
@@ -388,7 +388,5 @@ public class ReviewService {
         Integer result = mapper.isReviewLinkedToAcademy(joinClassId, acaId);
         return result != null && result > 0;
     }
-
-
 
 }
