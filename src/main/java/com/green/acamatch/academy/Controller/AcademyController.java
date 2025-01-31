@@ -200,7 +200,7 @@ public class AcademyController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping("getAcademyDetailAllInfo")
     @Operation(summary = "학원 상세 모든 정보 불러오기")
     public ResultResponse<GetAcademyDetailRes> getAcademyDetail(@ParameterObject @ModelAttribute GetAcademyDetailReq p) {
         GetAcademyDetailRes res = academyService.getAcademyDetail(p);
@@ -219,5 +219,25 @@ public class AcademyController {
                 .resultData(res)
                 .build();
 
+    }
+
+    @GetMapping("getAcademyListByStudent")
+    @Operation(summary = "학생이 다니고 있는 학원 리스트 출력하기")
+    public ResultResponse<List<GetAcademyListByStudentRes>> getAcademyListByStudent(@ParameterObject @ModelAttribute GetAcademyListByStudentReq p) {
+        List<GetAcademyListByStudentRes> list = academyService.getAcademyListByStudent(p);
+        return ResultResponse.<List<GetAcademyListByStudentRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(list)
+                .build();
+    }
+
+    @GetMapping("popularSearch")
+    @Operation(summary = "인기 검색어")
+    public ResultResponse<List<PopularSearchRes>> popularSearch(){
+        List<PopularSearchRes> res = academyService.popularSearch();
+        return ResultResponse.<List<PopularSearchRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
     }
 }

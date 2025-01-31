@@ -79,4 +79,7 @@ public interface AcademyMapper {
 
     List<GetAcademyRandomRes> getAcademyListDefault();
 
+    List<GetAcademyListByStudentRes> getAcademyListByStudent(GetAcademyListByStudentReq p);
+
+    List<PopularSearchRes> popularSearch();
 }
