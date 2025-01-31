@@ -158,7 +158,7 @@
          LEFT JOIN `joinclass` e
            ON d.class_id = e.class_id
          LEFT JOIN `review` f
-           ON e.join_classa_id = f.join_classa_id
+           ON e.join_class_id = f.join_class_id
         GROUP BY a.aca_id
         ORDER BY like_count DESC
         LIMIT #{startIdx}, #{size}
