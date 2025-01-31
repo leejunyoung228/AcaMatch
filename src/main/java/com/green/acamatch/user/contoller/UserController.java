@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping("sign-up")
-    @Operation(summary = "회원가입 완료")
+    @Operation(summary = "회원가입 완료(프론트에서 사용 안함)")
     public void finishSignUp(String token, HttpServletResponse response) {
         userManagementService.signUp(token, response);
     }
@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @GetMapping
-    @Operation(summary = "회원 정보 조회")
+    @Operation(summary = "회원 정보 조회(로그인 필수)")
     public ResultResponse<UserInfo> getUserInfo() {
         UserInfo res = userService.getUserInfo();
         return ResultResponse.<UserInfo>builder()
@@ -80,7 +80,7 @@ public class UserController {
     }
 
     @PutMapping
-    @Operation(summary = "회원 정보 수정")
+    @Operation(summary = "회원 정보 수정(로그인 필수)", description = "현재 비밀번호(currentPw)는 필수 나머지는 선택")
     public ResultResponse<Integer> updateUser(@Valid @RequestPart UserUpdateReq req, @RequestPart(required = false) MultipartFile pic ) {
         int res = userManagementService.updateUser(req, pic);
         return ResultResponse.<Integer>builder()
@@ -100,12 +100,13 @@ public class UserController {
     }
 
     @GetMapping("temp-pw/{id}")
+    @Operation(summary = "임시 비밀번호 저장(프론트에서 사용 안함)")
     public void getTempPw(HttpServletResponse response, @PathVariable long id) {
         userManagementService.setTempPw(id, response);
     }
 
     @DeleteMapping
-    @Operation(summary = "회원 탈퇴")
+    @Operation(summary = "회원 탈퇴(로그인 필수)")
     public ResultResponse<Integer> deleteUser(@Valid @RequestBody UserDeleteReq req) {
         int res = userManagementService.deleteUser(req);
         return ResultResponse.<Integer>builder()
@@ -116,7 +117,7 @@ public class UserController {
 
 
     @PostMapping("log-out")
-    @Operation(summary = "로그아웃", description = "쿠키 삭제")
+    @Operation(summary = "로그아웃(로그인 필수)", description = "쿠키 삭제")
     public ResultResponse<Integer> logout(HttpServletResponse response) {
         int res = authService.logOutUser(response);
         return ResultResponse.<Integer>builder()
