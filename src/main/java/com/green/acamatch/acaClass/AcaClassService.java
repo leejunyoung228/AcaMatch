@@ -1,14 +1,23 @@
 package com.green.acamatch.acaClass;
 
 import com.green.acamatch.acaClass.model.*;
+import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.ErrorCode;
+import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.config.jwt.JwtUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+
+import static com.green.acamatch.config.exception.UserErrorCode.USER_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -16,6 +25,48 @@ import java.util.List;
 public class AcaClassService {
     private final AcaClassMapper mapper;
     private final UserMessage userMessage;
+
+    /**  JWT에서 userId 가져오기 */
+    private JwtUser getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()|
+                authentication.getPrincipal().equals("anonymousUser")) {
+            userMessage.setMessage("로그인이 필요합니다.");
+            throw new CustomException(UserErrorCode.UNAUTHENTICATED);
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof JwtUser) {
+            return (JwtUser) principal;
+        } else if (principal instanceof String) {
+            try {
+                return new JwtUser(Long.parseLong((String) principal), Collections.emptyList());
+            } catch (NumberFormatException e) {
+                userMessage.setMessage("잘못된 인증 정보입니다.");
+                throw new CustomException(UserErrorCode.UNAUTHENTICATED);
+            }
+        } else {
+            userMessage.setMessage("알 수 없는 사용자 타입입니다.");
+            throw new CustomException(UserErrorCode.UNAUTHENTICATED);
+        }
+    }
+
+    /**  로그인된 사용자 검증 */
+    private void validateAuthenticatedUser(long requestUserId) {
+        long jwtUserId = getAuthenticatedUser().getSignedUserId();
+
+        //  사용자 존재 여부 체크 추가
+        validateUserExists(jwtUserId);
+
+        if (jwtUserId != requestUserId) {
+            throw new CustomException(USER_NOT_FOUND.UNAUTHENTICATED);
+        }
+    }
+
+    private void validateUserExists(long jwtUserId) {
+    }
 
     //수업 등록
     @Transactional
@@ -85,6 +136,7 @@ public class AcaClassService {
         }
     }
 
+    //학원 강좌 가져오기
     public List<AcaClassDto> selAcaClass(AcaClassGetReq p) {
         try {
             List<AcaClassDto> result = mapper.selAcaClass(p);
@@ -100,8 +152,9 @@ public class AcaClassService {
         }
     }
 
-    //class 수정
+    //강좌 수정
     public int updAcaClass(AcaClassPutReq p) {
+
         try {
             int result = mapper.updAcaClass(p);
             userMessage.setMessage("강좌 정보 수정에 성공하였습니다.");

@@ -9,6 +9,8 @@ import lombok.Setter;
 public class AcaClassDto {
     @Schema(title = "학원 사진")
     private String acaPic;
+    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private long classId;
     @Schema(title = "수업 이름", example = "초등 국어")
     private String className;
     @Schema(title = "수업 시작 날짜", example = "2025-01-16")

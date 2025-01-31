@@ -118,8 +118,9 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
+    <!-- 학원당 강좌 가져오기 -->
     <select id = "selAcaClass">
-        SELECT A.aca_pic, B.class_name, B.start_date, B.end_date
+        SELECT A.aca_pic, B.class_id, B.class_name, B.start_date, B.end_date
         FROM academy A
         INNER JOIN class B
         ON A.aca_id = B.aca_id
