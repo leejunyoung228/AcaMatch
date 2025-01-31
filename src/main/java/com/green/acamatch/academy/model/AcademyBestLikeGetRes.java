@@ -15,4 +15,5 @@ public class AcademyBestLikeGetRes {
     private int reviewCount;
     private String acaPic;
     private String tagIds;
+    private String tagName;
 }
