@@ -1,7 +1,6 @@
 package com.green.acamatch.user.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -26,6 +25,6 @@ public class UserUpdateReq {
             message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.")
     private String newPw;
     private LocalDate birth;
-    @Min(3)
+    @Size(min = 3)
     private String nickName;
 }
