@@ -55,8 +55,11 @@
     <update id="updAcademy">
         UPDATE academy
         <set>
+            <if test="dongId != ''">
+                dong_id = #{dongId}
+            </if>
             <if test="acaName != null and acaName != ''">
-                aca_name = #{acaName}
+                , aca_name = #{acaName}
             </if>
             <if test="acaPhone != null and acaPhone != ''">
                 , aca_phone = #{acaPhone}
@@ -67,7 +70,7 @@
             <if test="teacherNum != null and teacherNum != ''">
                 , teacher_num = #{teacherNum}
             </if>
-            <if test="openTime != null and openTime != ''">
+            <if test="openTime != null and openTime != ''" >
                 , open_time = #{openTime}
             </if>
             <if test="closeTime != null and closeTime != ''">
@@ -76,15 +79,48 @@
             <if test="acaPic != null and acaPic != ''">
                 , aca_pic = #{acaPic}
             </if>
-            <if test="address != null and address != ''">
+
+            <!--<if test="address != null and address != ''">
                 , address = #{address}
-            </if>
+            </if> -->
+
         </set>
         WHERE aca_id = #{acaId}
         AND user_id = #{userId}
     </update>
 
+<!--학원주소 다른 테이블에 삽입-->
+    <insert id="insAcademyAddress">
+        <choose>
+            <when test="address != null and address != ''">
+                INSERT INTO academyupdates (aca_id, address)
+                VALUES (#{acaId}, #{address})
+            </when>
+            <otherwise>
+                <!-- address가 없으면 아무 것도 삽입하지 않음 -->
+            </otherwise>
+        </choose>
+    </insert>
 
+<!--학원주소 다른 테이블 뽑기-->
+    <select id="selAcademyUpdatesAddress">
+        SELECT address
+        FROM academyupdates
+        WHERE aca_id = #{acaId}
+    </select>
+
+<!--학원주소 다른 테이블에서 수정-->
+    <update id="updAcademyAddress">
+        UPDATE academyupdates
+        <set>
+            <if test="address != null and address != ''">
+                address = #{address}
+            </if>
+        </set>
+        WHERE aca_id = #{acaId}
+    </update>
+
+<!-- db에 주소 뽑아내기-->
     <select id="getAcademyAddress">
         SELECT address
         FROM academy
@@ -107,11 +143,26 @@
 
 <!--학원 좋아요 순-->
     <select id="getAcademyBest" resultType="com.green.acamatch.academy.model.AcademyBestLikeGetRes">
-        SELECT aca_id AS acaId, COUNT(aca_id) AS likeCount
-          FROM `like`
-         GROUP BY aca_id
-         ORDER BY likeCount DESC
-         LIMIT #{startIdx}, #{size}
+        SELECT a.aca_id,
+                COUNT(DISTINCT a.user_id) AS like_count,
+                b.aca_pic,
+                GROUP_CONCAT(DISTINCT c.tag_id ORDER BY c.tag_id ASC) AS tag_ids,
+                AVG(f.star) AS star_avg,
+                COUNT(DISTINCT f.`comment`) AS review_count
+         FROM `like` a
+         LEFT JOIN `academy` b
+           ON a.aca_id = b.aca_id
+         LEFT JOIN `academytag` c
+           ON a.aca_id = c.aca_id
+         LEFT JOIN `class` d
+           ON b.aca_id = d.aca_id
+         LEFT JOIN `joinclass` e
+           ON d.class_id = e.class_id
+         LEFT JOIN `review` f
+           ON e.join_classa_id = f.join_classa_id
+        GROUP BY a.aca_id
+        ORDER BY like_count DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <!-- 학원 검색 -->

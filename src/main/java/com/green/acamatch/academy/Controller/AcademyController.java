@@ -33,17 +33,17 @@ public class AcademyController {
         int result2 = tagService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result1)
+                .resultData(result1 != 0 ? 1 : 0)
                 .build();
     }
 
     @PutMapping
     @Operation(summary = "학원정보수정", description = "acaId, userId는 필수로 받고, 수정하기 원하는 항목 값을 입력합니다.")
-    public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart AcademyUpdateReq req) {
+    public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyUpdateReq req) {
         int result = academyService.updAcademy(pic, req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result)
+                .resultData(result != 0 ? 1 : 0)
                 .build();
     }
 
@@ -53,7 +53,7 @@ public class AcademyController {
         int result = academyService.delAcademy(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result)
+                .resultData(result != 0 ? 1 : 0)
                 .build();
     }
 

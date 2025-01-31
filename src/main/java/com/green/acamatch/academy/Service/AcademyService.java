@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -46,10 +47,14 @@ public class AcademyService {
         //req.getAddressDto().getAddress();
 
         //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
-        String dongName = kakaoApiExample.addressSearchMain(req);
-        // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
-        Long dongPk = academyMapper.selAddressDong(dongName);
-        req.setDongId(dongPk);
+        try {
+            String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
+            // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+            Long dongPk = academyMapper.selAddressDong(dongName);
+            req.setDongId(dongPk);
+        } catch (NullPointerException e) {
+            throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
+        }
 
         try {
             int result = academyMapper.insAcademy(req);
@@ -81,11 +86,15 @@ public class AcademyService {
     @Transactional
     public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
         //아무것도 입력안했을 때
-        if (!isValidValue(pic) && !isValidValue(req.getAcaName())
-            && !isValidValue(req.getAcaPhone()) && !isValidValue(req.getComment())
-            && !isValidValue(req.getTeacherNum()) && !isValidValue(req.getOpenTime())
-            && !isValidValue(req.getCloseTime()) && !isValidValue(req.getAddressDto())
-            && !isValidValue(req.getTagIdList().isEmpty())) {
+        if ((pic == null || pic.toString().trim().isEmpty()) &&
+                (req.getAcaName() == null || req.getAcaName().trim().isEmpty()) &&
+                (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) &&
+                (req.getComment() == null || req.getComment().trim().isEmpty()) &&
+                (req.getTeacherNum() == 0 ) && // int 타입은 null 체크 불필요
+                (req.getOpenTime() == null || req.getOpenTime().trim().isEmpty()) &&
+                (req.getCloseTime() == null || req.getCloseTime().trim().isEmpty()) &&
+                (req.getAddressDto() == null || req.getAddressDto().toString().trim().isEmpty()) &&
+                (req.getTagIdList() == null || req.getTagIdList().isEmpty())) {
             throw new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION);
         }
 
@@ -111,22 +120,96 @@ public class AcademyService {
             }
         }
 
-        if (req.getAddressDto() != null) {
-            AddressDto dto = addressDecoding(academyMapper.getAcademyAddress(req.getAcaId()).orElseThrow(() ->
-                    new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION
-                    )));
-            AddressDto reqDto = req.getAddressDto();
-            if (reqDto.getAddress() == null || reqDto.getAddress().isEmpty()) {
-                reqDto.setAddress(dto.getAddress());
+        //전화번호 형식 무시할수 있게
+        if (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) {
+            // acaPhone이 빈 값일 경우에는 유효성 검사를 건너뛴다.
+            req.setAcaPhone(null);
+        } else {
+            // acaPhone이 비어 있지 않으면 유효성 검사 로직이 진행된다.
+            if (!req.getAcaPhone().matches("^(0[0-9][0-9])-\\d{3,4}-\\d{4}$")) {
+                throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
             }
-            if (reqDto.getDetailAddress() == null || reqDto.getDetailAddress().isEmpty()) {
-                reqDto.setDetailAddress((dto.getDetailAddress()));
-            }
-            if (reqDto.getPostNum() == null || reqDto.getPostNum().isEmpty()) {
-                reqDto.setPostNum((dto.getPostNum()));
-            }
-            req.setAddress(addressEncoding(reqDto));
         }
+
+        if(req.getAddressDto() != null) {
+            //주소수정을 하려고 할때(셋다 값이 들어있을때)
+            if(isValidValue(req.getAddressDto().getAddress())
+                    && isValidValue(req.getAddressDto().getDetailAddress())
+                    && isValidValue(req.getAddressDto().getPostNum()))  {
+                try {
+                    String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
+                    Long dongPk = academyMapper.selAddressDong(dongName);
+                    req.setDongId(dongPk);
+                } catch (NoSuchElementException e) {
+                    throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
+                }
+            }
+
+            //주소수정을 하려고 할때(셋다 값이 들어오지않을때)
+            if(!isValidValue(req.getAddressDto().getAddress())
+                    && !isValidValue(req.getAddressDto().getDetailAddress())
+                    && !isValidValue(req.getAddressDto().getPostNum())) {
+
+                if (academyMapper.selAcademyUpdatesAddress(req).getAddress() != null) {
+                    AddressDto dto = addressDecoding(academyMapper.selAcademyUpdatesAddress(req).getAddress());
+                    AddressDto reqDto = req.getAddressDto();
+                    if (reqDto.getAddress() == null || reqDto.getAddress().isEmpty()) {
+                        reqDto.setAddress(dto.getAddress());
+                    }
+                    if (reqDto.getDetailAddress() == null || reqDto.getDetailAddress().isEmpty()) {
+                        reqDto.setDetailAddress((dto.getDetailAddress()));
+                    }
+                    if (reqDto.getPostNum() == null || reqDto.getPostNum().isEmpty()) {
+                        reqDto.setPostNum((dto.getPostNum()));
+                    }
+                    req.setAddress(addressEncoding(reqDto));
+                } else if (academyMapper.selAcademyUpdatesAddress(req).getAddress() == null) {
+                    AddressDto dto = addressDecoding(academyMapper.getAcademyAddress(req.getAcaId()).getAddress());
+                    AddressDto reqDto = req.getAddressDto();
+                    if (reqDto.getAddress() == null || reqDto.getAddress().isEmpty()) {
+                        reqDto.setAddress(dto.getAddress());
+                    }
+                    if (reqDto.getDetailAddress() == null || reqDto.getDetailAddress().isEmpty()) {
+                        reqDto.setDetailAddress((dto.getDetailAddress()));
+                    }
+                    if (reqDto.getPostNum() == null || reqDto.getPostNum().isEmpty()) {
+                        reqDto.setPostNum((dto.getPostNum()));
+                    }
+                    req.setAddress(addressEncoding(reqDto));
+                } else {
+                    req.setAddress(null);
+                }
+            }
+        }
+
+            // address, detailAddress, postNum 중 하나 또는 두 개가 비어있으면 에러
+            String address = req.getAddressDto().getAddress();
+            String detailAddress = req.getAddressDto().getDetailAddress();
+            String postNum = req.getAddressDto().getPostNum();
+
+            int emptyCount = 0;
+            if (address == null || address.trim().isEmpty()) {
+                emptyCount++;
+            }
+            if (detailAddress == null || detailAddress.trim().isEmpty()) {
+                emptyCount++;
+            }
+            if (postNum == null || postNum.trim().isEmpty()) {
+                emptyCount++;
+            }
+            // 3개 중 하나 또는 두 개가 비어있으면 예외를 발생시킴
+            if (emptyCount > 0 && emptyCount < 3) {
+                throw new CustomException(AcademyException.ILLEGAL_ARGUMENT_EXCEPTION);
+            }
+
+        //academyupdates 테이블 값 넣거나 수정할때
+        AcademyUpdatesGetRes academyUpdatesGetRes = academyMapper.selAcademyUpdatesAddress(req);
+        if(academyUpdatesGetRes == null) {
+            academyMapper.insAcademyAddress(req);
+        }else{
+            academyMapper.updAcademyAddress(req);
+        }
+
         int result = academyMapper.updAcademy(req);
 
 
@@ -208,7 +291,9 @@ public class AcademyService {
     //빈값인지 확인하는 메소드(String, int, long )
     private boolean isValidValue(Object value) {
         if (value instanceof String) {
-            return StringUtils.hasText((String) value);
+            String strValue = (String) value;
+            // "" (빈 문자열)도 포함하여 처리
+            return strValue != null && !strValue.trim().isEmpty();
         } else if (value instanceof Integer || value instanceof Long) {
             return value != null && ((Number) value).longValue() != 0;
         }
@@ -218,23 +303,23 @@ public class AcademyService {
 
 
 // --------------------------------------------------------------
-    //동과 태그를 입력받아 검색하고 search 테이블에 검색한 태그를 저장
-    public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
-        PostAcademySearch search = new PostAcademySearch();
-        search.setTagId(p.getTagId());
-        int post = academyMapper.postSearch(search);
-        List<GetAcademyRes> res = academyMapper.getAcademy(p);
-        for(GetAcademyRes re : res) {
-            re.setAddressDto(addressDecoding(re.getAddress()));
-            re.setAddress(re.getAddressDto().getAddress());
-        }
-        if(res.size() == 0) {
-            academyMessage.setMessage("학원 검색을 실패했습니다.");
-            return null;
-        }
-        academyMessage.setMessage("학원 검색을 성공했습니다.");
-        return res;
+//동과 태그를 입력받아 검색하고 search 테이블에 검색한 태그를 저장
+public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
+    PostAcademySearch search = new PostAcademySearch();
+    search.setTagId(p.getTagId());
+    int post = academyMapper.postSearch(search);
+    List<GetAcademyRes> res = academyMapper.getAcademy(p);
+    for(GetAcademyRes re : res) {
+        re.setAddressDto(addressDecoding(re.getAddress()));
+        re.setAddress(re.getAddressDto().getAddress());
     }
+    if(res.size() == 0) {
+        academyMessage.setMessage("학원 검색을 실패했습니다.");
+        return null;
+    }
+    academyMessage.setMessage("학원 검색을 성공했습니다.");
+    return res;
+}
 
     //학원 PK를 받아 학원 상세 정보 불러오기
     public GetAcademyDetail getAcademyDetail(Long acaId){
@@ -448,4 +533,6 @@ public class AcademyService {
         academyMessage.setMessage("인기 검색어 출력 완료");
         return list;
     }
+
+
 }
