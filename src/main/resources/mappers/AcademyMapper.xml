@@ -588,4 +588,27 @@
         ORDER BY RAND()
         LIMIT 0, 4;
     </select>
+
+    <select id="getAcademyListByStudent">
+        SELECT DISTINCT
+        A.aca_id,
+        A.aca_pic,
+        A.aca_name
+        FROM academy A
+        JOIN class C ON A.aca_id = C.aca_id
+        JOIN joinclass JC ON C.class_id = JC.class_id
+        WHERE JC.user_id = #{signedUserId}
+        ORDER BY A.aca_name ASC
+        LIMIT #{startIdx}, #{size}
+    </select>
+
+    <select id="popularSearch">
+        SELECT
+        T.tag_name,
+        COUNT(S.tag_id) AS tag_count
+        FROM search S
+        JOIN tag T ON S.tag_id = T.tag_id
+        GROUP BY T.tag_name
+        ORDER BY tag_count DESC
+    </select>
 </mapper>
