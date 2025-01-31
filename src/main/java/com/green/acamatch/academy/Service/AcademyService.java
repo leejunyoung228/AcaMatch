@@ -458,4 +458,24 @@ public class AcademyService {
         academyMessage.setMessage("학원 리스트 불러오기 성공");
         return list;
     }
+
+    public List<GetAcademyListByStudentRes> getAcademyListByStudent(GetAcademyListByStudentReq p){
+        List<GetAcademyListByStudentRes> list = academyMapper.getAcademyListByStudent(p);
+        if(list.size() == 0){
+            academyMessage.setMessage("학원 출력 실패");
+            return null;
+        }
+        academyMessage.setMessage("학원 출력 성공");
+        return list;
+    }
+
+    public List<PopularSearchRes> popularSearch(){
+        List<PopularSearchRes> list = academyMapper.popularSearch();
+        if(list.size() == 0){
+            academyMessage.setMessage("인기 검색어가 없습니다.");
+            return null;
+        }
+        academyMessage.setMessage("인기 검색어 출력 완료");
+        return list;
+    }
 }
