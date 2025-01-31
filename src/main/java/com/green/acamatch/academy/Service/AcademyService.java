@@ -303,23 +303,23 @@ public class AcademyService {
 
 
 // --------------------------------------------------------------
-    //동과 태그를 입력받아 검색하고 search 테이블에 검색한 태그를 저장
-    public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
-        PostAcademySearch search = new PostAcademySearch();
-        search.setTagId(p.getTagId());
-        int post = academyMapper.postSearch(search);
-        List<GetAcademyRes> res = academyMapper.getAcademy(p);
-        for(GetAcademyRes re : res) {
-            re.setAddressDto(addressDecoding(re.getAddress()));
-            re.setAddress(re.getAddressDto().getAddress());
-        }
-        if(res.size() == 0) {
-            academyMessage.setMessage("학원 검색을 실패했습니다.");
-            return null;
-        }
-        academyMessage.setMessage("학원 검색을 성공했습니다.");
-        return res;
+//동과 태그를 입력받아 검색하고 search 테이블에 검색한 태그를 저장
+public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
+    PostAcademySearch search = new PostAcademySearch();
+    search.setTagId(p.getTagId());
+    int post = academyMapper.postSearch(search);
+    List<GetAcademyRes> res = academyMapper.getAcademy(p);
+    for(GetAcademyRes re : res) {
+        re.setAddressDto(addressDecoding(re.getAddress()));
+        re.setAddress(re.getAddressDto().getAddress());
     }
+    if(res.size() == 0) {
+        academyMessage.setMessage("학원 검색을 실패했습니다.");
+        return null;
+    }
+    academyMessage.setMessage("학원 검색을 성공했습니다.");
+    return res;
+}
 
     //학원 PK를 받아 학원 상세 정보 불러오기
     public GetAcademyDetail getAcademyDetail(Long acaId){
@@ -446,6 +446,7 @@ public class AcademyService {
 
     //모든 입력을 받아 학원 리스트 출력하기
     public List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p){
+        int post = academyMapper.postToSearch(p.getTagName());
         List<GetAcademyListRes> list = academyMapper.getAcademyListByAll(p);
         for(GetAcademyListRes re : list) {
             re.setAddressDto(addressDecoding(re.getAddress()));
@@ -456,6 +457,60 @@ public class AcademyService {
             return null;
         }
         academyMessage.setMessage("학원 리스트 불러오기 성공");
+        return list;
+    }
+
+    //학원 상세 모든 정보 보기
+    public GetAcademyDetailRes getAcademyDetail(GetAcademyDetailReq p){
+        GetAcademyDetailRes res = academyMapper.getAcademyWithClasses(p);
+        res.setAddressDto(addressDecoding(res.getAddress()));
+        res.setAddress(res.getAddressDto().getAddress());
+        if(res == null){
+            academyMessage.setMessage("상세 정보 불러오기 실패");
+            return null;
+        }
+        academyMessage.setMessage("상세 정보 불러오기 성공");
+        return res;
+    }
+
+    private static Map<String, List<GetAcademyRandomRes>> academyCache = new HashMap<>();
+
+    // 학원 리스트를 가져오는 메소드
+    public List<GetAcademyRandomRes> getAcademyListByAll() {
+        // 오늘 날짜 계산
+        String todayDate = LocalDate.now().toString();  // 오늘 날짜를 'yyyy-MM-dd' 형식으로 가져옴
+
+        // 오늘 학원 리스트가 캐시에 있는지 확인
+        if (academyCache.containsKey(todayDate)) {
+            return academyCache.get(todayDate);  // 캐시에 있으면 기존 리스트 반환
+        }
+
+        // 학원 리스트 랜덤 생성
+        List<GetAcademyRandomRes> list = academyMapper.getAcademyListDefault();
+        list = generateRandomAcademyList(list, todayDate);
+
+        // 리스트를 캐시에 저장하여 자정까지 유지
+        academyCache.put(todayDate, list);
+
+        // 주소 디코딩
+        for (GetAcademyRandomRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+
+        // 리스트가 비었으면 실패 메시지 반환
+        if (list.size() == 0) {
+            academyMessage.setMessage("학원 리스트 불러오기 실패");
+            return null;
+        }
+
+        academyMessage.setMessage("학원 리스트 불러오기 성공");
+        return list;
+    }
+
+    private List<GetAcademyRandomRes> generateRandomAcademyList(List<GetAcademyRandomRes> list, String todayDate) {
+        Random random = new Random(todayDate.hashCode());  // 날짜 기반으로 랜덤 시드 설정
+        Collections.shuffle(list, random);  // 학원 리스트 랜덤 섞기
         return list;
     }
 
@@ -478,4 +533,6 @@ public class AcademyService {
         academyMessage.setMessage("인기 검색어 출력 완료");
         return list;
     }
+
+
 }
