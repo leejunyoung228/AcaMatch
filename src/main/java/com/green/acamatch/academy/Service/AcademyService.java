@@ -146,7 +146,7 @@ public class AcademyService {
             }
 
             //주소수정을 하려고 할때(셋다 값이 들어오지않을때)
-            if(!isValidValue(req.getAddressDto().getAddress())
+            /*if(!isValidValue(req.getAddressDto().getAddress())
                     && !isValidValue(req.getAddressDto().getDetailAddress())
                     && !isValidValue(req.getAddressDto().getPostNum())) {
 
@@ -179,7 +179,7 @@ public class AcademyService {
                 } else {
                     req.setAddress(null);
                 }
-            }
+            }*/
         }
 
             // address, detailAddress, postNum 중 하나 또는 두 개가 비어있으면 에러
@@ -202,13 +202,13 @@ public class AcademyService {
                 throw new CustomException(AcademyException.ILLEGAL_ARGUMENT_EXCEPTION);
             }
 
-        //academyupdates 테이블 값 넣거나 수정할때
+        /*//academyupdates 테이블 값 넣거나 수정할때
         AcademyUpdatesGetRes academyUpdatesGetRes = academyMapper.selAcademyUpdatesAddress(req);
         if(academyUpdatesGetRes == null) {
             academyMapper.insAcademyAddress(req);
         }else{
             academyMapper.updAcademyAddress(req);
-        }
+        }*/
 
         int result = academyMapper.updAcademy(req);
 

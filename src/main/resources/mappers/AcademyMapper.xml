@@ -79,17 +79,16 @@
             <if test="acaPic != null and acaPic != ''">
                 , aca_pic = #{acaPic}
             </if>
-
-            <!--<if test="address != null and address != ''">
+            <if test="address != null and address != ''">
                 , address = #{address}
-            </if> -->
+            </if>
 
         </set>
         WHERE aca_id = #{acaId}
         AND user_id = #{userId}
     </update>
 
-<!--학원주소 다른 테이블에 삽입-->
+<!--&lt;!&ndash;학원주소 다른 테이블에 삽입&ndash;&gt;
     <insert id="insAcademyAddress">
         <choose>
             <when test="address != null and address != ''">
@@ -97,19 +96,19 @@
                 VALUES (#{acaId}, #{address})
             </when>
             <otherwise>
-                <!-- address가 없으면 아무 것도 삽입하지 않음 -->
+                &lt;!&ndash; address가 없으면 아무 것도 삽입하지 않음 &ndash;&gt;
             </otherwise>
         </choose>
     </insert>
 
-<!--학원주소 다른 테이블 뽑기-->
+&lt;!&ndash;학원주소 다른 테이블 뽑기&ndash;&gt;
     <select id="selAcademyUpdatesAddress">
         SELECT address
         FROM academyupdates
         WHERE aca_id = #{acaId}
     </select>
 
-<!--학원주소 다른 테이블에서 수정-->
+&lt;!&ndash;학원주소 다른 테이블에서 수정&ndash;&gt;
     <update id="updAcademyAddress">
         UPDATE academyupdates
         <set>
@@ -118,7 +117,7 @@
             </if>
         </set>
         WHERE aca_id = #{acaId}
-    </update>
+    </update>-->
 
 <!-- db에 주소 뽑아내기-->
     <select id="getAcademyAddress">
@@ -159,7 +158,7 @@
          LEFT JOIN `joinclass` e
            ON d.class_id = e.class_id
          LEFT JOIN `review` f
-           ON e.join_classa_id = f.join_classa_id
+           ON e.join_class_id = f.join_class_id
         GROUP BY a.aca_id
         ORDER BY like_count DESC
         LIMIT #{startIdx}, #{size}
