@@ -8,6 +8,20 @@ import com.green.acamatch.config.jwt.JwtUser;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.model.*;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.List;
+import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.review.dto.MyReviewDto;
+import com.green.acamatch.review.dto.ReviewDto;
+import com.green.acamatch.review.model.*;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -83,6 +97,7 @@ public class ReviewService {
     /**  리뷰 등록 */
     @Transactional
     public int addReview(ReviewPostReq req) {
+
         long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
         long requestUserId = req.getUserId();
         //  유효성 검사 적용
@@ -98,6 +113,22 @@ public class ReviewService {
 
         //  유효성 검사에서 설정된 에러 메시지가 있다면 요청 중단
         if (userMessage.getMessage() != null) {
+
+
+
+        // 기존 로직 유지
+        if (req.getJoinClassId() == null || req.getJoinClassId() <= 0) {
+            userMessage.setMessage("유효하지 않은 수업 참여 ID입니다.");
+            return 0;
+        }
+
+        if (req.getComment() == null || req.getComment().trim().isEmpty()) {
+            req.setComment("");
+        }
+
+        if (req.getStar() < 1 || req.getStar() > 5) {
+            userMessage.setMessage("별점은 1~5 사이의 값이어야 합니다.");
+
             return 0;
         }
         //  유저 존재 여부 확인 (추가)
@@ -132,7 +163,10 @@ public class ReviewService {
         return 1;
     }
 
-    /**  리뷰 수정 */
+
+
+    // 리뷰 수정
+
     @Transactional
     public int updateReview(ReviewUpdateReq req) {
 
@@ -144,8 +178,14 @@ public class ReviewService {
             return 0;  //  인증되지 않은 요청이면 바로 종료
         }
 
+
         validateReviewRequest(req);
         if (!validateReviewRequest(req)) {
+
+
+        if (!isEnrolled(req.getJoinClassId())) {
+            userMessage.setMessage("해당 수업에 참여한 학생만 리뷰를 수정할 수 있습니다.");
+
             return 0;
         }
         //  유효성 검사에서 설정된 에러 메시지가 있다면 요청 중단
@@ -163,6 +203,7 @@ public class ReviewService {
         return 1;
     }
 
+
     /**  리뷰 삭제 (작성자 본인) */
     @Transactional
     public int deleteReviewByUser(ReviewDelReq req) {
@@ -171,11 +212,20 @@ public class ReviewService {
         validateAuthenticatedUser(req.getUserId());
         validateReviewAuthor(req.getJoinClassId(), req.getUserId());
 
+    // 학원 상세페이지에서 리뷰 조회
+    public List<ReviewDto> getAcademyReviewsForPublic(ReviewListGetReq req ) {
+        // 학원 존재 여부 검증
+        if (checkAcaExists(req.getAcaId()) == 0) {
+            userMessage.setMessage("유효하지 않은 학원 ID입니다.");
+            return Collections.emptyList();
+        }
+
 
         validateReviewRequest(req);
         if (!validateReviewRequest(req)) {
             return 0;
         }
+
         //  유효성 검사에서 설정된 에러 메시지가 있다면 요청 중단
         if (userMessage.getMessage() != null) {
             return 0;
@@ -186,6 +236,35 @@ public class ReviewService {
         if (rowsDeleted == 0) {
             userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
             return 0;
+
+
+        int count = mapper.checkAcaExists(acaId); // 매퍼에서 학원 존재 여부 확인
+        return count;
+    }
+
+    // 학원 관계자가 본인 학원의 리뷰 조회
+    public List<ReviewDto> getAcademyReviews(ReviewListGetReq req) {
+
+        if (req.getUserId() <= 0) {
+            userMessage.setMessage("유효하지 않은 사용자 ID입니다.");
+            return Collections.emptyList();
+        }
+
+        if (!isValidAcademyId(req.getAcaId()) || !isUserLinkedToAcademy(req.getAcaId(), req.getUserId())) {
+            return Collections.emptyList();
+        }
+
+        // 학원 존재 여부 검증
+        if (checkAcaExists(req.getAcaId()) == 0) {
+            userMessage.setMessage("유효하지 않은 학원 ID입니다.");
+            return Collections.emptyList();
+        }
+
+        List<ReviewDto> reviews = mapper.getAcademyReviews(req);
+        if (reviews == null || reviews.isEmpty()) {
+            userMessage.setMessage("리뷰가 존재하지 않습니다.");
+            return Collections.emptyList();
+
         }
 
         userMessage.setMessage("리뷰 삭제가 완료되었습니다.");
@@ -195,6 +274,7 @@ public class ReviewService {
     /**  리뷰 삭제 (학원 관계자) */
     @Transactional
     public int deleteReviewByAcademy(ReviewDelReq req) {
+
         //  유저 존재 여부 확인 (추가)
         validateUserExists(req.getUserId());
 
@@ -211,6 +291,16 @@ public class ReviewService {
         //  학원 ID와 리뷰 ID 간의 관계 확인 (학원 관계자가 본인의 학원 리뷰만 삭제 가능)
         if (!isReviewLinkedToAcademy(req.getJoinClassId(), req.getAcaId())) {
             userMessage.setMessage("해당 리뷰는 요청한 학원에 속해 있지 않습니다.");
+
+
+        if (req.getUserId() <= 0) {
+            userMessage.setMessage("유효하지 않은 사용자 ID입니다.");
+            return 0;
+        }
+
+        if (!isUserLinkedToAcademy(req.getAcaId(), req.getUserId())) {
+            userMessage.setMessage("본인이 관리하는 학원의 리뷰만 삭제할 수 있습니다.");
+
             return 0;
         }
 
@@ -226,12 +316,26 @@ public class ReviewService {
 
     /**  학원 리뷰 조회 (로그인 필요) */
     @Transactional
+
     public List<ReviewDto> getAcademyReviews(ReviewListGetReq req) {
         validateAcademy(req.getAcaId());
         //  유저 존재 여부 확인 (추가)
         validateUserExists(req.getUserId());
         validateAuthenticatedUser(req.getUserId());
         validateAcademy(req.getAcaId());
+
+    public int deleteReviewByUser(ReviewDelReq req) {
+        if (req.getUserId() <= 0) {
+            userMessage.setMessage("유효하지 않은 사용자 ID입니다.");
+            return 0;
+        }
+
+
+        if (!isValidUserId(req.getUserId()) || !isUserAuthorOfReview(req.getJoinClassId(), req.getUserId())) {
+            userMessage.setMessage("해당 리뷰를 삭제할 권한이 없습니다.");
+            return 0;
+        }
+
 
 
         // 학원 관계자 권한 검증 (본인이 관리하는 학원의 리뷰만 조회 가능)
@@ -250,10 +354,21 @@ public class ReviewService {
     /**  본인이 작성한 리뷰 목록 조회 */
     @Transactional
     public List<MyReviewDto> getReviewsByUserId(MyReviewGetReq req) {
+
         validateUserExists(req.getUserId());
 
         if (!isAuthorizedUser(req.getUserId())) {
             return Collections.emptyList();  //  인증되지 않은 요청이면 빈 리스트 반환
+
+
+        if (req.getUserId() <= 0) {
+            userMessage.setMessage("유효하지 않은 사용자 ID입니다.");
+            return Collections.emptyList();
+        }
+
+        if (!isValidUserId(req.getUserId())) {
+            return Collections.emptyList();
+
         }
         //  유저 존재 여부 확인 (추가)
 
@@ -380,6 +495,7 @@ public class ReviewService {
             throw new CustomException(ReviewErrorCode.UNAUTHORIZED_ACADEMY_ACCESS);
         }
     }
+
 
     private boolean isUserLinkedToAcademy(long acaId, long userId) {
         Integer result = mapper.isUserLinkedToAcademy(acaId, userId);

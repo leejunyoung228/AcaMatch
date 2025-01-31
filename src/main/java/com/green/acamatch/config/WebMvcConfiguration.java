@@ -15,7 +15,7 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 import java.io.IOException;
 
 @Configuration
-public class WebMvcConfiguration implements WebMvcConfigurer {
+class WebMvcConfiguration implements WebMvcConfigurer {
     private final String uploadPath;
 
     public WebMvcConfiguration(@Value("${file.directory}") String uploadPath) {
@@ -24,32 +24,25 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/pic/**")
-                .addResourceLocations("file:" + uploadPath + "/");
+        registry.addResourceHandler("/pic/**").addResourceLocations("file:" + uploadPath + "/");
 
-        registry.addResourceHandler("/**")
-                .addResourceLocations("classpath:/static/")
-                .resourceChain(true)
-                .addResolver(new PathResourceResolver() {
-                    @Override
-                    protected Resource getResource(String resourcePath, Resource location) throws IOException {
-                        Resource resource = location.createRelative(resourcePath);
-
-                        if (resource.exists() && resource.isReadable()) {
-                            return resource;
-                        }
-
-                        return new ClassPathResource("/static/index.html");
-                    }
-                });
+        registry.addResourceHandler("/**").addResourceLocations("classpath:/static/").resourceChain(true).addResolver(new PathResourceResolver() {
+            @Override
+            protected Resource getResource(String resourcePath, Resource location) throws IOException {
+                Resource resource = location.createRelative(resourcePath);
+                if (resource.exists() && resource.isReadable()) {
+                    return resource;
+                }
+                return new ClassPathResource("/static/index.html");
+            }
+        });
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowedHeaders("Content-Type", "Authorization")
+        registry.addMapping("/api/**").allowedOrigins("http://localhost:5173")
+                .allowedMethods("*")
+                .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);
     }

@@ -1,13 +1,14 @@
 package com.green.acamatch.joinClass;
 
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.grade.model.GradeUserDto;
+import com.green.acamatch.grade.model.GradeUserGetReq;
 import com.green.acamatch.joinClass.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,21 +38,6 @@ public class JoinClassService {
             return result;
         } catch (Exception e) {
             userMessage.setMessage("기타 오류 사항으로 성적확인을위한 불러오지 못했습니다.");
-            return null;
-        }
-    }
-
-    public List<JoinClassUserGradeDto> selJoinClassUserGrade(JoinClassUserGradeGetReq p) {
-        try {
-                List<JoinClassUserGradeDto> result = mapper.selJoinClassUserGrade(p);
-            if (result == null || result.isEmpty()) {
-                userMessage.setMessage("수강생들의 성적이 없습니다.");
-                return null;
-            }
-            userMessage.setMessage("수강생들의 성적 불러오기를 성공하였습니다.");
-            return result;
-        } catch (Exception e) {
-            userMessage.setMessage("수강생들의 성적 불러오기를 실패하였습니다.");
             return null;
         }
     }
