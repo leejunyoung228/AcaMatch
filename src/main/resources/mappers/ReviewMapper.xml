@@ -95,7 +95,7 @@
     <select id="getAcademyReviews">
         SELECT
         r.join_class_id AS joinClassId,
-        u.user_id AS userId,
+        a.user_id AS userId,
         u.nick_name AS writerName,
         u.user_pic AS writerPic,
         r.comment AS comment,
@@ -104,8 +104,9 @@
         FROM review r
         JOIN joinclass j ON r.join_class_id = j.join_class_id
         JOIN class c ON j.class_id = c.class_id
-        JOIN user u ON j.user_id = u.user_id
-        WHERE c.aca_id = #{acaId}
+        JOIN `user` u on j.user_id = u.user_id
+        JOIN academy a on a.aca_id = c.aca_id
+        WHERE a.user_id = #{userId}
         ORDER BY r.created_at DESC
         LIMIT #{startIdx}, #{size}
     </select>
