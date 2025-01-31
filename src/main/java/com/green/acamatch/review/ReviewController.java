@@ -16,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/review")
+@Tag(name = "학원 리뷰 관리")
 public class ReviewController {
     private final ReviewService service;
     private final UserMessage userMessage;

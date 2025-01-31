@@ -18,4 +18,7 @@ public class ReviewPostReq {
 
     @Schema(title = "별점", description = "리뷰 별점", example = "5")
     private int star;
+
+    @Schema(title = "유저 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private long userId;
 }

@@ -17,7 +17,6 @@ public enum AcademyException implements ErrorCode{
     ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "주소를 수정하려면 주소와 관련된 값을 다 입력해주세요.");
 
 
-
     private final HttpStatus httpStatus;
     private final String message;
 }
