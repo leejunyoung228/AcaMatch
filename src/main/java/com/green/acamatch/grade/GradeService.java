@@ -1,10 +1,7 @@
 package com.green.acamatch.grade;
 
 import com.green.acamatch.config.exception.UserMessage;
-import com.green.acamatch.grade.model.GradePostReq;
-import com.green.acamatch.grade.model.GradeGetDto;
-import com.green.acamatch.grade.model.GradeGetReq;
-import com.green.acamatch.grade.model.GradePutReq;
+import com.green.acamatch.grade.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
@@ -22,7 +19,7 @@ public class GradeService {
     @Transactional
     public int postGrade(GradePostReq p) {
         try {
-            int exists = mapper.existsGrade(p.getUserId(), p.getClassId(), p.getSubjectId());
+            int exists = mapper.existsGrade(p.getJoinClassId(), p.getSubjectId());
             if (exists > 0) {
                 userMessage.setMessage("이미 성적을 입력하였습니다.");
                 return 0;
@@ -55,11 +52,41 @@ public class GradeService {
         }
     }
 
+    public List<GradeUserDto> selGradeUser(GradeUserGetReq p) {
+        try {
+            List<GradeUserDto> result = mapper.selGradeUser(p);
+            if (result == null || result.isEmpty()) {
+                userMessage.setMessage("수강생들의 성적이 없습니다.");
+                return null;
+            }
+            userMessage.setMessage("수강생들의 성적 불러오기를 성공하였습니다.");
+            return result;
+        } catch (Exception e) {
+            userMessage.setMessage("수강생들의 성적 불러오기를 실패하였습니다.");
+            return null;
+        }
+    }
+
+    public List<GradeStatusGetDto> selGradeStatus(GradeStatusGetReq p) {
+        try {
+            List<GradeStatusGetDto> result = mapper.selGradeStatus(p);
+            if (result == null || result.isEmpty()) {
+                userMessage.setMessage("시험 처리 상태 불러오기에 실패하였습니다.");
+                return null;
+            }
+            userMessage.setMessage("시험 처리 상태 불러오기에 성공하였습니다.");
+            return result;
+        } catch (Exception e) {
+            userMessage.setMessage("기타 오류 사항으로 정보를 불러오지 못했습니다.");
+            return null;
+        }
+    }
+
     //성적 수정하기
     public int updGradeScore(GradePutReq p) {
             int result = mapper.updGradeScore(p);
             if (result == 0) {
-                userMessage.setMessage("수정할 수업 정보가 존재하지 않습니다.");
+                userMessage.setMessage("수정할 정보가 존재하지 않습니다.");
                 return 0;
             }
             userMessage.setMessage("성적 수정에 성공하였습니다.");

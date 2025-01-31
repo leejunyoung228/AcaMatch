@@ -55,8 +55,11 @@
     <update id="updAcademy">
         UPDATE academy
         <set>
+            <if test="dongId != ''">
+                dong_id = #{dongId}
+            </if>
             <if test="acaName != null and acaName != ''">
-                aca_name = #{acaName}
+                , aca_name = #{acaName}
             </if>
             <if test="acaPhone != null and acaPhone != ''">
                 , aca_phone = #{acaPhone}
@@ -67,7 +70,7 @@
             <if test="teacherNum != null and teacherNum != ''">
                 , teacher_num = #{teacherNum}
             </if>
-            <if test="openTime != null and openTime != ''">
+            <if test="openTime != null and openTime != ''" >
                 , open_time = #{openTime}
             </if>
             <if test="closeTime != null and closeTime != ''">
@@ -76,15 +79,48 @@
             <if test="acaPic != null and acaPic != ''">
                 , aca_pic = #{acaPic}
             </if>
-            <if test="address != null and address != ''">
+
+            <!--<if test="address != null and address != ''">
                 , address = #{address}
-            </if>
+            </if> -->
+
         </set>
         WHERE aca_id = #{acaId}
         AND user_id = #{userId}
     </update>
 
+<!--학원주소 다른 테이블에 삽입-->
+    <insert id="insAcademyAddress">
+        <choose>
+            <when test="address != null and address != ''">
+                INSERT INTO academyupdates (aca_id, address)
+                VALUES (#{acaId}, #{address})
+            </when>
+            <otherwise>
+                <!-- address가 없으면 아무 것도 삽입하지 않음 -->
+            </otherwise>
+        </choose>
+    </insert>
 
+<!--학원주소 다른 테이블 뽑기-->
+    <select id="selAcademyUpdatesAddress">
+        SELECT address
+        FROM academyupdates
+        WHERE aca_id = #{acaId}
+    </select>
+
+<!--학원주소 다른 테이블에서 수정-->
+    <update id="updAcademyAddress">
+        UPDATE academyupdates
+        <set>
+            <if test="address != null and address != ''">
+                address = #{address}
+            </if>
+        </set>
+        WHERE aca_id = #{acaId}
+    </update>
+
+<!-- db에 주소 뽑아내기-->
     <select id="getAcademyAddress">
         SELECT address
         FROM academy
@@ -107,11 +143,26 @@
 
 <!--학원 좋아요 순-->
     <select id="getAcademyBest" resultType="com.green.acamatch.academy.model.AcademyBestLikeGetRes">
-        SELECT aca_id AS acaId, COUNT(aca_id) AS likeCount
-          FROM `like`
-         GROUP BY aca_id
-         ORDER BY likeCount DESC
-         LIMIT #{startIdx}, #{size}
+        SELECT a.aca_id,
+                COUNT(DISTINCT a.user_id) AS like_count,
+                b.aca_pic,
+                GROUP_CONCAT(DISTINCT c.tag_id ORDER BY c.tag_id ASC) AS tag_ids,
+                AVG(f.star) AS star_avg,
+                COUNT(DISTINCT f.`comment`) AS review_count
+         FROM `like` a
+         LEFT JOIN `academy` b
+           ON a.aca_id = b.aca_id
+         LEFT JOIN `academytag` c
+           ON a.aca_id = c.aca_id
+         LEFT JOIN `class` d
+           ON b.aca_id = d.aca_id
+         LEFT JOIN `joinclass` e
+           ON d.class_id = e.class_id
+         LEFT JOIN `review` f
+           ON e.join_classa_id = f.join_classa_id
+        GROUP BY a.aca_id
+        ORDER BY like_count DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <!-- 학원 검색 -->
@@ -445,5 +496,177 @@
         G.star DESC
         LIMIT #{startIdx}, #{size};
 
+    </select>
+
+    <insert id="postToSearch">
+        INSERT INTO search
+        SET tag_id =
+        (SELECT tag_id
+        FROM tag
+        WHERE tag_name = #{tagName})
+    </insert>
+
+    <resultMap id="AcademyResultMap" type="com.green.acamatch.academy.model.GetAcademyDetailRes">
+        <!-- 학원 정보 매핑 -->
+        <id property="acaId" column="acaId"/>
+        <result property="acaName" column="acaName"/>
+        <result property="acaPic" column="acaPic"/>
+        <result property="address" column="address"/>
+        <result property="acaPhone" column="acaPhone"/>
+        <result property="teacherNum" column="teacherNum"/>
+        <result property="comments" column="comments"/>
+        <result property="star" column="star"/>
+        <result property="reviewCount" column="reviewCount"/>
+        <result property="likeCount" column="likeCount"/>
+        <result property="isLiked" column="isLiked"/>
+
+        <!-- 클래스 정보 매핑 (하위 리스트) -->
+        <collection property="classes" ofType="com.green.acamatch.academy.model.GetAcademyDetailClassDto">
+            <id property="classId" column="classId"/>
+            <result property="className" column="className"/>
+            <result property="classComment" column="classComment"/>
+            <result property="classStartDate" column="classStartDate"/>
+            <result property="classEndDate" column="classEndDate"/>
+            <result property="classStartTime" column="classStartTime"/>
+            <result property="classEndTime" column="classEndTime"/>
+            <result property="classPrice" column="classPrice"/>
+            <result property="classDay" column="classDay"/>
+            <result property="classCategoryName" column="classCategoryName"/>
+        </collection>
+
+        <!-- 리뷰 정보 매핑 (하위 리스트) -->
+        <collection property="reviews" ofType="com.green.acamatch.academy.model.ReviewDto">
+            <result property="comment" column="reviewComment"/>
+            <result property="star" column="reviewStar"/>
+            <result property="createdAt" column="reviewCreatedAt"/>
+            <result property="userId" column="reviewUserId"/>
+            <result property="nickName" column="reviewUserNickName"/>
+            <result property="className" column="reviewClassName"/>
+        </collection>
+    </resultMap>
+
+    <select id="getAcademyWithClasses" resultMap="AcademyResultMap">
+        SELECT
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        A.aca_pic AS acaPic,
+        A.address,
+        A.aca_phone AS acaPhone,
+        A.teacher_num AS teacherNum,
+        IFNULL(A.comment, 'No comments') AS comments,
+        COALESCE(G.star, 0) AS star,
+        COALESCE(R.reviewCount, 0) AS reviewCount,
+        COALESCE(L.likesCount, 0) AS likeCount,
+        CASE
+        WHEN UL.user_id IS NOT NULL THEN TRUE
+        ELSE FALSE
+        END AS isLiked,
+
+        -- 클래스 정보
+        C.class_id AS classId,
+        C.class_name AS className,
+        C.class_comment AS classComment,
+        C.start_date AS classStartDate,
+        C.end_date AS classEndDate,
+        C.start_time AS classStartTime,
+        C.end_time AS classEndTime,
+        C.price AS classPrice,
+        GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,
+        GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
+
+        -- 리뷰 정보
+        RV.comment AS reviewComment,
+        RV.star AS reviewStar,
+        RV.created_at AS reviewCreatedAt,
+        JC.user_id AS reviewUserId,
+        U.nick_name AS reviewUserNickName,
+        RC.class_name AS reviewClassName
+
+        FROM academy A
+        LEFT JOIN (
+        SELECT ROUND(AVG(R.star), 2) AS star, C.aca_id
+        FROM review R
+        JOIN class C ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id
+        ) G ON G.aca_id = A.aca_id
+        LEFT JOIN class C ON A.aca_id = C.aca_id
+        LEFT JOIN (
+        SELECT aca_id, COUNT(*) AS likesCount
+        FROM `like`
+        GROUP BY aca_id
+        ) L ON L.aca_id = A.aca_id
+        LEFT JOIN (
+        SELECT C.aca_id, COUNT(*) AS reviewCount
+        FROM review R
+        JOIN class C ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id
+        ) R ON R.aca_id = A.aca_id
+        LEFT JOIN classcategory CC ON C.class_id = CC.class_id
+        LEFT JOIN category CAT ON CC.category_id = CAT.category_id
+        LEFT JOIN classweekdays CW ON C.class_id = CW.class_id
+        LEFT JOIN weekdays W ON CW.day_id = W.day_id
+        LEFT JOIN (
+        SELECT aca_id, user_id
+        FROM `like`
+        WHERE user_id = 2119
+        ) UL ON UL.aca_id = A.aca_id
+        LEFT JOIN review RV ON RV.join_class_id = C.class_id
+        LEFT JOIN joinclass JC ON RV.join_class_id = JC.join_class_id
+        LEFT JOIN user U ON JC.user_id = U.user_id
+        LEFT JOIN class RC ON RV.join_class_id = RC.class_id
+        WHERE A.aca_id = 324
+        GROUP BY A.aca_id, C.class_id, RV.comment, RV.star, RV.created_at, JC.user_id, U.nick_name, RC.class_name
+        ORDER BY C.class_id
+    </select>
+
+    <select id="getAcademyListDefault">
+        SELECT
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        A.aca_pic AS acaPic,
+        A.address AS address,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
+        COALESCE(G.star, 0) AS star
+        FROM academy A
+        LEFT JOIN academytag E
+        ON A.aca_id = E.aca_id
+        LEFT JOIN tag F
+        ON E.tag_id = F.tag_id
+        LEFT JOIN (
+        SELECT
+        ROUND(AVG(R.star), 2) AS star,
+        C.aca_id
+        FROM review R
+        JOIN class C
+        ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id
+        ) G
+        ON G.aca_id = A.aca_id
+        GROUP BY A.aca_id
+        ORDER BY RAND()
+        LIMIT 0, 4;
+    </select>
+
+    <select id="getAcademyListByStudent">
+        SELECT DISTINCT
+        A.aca_id,
+        A.aca_pic,
+        A.aca_name
+        FROM academy A
+        JOIN class C ON A.aca_id = C.aca_id
+        JOIN joinclass JC ON C.class_id = JC.class_id
+        WHERE JC.user_id = #{signedUserId}
+        ORDER BY A.aca_name ASC
+        LIMIT #{startIdx}, #{size}
+    </select>
+
+    <select id="popularSearch">
+        SELECT
+        T.tag_name,
+        COUNT(S.tag_id) AS tag_count
+        FROM search S
+        JOIN tag T ON S.tag_id = T.tag_id
+        GROUP BY T.tag_name
+        ORDER BY tag_count DESC
     </select>
 </mapper>

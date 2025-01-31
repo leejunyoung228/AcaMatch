@@ -1,17 +1,14 @@
-package com.green.acamatch.joinClass.model;
+package com.green.acamatch.grade.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Setter
 @Getter
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public class JoinClassUserGradeDto {
+public class GradeUserDto {
     @Schema(title = "유저 사진")
     private String userPic;
     @Schema(title = "유저 이름", example = "홍길동")
@@ -21,5 +18,5 @@ public class JoinClassUserGradeDto {
     @Schema(title = "성적", example = "90")
     private Integer score;
     @Schema(title = "통과 여부", example = "null")
-    private String pass;
+    private Integer pass;
 }

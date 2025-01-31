@@ -33,17 +33,17 @@ public class AcademyController {
         int result2 = tagService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result1)
+                .resultData(result1 != 0 ? 1 : 0)
                 .build();
     }
 
     @PutMapping
     @Operation(summary = "학원정보수정", description = "acaId, userId는 필수로 받고, 수정하기 원하는 항목 값을 입력합니다.")
-    public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart AcademyUpdateReq req) {
+    public ResultResponse<Integer> putAcademy(@RequestPart(required = false) MultipartFile pic, @RequestPart AcademyUpdateReq req) {
         int result = academyService.updAcademy(pic, req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result)
+                .resultData(result != 0 ? 1 : 0)
                 .build();
     }
 
@@ -53,7 +53,7 @@ public class AcademyController {
         int result = academyService.delAcademy(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result)
+                .resultData(result != 0 ? 1 : 0)
                 .build();
     }
 
@@ -197,6 +197,47 @@ public class AcademyController {
         return ResultResponse.<List<GetAcademyListRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(list)
+                .build();
+    }
+
+    @GetMapping("getAcademyDetailAllInfo")
+    @Operation(summary = "학원 상세 모든 정보 불러오기")
+    public ResultResponse<GetAcademyDetailRes> getAcademyDetail(@ParameterObject @ModelAttribute GetAcademyDetailReq p) {
+        GetAcademyDetailRes res = academyService.getAcademyDetail(p);
+        return ResultResponse.<GetAcademyDetailRes>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("AcademyDefault")
+    @Operation(summary = "메인 페이지에 랜덤한 학원 띄우기")
+    public ResultResponse<List<GetAcademyRandomRes>> getAcademyListRandom(){
+        List<GetAcademyRandomRes> res = academyService.getAcademyListByAll();
+        return ResultResponse.<List<GetAcademyRandomRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+
+    }
+
+    @GetMapping("getAcademyListByStudent")
+    @Operation(summary = "학생이 다니고 있는 학원 리스트 출력하기")
+    public ResultResponse<List<GetAcademyListByStudentRes>> getAcademyListByStudent(@ParameterObject @ModelAttribute GetAcademyListByStudentReq p) {
+        List<GetAcademyListByStudentRes> list = academyService.getAcademyListByStudent(p);
+        return ResultResponse.<List<GetAcademyListByStudentRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(list)
+                .build();
+    }
+
+    @GetMapping("popularSearch")
+    @Operation(summary = "인기 검색어")
+    public ResultResponse<List<PopularSearchRes>> popularSearch(){
+        List<PopularSearchRes> res = academyService.popularSearch();
+        return ResultResponse.<List<PopularSearchRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
                 .build();
     }
 }
