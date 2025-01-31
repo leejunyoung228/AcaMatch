@@ -13,14 +13,12 @@ public interface ReviewMapper {
     // 리뷰 작성자 확인 (joinClassId 기반)
     Integer isUserAuthorOfReview(long joinClassId, long userId);
 
-    // 학원 ID 존재 여부 확인
-    boolean isValidAcademyId(long acaId);
 
     // join_class_id 유효성 확인
     int isValidJoinClassId(long joinClassId);
 
     // 수업 참여 여부 확인
-    int checkEnrollment(Long joinClassId);
+    int checkEnrollment(Long joinClassId, long userId);
 
     // 리뷰 등록
     void insertReview(ReviewPostReq req);
@@ -37,8 +35,8 @@ public interface ReviewMapper {
     // 리뷰 삭제 - 작성자 기준
     int deleteReviewByUser(ReviewDelReq req);
 
-    // 사용자의 Role ID 가져오기
-    Integer getUserRoleId(long userId);
+    // 특정 유저 ID가 존재하는지 확인
+    int checkUserExists(long userId);
 
     // 사용자가 요청한 학원과 연결되어 있는지 확인
     Integer isUserLinkedToAcademy(long acaId, long userId);

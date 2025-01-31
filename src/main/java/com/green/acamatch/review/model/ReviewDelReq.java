@@ -15,7 +15,7 @@ public class ReviewDelReq {
     private Long acaId;
 
     @Schema(title = "수업 참여 ID", description = "삭제할 리뷰의 수업 참여 ID", example = "1")
-    private long joinClassId;
+    private Long joinClassId;
 
     @Schema(title = "유저 ID", description = "리뷰 삭제 요청을 한 유저의 ID", example = "1")
     private long userId;

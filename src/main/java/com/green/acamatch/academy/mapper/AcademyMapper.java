@@ -27,6 +27,7 @@ public interface AcademyMapper {
     List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req);
 
 
+
 // ---------------------------------------------------------------
     //동과 태그를 입력받아 학원 리스트 불러오기
     List<GetAcademyRes> getAcademy(GetAcademyReq p);
@@ -72,4 +73,6 @@ public interface AcademyMapper {
 
     //모든 입력을 받아 출력하기
     List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p);
+
+    List<GetAcademyListRes> getAcademy(Long acaId);
 }
