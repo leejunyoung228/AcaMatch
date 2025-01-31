@@ -114,25 +114,52 @@
          LIMIT #{startIdx}, #{size}
     </select>
 
-    <!-- 학원 검색 -->
-
-    <resultMap id="searchResultMap" type = "com.green.acamatch.academy.model.GetAcademyListRes">
+    <!-- 학원 검색 ResultMap -->
+    <resultMap id="searchResultMap" type="com.green.acamatch.academy.model.GetAcademyListRes">
         <id property="acaId" column="acaId" />
         <result property="acaPic" column="acaPic" />
         <result property="acaName" column="acaName" />
         <result property="address" column="address" />
         <result property="star" column="star" />
-        <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler" />
+        <result property="reviewCount" column="reviewCount" />
+        <result property="comment" column="comment" />
+        <result property="reviewStar" column="reviewStar" />
+        <result property="createdAt" column="created_at" />
+        <result property="nickName" column="nick_name" />
+        <result property="classInfo" column="classInfo" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler" />
+        <result property="likeCount" column="likeCount" />
+        <result property="categoryTypes" column="categoryTypes" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler" />
+        <result property="categories" column="categories" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler" />
     </resultMap>
 
-    <select id="getAcademy" >
+    <!-- 학원 검색 쿼리 -->
+    <select id="getAcademyListByAll" resultMap="searchResultMap">
         SELECT
-        A.aca_id AS acaId,
-        A.aca_name AS acaName,
-        A.aca_pic AS acaPic,
-        A.address AS address,
-        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
-        COALESCE(G.star, 0) AS star
+        A.aca_id AS acaId,                               -- 학원 ID
+        A.aca_name AS acaName,                           -- 학원 이름
+        A.aca_pic AS acaPic,                             -- 학원 이미지
+        A.address AS address,                            -- 학원 주소
+        COALESCE(G.star, 0) AS star,                     -- 별점 평균
+        COALESCE(R.reviewCount, 0) AS reviewCount,       -- 리뷰 개수
+        R.comment,                                       -- 리뷰 코멘트
+        R.star AS reviewStar,                            -- 리뷰 별점
+        R.created_at,                                    -- 리뷰 작성일
+        R.nick_name,                                     -- 작성자 닉네임
+        COALESCE(
+        GROUP_CONCAT(
+        DISTINCT CONCAT(C.class_name, ' (', FORMAT(C.price, 0), '원)')
+        ORDER BY C.class_name SEPARATOR ', '
+        ), ''
+        ) AS classInfo,                                  -- 클래스 정보
+        COALESCE(L.likesCount, 0) AS likeCount,          -- 좋아요 개수
+        COALESCE(
+        GROUP_CONCAT(DISTINCT CT.category_type_name ORDER BY CT.category_type_name SEPARATOR ', '),
+        ''
+        ) AS categoryTypes,                              -- 카테고리 유형
+        COALESCE(
+        GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name SEPARATOR ', '),
+        ''
+        ) AS categories                                  -- 카테고리 이름
         FROM academy A
         LEFT JOIN academytag E
         ON A.aca_id = E.aca_id
@@ -148,6 +175,40 @@
         GROUP BY C.aca_id
         ) G
         ON G.aca_id = A.aca_id
+        LEFT JOIN class C
+        ON A.aca_id = C.aca_id
+        LEFT JOIN (
+        SELECT
+        aca_id,
+        COUNT(*) AS likesCount
+        FROM `like`
+        GROUP BY aca_id
+        ) L
+        ON L.aca_id = A.aca_id
+        LEFT JOIN (
+        SELECT
+        C.aca_id,
+        COUNT(*) AS reviewCount,
+        R.comment,
+        R.star,
+        R.created_at,
+        U.nick_name
+        FROM review R
+        JOIN class C
+        ON R.join_class_id = C.class_id
+        JOIN joinclass JC
+        ON C.class_id = JC.class_id
+        JOIN user U
+        ON JC.user_id = U.user_id
+        GROUP BY C.aca_id
+        ) R
+        ON R.aca_id = A.aca_id
+        LEFT JOIN classcategory CC
+        ON C.class_id = CC.class_id
+        LEFT JOIN category CAT
+        ON CC.category_id = CAT.category_id
+        LEFT JOIN categorytype CT
+        ON CAT.category_type_id = CT.category_type_id
         WHERE A.dong_id = #{dongId}
         AND A.aca_id IN (
         SELECT DISTINCT E.aca_id
@@ -157,8 +218,14 @@
         WHERE F.tag_name LIKE CONCAT('%', #{tagName}, '%')
         )
         GROUP BY A.aca_id
-        ORDER BY G.star DESC
+        ORDER BY A.aca_id
         LIMIT #{startIdx}, #{size};
+    </select>
+
+    <select id="getAcademy">
+        SELECT *
+        FROM academy
+        WHERE aca_id = #{acaId}
     </select>
 
     <!-- 학원 상세 정보 보기 -->
@@ -373,77 +440,77 @@
         WHERE user_id = #{signedUserId}
     </select>
 
-    <!-- 모든 입력을 받고 학원 리스트 불러오기-->
-    <select id="getAcademyListByAll" resultMap="searchResultMap">
-        SELECT
-        A.aca_id AS acaId,
-        A.aca_name AS acaName,
-        A.aca_pic AS acaPic,
-        A.address AS address,
-        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
-        COALESCE(G.star, 0) AS star
-        FROM
-        academy A
-        LEFT JOIN
-        academytag E ON A.aca_id = E.aca_id
-        LEFT JOIN
-        tag F ON E.tag_id = F.tag_id
-        LEFT JOIN (
-        SELECT
-        ROUND(AVG(R.star), 2) AS star,
-        C.aca_id
-        FROM
-        review R
-        JOIN
-        class C ON R.join_class_id = C.class_id
-        GROUP BY
-        C.aca_id
-        ) G ON G.aca_id = A.aca_id
-        WHERE
-        1 = 1
+<!--    &lt;!&ndash; 모든 입력을 받고 학원 리스트 불러오기&ndash;&gt;-->
+<!--    <select id="getAcademyListByAll" resultMap="searchResultMap">-->
+<!--        SELECT-->
+<!--        A.aca_id AS acaId,-->
+<!--        A.aca_name AS acaName,-->
+<!--        A.aca_pic AS acaPic,-->
+<!--        A.address AS address,-->
+<!--        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,-->
+<!--        COALESCE(G.star, 0) AS star-->
+<!--        FROM-->
+<!--        academy A-->
+<!--        LEFT JOIN-->
+<!--        academytag E ON A.aca_id = E.aca_id-->
+<!--        LEFT JOIN-->
+<!--        tag F ON E.tag_id = F.tag_id-->
+<!--        LEFT JOIN (-->
+<!--        SELECT-->
+<!--        ROUND(AVG(R.star), 2) AS star,-->
+<!--        C.aca_id-->
+<!--        FROM-->
+<!--        review R-->
+<!--        JOIN-->
+<!--        class C ON R.join_class_id = C.class_id-->
+<!--        GROUP BY-->
+<!--        C.aca_id-->
+<!--        ) G ON G.aca_id = A.aca_id-->
+<!--        WHERE-->
+<!--        1 = 1-->
 
-        AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
+<!--        AND (#{dongId} IS NULL OR A.dong_id = #{dongId})-->
 
-        AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
+<!--        AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))-->
 
-        AND (
-        #{tagName} IS NULL
-        OR EXISTS (
-        SELECT 1
-        FROM academytag E2
-        JOIN tag F2 ON E2.tag_id = F2.tag_id
-        WHERE E2.aca_id = A.aca_id
-        AND F2.tag_name LIKE CONCAT('%', #{tagName}, '%')
-        )
-        )
+<!--        AND (-->
+<!--        #{tagName} IS NULL-->
+<!--        OR EXISTS (-->
+<!--        SELECT 1-->
+<!--        FROM academytag E2-->
+<!--        JOIN tag F2 ON E2.tag_id = F2.tag_id-->
+<!--        WHERE E2.aca_id = A.aca_id-->
+<!--        AND F2.tag_name LIKE CONCAT('%', #{tagName}, '%')-->
+<!--        )-->
+<!--        )-->
 
-        AND (
-        #{FCName} IS NULL
-        OR EXISTS (
-        SELECT 1
-        FROM categorytype CT
-        INNER JOIN category C ON CT.category_type_id = C.category_type_id
-        INNER JOIN classcategory CC ON C.category_id = CC.category_id
-        INNER JOIN class CL ON CC.class_id = CL.class_id
-        WHERE CL.aca_id = A.aca_id
-        AND C.category_name = #{FCName}
-        AND (
-        #{SCName} IS NULL
-        OR EXISTS (
-        SELECT 1
-        FROM category C2
-        INNER JOIN classcategory CC2 ON C2.category_id = CC2.category_id
-        WHERE CC2.class_id = CL.class_id
-        AND C2.category_name = #{SCName}
-        )
-        )
-        )
-        )
-        GROUP BY
-        A.aca_id
-        ORDER BY
-        G.star DESC
-        LIMIT #{startIdx}, #{size};
+<!--        AND (-->
+<!--        #{FCName} IS NULL-->
+<!--        OR EXISTS (-->
+<!--        SELECT 1-->
+<!--        FROM categorytype CT-->
+<!--        INNER JOIN category C ON CT.category_type_id = C.category_type_id-->
+<!--        INNER JOIN classcategory CC ON C.category_id = CC.category_id-->
+<!--        INNER JOIN class CL ON CC.class_id = CL.class_id-->
+<!--        WHERE CL.aca_id = A.aca_id-->
+<!--        AND C.category_name = #{FCName}-->
+<!--        AND (-->
+<!--        #{SCName} IS NULL-->
+<!--        OR EXISTS (-->
+<!--        SELECT 1-->
+<!--        FROM category C2-->
+<!--        INNER JOIN classcategory CC2 ON C2.category_id = CC2.category_id-->
+<!--        WHERE CC2.class_id = CL.class_id-->
+<!--        AND C2.category_name = #{SCName}-->
+<!--        )-->
+<!--        )-->
+<!--        )-->
+<!--        )-->
+<!--        GROUP BY-->
+<!--        A.aca_id-->
+<!--        ORDER BY-->
+<!--        G.star DESC-->
+<!--        LIMIT #{startIdx}, #{size};-->
 
-    </select>
+<!--    </select>-->
 </mapper>

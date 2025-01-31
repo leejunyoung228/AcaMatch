@@ -35,21 +35,25 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                     protected Resource getResource(String resourcePath, Resource location) throws IOException {
                         Resource resource = location.createRelative(resourcePath);
 
-                        if(resource.exists() && resource.isReadable()) {
+                        if (resource.exists() && resource.isReadable()) {
                             return resource;
                         }
 
                         return new ClassPathResource("/static/index.html");
                     }
                 });
-
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*");
+        registry.addMapping("/api/**")
+                .allowedOrigins("http://localhost:5173")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedHeaders("Content-Type", "Authorization")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
+
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
         configurer.addPathPrefix("api", HandlerTypePredicate.forAnnotation(RestController.class));
