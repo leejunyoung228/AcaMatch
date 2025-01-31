@@ -2,7 +2,6 @@ package com.green.acamatch.like.model;
 
 import com.green.acamatch.config.model.Paging;
 import com.green.acamatch.like.dto.LikedAcademyDto;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
