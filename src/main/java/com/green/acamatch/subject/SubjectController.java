@@ -22,7 +22,7 @@ public class SubjectController {
         try {
             Integer result = service.postSubject(p);
             return ResultResponse.<Integer>builder()
-                    .resultMessage(userMessage.getMessage())
+                    .resultMessage("시험 회차 등록에 성공하였습니다.")
                     .resultData(result)
                     .build();
         } catch (IllegalArgumentException e) {

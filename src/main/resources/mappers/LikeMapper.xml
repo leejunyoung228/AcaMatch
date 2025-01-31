@@ -21,15 +21,17 @@
         FROM `like` l
         JOIN user u ON l.user_id = u.user_id
         WHERE l.aca_id = #{acaId}
+        LIMIT #{startIdx}, #{size}
     </select>
 
 
     <!-- 특정 유저가 좋아요한 학원의 ID와 사진 조회 -->
     <select id="getUserLikesWithPics">
-        SELECT a.aca_id AS acaId, a.aca_pic AS acaPic
+        SELECT a.aca_id AS acaId, a.aca_pic AS acaPic, a.aca_name AS acaName
         FROM `like` l
         JOIN academy a ON l.aca_id = a.aca_id
         WHERE l.user_id = #{userId}
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <!-- 유저 ID 존재 여부 확인 -->
@@ -39,15 +41,12 @@
         WHERE user_id = #{userId}
     </select>
 
-
     <!-- 학원 ID 존재 여부 확인 -->
     <select id="checkAcaExists">
         SELECT COUNT(*)
-        FROM academy a
+        FROM academy
         WHERE aca_id = #{acaId}
     </select>
-
-
 
     <select id="isUserManagingAcademy">
         SELECT CASE
@@ -59,6 +58,13 @@
         ) THEN TRUE
         ELSE FALSE
         END
+    </select>
+
+    <select id="checkLikeExists">
+        SELECT COUNT(*)
+        FROM `like`
+        WHERE user_id = #{userId}
+        AND aca_id = #{acaId}
     </select>
 
 </mapper>

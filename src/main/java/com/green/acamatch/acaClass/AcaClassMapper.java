@@ -13,9 +13,9 @@ public interface AcaClassMapper {
     int existsDay(String day);
     int insAcaClassClassWeekDays(AcaClassWeekDaysRelation p);
     int existsClassWeekDays(long dayId, long classId);
-    List<AcaClassDto> selAcaClass(AcaClassGetReq p);
-    List<AcaClassToUserDto> selAcaClassToUser(AcaClassToUserGetReq p);
+    List<AcaClassDetailDto> selAcaClassDetail(AcaClassDetailGetReq p);
     List<AcaClassUserDto> selAcaClassUser(AcaClassUserGetReq p);
+    List<AcaClassDto> selAcaClass(AcaClassGetReq p);
     int updAcaClass(AcaClassPutReq p);
     int delAcaClass(AcaClassDelReq p);
     int delAcaClassDay(AcaClassWeekDaysRelation p);

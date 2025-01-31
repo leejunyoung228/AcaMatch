@@ -28,4 +28,11 @@ public class MyReviewDto {
 
     @Schema(title = "작성자 프로필 사진", description = "리뷰 작성자의 프로필 사진 파일명", example = "default_user_pic.jpg")
     private String userPic;
+
+    @Schema(title = "유저 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private long userId;
+
+    @Schema(title = "작성자 닉네임", description = "리뷰 작성자의 닉네임", example = "Student123")
+    private String writerName;
+
 }

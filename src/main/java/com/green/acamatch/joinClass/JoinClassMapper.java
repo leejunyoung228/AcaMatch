@@ -1,5 +1,7 @@
 package com.green.acamatch.joinClass;
 
+import com.green.acamatch.grade.model.GradeUserDto;
+import com.green.acamatch.grade.model.GradeUserGetReq;
 import com.green.acamatch.joinClass.model.*;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -10,7 +12,6 @@ public interface JoinClassMapper {
     int insJoinClass(JoinClassPostReq p);
     int existsJoinClass(long classId, long userId);
     List<JoinClassDto> selJoinClass(JoinClassGetReq p);
-    List<JoinClassUserGradeDto> selJoinClassUserGrade(JoinClassUserGradeGetReq p);
     int updJoinClass(JoinClassPutReq p);
     int delJoinClass(JoinClassDel p);
 }
