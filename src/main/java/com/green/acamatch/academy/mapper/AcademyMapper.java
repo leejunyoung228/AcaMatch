@@ -29,6 +29,7 @@ public interface AcademyMapper {
     int delAcademy(long acaId, long userId);
 
     List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req);
+    AcademyBestLikeGetRes selAcademyCount();
 
 
 
