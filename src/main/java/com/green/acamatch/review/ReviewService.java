@@ -7,10 +7,13 @@ import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -125,13 +128,13 @@ public class ReviewService {
         return 1;
     }
 
+
     /**  리뷰 수정 */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public int updateReview(ReviewUpdateReq req) {
 
         // 유저 존재 여부 확인 (추가)
         validateUserExists(req.getUserId());
-
 
         if (!isAuthorizedUser(req.getUserId())) {
             return 0;  //  인증되지 않은 요청이면 바로 종료
@@ -151,6 +154,8 @@ public class ReviewService {
             userMessage.setMessage("수정할 리뷰를 찾을 수 없습니다.");
             return 0;
         }
+
+
 
         userMessage.setMessage("리뷰 수정이 완료되었습니다.");
         return 1;
@@ -309,7 +314,7 @@ public class ReviewService {
         }
 
         // 2. 사용자가 수업을 정상적으로 수료했는지 확인
-        if (mapper.checkEnrollment(joinClassId, req.getUserId()) == 0) {
+        if (mapper.checkEnrollment(req.getClassId(), req.getUserId()) == 0) {
             userMessage.setMessage("수업에 참여한 사용자만 리뷰를 작성할 수 있습니다.");
             return false;
         }
@@ -329,11 +334,11 @@ public class ReviewService {
     }
     
     private boolean validateReviewRequest(ReviewUpdateReq req) {
-        if (req.getJoinClassId() == null || req.getJoinClassId() <= 0 || mapper.isValidJoinClassId(req.getJoinClassId()) == 0) {
+        if (req.getClassId() == null || req.getClassId() <= 0 || mapper.isValidJoinClassId(req.getClassId()) == 0) {
             userMessage.setMessage("유효하지 않은 수업 참여 ID입니다.");
             return false;
         }
-        if (mapper.checkEnrollment(req.getJoinClassId(), req.getUserId()) == 0) {
+        if (mapper.checkEnrollment(req.getClassId(), req.getUserId()) == 0) {
             userMessage.setMessage("수업에 참여한 사용자만 리뷰를 작성할 수 있습니다.");
             return false;
         }
@@ -397,5 +402,6 @@ public class ReviewService {
         Integer result = mapper.isReviewLinkedToAcademy(joinClassId, acaId);
         return result != null && result > 0;
     }
+
 
 }

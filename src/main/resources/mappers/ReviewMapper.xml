@@ -24,10 +24,11 @@
     <select id="checkEnrollment">
         SELECT COUNT(*)
         FROM joinclass
-        WHERE join_class_id = #{joinClassId}
+        WHERE class_id = #{classId}
         AND user_id = #{userId}
         AND certification = 1;
     </select>
+
 
     <!-- 변경된 리뷰 등록 쿼리 -->
     <insert id="insertReview">
@@ -40,8 +41,9 @@
     <update id="updateReview">
         UPDATE review r
         INNER JOIN joinclass j ON r.join_class_id = j.join_class_id
+        INNER JOIN class c ON j.class_id = c.class_id
         SET r.comment = #{comment}, r.star = #{star}
-        WHERE r.join_class_id = #{joinClassId}
+        WHERE j.class_id = #{classId}
         AND j.user_id = #{userId};
     </update>
 
