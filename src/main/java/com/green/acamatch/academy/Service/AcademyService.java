@@ -8,6 +8,7 @@ import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.ErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.entity.academy.Academy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -202,13 +203,7 @@ public class AcademyService {
 
             // address, detailAddress, postNum 중 하나 또는 두 개가 비어있으면 에러
 
-        /*//academyupdates 테이블 값 넣거나 수정할때
-        AcademyUpdatesGetRes academyUpdatesGetRes = academyMapper.selAcademyUpdatesAddress(req);
-        if(academyUpdatesGetRes == null) {
-            academyMapper.insAcademyAddress(req);
-        }else{
-            academyMapper.updAcademyAddress(req);
-        }*/
+
 
         //태그만 값을 가질때
         if (req.getTagIdList() != null && !req.getTagIdList().isEmpty() &&
@@ -273,6 +268,12 @@ public class AcademyService {
     //학원좋아요순
     public List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req) {
         List<AcademyBestLikeGetRes> list = academyMapper.getAcademyBest(req);
+
+        AcademyBestLikeGetRes academyCountRes = academyMapper.selAcademyCount();
+
+        for (AcademyBestLikeGetRes academy : list) {
+            academy.setAcademyCount(academyCountRes.getAcademyCount());
+        }
 
         if(list == null) {
             academyMessage.setMessage("좋아요를 받은 학원이 없습니다.");
