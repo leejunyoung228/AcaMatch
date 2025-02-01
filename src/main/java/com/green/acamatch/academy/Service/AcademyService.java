@@ -349,6 +349,8 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
     //학원 PK를 받아 학원 상세 정보 불러오기
     public GetAcademyDetail getAcademyDetail(Long acaId){
         GetAcademyDetail res = academyMapper.getAcademyDetail(acaId);
+        res.setAddressDto(addressDecoding(res.getAddress()));
+        res.setAddress(res.getAddressDto().getAddress());
         if(res == null) {
             academyMessage.setMessage("학원의 상세 정보 불러오기를 실패했습니다.");
             return null;

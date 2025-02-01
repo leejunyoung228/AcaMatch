@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class GetAcademyListReq extends Paging {
@@ -17,19 +19,15 @@ public class GetAcademyListReq extends Paging {
     @Schema(title = "태그명", example = "초등 영어")
     private String tagName;
 
-    @Schema(title = "카테고리 이름", example = "청소년")
-    private String FCName;
+    @Schema(title = "카테고리 PK", example = "1")
+    private List<Integer> categoryIds;
 
-    @Schema(title = "카테고리 이름2", example = "상급")
-    private String SCName;
-
-    public GetAcademyListReq(Integer page, Integer size, Integer dongId, String searchName, String tagName, String FCName, String SCName) {
-        super(page,size);
+    public GetAcademyListReq(Integer page, Integer size, Integer dongId, String searchName, String tagName, List<Integer> categoryIds) {
+        super(page, size);
         this.dongId = dongId;
         this.searchName = searchName;
         this.tagName = tagName;
-        this.FCName = FCName;
-        this.SCName = SCName;
+        this.categoryIds = categoryIds;
     }
 
 }

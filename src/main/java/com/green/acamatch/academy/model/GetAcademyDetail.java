@@ -33,4 +33,6 @@ public class GetAcademyDetail {
 
     @Schema(title = "학원 상세 주소", example = "대구광역시 중구 109-2")
     private String address;
+
+    private AddressDto addressDto;
 }
