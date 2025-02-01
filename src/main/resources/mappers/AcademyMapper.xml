@@ -172,8 +172,9 @@
         <result property="acaName" column="acaName" />
         <result property="address" column="address" />
         <result property="star" column="star" />
-        <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler" />
+        <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
     </resultMap>
+
 
     <select id="getAcademy" >
         SELECT
@@ -427,75 +428,44 @@
     <select id="getAcademyListByAll" resultMap="searchResultMap">
         SELECT
         A.aca_id AS acaId,
-        count(A.aca_id) AS totalAcademy,
         A.aca_name AS acaName,
         A.aca_pic AS acaPic,
         A.address AS address,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
-        COALESCE(G.star, 0) AS star
-        FROM
-        academy A
-        LEFT JOIN
-        academytag E ON A.aca_id = E.aca_id
-        LEFT JOIN
-        tag F ON E.tag_id = F.tag_id
+        COALESCE(G.star, 0) AS star,
+        COUNT(*) OVER() AS totalCount
+        FROM academy A
+        LEFT JOIN academytag E ON A.aca_id = E.aca_id
+        LEFT JOIN tag F ON E.tag_id = F.tag_id
         LEFT JOIN (
         SELECT
         ROUND(AVG(R.star), 2) AS star,
         C.aca_id
-        FROM
-        review R
-        JOIN
-        class C ON R.join_class_id = C.class_id
-        GROUP BY
-        C.aca_id
-        ) G ON G.aca_id = A.aca_id
-        WHERE
-        1 = 1
-
-        AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
-
-        AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
-
+        FROM review R
+        JOIN class C ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id ) G ON G.aca_id = A.aca_id
+        WHERE 1 = 1
+        AND (778 IS NULL OR A.dong_id = 778)
+        AND ('' IS NULL OR A.aca_name LIKE CONCAT('%', '', '%'))
         AND (
-        #{tagName} IS NULL
-        OR EXISTS (
-        SELECT 1
-        FROM academytag E2
+        1 IS NULL OR EXISTS (
+        SELECT 1 FROM academytag E2
         JOIN tag F2 ON E2.tag_id = F2.tag_id
         WHERE E2.aca_id = A.aca_id
-        AND F2.tag_name LIKE CONCAT('%', #{tagName}, '%')
-        )
-        )
-
-        AND (
-        #{FCName} IS NULL
-        OR EXISTS (
-        SELECT 1
-        FROM categorytype CT
-        INNER JOIN category C ON CT.category_type_id = C.category_type_id
-        INNER JOIN classcategory CC ON C.category_id = CC.category_id
-        INNER JOIN class CL ON CC.class_id = CL.class_id
-        WHERE CL.aca_id = A.aca_id
-        AND C.category_name = #{FCName}
-        AND (
-        #{SCName} IS NULL
-        OR EXISTS (
-        SELECT 1
-        FROM category C2
-        INNER JOIN classcategory CC2 ON C2.category_id = CC2.category_id
-        WHERE CC2.class_id = CL.class_id
-        AND C2.category_name = #{SCName}
-        )
-        )
-        )
-        )
-        GROUP BY
-        A.aca_id
-        ORDER BY
-        G.star DESC
-        LIMIT #{startIdx}, #{size};
-
+        AND F2.tag_id = 1))
+        <if test=" categoryIds != null and categoryIds != '' ">
+            AND ( A.aca_id IN
+            (SELECT CL.aca_id FROM class CL
+            JOIN classcategory CC ON CL.class_id = CC.class_id
+            WHERE CC.category_id IN
+            <foreach collection="categoryIds" item="CId" open="(" close=")" separator=",">
+                #{CId}
+            </foreach>
+            ))
+        </if>
+        GROUP BY A.aca_id
+        ORDER BY G.star DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <insert id="postToSearch">
