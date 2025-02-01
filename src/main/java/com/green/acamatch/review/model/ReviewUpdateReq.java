@@ -14,8 +14,8 @@ public class ReviewUpdateReq {
     @Schema(title = "유저 ID", description = "리뷰 삭제 요청을 한 유저의 ID", example = "1")
     private long userId;
 
-    @Schema(title = "수업 참여 ID", description = "리뷰를 수정할 수업 참여 ID", example = "1")
-    private Long joinClassId;
+    @Schema(title = "수업 ID", description = "개설된 수업강좌 ID", example = "5")
+    private Long classId;
 
     @Schema(title = "리뷰 내용", description = "수정된 리뷰 내용", example = "수업이 매우 흥미로웠습니다!")
     private String comment;
