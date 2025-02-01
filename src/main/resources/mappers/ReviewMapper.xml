@@ -94,18 +94,21 @@
     <!-- 학원 관리자가 본인 학원 리뷰 조회 -->
     <select id="getMyAcademyReviews">
         SELECT
-        r.join_class_id AS joinClassId,
-        a.user_id AS userId,
+        c.class_id AS classId,
+        c.class_name AS className,
+        a.aca_id AS acaId,
+        a.aca_name AS acaName,
         u.nick_name AS writerName,
         u.user_pic AS writerPic,
         r.comment AS comment,
         r.star AS star,
-        r.created_at AS createdAt
+        r.created_at AS createdAt,
+        (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
         JOIN joinclass j ON r.join_class_id = j.join_class_id
         JOIN class c ON j.class_id = c.class_id
-        JOIN `user` u ON j.user_id = u.user_id
-        JOIN academy a ON a.aca_id = c.aca_id
+        LEFT JOIN academy a ON c.aca_id = a.aca_id
+        JOIN user u ON j.user_id = u.user_id
         WHERE a.user_id = #{userId}
         ORDER BY r.created_at DESC
         LIMIT #{startIdx}, #{size}
@@ -115,20 +118,24 @@
     <!-- 학원 상세페이지에서 학원에 달린 리뷰 리스트 조회 -->
     <select id="getAcademyReviewsForPublic">
         SELECT
-        c.class_id AS classId,  <!-- 수업 참여 ID -->
+        c.class_id AS classId,
         c.class_name AS className,
-        u.nick_name AS writerName,       <!-- 작성자 닉네임 -->
-        u.user_pic AS writerPic,         <!-- 작성자 프로필 사진 -->
-        r.comment AS comment,            <!-- 리뷰 내용 -->
-        r.star AS star,                  <!-- 별점 -->
-        r.created_at AS createdAt        <!-- 작성일 -->
+        a.aca_id AS acaId,
+        a.aca_name AS acaName,
+        u.nick_name AS writerName,
+        u.user_pic AS writerPic,
+        r.comment AS comment,
+        r.star AS star,
+        r.created_at AS createdAt,
+        (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
         JOIN joinclass j ON r.join_class_id = j.join_class_id
         JOIN class c ON j.class_id = c.class_id
+        JOIN academy a ON c.aca_id = a.aca_id
         JOIN user u ON j.user_id = u.user_id
-        WHERE c.aca_id = #{acaId}
+        WHERE a.aca_id = #{acaId}
         ORDER BY r.created_at DESC
-        LIMIT #{startIdx}, #{size}
+        LIMIT #{startIdx}, #{size};
     </select>
 
 
@@ -148,31 +155,36 @@
 
     <!-- 유저가 본인 마이페이지에서 작성한 리뷰 리스트 조회 -->
     <select id="getReviewsByUserId">
-        SELECT
-        r.join_class_id AS joinClassId,
-        r.comment AS comment,
-        r.star AS star,
-        r.created_at AS createdAt,
-        c.aca_id AS acaId,
-        a.aca_name AS acaName,
-        u.user_id AS userId,
-        u.user_pic AS userPic,
-        u.nick_name AS writerName
-        FROM
-        review r
-        JOIN
-        joinclass j ON r.join_class_id = j.join_class_id
-        JOIN
-        class c ON j.class_id = c.class_id
-        JOIN
-        academy a ON c.aca_id = a.aca_id
-        JOIN
-        user u ON j.user_id = u.user_id
-        WHERE
-        j.user_id = #{userId}
-        ORDER BY
-        r.created_at DESC
-        LIMIT #{startIdx}, #{size}
+            SELECT
+            r.comment AS comment,
+            r.star AS star,
+            r.created_at AS createdAt,
+            c.class_id AS classId,
+            c.class_name AS className,
+            c.aca_id AS acaId,
+            a.aca_name AS acaName,
+            u.user_id AS userId,
+            u.user_pic AS userPic,
+            u.nick_name AS writerName,
+            (SELECT COUNT(*)
+            FROM review r2
+            JOIN joinclass j2 ON r2.join_class_id = j2.join_class_id
+            WHERE j2.class_id = c.class_id) AS reviewCount
+            FROM
+            review r
+            JOIN
+            joinclass j ON r.join_class_id = j.join_class_id
+            JOIN
+            class c ON j.class_id = c.class_id
+            JOIN
+            academy a ON c.aca_id = a.aca_id
+            JOIN
+            user u ON j.user_id = u.user_id
+            WHERE
+            j.user_id = #{userId}
+            ORDER BY
+            r.created_at DESC
+            LIMIT #{startIdx}, #{size}
     </select>
 
     <select id="checkUserAcademyOwnership">
