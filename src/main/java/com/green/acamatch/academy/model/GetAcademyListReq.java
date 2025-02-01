@@ -19,7 +19,7 @@ public class GetAcademyListReq extends Paging {
     @Schema(title = "태그명", example = "초등 영어")
     private String tagName;
 
-    @Schema(title = "카테고리 PK", example = "1")
+    @Schema(title = "카테고리 PK", example = "1, 2, 5, 6 한칸에 하나씩 넣으면 되빈다.")
     private List<Integer> categoryIds;
 
     public GetAcademyListReq(Integer page, Integer size, Integer dongId, String searchName, String tagName, List<Integer> categoryIds) {
