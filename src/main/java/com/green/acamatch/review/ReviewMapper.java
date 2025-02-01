@@ -17,7 +17,7 @@ public interface ReviewMapper {
     int isValidJoinClassId(long joinClassId);
 
     // 수업 참여 여부 확인
-    int checkEnrollment(Long joinClassId, long userId);
+    int checkEnrollment(Long classId, long userId);
 
     // 리뷰 등록
     void insertReview(Long joinClassId, Long userId, String comment, int star);

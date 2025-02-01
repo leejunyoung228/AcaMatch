@@ -33,4 +33,10 @@ public class MyReviewDto {
     @Schema(title = "작성 날짜", description = "리뷰 작성 날짜", example = "2025-01-18")
     private String createdAt;
 
+    @Schema(title = "학원 고유 PK ID", description = "등록된 학원의 ID", example = "26")
+    private Long acaId;
+
+    @Schema(description = "리뷰의 총 갯수")
+    private Integer reviewCount;
+
 }
