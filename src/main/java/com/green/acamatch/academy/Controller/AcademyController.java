@@ -191,7 +191,7 @@ public class AcademyController {
     }
 
     @GetMapping("getAcademyListByAll")
-    @Operation(summary = "모든 입력을 받아 학원 출력하기")
+    @Operation(summary = "모든 입력을 받아 학원 출력하기", description = "categoryIds : 1, 2, 5, 6 한칸에 하나씩 넣으면 되빈다.")
     public ResultResponse<List<GetAcademyListRes>> getAcademyListByAll(@ParameterObject @ModelAttribute GetAcademyListReq p) {
         List<GetAcademyListRes> list = academyService.getAcademyListByAll(p);
         return ResultResponse.<List<GetAcademyListRes>>builder()
