@@ -217,7 +217,6 @@ public class AcademyService {
                 req.getAddressDto() == null &&
                 (req.getAcaPic() == null || req.getAcaPic().isEmpty())) {
 
-            if (req.getTagIdList() != null) {
                 try {
                     academyMapper.delAcaTag(req.getAcaId());
                     academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
@@ -225,7 +224,7 @@ public class AcademyService {
                 } catch (DataIntegrityViolationException e) {
                     throw new CustomException(AcademyException.DUPLICATE_TAG);
                 }
-            }
+
             academyMessage.setMessage("학원정보수정이 완료되었습니다.");
             return 1;
         }
@@ -238,7 +237,7 @@ public class AcademyService {
             return result;
         }
 
-        if (req.getTagIdList() != null) {
+        if (req.getTagIdList() !=null && !req.getTagIdList().isEmpty()) {
             try {
                 academyMapper.delAcaTag(req.getAcaId());
                 academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
