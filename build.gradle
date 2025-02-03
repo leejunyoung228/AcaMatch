@@ -25,7 +25,7 @@ repositories {
 
 dependencies {
     // MariaDB JDBC 드라이버
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.2'
 
     // Apache POI (엑셀 처리용)
     // https://mvnrepository.com/artifact/org.apache.poi/poi
