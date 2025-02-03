@@ -24,11 +24,10 @@ public class StudentGradeService {
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public String exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
-        String middlePath = System.getProperty("user.home") + "/Downloads";
-        String filePath = middlePath + "/student_grades.xlsx";
+        String filePath = "C:/temp/student_grades.xlsx";
 
         try {
-            Files.createDirectories(Paths.get(middlePath));
+            Files.createDirectories(Paths.get(filePath));
         } catch (IOException e) {
             log.error("디렉터리 생성 실패", e);
             return "엑셀 파일 저장 실패: 디렉터리 생성 오류";
