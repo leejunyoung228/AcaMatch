@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "엑셀 관리", description = "엑셀 내보내기, 수정")
+@Tag(name = "엑셀 관리", description = "엑셀로 내보내기, 수정")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/grades")
+@RequestMapping("/grade")
 public class StudentGradeController {
     private final StudentGradeService studentGradeService;
     private final UserMessage userMessage;
@@ -21,8 +21,7 @@ public class StudentGradeController {
     @GetMapping("/export")
     @Operation(summary = "엑셀 파일로 내보내기")
     public String exportToExcel(@Parameter(name = "subjectId", required = true, in = ParameterIn.QUERY)
-                                                @RequestParam long subjectId){
-        userMessage.setMessage("엑셀 파일로 내보내기를 성공하였습니다.");
+                                @RequestParam long subjectId){
         return studentGradeService.exportToExcel(subjectId);
     }
 
@@ -30,7 +29,6 @@ public class StudentGradeController {
     @PostMapping("/import")
     @Operation(summary = "엑셀 파일을 읽어 DB 업데이트")
     public String importGrades(@RequestParam String filePath) {
-        userMessage.setMessage("DB 업데이트에 성공하였습니다.");
         return studentGradeService.importFromExcel(filePath);
     }
 }

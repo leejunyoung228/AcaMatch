@@ -1,6 +1,8 @@
+
 package com.green.acamatch.excel;
 
 import com.green.acamatch.excel.MariaDBConnection;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -14,24 +16,29 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 @Service
+@RequiredArgsConstructor
 public class StudentGradeService {
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
-    public String exportToExcel(long subjectId) { // classId를 매개변수로 추가
+    public String exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
         String filePath = "student_grades.xlsx";
 
-        String sql = "SELECT B.user_id, B.name, E.subject_name, F.exam_date, " +
-                "CASE WHEN E.SCORE_TYPE = 0 THEN F.score ELSE NULL END AS result_score, " +
-                "CASE WHEN E.SCORE_TYPE != 0 THEN " +
-                "CASE WHEN COALESCE(F.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass " +
-                "FROM academy AS A " +
-                "INNER JOIN `user` AS B ON A.user_id = B.user_id " +
-                "INNER JOIN class AS C ON A.aca_id = C.aca_id " +
-                "INNER JOIN joinclass AS D ON C.class_id = D.class_id " +
-                "INNER JOIN subject AS E ON C.class_id = E.class_id " +
-                "INNER JOIN grade AS F ON D.join_class_id = F.join_class_id " +
-                "WHERE E.subject_id = ? " +
-                "ORDER BY F.exam_date DESC";
+        String sql = "SELECT A.user_id, A.`name`, D.subject_name, E.exam_date,\n" +
+                "CASE WHEN D.SCORE_TYPE = 0 THEN E.score ELSE NULL END AS result_score,\n" +
+                "CASE WHEN D.SCORE_TYPE != 0 THEN\n" +
+                "CASE WHEN COALESCE(E.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass\n" +
+                "FROM `user` A\n" +
+                "INNER JOIN joinclass B\n" +
+                "ON A.user_id = B.user_id\n" +
+                "INNER JOIN class C \n" +
+                "ON B.class_id = C.class_id\n" +
+                "INNER JOIN subject D\n" +
+                "ON C.class_id = D.class_id\n" +
+                "INNER JOIN grade E\n" +
+                "ON B.join_class_id = E.join_class_id\n" +
+                "WHERE D.subject_id = ?\n" +
+                "GROUP BY A.user_id\n" +
+                "ORDER BY A.user_id;";
 
         try (Connection conn = MariaDBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -58,7 +65,7 @@ public class StudentGradeService {
                 row.createCell(0).setCellValue(rs.getLong("user_id"));
                 row.createCell(1).setCellValue(rs.getString("name"));
                 row.createCell(2).setCellValue(rs.getString("subject_name"));
-                row.createCell(3).setCellValue(rs.getDate("exam_date").toString());
+                row.createCell(3).setCellValue(rs.getString("exam_date"));
                 row.createCell(4).setCellValue(rs.getInt("result_score"));
                 row.createCell(5).setCellValue(rs.getInt("result_pass"));
             }
@@ -76,6 +83,10 @@ public class StudentGradeService {
     }
 
     public String importFromExcel(String filePath) {
+        if (!filePath.endsWith(".xlsx") && !filePath.endsWith(".xls")) {
+            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
+        }
+
         try (FileInputStream fis = new FileInputStream(new File(filePath));
              Workbook workbook = WorkbookFactory.create(fis)) {
 
@@ -97,6 +108,9 @@ public class StudentGradeService {
 
             return "DB에 수정을 성공하였습니다.";
 
+        } catch (org.apache.poi.openxml4j.exceptions.OLE2NotOfficeXmlFileException e) {
+            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
+
         } catch (Exception e) {
             e.printStackTrace();
             return "DB에 수정을 실패하였습니다. " + e.getMessage();
@@ -105,17 +119,21 @@ public class StudentGradeService {
 
     private void updateStudentGrade(long gradeId, int score, int pass) {
         String updateQuery = "UPDATE grade\n" +
-                "SET score = ?, pass = ? \n" +
+                "SET  score = ?, pass = ? \n" +
                 "WHERE grade_id = ?;";
 
         try (Connection conn = MariaDBConnection.getConnection();
              java.sql.PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
+
+            conn.setAutoCommit(false);
 
             pstmt.setLong(1, gradeId);
             pstmt.setInt(2, score);
             pstmt.setInt(3, pass);
 
             pstmt.executeUpdate();
+            conn.commit();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
