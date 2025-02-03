@@ -14,7 +14,7 @@ import java.util.List;
 
 @Mapper
 public interface LikeMapper {
-
+    List<LikedUserDto> getLikedUsersByAcaId(long acaId);
 
     // 좋아요 등록
     int insertLike(AcaLikeReq req);
