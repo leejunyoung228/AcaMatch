@@ -26,10 +26,12 @@
     <resultMap id="JoinClassInfoResultMap" type="com.green.acamatch.joinClass.model.JoinClassInfoDto">
         <id property="classId" column="class_id" />
         <result property="className" column="class_name"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
     </resultMap>
 
     <select id= "selJoinClass" resultMap="JoinClassResultMap">
-        SELECT C.aca_id, C.aca_pic, C.aca_name, B.class_id, B.class_name
+        SELECT C.aca_id, C.aca_pic, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
         FROM joinclass A
         INNER JOIN class B
         ON A.class_id = B.class_id
