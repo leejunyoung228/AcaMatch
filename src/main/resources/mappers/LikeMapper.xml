@@ -21,7 +21,8 @@
         u.user_id AS userId,
         u.user_pic AS userPic,
         u.nick_name AS nickName,
-        COUNT(DISTINCT l2.user_id) AS academyAllLikeCount
+        COUNT(DISTINCT l2.user_id) AS academyAllLikeCount,
+        a.aca_id AS acaId
         FROM `like` l
         JOIN user u ON l.user_id = u.user_id
         JOIN academy a ON l.aca_id = a.aca_id

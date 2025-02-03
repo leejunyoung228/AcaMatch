@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LikedUserDto {
+    private Long acaId;
     private Long userId;
     private String userPic;
     private String nickName;
