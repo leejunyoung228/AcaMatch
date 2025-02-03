@@ -6,8 +6,8 @@
         INSERT INTO joinclass
         SET class_id = #{classId},
         user_id = #{userId},
-        discount = #{discount},
-        certification = #{certification}
+        discount = #{discount}
+<!--        certification = #{certification}-->
     </insert>
 
     <select id = "existsJoinClass" parameterType="map" resultType="int">

@@ -82,9 +82,9 @@ public class StudentGradeService {
     }
 
     public String importFromExcel(String filePath) {
-//        if (!filePath.endsWith(".xlsx") && !filePath.endsWith(".xls")) {
-//            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
-//        }
+        if (!filePath.endsWith(".xlsx") && !filePath.endsWith(".xls")) {
+            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
+        }
 
         try (FileInputStream fis = new FileInputStream(new File(filePath));
              Workbook workbook = WorkbookFactory.create(fis)) {
