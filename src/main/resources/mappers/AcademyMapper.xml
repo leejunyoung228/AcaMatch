@@ -180,7 +180,7 @@
         <result property="acaName" column="acaName" />
         <result property="address" column="address" />
         <result property="star" column="star" />
-        <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
+        <result property="tagId" column="tagId" />
     </resultMap>
 
 
@@ -419,7 +419,6 @@
         GROUP BY C.aca_id
         ) G
         ON G.aca_id = A.aca_id
-        WHERE A.aca_name like concat ('%', #{searchName}, '%')
         GROUP BY A.aca_id
         ORDER BY A.aca_id ASC
         LIMIT #{startIdx}, #{size}
@@ -453,14 +452,15 @@
         JOIN class C ON R.join_class_id = C.class_id
         GROUP BY C.aca_id ) G ON G.aca_id = A.aca_id
         WHERE 1 = 1
-        AND (778 IS NULL OR A.dong_id = 778)
-        AND ('' IS NULL OR A.aca_name LIKE CONCAT('%', '', '%'))
-        AND (
-        1 IS NULL OR EXISTS (
-        SELECT 1 FROM academytag E2
-        JOIN tag F2 ON E2.tag_id = F2.tag_id
-        WHERE E2.aca_id = A.aca_id
-        AND F2.tag_id = 1))
+        AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
+        AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
+        <if test=" tagId != null and tagId != '' ">
+            AND (
+            SELECT 1 FROM academytag E2
+            JOIN tag F2 ON E2.tag_id = F2.tag_id
+            WHERE E2.aca_id = A.aca_id
+            AND F2.tag_id = #{tagId})
+        </if>
         <if test=" categoryIds != null and categoryIds != '' ">
             AND ( A.aca_id IN
             (SELECT CL.aca_id FROM class CL
@@ -481,7 +481,7 @@
         SET tag_id =
         (SELECT tag_id
         FROM tag
-        WHERE tag_name = #{tagName})
+        WHERE tag_id = #{tagId})
     </insert>
 
     <resultMap id="AcademyResultMap" type="com.green.acamatch.academy.model.GetAcademyDetailRes">
@@ -597,15 +597,20 @@
         ORDER BY C.class_id
     </select>
 
-    <select id="getAcademyListDefault">
+    <select id="getAcademyListRandom">
         SELECT
         A.aca_id AS acaId,
         A.aca_name AS acaName,
+        COUNT(L.aca_id) AS likeCount,
+        COALESCE(G.star, 0) AS starAvg,
+        G.reviewCount,
         A.aca_pic AS acaPic,
         A.address AS address,
-        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
-        COALESCE(G.star, 0) AS star
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_id ORDER BY F.tag_id SEPARATOR ', '), '') AS tagIds,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagNames
         FROM academy A
+        left JOIN `like` L
+        ON A.aca_id = L.aca_id
         LEFT JOIN academytag E
         ON A.aca_id = E.aca_id
         LEFT JOIN tag F
@@ -613,7 +618,7 @@
         LEFT JOIN (
         SELECT
         ROUND(AVG(R.star), 2) AS star,
-        C.aca_id
+        C.aca_id, COUNT(R.join_class_id) AS reviewCount
         FROM review R
         JOIN class C
         ON R.join_class_id = C.class_id
@@ -622,7 +627,7 @@
         ON G.aca_id = A.aca_id
         GROUP BY A.aca_id
         ORDER BY RAND()
-        LIMIT 0, 5;
+        LIMIT 0, 5
     </select>
 
     <select id="getAcademyListByStudent">
@@ -646,5 +651,38 @@
         JOIN tag T ON S.tag_id = T.tag_id
         GROUP BY T.tag_name
         ORDER BY tag_count DESC
+    </select>
+
+    <resultMap id="Default" type = "com.green.acamatch.academy.model.GetDefaultRes">
+        <id property="acaId" column="acaId" />
+        <result property="acaPic" column="acaPic" />
+        <result property="acaName" column="acaName" />
+        <result property="address" column="address" />
+        <result property="star" column="star" />
+        <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
+    </resultMap>
+
+    <select id="getDefault" resultMap="Default">
+        SELECT
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        A.aca_pic AS acaPic,
+        A.address AS address,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
+        COALESCE(G.star, 0) AS star,
+        COUNT(*) OVER() AS totalCount
+        FROM academy A
+        LEFT JOIN academytag E ON A.aca_id = E.aca_id
+        LEFT JOIN tag F ON E.tag_id = F.tag_id
+        LEFT JOIN (
+        SELECT
+        ROUND(AVG(R.star), 2) AS star,
+        C.aca_id
+        FROM review R
+        JOIN class C ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id ) G ON G.aca_id = A.aca_id
+        GROUP BY A.aca_id
+        ORDER BY G.star DESC
+        LIMIT 0, 10;
     </select>
 </mapper>
