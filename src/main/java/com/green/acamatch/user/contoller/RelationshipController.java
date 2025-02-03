@@ -27,6 +27,15 @@ public class RelationshipController {
                 .build();
     }
 
+    @GetMapping("require")
+    @Operation(summary = "요청 내역 조회(자녀 전용)",description = "자녀가 부모 한테 요청힌 내역 조회")
+    public ResultResponse<List<UserInfo>> getRelationshipRequire() {
+        return ResultResponse.<List<UserInfo>>builder()
+                .resultMessage("승인 대기열 조회 성공")
+                .resultData(relationshipService.getRequireRelationships())
+                .build();
+    }
+
     @GetMapping("{student-id}")
     @Operation(summary = "요청 승인(부모 전용)", description = "부모가 자식한테서 온 관계 등록 요청 승인")
     public ResultResponse<Integer> acceptRelationship(@PathVariable("student-id") Long studentId) {
