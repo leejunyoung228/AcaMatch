@@ -180,7 +180,7 @@
         <result property="acaName" column="acaName" />
         <result property="address" column="address" />
         <result property="star" column="star" />
-        <result property="tagId" column="tagId" />
+        <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
     </resultMap>
 
 
