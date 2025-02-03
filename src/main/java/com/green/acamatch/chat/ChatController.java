@@ -25,13 +25,13 @@ public class ChatController {
 
     @GetMapping("log")
     @Operation(summary = "메세지 내역 조회(로그인 필수)")
-    public ResultResponse<List<ChatLogRes>> getQnas(@ParameterObject @ModelAttribute ChatReq req) {
-        return ResultResponse.<List<ChatLogRes>>builder().resultData(chatService.getQna(req)).build();
+    public ResultResponse<List<ChatLogList>> getQnas(@ParameterObject @ModelAttribute ChatReq req) {
+        return ResultResponse.<List<ChatLogList>>builder().resultData(chatService.getQna(req)).build();
     }
 
     @GetMapping
     @Operation(summary = "채팅방 목록(로그인 필수)", description = "user-id 또는 aca-id 중 하나만 보내주세요")
-    public ResultResponse<List<ChatUserListRes>> getUserList(@ParameterObject @ModelAttribute ChatReq req) {
-        return ResultResponse.<List<ChatUserListRes>>builder().resultData(chatService.getUserList(req)).build();
+    public ResultResponse<ChatUserRes> getUserList(@ParameterObject @ModelAttribute ChatReq req) {
+        return ResultResponse.<ChatUserRes>builder().resultData(chatService.getUserList(req)).build();
     }
 }

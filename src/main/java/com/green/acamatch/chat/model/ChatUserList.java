@@ -6,13 +6,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ChatUserListRes {
+public class ChatUserList {
     private long userId;
     private String userName;
     private long acaId;
     private String acaName;
 
-    public ChatUserListRes(Chat chat) {
+    public ChatUserList(Chat chat) {
         this.userId = chat.getUser().getUserId();
         this.userName = chat.getUser().getName();
         this.acaId = chat.getAcademy().getAcaId();

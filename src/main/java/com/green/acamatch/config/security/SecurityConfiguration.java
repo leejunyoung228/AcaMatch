@@ -26,7 +26,8 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(new TokenAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/user", "/api/user/log-out", "/api/chat","/api/chat/**").authenticated()
+                        req.requestMatchers("/api/user", "/api/user/log-out", "/api/chat", "/api/chat/**")
+                                .authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/user/relationship/**").hasRole(UserRole.PARENT.name())
                                 .requestMatchers(HttpMethod.GET, "/api/user/relationship/list/**")
                                 .hasAnyRole(UserRole.PARENT.name(), UserRole.STUDENT.name())

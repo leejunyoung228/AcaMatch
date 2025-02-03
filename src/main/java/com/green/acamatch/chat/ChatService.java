@@ -5,8 +5,8 @@ import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.Chat;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,12 +35,13 @@ public class ChatService {
         chatRepository.save(chat);
     }
 
-    public List<ChatLogRes> getQna(ChatReq req) {
+    public List<ChatLogList> getQna(ChatReq req) {
         User user = new User();
         user.setUserId(req.getUserId());
         Academy academy = new Academy();
         academy.setAcaId(req.getAcaId());
-        List<Chat> res = chatRepository.findAllByUserAndAcademy(user, academy);
+        Pageable pageable = PageRequest.of(req.getStartIdx(), req.getSize());
+        List<Chat> res = chatRepository.findAllByUserAndAcademyOrderByCreatedAtDesc(user, academy, pageable);
 
         int userType = req.getUserId().equals(AuthenticationFacade.getSignedUserId()) ? 1 : 0;
         for (Chat chat : res) {
@@ -51,24 +52,28 @@ public class ChatService {
         }
 
         return res.stream()
-                .map(ChatLogRes::new) // ChatLogRes 생성자를 직접 매핑
+                .map(ChatLogList::new) // ChatLogRes 생성자를 직접 매핑
                 .collect(Collectors.toList());
     }
 
-    public List<ChatUserListRes> getUserList(ChatReq req) {
-        List<Chat> res = new ArrayList<>();
+    public ChatUserRes getUserList(ChatReq req) {
+        Page<Chat> res = null;
         Pageable pageable = PageRequest.of(req.getStartIdx(), req.getSize());
         if (req.getUserId() != null) {
             User user = new User();
             user.setUserId(req.getUserId());
-            res = chatRepository.findAllByUser(user, pageable);
+            res = chatRepository.findAllByUserOrderByCreatedAtDesc(user, pageable);
         }
         if (req.getAcaId() != null) {
             Academy academy = new Academy();
             academy.setAcaId(req.getAcaId());
-            res = chatRepository.findAllByAcademy(academy, pageable);
+            res = chatRepository.findAllByAcademyOrderByCreatedAtDesc(academy, pageable);
         }
-        Set<Chat> unique_res = new HashSet<>(res);
-        return unique_res.stream().map(ChatUserListRes::new).collect(Collectors.toList());
+        if (res == null) return ChatUserRes.builder().totalPages(0).users(new ArrayList<>()).build();
+        Set<Chat> unique_res = new HashSet<>(res.getContent());
+        return ChatUserRes.builder()
+                .totalPages(res.getTotalPages())
+                .users(unique_res.stream().map(ChatUserList::new).collect(Collectors.toList()))
+                .build();
     }
 }

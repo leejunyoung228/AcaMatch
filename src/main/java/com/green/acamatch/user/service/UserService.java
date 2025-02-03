@@ -15,7 +15,7 @@ public class UserService {
 
     private final UserUtils userUtils;
     public UserInfo getUserInfo() {
-        User user = userUtils.getUserById(AuthenticationFacade.getSignedUserId());
+        User user = userUtils.findUserById(AuthenticationFacade.getSignedUserId());
         return UserInfo.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
