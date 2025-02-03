@@ -32,6 +32,7 @@ public class SecurityConfiguration {
                                 .hasAnyRole(UserRole.PARENT.name(), UserRole.STUDENT.name())
                                 .requestMatchers(HttpMethod.POST, "/api/user/relationship").hasRole(UserRole.STUDENT.name())
                                 .requestMatchers(HttpMethod.DELETE, "/api/user/relationship").hasRole(UserRole.STUDENT.name())
+                                .requestMatchers(HttpMethod.GET, "/api/user/relationship/require").hasRole(UserRole.STUDENT.name())
                                 .requestMatchers(HttpMethod.GET, "/api/user/relationship/**").hasRole(UserRole.PARENT.name())
                                 .anyRequest().permitAll()
                 )
