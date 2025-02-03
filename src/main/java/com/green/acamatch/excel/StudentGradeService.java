@@ -25,7 +25,7 @@ public class StudentGradeService {
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public String exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
         String middlePath = System.getProperty("user.home") + "/Downloads";
-        String filePath = "student_grades.xlsx";
+        String filePath = middlePath + "/student_grades.xlsx";
 
         try {
             Files.createDirectories(Paths.get(middlePath));
