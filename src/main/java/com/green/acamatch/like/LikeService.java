@@ -195,6 +195,11 @@ public class LikeService {
      * 특정 유저가 좋아요한 학원 목록 조회
      */
     public List<LikedAcademyDto> getUserLikesWithPics(UserLikeGetListReq req) {
+        // 🔥 userId가 null이면 JWT에서 가져오기
+        if (req.getUserId() == null) {
+            log.warn("userId가 null이므로 JWT에서 가져옵니다.");
+            req.setUserId(getAuthenticatedUser().getSignedUserId());
+        }
 
         try {
             List<LikedAcademyDto> likedAcademies = mapper.getUserLikesWithPics(req);
