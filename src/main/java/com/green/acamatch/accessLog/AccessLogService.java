@@ -19,7 +19,7 @@ public class AccessLogService {
 
     @Transactional
     public long getUniqueAccessCount() {
-        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(7);
+//        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(7);
 
         // 최근 하루 접속 기록 조회
 //        List<AccessLog> logs = accessLogRepository.findByTimeStampAfter(oneDayAgo);
