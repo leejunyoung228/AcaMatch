@@ -16,8 +16,20 @@
         WHERE class_id = #{classId} AND user_id = #{userId}
     </select>
 
-    <select id= "selJoinClass">
-        SELECT C.aca_pic, C.aca_name, B.class_name
+    <resultMap id="JoinClassResultMap" type="com.green.acamatch.joinClass.model.JoinClassDto">
+        <id property = "acaId" column="aca_id" />
+        <result property="acaPic" column="aca_pic"/>
+        <result property="acaName" column="aca_name"/>
+        <collection property="classList" resultMap="JoinClassInfoResultMap" />
+    </resultMap>
+
+    <resultMap id="JoinClassInfoResultMap" type="com.green.acamatch.joinClass.model.JoinClassInfoDto">
+        <id property="classId" column="class_id" />
+        <result property="className" column="class_name"/>
+    </resultMap>
+
+    <select id= "selJoinClass" resultMap="JoinClassResultMap">
+        SELECT C.aca_id, C.aca_pic, C.aca_name, B.class_id, B.class_name
         FROM joinclass A
         INNER JOIN class B
         ON A.class_id = B.class_id
