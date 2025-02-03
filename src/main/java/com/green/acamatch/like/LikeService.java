@@ -103,8 +103,11 @@ public class LikeService {
             return new AcaLikeRes(null, false);
         }
 
+
+        List<LikedUserDto> likedUsers = mapper.getLikedUsersByAcaId(acaId);
+
         userMessage.setMessage("좋아요가 성공적으로 등록되었습니다.");
-        return new AcaLikeRes(null, true);
+        return new AcaLikeRes(likedUsers, true);
     }
 
     /**
@@ -165,13 +168,16 @@ public class LikeService {
                 userMessage.setMessage("해당 학원에 좋아요를 누른 유저가 없습니다.");
                 return Collections.emptyList();
             }
+            userMessage.setMessage("해당 학원에 좋아요 한 유저 조회 완료.");
             return likedUsers;
         } catch (Exception e) {
             log.error("좋아요 유저 목록 조회 중 오류 발생: {}", e.getMessage(), e);
             userMessage.setMessage("좋아요 유저 목록 조회 중 오류가 발생했습니다.");
             return Collections.emptyList();
         }
+
     }
+
     /**
      * 특정 유저가 좋아요한 학원 목록 조회
      */
@@ -181,11 +187,11 @@ public class LikeService {
         try {
             List<LikedAcademyDto> likedAcademies = mapper.getUserLikesWithPics(req);
             if (likedAcademies.isEmpty()) {
-                userMessage.setMessage("해당 유저가 좋아요한 학원이 없습니다.");
+                userMessage.setMessage("해당 유저가 좋아요 한 학원이 없습니다.");
                 return Collections.emptyList();
             }
 
-            userMessage.setMessage("좋아요한 학원 조회 완료.");
+            userMessage.setMessage("좋아요 한 학원 조회 완료.");
             return likedAcademies;
         } catch (Exception e) {
             log.error("좋아요 학원 목록 조회 중 오류 발생: {}", e.getMessage(), e);
