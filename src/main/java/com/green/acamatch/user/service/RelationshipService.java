@@ -89,4 +89,12 @@ public class RelationshipService {
                 .toList();
     }
 
+    public List<UserInfo> getRequireRelationships() {
+        List<Relationship> relationships = relationshipRepository
+                .findRelationshipsByStudentAndCertification(
+                        userUtils.findUserById(AuthenticationFacade.getSignedUserId()),
+                        0
+                );
+        return getUserInfoByRelationships(relationships);
+    }
 }
