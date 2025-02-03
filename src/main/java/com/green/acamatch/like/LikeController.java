@@ -1,9 +1,9 @@
 package com.green.acamatch.like;
 
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.config.jwt.JwtUser;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.like.dto.LikedAcademyDto;
-import com.green.acamatch.like.dto.LikedUserDto;
+import com.green.acamatch.like.dto.*;
 import com.green.acamatch.like.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -77,19 +77,24 @@ public class LikeController {
                 .build();
     }
 
-    @GetMapping("/list")
-    @Operation(summary = "학원을 좋아요 한 유저 목록 조회", description = "특정 학원을 좋아요 한 유저들의 목록을 조회합니다.")
-    public ResultResponse<List<LikedUserDto>> getLikedUserPics(
-            @RequestParam long acaId,
+
+    @GetMapping("/all-owned-academy-likes")
+    @Operation(summary = "소유한 모든 학원의 좋아요 유저 목록 조회", description = "학원 관계자가 소유한 모든 학원의 좋아요 유저 목록을 조회합니다.")
+    public ResultResponse<List<AcademyLikedUsersDto>> getAllOwnedAcademyLikes(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
-        log.debug("학원 좋아요 유저 목록 조회 요청: acaId={}, page={}, size={}", acaId, page, size);
+
+        log.debug("소유한 학원의 좋아요 유저 목록 조회 요청: page={}, size={}", page, size);
+
+        // 🔥 로그인된 유저 가져오기 (JWT 사용)
         AcaLikedUserGetReq req = new AcaLikedUserGetReq(page, size);
-        req.setAcaId(acaId);
-        List<LikedUserDto> likedUserPics = service.getLikedUserDetails(req);
-        return ResultResponse.<List<LikedUserDto>>builder()
+        List<AcademyLikedUsersDto> likedAcademies = service.getAllOwnedAcademyLikes(req);
+
+
+        return ResultResponse.<List<AcademyLikedUsersDto>>builder()
                 .resultMessage(userMessage.getMessage())
-                .resultData(likedUserPics)
+                .resultData(likedAcademies)
                 .build();
     }
+
 }
