@@ -269,10 +269,10 @@ public class AcademyService {
     public List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req) {
         List<AcademyBestLikeGetRes> list = academyMapper.getAcademyBest(req);
 
-        AcademyBestLikeGetRes academyCountRes = academyMapper.selAcademyCount();
+        AcademyBestLikeGetRes academyLikeCountRes = academyMapper.selAcademyLikeCount();
 
         for (AcademyBestLikeGetRes academy : list) {
-            academy.setAcademyCount(academyCountRes.getAcademyCount());
+            academy.setAcademyLikeCount(academyLikeCountRes.getAcademyLikeCount());
         }
 
         if(list == null) {

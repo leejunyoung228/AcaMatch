@@ -19,5 +19,5 @@ public class AcademyBestLikeGetRes {
     private String tagIds;
     private String tagNames;
 
-    private int academyCount;
+    private int academyLikeCount;
 }
