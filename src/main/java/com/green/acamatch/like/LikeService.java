@@ -69,45 +69,42 @@ public class LikeService {
 
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("로그인 된 유저가 아닙니다. 권한이 없습니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes(false);
         }
 
         if (checkUserExists(requestUserId) == 0) {
             userMessage.setMessage("유효하지 않은 유저 ID입니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes( false);
         }
 
         if (checkAcaExists(acaId) == 0) {
             userMessage.setMessage("유효하지 않은 학원 ID입니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes(false);
         }
 
         if (mapper.checkLikeExists(requestUserId, acaId) > 0) {
             userMessage.setMessage("이미 좋아요를 누른 상태입니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes(false);
         }
 
         if (mapper.isUserManagingAcademy(requestUserId, acaId)) {
             userMessage.setMessage("본인이 관리하는 학원에는 좋아요를 누를 수 없습니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes( false);
         }
 
         try {
             int result = mapper.insertLike(req);
             if (result == 0) {
                 userMessage.setMessage("좋아요 등록에 실패했습니다.");
-                return new AcaLikeRes(null, false);
+                return new AcaLikeRes( false);
             }
         } catch (Exception e) {
             userMessage.setMessage("좋아요 등록 중 오류가 발생했습니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes(false);
         }
 
-
-        List<LikedUserDto> likedUsers = mapper.getLikedUsersByAcaId(acaId);
-
         userMessage.setMessage("좋아요가 성공적으로 등록되었습니다.");
-        return new AcaLikeRes(likedUsers, true);
+        return new AcaLikeRes(true);
     }
 
     /**
@@ -121,37 +118,37 @@ public class LikeService {
 
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("로그인 된 유저가 아닙니다. 권한이 없습니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes(false);
         }
 
         if (checkUserExists(requestUserId) == 0) {
             userMessage.setMessage("유효하지 않은 유저 ID입니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes(false);
         }
 
         if (checkAcaExists(acaId) == 0) {
             userMessage.setMessage("유효하지 않은 학원 ID입니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes(false);
         }
 
         if (mapper.checkLikeExists(requestUserId, acaId) == 0) {
             userMessage.setMessage("좋아요를 누르지 않은 상태입니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes(false);
         }
 
         try {
             int rowsAffected = mapper.deleteLike(req);
             if (rowsAffected == 0) {
                 userMessage.setMessage("좋아요 삭제에 실패했습니다.");
-                return new AcaLikeRes(null, false);
+                return new AcaLikeRes( false);
             }
         } catch (Exception e) {
             userMessage.setMessage("좋아요 삭제 중 오류가 발생했습니다.");
-            return new AcaLikeRes(null, false);
+            return new AcaLikeRes(false);
         }
 
         userMessage.setMessage("좋아요가 성공적으로 삭제되었습니다.");
-        return new AcaLikeRes(null, true);
+        return new AcaLikeRes(true);
     }
 
     /**

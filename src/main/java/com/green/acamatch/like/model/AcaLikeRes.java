@@ -10,6 +10,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class AcaLikeRes {
-    private List<LikedUserDto> likedUsers; // LikedUserDto 사용
+//    private List<LikedUserDto> likedUsers; // LikedUserDto 사용
     private boolean isLiked;
 }
