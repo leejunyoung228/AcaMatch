@@ -30,6 +30,7 @@ public interface AcademyMapper {
 
     List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req);
     AcademyBestLikeGetRes selAcademyCount();
+    AcademyBestLikeGetRes selAcademyLikeCount();
 
 
 

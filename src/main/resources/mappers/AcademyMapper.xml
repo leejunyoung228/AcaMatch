@@ -172,6 +172,11 @@
         FROM academy
     </select>
 
+    <select id="selAcademyLikeCount">
+        SELECT COUNT(DISTINCT a.aca_id) AS academy_like_count
+        FROM `like` a
+    </select>
+
     <!-- 학원 검색 -->
 
     <resultMap id="searchResultMap" type = "com.green.acamatch.academy.model.GetAcademyListRes">
