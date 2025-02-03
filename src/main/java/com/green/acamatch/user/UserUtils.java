@@ -2,6 +2,7 @@ package com.green.acamatch.user;
 
 import com.green.acamatch.config.CookieUtils;
 import com.green.acamatch.config.constant.JwtConst;
+import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
@@ -49,7 +50,8 @@ public class UserUtils {
     }
 
     public User generateUserByUserSignUpReq(UserSignUpReq req) {
-        Role role = roleRepository.searchRoleByRoleId(req.getRoleId());
+        Role role = roleRepository.findByRoleId(req.getRoleId())
+                .orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
         User user = new User();
         user.setName(req.getName());
         user.setEmail(req.getEmail());
@@ -80,8 +82,13 @@ public class UserUtils {
                 .build();
     }
 
-    public User getUserById(long userId) {
+    public User findUserById(long userId) {
         return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
 }
