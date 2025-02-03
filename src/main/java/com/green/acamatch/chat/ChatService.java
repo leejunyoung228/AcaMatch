@@ -1,10 +1,14 @@
 package com.green.acamatch.chat;
 
+import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.chat.model.*;
+import com.green.acamatch.config.exception.CommonErrorCode;
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.Chat;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.user.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,18 +25,26 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ChatService {
     private final ChatRepository chatRepository;
+    private final NotificationController notificationController;
+    private final AcademyRepository academyRepository;
+    private final UserUtils userUtils;
 
     public void sendMessage(ChatSendReq req) {
         Chat chat = new Chat();
-        Academy academy = new Academy();
-        User user = new User();
+        Academy academy = academyRepository.findById(req.getAcaId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
+        User user = userUtils.findUserById(req.getUserId());
         academy.setAcaId(req.getAcaId());
-        user.setUserId(req.getUserId());
         chat.setAcademy(academy);
         chat.setUser(user);
         chat.setMessage(req.getMessage());
         chat.setSenderType(req.getSenderType());
         chatRepository.save(chat);
+        if(req.getSenderType() == 1) {
+            notificationController.sendNotification(chat.getUser().getUserId(), "메세지가 도착했습니다");
+        }
+        if(req.getSenderType() == 0) {
+            notificationController.sendNotification(chat.getAcademy().getUser().getUserId(), "메세지가 도착했습니다");
+        }
     }
 
     public List<ChatLogList> getQna(ChatReq req) {
