@@ -156,28 +156,28 @@ public class LikeService {
      * 특정 학원에 좋아요한 유저 목록 조회
      */
     /**
-     * 🔥 특정 유저가 학원 관계자인지 확인 (소유한 학원이 있는지 체크)
+     *  특정 유저가 학원 관계자인지 확인 (소유한 학원이 있는지 체크)
      */
     public List<Long> getOwnedAcademyIds(Long userId) {
         return mapper.getOwnedAcademyIds(userId); // 학원 ID 리스트 반환 (없으면 비관계자)
     }
 
     /**
-     * 🔥 학원 관계자가 소유한 모든 학원의 좋아요 유저 목록 조회
+     *  학원 관계자가 소유한 모든 학원의 좋아요 유저 목록 조회
      */
     public List<AcademyLikedUsersDto> getAllOwnedAcademyLikes(AcaLikedUserGetReq req) {
         JwtUser jwtUser = getAuthenticatedUser();
         long userId = jwtUser.getSignedUserId();
         log.debug("현재 로그인한 유저 ID: {}", userId);
 
-        // 🔥 학원 관계자인지 확인
+        //  학원 관계자인지 확인
         List<Long> ownedAcademyIds = getOwnedAcademyIds(userId);
         if (ownedAcademyIds.isEmpty()) {
             log.warn("학원 관계자가 아님 → 조회 불가: userId={}", userId);
-            throw new CustomException(ReviewErrorCode.UNAUTHORIZED_ACADEMY_ACCESS);
+            throw new CustomException(ReviewErrorCode.NOT_ACADEMY_MANAGER);
         }
 
-        // 🔥 검증 완료 후 요청 실행
+        //  검증 완료 후 요청 실행
         req.setUserId(userId);
         List<AcademyLikedUsersDto> likedAcademies = mapper.getAllOwnedAcademyLikes(req);
 

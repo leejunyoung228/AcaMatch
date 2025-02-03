@@ -11,7 +11,8 @@ public enum ReviewErrorCode implements ErrorCode {
     UNRIGHT_USER(HttpStatus.UNAUTHORIZED, "해당 리뷰의 작성자가 아닙니다. 삭제할 권한이 없습니다."),
     UNAUTHORIZED_ACADEMY_ACCESS(HttpStatus.FORBIDDEN, "해당 학원을 관리할 권한이 없습니다."),
     UNAUTHENTICATED_USER(HttpStatus.UNAUTHORIZED, "로그인한 사용자 정보가 일치하지 않습니다."),
-    CONFLICT_REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 리뷰입니다.")
+    CONFLICT_REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 리뷰입니다."),
+    NOT_ACADEMY_MANAGER(HttpStatus.FORBIDDEN, "학원 관계자가 아닙니다. 권한이 없습니다.")
 
     ;
 
