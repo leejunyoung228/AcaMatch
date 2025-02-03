@@ -25,7 +25,13 @@ public class NotificationController {
     // 📌 특정 유저에게 알림 전송
     public void sendNotification(Long userId, String message) {
         if (userSinks.containsKey(userId)) {
-            userSinks.get(userId).tryEmitNext(message);
+            String jsonMessage = createJsonMessage(message);
+            // 해당 userId의 sink에 JSON 형식 메시지 전송
+            userSinks.get(userId).tryEmitNext(jsonMessage);
         }
+    }
+    private String createJsonMessage(String message) {
+        // JSON 형식으로 포장 (예시: {"message": "메세지가 도착했습니다"})
+        return "{\"message\": \"" + message + "\"}";
     }
 }
