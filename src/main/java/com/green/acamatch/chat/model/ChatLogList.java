@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class ChatLogRes{
+public class ChatLogList {
     private String userName;
     private String acaName;
     private String message;
@@ -16,7 +16,7 @@ public class ChatLogRes{
     private int isRead;
     private LocalDateTime createdAt;
 
-    public ChatLogRes(Chat chat){
+    public ChatLogList(Chat chat){
         this.userName = chat.getUser().getName();
         this.acaName = chat.getAcademy().getAcaName();
         this.message = chat.getMessage();
