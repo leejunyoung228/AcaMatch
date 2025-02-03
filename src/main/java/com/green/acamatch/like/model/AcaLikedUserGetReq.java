@@ -10,7 +10,10 @@ import java.util.List;
 @Getter
 @Setter
 public class AcaLikedUserGetReq extends Paging {
-    private long acaId; // 학원 ID
+    private Long acaId; // 학원 ID
+
+    private Long userId;
+
     private List<LikedUserDto> likedUsers; // 학원을 좋아요한 유저 목록
 
     public AcaLikedUserGetReq(Integer page, Integer size) {

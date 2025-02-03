@@ -15,22 +15,37 @@
         WHERE user_id = #{userId} AND aca_id = #{acaId}
     </delete>
 
-    <!-- 특정 학원을 좋아요한 유저들의 ID와 프로필 사진 및 좋아요 개수 조회 -->
-    <select id="getLikedUserDetails">
-        SELECT
-        u.user_id AS userId,
-        u.user_pic AS userPic,
-        u.nick_name AS nickName,
-        COUNT(DISTINCT l2.user_id) AS academyAllLikeCount,
-        a.aca_id AS acaId
-        FROM `like` l
-        JOIN user u ON l.user_id = u.user_id
-        JOIN academy a ON l.aca_id = a.aca_id
-        LEFT JOIN `like` l2 ON l2.aca_id = a.aca_id
-        WHERE l.aca_id = #{acaId}
-        GROUP BY u.user_id, u.user_pic, u.nick_name
-        LIMIT #{startIdx}, #{size};
+    <!-- 특정 학원을 좋아요한 유저들의 ID와 프로필 사진 및 좋아요 개수 조회, 학원관계자 -->
+    <resultMap id="AcademyLikedUsersResultMap" type="com.green.acamatch.like.dto.AcademyLikedUsersDto">
+        <id property="acaId" column="aca_id"/>
+        <result property="acaName" column="aca_name"/>
+        <result property="academyAllLikeCount" column="academy_like_count"/>
 
+        <collection property="likedUsers" ofType="com.green.acamatch.like.dto.LikedUserDto">
+            <id property="userId" column="user_id"/>
+            <result property="nickName" column="nick_name"/>
+            <result property="userPic" column="user_pic"/>
+            <result property="acaId" column="aca_id"/>
+            <result property="academyAllLikeCount" column="academy_like_count"/>
+        </collection>
+    </resultMap>
+
+    <select id="getAllOwnedAcademyLikes" resultMap="AcademyLikedUsersResultMap">
+        SELECT
+        a.aca_id,
+        a.aca_name,
+        COUNT(DISTINCT l2.user_id) AS academy_like_count,
+        u.user_id,
+        u.nick_name,
+        u.user_pic
+        FROM academy a
+        LEFT JOIN `like` l ON a.aca_id = l.aca_id
+        LEFT JOIN user u ON l.user_id = u.user_id
+        LEFT JOIN `like` l2 ON l2.aca_id = a.aca_id
+        WHERE a.user_id = #{userId}
+        GROUP BY a.aca_id, u.user_id
+        ORDER BY academy_like_count DESC
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <!-- 특정 유저가 좋아요한 학원의 ID와 사진 및 좋아요 개수 조회 -->
@@ -50,6 +65,20 @@
         GROUP BY a.aca_id, a.aca_pic, a.aca_name
         LIMIT #{startIdx}, #{size};
 
+    </select>
+
+    <select id="getOwnedAcademyIds" resultType="java.lang.Long">
+        SELECT aca_id FROM academy WHERE user_id = #{userId}
+    </select>
+
+    <!-- 학원-사용자 연관 확인 -->
+    <select id="isUserLinkedToAcademy">
+        SELECT COUNT(*)
+        FROM academy a
+        JOIN user u ON a.user_id = u.user_id
+        WHERE a.aca_id = #{acaId}
+        AND u.user_id = #{userId}
+        AND u.role_id = 3;
     </select>
 
     <!-- 유저 ID 존재 여부 확인 -->
