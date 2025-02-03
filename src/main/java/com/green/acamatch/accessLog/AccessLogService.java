@@ -22,14 +22,15 @@ public class AccessLogService {
         LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(7);
 
         // 최근 하루 접속 기록 조회
-        List<AccessLog> logs = accessLogRepository.findByTimeStampAfter(oneDayAgo);
-
-        Set<String> uniqueIps = new HashSet<>();
-        for (AccessLog log : logs) {
-            uniqueIps.add(log.getIp()); // 고유 IP 목록을 저장
-        }
-
-        return uniqueIps.size(); // 고유 접속자 수 반환
+//        List<AccessLog> logs = accessLogRepository.findByTimeStampAfter(oneDayAgo);
+//
+//        Set<String> uniqueIps = new HashSet<>();
+//        for (AccessLog log : logs) {
+//            uniqueIps.add(log.getIp()); // 고유 IP 목록을 저장
+//        }
+//
+//        return uniqueIps.size(); // 고유 접속자 수 반환
+        return accessLogRepository.count();
     }
 
     public Integer saveLog(HttpServletRequest request) {
