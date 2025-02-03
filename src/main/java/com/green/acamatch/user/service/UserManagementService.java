@@ -79,8 +79,8 @@ public class UserManagementService {
     private void updateUserProfile(User user, MultipartFile pic) {
         String prePic = user.getUserPic();
         String folderPath = String.format(userConst.getUserPicFilePath(), user.getUserId());
-        String filePath = String.format("%s/%s", folderPath, user.getUserPic());
         user.setUserPic(myFileUtils.makeRandomFileName(pic));
+        String filePath = String.format("%s/%s", folderPath, user.getUserPic());
         if (prePic != null) {
             myFileUtils.deleteFolder(folderPath, false);
         }
