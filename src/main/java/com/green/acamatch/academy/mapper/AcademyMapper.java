@@ -82,14 +82,15 @@ public interface AcademyMapper {
 
     List<GetAcademyListRes> getAcademy(Long acaId);
 
-    int postToSearch(String p);
+    int postToSearch(Integer tagId);
 
     GetAcademyDetailRes getAcademyWithClasses(GetAcademyDetailReq p);
 
-    List<GetAcademyRandomRes> getAcademyListDefault();
+    List<GetAcademyRandomRes> getAcademyListRandom();
 
     List<GetAcademyListByStudentRes> getAcademyListByStudent(GetAcademyListByStudentReq p);
 
     List<PopularSearchRes> popularSearch();
 
+    List<GetDefaultRes> getDefault();
 }

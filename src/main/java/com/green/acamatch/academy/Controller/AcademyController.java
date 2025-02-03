@@ -213,7 +213,7 @@ public class AcademyController {
     @GetMapping("AcademyDefault")
     @Operation(summary = "메인 페이지에 랜덤한 학원 띄우기")
     public ResultResponse<List<GetAcademyRandomRes>> getAcademyListRandom(){
-        List<GetAcademyRandomRes> res = academyService.getAcademyListByAll();
+        List<GetAcademyRandomRes> res = academyService.generateRandomAcademyList();
         return ResultResponse.<List<GetAcademyRandomRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(res)
@@ -240,4 +240,15 @@ public class AcademyController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("GetDefault")
+    @Operation(summary = "디폴트 학원 리스트 출력")
+    public ResultResponse<List<GetDefaultRes>> getDefault(){
+        List<GetDefaultRes> res = academyService.getDefault();
+        return ResultResponse.<List<GetDefaultRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
+
 }

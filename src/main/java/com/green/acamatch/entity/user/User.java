@@ -1,14 +1,11 @@
 package com.green.acamatch.entity.user;
 
-import com.green.acamatch.entity.academy.Chat;
-import com.green.acamatch.entity.datetime.UpdatedAt;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter

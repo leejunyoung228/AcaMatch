@@ -137,6 +137,7 @@ public class AcademyService {
             if(isValidValue(req.getAddressDto().getAddress())
                     && isValidValue(req.getAddressDto().getDetailAddress())
                     && isValidValue(req.getAddressDto().getPostNum()))  {
+                req.setAddress(addressEncoding(req.getAddressDto()));
                 try {
                     String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
                     Long dongPk = academyMapper.selAddressDong(dongName);
@@ -206,7 +207,7 @@ public class AcademyService {
 
 
         //태그만 값을 가질때
-        if (req.getTagIdList() != null && !req.getTagIdList().isEmpty() &&
+        if ((req.getTagIdList() != null && !req.getTagIdList().isEmpty()) &&
                 (req.getAcaName() == null || req.getAcaName().isEmpty()) &&
                 (req.getAcaPhone() == null || req.getAcaPhone().isEmpty()) &&
                 (req.getComment() == null || req.getComment().isEmpty()) &&
@@ -217,7 +218,6 @@ public class AcademyService {
                 req.getAddressDto() == null &&
                 (req.getAcaPic() == null || req.getAcaPic().isEmpty())) {
 
-            if (req.getTagIdList() != null) {
                 try {
                     academyMapper.delAcaTag(req.getAcaId());
                     academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
@@ -225,7 +225,7 @@ public class AcademyService {
                 } catch (DataIntegrityViolationException e) {
                     throw new CustomException(AcademyException.DUPLICATE_TAG);
                 }
-            }
+
             academyMessage.setMessage("학원정보수정이 완료되었습니다.");
             return 1;
         }
@@ -238,7 +238,7 @@ public class AcademyService {
             return result;
         }
 
-        if (req.getTagIdList() != null) {
+        if (req.getTagIdList() !=null && !req.getTagIdList().isEmpty()) {
             try {
                 academyMapper.delAcaTag(req.getAcaId());
                 academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
@@ -474,7 +474,7 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
 
     //모든 입력을 받아 학원 리스트 출력하기
     public List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p){
-        int post = academyMapper.postToSearch(p.getTagName());
+        int post = academyMapper.postToSearch(p.getTagId());
         List<GetAcademyListRes> list = academyMapper.getAcademyListByAll(p);
         for(GetAcademyListRes re : list) {
             re.setAddressDto(addressDecoding(re.getAddress()));
@@ -501,44 +501,15 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
         return res;
     }
 
-    private static Map<String, List<GetAcademyRandomRes>> academyCache = new HashMap<>();
 
-    // 학원 리스트를 가져오는 메소드
-    public List<GetAcademyRandomRes> getAcademyListByAll() {
-        // 오늘 날짜 계산
-        String todayDate = LocalDate.now().toString();  // 오늘 날짜를 'yyyy-MM-dd' 형식으로 가져옴
 
-        // 오늘 학원 리스트가 캐시에 있는지 확인
-        if (academyCache.containsKey(todayDate)) {
-            return academyCache.get(todayDate);  // 캐시에 있으면 기존 리스트 반환
-        }
-
-        // 학원 리스트 랜덤 생성
-        List<GetAcademyRandomRes> list = academyMapper.getAcademyListDefault();
-        list = generateRandomAcademyList(list, todayDate);
-
-        // 리스트를 캐시에 저장하여 자정까지 유지
-        academyCache.put(todayDate, list);
-
-        // 주소 디코딩
-        for (GetAcademyRandomRes re : list) {
-            re.setAddressDto(addressDecoding(re.getAddress()));
-            re.setAddress(re.getAddressDto().getAddress());
-        }
-
-        // 리스트가 비었으면 실패 메시지 반환
-        if (list.size() == 0) {
-            academyMessage.setMessage("학원 리스트 불러오기 실패");
+    public List<GetAcademyRandomRes> generateRandomAcademyList() {
+        List<GetAcademyRandomRes> list = academyMapper.getAcademyListRandom();
+        if(list.size() == 0){
+            academyMessage.setMessage("학원 출력 실패");
             return null;
         }
-
-        academyMessage.setMessage("학원 리스트 불러오기 성공");
-        return list;
-    }
-
-    private List<GetAcademyRandomRes> generateRandomAcademyList(List<GetAcademyRandomRes> list, String todayDate) {
-        Random random = new Random(todayDate.hashCode());  // 날짜 기반으로 랜덤 시드 설정
-        Collections.shuffle(list, random);  // 학원 리스트 랜덤 섞기
+        academyMessage.setMessage("학원 출력 성공");
         return list;
     }
 
@@ -562,5 +533,18 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
         return list;
     }
 
+    public List<GetDefaultRes> getDefault(){
+        List<GetDefaultRes> list = academyMapper.getDefault();
+        for(GetDefaultRes re : list) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+        if(list.size() == 0){
+            academyMessage.setMessage("디폴트 학원 리스트 출력 실패");
+            return null;
+        }
+        academyMessage.setMessage("디폴트 학원 리스트 출력 성공");
+        return list;
+    }
 
 }
