@@ -137,6 +137,7 @@ public class AcademyService {
             if(isValidValue(req.getAddressDto().getAddress())
                     && isValidValue(req.getAddressDto().getDetailAddress())
                     && isValidValue(req.getAddressDto().getPostNum()))  {
+                req.setAddress(addressEncoding(req.getAddressDto()));
                 try {
                     String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
                     Long dongPk = academyMapper.selAddressDong(dongName);
@@ -206,7 +207,7 @@ public class AcademyService {
 
 
         //태그만 값을 가질때
-        if (req.getTagIdList() != null && !req.getTagIdList().isEmpty() &&
+        if ((req.getTagIdList() != null && !req.getTagIdList().isEmpty()) &&
                 (req.getAcaName() == null || req.getAcaName().isEmpty()) &&
                 (req.getAcaPhone() == null || req.getAcaPhone().isEmpty()) &&
                 (req.getComment() == null || req.getComment().isEmpty()) &&
