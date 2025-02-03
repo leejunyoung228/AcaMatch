@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,22 +20,22 @@ public class StudentGradeService {
     public String exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
         String filePath = "student_grades.xlsx";
 
-        String sql = "SELECT A.user_id, A.`name`, D.subject_name, E.exam_date,\n" +
+        String sql = "SELECT A.user_id, E.grade_id, A.`name`, D.subject_name, E.exam_date,\n" +
                 "CASE WHEN D.SCORE_TYPE = 0 THEN E.score ELSE NULL END AS result_score,\n" +
                 "CASE WHEN D.SCORE_TYPE != 0 THEN\n" +
                 "CASE WHEN COALESCE(E.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass\n" +
                 "FROM `user` A\n" +
                 "INNER JOIN joinclass B\n" +
                 "ON A.user_id = B.user_id\n" +
-                "INNER JOIN class C \n" +
+                "INNER JOIN class C\n" +
                 "ON B.class_id = C.class_id\n" +
                 "INNER JOIN subject D\n" +
                 "ON C.class_id = D.class_id\n" +
                 "INNER JOIN grade E\n" +
                 "ON B.join_class_id = E.join_class_id\n" +
-                "WHERE D.subject_id = ?\n" +
+                "WHERE D.subject_id = 12\n" +
                 "GROUP BY A.user_id\n" +
-                "ORDER BY A.user_id;";
+                "ORDER BY A.user_id";
 
         try (Connection conn = MariaDBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -53,21 +50,23 @@ public class StudentGradeService {
             // 헤더 생성
             Row headerRow = sheet.createRow(rowIndex++);
             headerRow.createCell(0).setCellValue("User ID");
-            headerRow.createCell(1).setCellValue("Name");
-            headerRow.createCell(2).setCellValue("Subject Name");
-            headerRow.createCell(3).setCellValue("Exam Date");
-            headerRow.createCell(4).setCellValue("Score");
-            headerRow.createCell(5).setCellValue("Pass");
+            headerRow.createCell(1).setCellValue("Grade ID");
+            headerRow.createCell(2).setCellValue("Name");
+            headerRow.createCell(3).setCellValue("Subject Name");
+            headerRow.createCell(4).setCellValue("Exam Date");
+            headerRow.createCell(5).setCellValue("Score");
+            headerRow.createCell(6).setCellValue("Pass");
 
             // 데이터 추가
             while (rs.next()) {
                 Row row = sheet.createRow(rowIndex++);
                 row.createCell(0).setCellValue(rs.getLong("user_id"));
-                row.createCell(1).setCellValue(rs.getString("name"));
-                row.createCell(2).setCellValue(rs.getString("subject_name"));
-                row.createCell(3).setCellValue(rs.getString("exam_date"));
-                row.createCell(4).setCellValue(rs.getInt("result_score"));
-                row.createCell(5).setCellValue(rs.getInt("result_pass"));
+                row.createCell(1).setCellValue(rs.getLong("grade_id"));
+                row.createCell(2).setCellValue(rs.getString("name"));
+                row.createCell(3).setCellValue(rs.getString("subject_name"));
+                row.createCell(4).setCellValue(rs.getString("exam_date"));
+                row.createCell(5).setCellValue(rs.getInt("result_score"));
+                row.createCell(6).setCellValue(rs.getInt("result_pass"));
             }
 
             // 엑셀 파일 저장
@@ -83,9 +82,9 @@ public class StudentGradeService {
     }
 
     public String importFromExcel(String filePath) {
-        if (!filePath.endsWith(".xlsx") && !filePath.endsWith(".xls")) {
-            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
-        }
+//        if (!filePath.endsWith(".xlsx") && !filePath.endsWith(".xls")) {
+//            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
+//        }
 
         try (FileInputStream fis = new FileInputStream(new File(filePath));
              Workbook workbook = WorkbookFactory.create(fis)) {
@@ -95,47 +94,49 @@ public class StudentGradeService {
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // 헤더는 건너뜀
 
-                long gradeId = (long) row.getCell(0).getNumericCellValue();
-                String name = row.getCell(1).getStringCellValue();
-                String subjectName = row.getCell(2).getStringCellValue();
-                String examDate = row.getCell(3).getStringCellValue();
-                int score = (int) row.getCell(4).getNumericCellValue();
-                int pass = (int) row.getCell(5).getNumericCellValue();
+                long userId = (long) row.getCell(0).getNumericCellValue();
+                long gradeId = (long) row.getCell(1).getNumericCellValue();
+                String name = row.getCell(2).getStringCellValue();
+                String subjectName = row.getCell(3).getStringCellValue();
+                String examDate = row.getCell(4).getStringCellValue();
+                int score = (int) row.getCell(5).getNumericCellValue();
+                int pass = (int) row.getCell(6).getNumericCellValue();
 
-                // MariaDB에 업데이트
+                // DB 업데이트 시 예외 발생하면 그대로 throw
                 updateStudentGrade(gradeId, score, pass);
             }
 
             return "DB에 수정을 성공하였습니다.";
 
         } catch (org.apache.poi.openxml4j.exceptions.OLE2NotOfficeXmlFileException e) {
-            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
-
+            throw new IllegalArgumentException("엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.", e);
         } catch (Exception e) {
-            e.printStackTrace();
-            return "DB에 수정을 실패하였습니다. " + e.getMessage();
+            throw new RuntimeException("DB 수정 중 오류 발생: " + e.getMessage(), e);
         }
     }
 
-    private void updateStudentGrade(long gradeId, int score, int pass) {
-        String updateQuery = "UPDATE grade\n" +
-                "SET  score = ?, pass = ? \n" +
-                "WHERE grade_id = ?;";
+    // DB 업데이트 메서드 수정 (예외를 던지도록 변경)
+    private void updateStudentGrade(long gradeId, int score, int pass) throws SQLException {
+        String updateQuery = "UPDATE grade SET score = ?, pass = ? WHERE grade_id = ?;";
 
         try (Connection conn = MariaDBConnection.getConnection();
-             java.sql.PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
+             PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
 
             conn.setAutoCommit(false);
 
-            pstmt.setLong(1, gradeId);
-            pstmt.setInt(2, score);
-            pstmt.setInt(3, pass);
+            pstmt.setInt(1, score);
+            pstmt.setInt(2, pass);
+            pstmt.setLong(3, gradeId);
 
-            pstmt.executeUpdate();
+            int rowsAffected = pstmt.executeUpdate();
             conn.commit();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            if (rowsAffected == 0) {
+                throw new SQLException("업데이트 실패: 해당 grade_id(" + gradeId + ")가 존재하지 않습니다.");
+            }
+
+        } catch (SQLException e) {
+            throw new SQLException("DB 업데이트 중 오류 발생: " + e.getMessage(), e);
         }
     }
 }
