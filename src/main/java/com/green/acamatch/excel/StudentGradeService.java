@@ -1,8 +1,10 @@
 
 package com.green.acamatch.excel;
 
+import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.excel.MariaDBConnection;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -10,15 +12,27 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StudentGradeService {
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public String exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
+        String middlePath = System.getProperty("user.home") + "/Downloads";
         String filePath = "student_grades.xlsx";
+
+        try {
+            Files.createDirectories(Paths.get(middlePath));
+        } catch (IOException e) {
+            log.error("디렉터리 생성 실패", e);
+            return "엑셀 파일 저장 실패: 디렉터리 생성 오류";
+        }
 
         String sql = "SELECT A.user_id, E.grade_id, A.`name`, D.subject_name, E.exam_date,\n" +
                 "CASE WHEN D.SCORE_TYPE = 0 THEN E.score ELSE NULL END AS result_score,\n" +
@@ -72,12 +86,13 @@ public class StudentGradeService {
             // 엑셀 파일 저장
             try (FileOutputStream fos = new FileOutputStream(filePath)) {
                 workbook.write(fos);
-                return "엑셀 파일 생성 성공: " + filePath;
+                log.info("엑셀 파일 저장 경로: {}", filePath);
+                return filePath;
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return "엑셀 파일 생성 실패: " + e.getMessage();
+            log.error("엑셀 내보내기 실패", e);
+            return "엑셀 파일 저장 실패: " + e.getMessage();
         }
     }
 
@@ -105,13 +120,12 @@ public class StudentGradeService {
                 // DB 업데이트 시 예외 발생하면 그대로 throw
                 updateStudentGrade(gradeId, score, pass);
             }
-
             return "DB에 수정을 성공하였습니다.";
 
         } catch (org.apache.poi.openxml4j.exceptions.OLE2NotOfficeXmlFileException e) {
-            throw new IllegalArgumentException("엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.", e);
+            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
         } catch (Exception e) {
-            throw new RuntimeException("DB 수정 중 오류 발생: " + e.getMessage(), e);
+            return "DB 수정 중 오류 발생: " + e.getMessage();
         }
     }
 

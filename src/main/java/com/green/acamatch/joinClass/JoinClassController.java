@@ -39,7 +39,7 @@ public class JoinClassController {
     }
 
     @GetMapping
-    @Operation(summary = "학원명/강좌명 / null일 경우 resultData 반환 값이 없습니다.")
+    @Operation(summary = "user가 신청한 학원명/강좌명 / null일 경우 resultData 반환 값이 없습니다.")
     public ResultResponse<List<JoinClassDto>> selJoinClass(@ModelAttribute @ParameterObject JoinClassGetReq p) {
         List<JoinClassDto> result = service.selJoinClass(p);
         return ResultResponse.<List<JoinClassDto>>builder()
