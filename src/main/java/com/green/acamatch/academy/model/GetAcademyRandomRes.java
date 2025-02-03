@@ -24,7 +24,7 @@ public class GetAcademyRandomRes {
     private String address;
 
     @Schema(title = "학원 별점", example = "4.5")
-    private double star;
+    private double starAvg;
 
 //    @Schema(title = "태그 PK", example = "1")
 //    private long tagId;
@@ -34,4 +34,10 @@ public class GetAcademyRandomRes {
 
     @Schema(title = "학원이 등록한 태그List", example = "국어, 영어...")
     private List<GetAcademyTagDto> tagName;
+
+    private int likeCount;
+
+    private int reviewCount;
+
+    private List<Long> tagIds;
 }

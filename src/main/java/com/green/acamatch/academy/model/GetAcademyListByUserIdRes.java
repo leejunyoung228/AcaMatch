@@ -16,4 +16,6 @@ public class GetAcademyListByUserIdRes {
     @Schema(title = "학원 등록 날짜", example = "2025-01-24")
     private String createdAt;
 
+    private int acaAgree;
+
 }

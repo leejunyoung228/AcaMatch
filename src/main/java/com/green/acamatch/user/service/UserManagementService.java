@@ -39,7 +39,7 @@ public class UserManagementService {
 
     @Transactional
     public int updateUser(UserUpdateReq req, MultipartFile pic) {
-        User user = userUtils.getUserById(AuthenticationFacade.getSignedUserId());
+        User user = userUtils.findUserById(AuthenticationFacade.getSignedUserId());
         if (req.getCurrentPw() == null || !passwordEncoder.matches(req.getCurrentPw(), user.getUpw())) {
             throw new CustomException(UserErrorCode.INCORRECT_PW);
         }
@@ -58,7 +58,7 @@ public class UserManagementService {
     @Transactional
     public int deleteUser(UserDeleteReq req) {
         long userId = AuthenticationFacade.getSignedUserId();
-        User user = userUtils.getUserById(userId);
+        User user = userUtils.findUserById(userId);
         if (!passwordEncoder.matches(req.getPw(), user.getUpw())) {
             throw new CustomException(UserErrorCode.INCORRECT_PW);
         }
@@ -70,7 +70,7 @@ public class UserManagementService {
 
     public void setTempPw(long id, HttpServletResponse response) {
         String pw = userCache.getTempPw(id);
-        User user = userUtils.getUserById(id);
+        User user = userUtils.findUserById(id);
         user.setUpw(passwordEncoder.encode(pw));
         userRepository.save(user);
         redirectTo(response, userConst.getRedirectUrl());
@@ -79,8 +79,8 @@ public class UserManagementService {
     private void updateUserProfile(User user, MultipartFile pic) {
         String prePic = user.getUserPic();
         String folderPath = String.format(userConst.getUserPicFilePath(), user.getUserId());
-        String filePath = String.format("%s/%s", folderPath, user.getUserPic());
         user.setUserPic(myFileUtils.makeRandomFileName(pic));
+        String filePath = String.format("%s/%s", folderPath, user.getUserPic());
         if (prePic != null) {
             myFileUtils.deleteFolder(folderPath, false);
         }
