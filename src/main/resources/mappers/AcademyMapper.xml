@@ -489,6 +489,7 @@
         <result property="reviewCount" column="reviewCount"/>
         <result property="likeCount" column="likeCount"/>
         <result property="isLiked" column="isLiked"/>
+        <result property="JCCertification" column="JCCertification"/>
 
         <!-- 클래스 정보 매핑 (하위 리스트) -->
         <collection property="classes" ofType="com.green.acamatch.academy.model.GetAcademyDetailClassDto">
@@ -531,6 +532,7 @@
         WHEN UL.user_id IS NOT NULL THEN TRUE
         ELSE FALSE
         END AS isLiked,
+        IFNULL (JC.certification, 0) AS JCCertification,
 
         -- 클래스 정보
         C.class_id AS classId,
