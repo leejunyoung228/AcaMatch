@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MariaDBConnection {
-    private static final String DB_URL = "jdbc:mariadb://192.168.0.144:3306/acamatch"; // DB URL
+    private static final String DB_URL = "jdbc:mariadb://192.168.0.144:3306/db_even_second_3"; // DB URL
     private static final String DB_USER = "even_second_3"; // 사용자 이름
     private static final String DB_PASSWORD = "electro"; // 비밀번호
 
