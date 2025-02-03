@@ -21,7 +21,7 @@ public class StudentGradeController {
     @GetMapping("/export")
     @Operation(summary = "엑셀 파일로 내보내기")
     public String exportToExcel(@Parameter(name = "subjectId", required = true, in = ParameterIn.QUERY)
-                                @RequestParam long subjectId){
+                                                @RequestParam long subjectId){
         return studentGradeService.exportToExcel(subjectId);
     }
 
