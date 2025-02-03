@@ -1,18 +1,17 @@
 package com.green.acamatch.entity.academy;
 
-import com.green.acamatch.entity.datetime.CreatedAt;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
 @Setter
 @Entity
-public class Chat extends CreatedAt {
+public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long qnaId;
@@ -30,6 +29,12 @@ public class Chat extends CreatedAt {
 
     private Integer senderType;
     private Integer isRead = 0;
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @Override
     public boolean equals(Object o) {
