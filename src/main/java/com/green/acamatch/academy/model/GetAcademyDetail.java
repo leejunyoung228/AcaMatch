@@ -17,7 +17,7 @@ public class GetAcademyDetail {
     private String acaName;
 
     @Schema(title = "학원 사진", example = "green.jpg")
-    private String accPic;
+    private String acaPic;
 
     @Schema(title = "학원 설명", example = "컴퓨터 가르치는 학원입니다.")
     private String comment;
