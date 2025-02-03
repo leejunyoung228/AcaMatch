@@ -3,6 +3,7 @@ package com.green.acamatch.accessLog;
 import com.green.acamatch.entity.accesslog.AccessLog;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,5 +37,11 @@ public class AccessLogService {
         accessLog.setIp(request.getRemoteAddr());
         accessLogRepository.save(accessLog);
         return 1;
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void deleteOldAccessLogs() {
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+        accessLogRepository.deleteAccessLogByTimeStampBefore(oneWeekAgo);
     }
 }
