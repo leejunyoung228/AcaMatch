@@ -21,12 +21,15 @@
         u.user_id AS userId,
         u.user_pic AS userPic,
         u.nick_name AS nickName,
-        COALESCE((SELECT COUNT(*) FROM `like` l2 WHERE l2.aca_id = a.aca_id), 0) AS academyAllLikeCount
+        COUNT(DISTINCT l2.user_id) AS academyAllLikeCount
         FROM `like` l
         JOIN user u ON l.user_id = u.user_id
         JOIN academy a ON l.aca_id = a.aca_id
+        LEFT JOIN `like` l2 ON l2.aca_id = a.aca_id
         WHERE l.aca_id = #{acaId}
-        LIMIT #{startIdx}, #{size}
+        GROUP BY u.user_id, u.user_pic, u.nick_name
+        LIMIT #{startIdx}, #{size};
+
     </select>
 
     <!-- 특정 유저가 좋아요한 학원의 ID와 사진 및 좋아요 개수 조회 -->
@@ -35,25 +38,17 @@
         a.aca_id AS acaId,
         a.aca_pic AS acaPic,
         a.aca_name AS acaName,
-        COALESCE((SELECT COUNT(*) FROM `like` l2 WHERE l2.user_id = u.user_id), 0) AS userLikeCount,
-        COALESCE((SELECT COUNT(*) FROM `like` l3 WHERE l3.aca_id = a.aca_id), 0) AS academyAllLikeCount
+        COUNT(DISTINCT l2.aca_id) AS userLikeCount,
+        COUNT(DISTINCT l3.user_id) AS academyAllLikeCount
         FROM `like` l
         JOIN academy a ON l.aca_id = a.aca_id
         JOIN user u ON l.user_id = u.user_id
+        LEFT JOIN `like` l2 ON l2.user_id = u.user_id
+        LEFT JOIN `like` l3 ON l3.aca_id = a.aca_id
         WHERE l.user_id = #{userId}
-        LIMIT #{startIdx}, #{size}
-    </select>
+        GROUP BY a.aca_id, a.aca_pic, a.aca_name
+        LIMIT #{startIdx}, #{size};
 
-    <!-- 학원을 좋아요한 유저 목록 조회 -->
-    <select id="getLikedUsersByAcaId">
-        SELECT
-        u.user_id AS userId,
-        u.nick_name AS nickName,
-        u.user_pic AS userPic,
-        FROM `like` l
-        JOIN `user` u ON l.user_id = u.user_id
-        WHERE l.aca_id = #{acaId}
-        LIMIT #{startIdx}, #{size}
     </select>
 
     <!-- 유저 ID 존재 여부 확인 -->
