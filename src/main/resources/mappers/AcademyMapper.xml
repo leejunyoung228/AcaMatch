@@ -88,36 +88,6 @@
         AND user_id = #{userId}
     </update>
 
-<!--&lt;!&ndash;학원주소 다른 테이블에 삽입&ndash;&gt;
-    <insert id="insAcademyAddress">
-        <choose>
-            <when test="address != null and address != ''">
-                INSERT INTO academyupdates (aca_id, address)
-                VALUES (#{acaId}, #{address})
-            </when>
-            <otherwise>
-                &lt;!&ndash; address가 없으면 아무 것도 삽입하지 않음 &ndash;&gt;
-            </otherwise>
-        </choose>
-    </insert>
-
-&lt;!&ndash;학원주소 다른 테이블 뽑기&ndash;&gt;
-    <select id="selAcademyUpdatesAddress">
-        SELECT address
-        FROM academyupdates
-        WHERE aca_id = #{acaId}
-    </select>
-
-&lt;!&ndash;학원주소 다른 테이블에서 수정&ndash;&gt;
-    <update id="updAcademyAddress">
-        UPDATE academyupdates
-        <set>
-            <if test="address != null and address != ''">
-                address = #{address}
-            </if>
-        </set>
-        WHERE aca_id = #{acaId}
-    </update>-->
 
 <!-- db에 주소 뽑아내기-->
     <select id="getAcademyAddress">

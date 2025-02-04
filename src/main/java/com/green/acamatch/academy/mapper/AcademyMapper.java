@@ -21,9 +21,6 @@ public interface AcademyMapper {
     int insAcademy(AcademyPostReq req);
 
     int updAcademy(AcademyUpdateReq req);
-    /*int insAcademyAddress(AcademyUpdateReq req);
-    AcademyUpdatesGetRes selAcademyUpdatesAddress(AcademyUpdateReq req);
-    int updAcademyAddress(AcademyUpdateReq req);*/
 
     AcademyUpdatesGetRes getAcademyAddress(long acaId);
     int delAcademy(long acaId, long userId);
