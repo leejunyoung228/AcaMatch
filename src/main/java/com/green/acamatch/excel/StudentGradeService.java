@@ -7,27 +7,33 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class StudentGradeService {
+
+    @Value("${excel.path}")  // application.yml의 excel.path 값 주입
+    private String filePath;
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public String exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
-        String filePath = "C:/temp/student_grades.xlsx";
+        Path excelFilePath = Paths.get(filePath);
 
         try {
-            Files.createDirectories(Paths.get(filePath));
+            Files.createDirectories(excelFilePath.getParent());
         } catch (IOException e) {
             log.error("디렉터리 생성 실패", e);
             return "엑셀 파일 저장 실패: 디렉터리 생성 오류";
@@ -46,7 +52,7 @@ public class StudentGradeService {
                 "ON C.class_id = D.class_id\n" +
                 "INNER JOIN grade E\n" +
                 "ON B.join_class_id = E.join_class_id\n" +
-                "WHERE D.subject_id = 12\n" +
+                "WHERE D.subject_id = ?\n" +
                 "GROUP BY A.user_id\n" +
                 "ORDER BY A.user_id";
 
@@ -83,10 +89,10 @@ public class StudentGradeService {
             }
 
             // 엑셀 파일 저장
-            try (FileOutputStream fos = new FileOutputStream(filePath)) {
+            try (FileOutputStream fos = new FileOutputStream(excelFilePath.toString())) {
                 workbook.write(fos);
-                log.info("엑셀 파일 저장 경로: {}", filePath);
-                return filePath;
+                log.info("엑셀 파일 저장 경로: {}", excelFilePath);
+                return excelFilePath.toString();
             }
 
         } catch (Exception e) {
@@ -95,36 +101,43 @@ public class StudentGradeService {
         }
     }
 
-    public String importFromExcel(String filePath) {
-        if (!filePath.endsWith(".xlsx") && !filePath.endsWith(".xls")) {
+    public String importFromExcel(MultipartFile file) {
+
+        if (!file.getOriginalFilename().endsWith(".xlsx") && !file.getOriginalFilename().endsWith(".xls")) {
             return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
         }
 
-        try (FileInputStream fis = new FileInputStream(new File(filePath));
-             Workbook workbook = WorkbookFactory.create(fis)) {
+        try {
+            File tempFile = File.createTempFile("upload_", ".xlsx");
+            file.transferTo(tempFile);
 
-            Sheet sheet = workbook.getSheetAt(0);
+            try (FileInputStream fis = new FileInputStream(new File(filePath));
+                 Workbook workbook = WorkbookFactory.create(fis)) {
+                Sheet sheet = workbook.getSheetAt(0);
 
-            for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; // 헤더는 건너뜀
+                for (Row row : sheet) {
+                    if (row.getRowNum() == 0) continue; // 헤더는 건너뜀
 
-                long userId = (long) row.getCell(0).getNumericCellValue();
-                long gradeId = (long) row.getCell(1).getNumericCellValue();
-                String name = row.getCell(2).getStringCellValue();
-                String subjectName = row.getCell(3).getStringCellValue();
-                String examDate = row.getCell(4).getStringCellValue();
-                int score = (int) row.getCell(5).getNumericCellValue();
-                int pass = (int) row.getCell(6).getNumericCellValue();
+                    long userId = (long) row.getCell(0).getNumericCellValue();
+                    long gradeId = (long) row.getCell(1).getNumericCellValue();
+                    String name = row.getCell(2).getStringCellValue();
+                    String subjectName = row.getCell(3).getStringCellValue();
+                    String examDate = row.getCell(4).getStringCellValue();
+                    int score = (int) row.getCell(5).getNumericCellValue();
+                    int pass = (int) row.getCell(6).getNumericCellValue();
 
-                // DB 업데이트 시 예외 발생하면 그대로 throw
-                updateStudentGrade(gradeId, score, pass);
+                    // DB 업데이트 시 예외 발생하면 그대로 throw
+                    updateStudentGrade(gradeId, score, pass);
+                }
+                return "DB에 수정을 성공하였습니다.";
+
+            } catch (org.apache.poi.openxml4j.exceptions.OLE2NotOfficeXmlFileException e) {
+                return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
+            } catch (Exception e) {
+                return "DB 수정 중 오류 발생: " + e.getMessage();
             }
-            return "DB에 수정을 성공하였습니다.";
-
-        } catch (org.apache.poi.openxml4j.exceptions.OLE2NotOfficeXmlFileException e) {
-            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
-        } catch (Exception e) {
-            return "DB 수정 중 오류 발생: " + e.getMessage();
+        } catch (IOException e) {
+            return "파일 처리 중 오류 발생" + e.getMessage();
         }
     }
 
