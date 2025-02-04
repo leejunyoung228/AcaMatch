@@ -22,13 +22,13 @@ public class StudentGradeController {
     // 1. 성적 엑셀 파일로 내보내기 (GET 요청)
     @GetMapping("/export")
     @Operation(summary = "엑셀 파일로 내보내기")
-    public ResultResponse<Integer> exportToExcel(@Parameter(name = "subjectId", required = true, in = ParameterIn.QUERY)
+    public ResultResponse<String> exportToExcel(@Parameter(name = "subjectId", required = true, in = ParameterIn.QUERY)
                                                 @RequestParam long subjectId) {
         String result = studentGradeService.exportToExcel(subjectId);
         boolean isSuccess = !result.startsWith("엑셀 파일 저장 실패");
-        return ResultResponse.<Integer>builder()
+        return ResultResponse.<String>builder()
                 .resultMessage(isSuccess ? "엑셀 파일 내보내기에 성공하였습니다." : "엑셀 파일 내보내기에 실패하였습니다.")
-                .resultData(1)
+                .resultData(result)
                 .build();
     }
 

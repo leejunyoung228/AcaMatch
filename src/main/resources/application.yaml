@@ -41,7 +41,7 @@ constant:
     refresh-token-cookie-expiry: 1_296_000 #15일 (S)
 
 file:
-  directory: D:/LJY/GreenGramTdd/image
+  directory: D:\GSY\excelFile
 
 mybatis:
   configuration:
