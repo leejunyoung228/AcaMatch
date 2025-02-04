@@ -717,7 +717,9 @@
         LIMIT 0, 10;
     </select>
     <select id="GetAcademyCount">
-        select count(aca_id) AS academyCount
-        from academy
+        SELECT COUNT(A.aca_id) AS academyCount, COUNT(U.user_id) AS userCount
+        FROM academy A
+        RIGHT JOIN user U
+        ON A.user_id = U.user_id
     </select>
 </mapper>
