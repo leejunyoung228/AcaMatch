@@ -11,5 +11,5 @@ services:
       - FILE_DIRECTORY=/home/download/image  # Docker 내부 저장 경로 (application-prod.yaml에서 사용)
       - EXCEL_FILE_PATH=/app/temp/student_grades.xlsx  # Docker 내부 엑셀 파일 경로
     volumes:
-      - /home/download/image  # 기존 이미지 저장 경로
-      - /app/temp  # 엑셀 파일이 저장될 로컬 폴더 마운트
+      - D:/GSY/excelFile:/home/download/image  # 기존 이미지 저장 경로
+      - D:/GSY/excelFile:/app/temp  # 엑셀 파일이 저장될 로컬 폴더 마운트
