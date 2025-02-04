@@ -715,4 +715,8 @@
         ORDER BY G.star DESC
         LIMIT 0, 10;
     </select>
+    <select id="GetAcademyCount">
+        select count(aca_id) AS academyCount
+        from academy
+    </select>
 </mapper>
