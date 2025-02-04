@@ -202,9 +202,6 @@ public class AcademyService {
             }
         }
 
-            // address, detailAddress, postNum 중 하나 또는 두 개가 비어있으면 에러
-
-
 
         //태그만 값을 가질때
         if ((req.getTagIdList() != null && !req.getTagIdList().isEmpty()) &&
