@@ -14,11 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,59 +32,65 @@ public class ChatService {
         Chat chat = new Chat();
         Academy academy = academyRepository.findById(req.getAcaId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
         User user = userUtils.findUserById(req.getUserId());
-        academy.setAcaId(req.getAcaId());
         chat.setAcademy(academy);
         chat.setUser(user);
         chat.setMessage(req.getMessage());
         chat.setSenderType(req.getSenderType());
         chatRepository.save(chat);
-        if(req.getSenderType() == 1) {
-            notificationController.sendNotification(chat.getUser().getUserId(), "메세지가 도착했습니다");
-        }
-        if(req.getSenderType() == 0) {
-            notificationController.sendNotification(chat.getAcademy().getUser().getUserId(), "메세지가 도착했습니다");
+        switch (SenderType.fromValue(req.getSenderType())) {
+            case ACADEMY_TO_USER:
+                notificationController.sendNotification(user.getUserId(), "메세지가 도착했습니다");
+                break;
+            case USER_TO_ACADEMY:
+                notificationController.sendNotification(academy.getUser().getUserId(), "메세지가 도착했습니다");
+                break;
+            default:
+                throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
         }
     }
 
+    @Transactional
     public List<ChatLogList> getQna(ChatReq req) {
-        User user = new User();
-        user.setUserId(req.getUserId());
-        Academy academy = new Academy();
-        academy.setAcaId(req.getAcaId());
-        Pageable pageable = PageRequest.of(req.getStartIdx(), req.getSize());
-        List<Chat> res = chatRepository.findAllByUserAndAcademyOrderByCreatedAtDesc(user, academy, pageable);
+        User user = userUtils.findUserById(req.getUserId());
+        Academy academy = academyRepository.findById(req.getAcaId())
+                .orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
+        Pageable pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+
+        List<Chat> chats = chatRepository.findAllByUserAndAcademyOrderByCreatedAtDesc(user, academy, pageable);
 
         int userType = req.getUserId().equals(AuthenticationFacade.getSignedUserId()) ? 1 : 0;
-        for (Chat chat : res) {
-            if (chat.getIsRead() == 0 && chat.getSenderType() == userType) {  // 이미 읽지 않은 메시지에 대해서만
-                chat.setIsRead(1);  // 읽음 상태로 업데이트
-                chatRepository.save(chat); // 상태를 DB에 반영
-            }
+
+        // 읽지 않은 메시지에서 isRead 상태만 업데이트
+        List<Chat> updatedChats = chats.stream()
+                .filter(chat -> chat.getIsRead() == 0 && chat.getSenderType() == userType)  // 읽지 않은 메시지
+                .peek(chat -> chat.setIsRead(1))  // isRead를 1로 설정
+                .collect(Collectors.toList());
+
+        if (!updatedChats.isEmpty()) {
+            chatRepository.saveAll(updatedChats);  // 변경된 메시지만 DB에 저장
         }
 
-        return res.stream()
-                .map(ChatLogList::new) // ChatLogRes 생성자를 직접 매핑
+        return chats.stream()
+                .map(ChatLogList::new)
                 .collect(Collectors.toList());
     }
 
     public ChatUserRes getUserList(ChatReq req) {
-        Page<Chat> res = null;
-        Pageable pageable = PageRequest.of(req.getStartIdx(), req.getSize());
+        Page<Chat> res;
+        Pageable pageable = PageRequest.of(req.getPage() - 1, req.getSize());
         if (req.getUserId() != null) {
-            User user = new User();
-            user.setUserId(req.getUserId());
-            res = chatRepository.findAllByUserOrderByCreatedAtDesc(user, pageable);
+            User user = userUtils.findUserById(req.getUserId());
+            res = chatRepository.findDistinctByUserOrderByCreatedAtDesc(user, pageable);
+        } else if (req.getAcaId() != null) {
+            Academy academy = academyRepository.findById(req.getAcaId())
+                    .orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
+            res = chatRepository.findDistinctByAcademyOrderByCreatedAtDesc(academy, pageable);
+        } else {
+            return ChatUserRes.builder().totalPages(0).users(new ArrayList<>()).build();
         }
-        if (req.getAcaId() != null) {
-            Academy academy = new Academy();
-            academy.setAcaId(req.getAcaId());
-            res = chatRepository.findAllByAcademyOrderByCreatedAtDesc(academy, pageable);
-        }
-        if (res == null) return ChatUserRes.builder().totalPages(0).users(new ArrayList<>()).build();
-        Set<Chat> unique_res = new HashSet<>(res.getContent());
         return ChatUserRes.builder()
                 .totalPages(res.getTotalPages())
-                .users(unique_res.stream().map(ChatUserList::new).collect(Collectors.toList()))
+                .users(res.getContent().stream().map(ChatUserList::new).collect(Collectors.toList()))
                 .build();
     }
 }

@@ -13,9 +13,9 @@ import java.util.List;
 @Repository
 public interface ChatRepository extends JpaRepository<Chat, Long> {
 
-    Page<Chat> findAllByUserOrderByCreatedAtDesc(User user, Pageable pageable);
-
-    Page<Chat> findAllByAcademyOrderByCreatedAtDesc(Academy academy, Pageable pageable);
-
     List<Chat> findAllByUserAndAcademyOrderByCreatedAtDesc(User user, Academy academy, Pageable pageable);
+
+    Page<Chat> findDistinctByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+
+    Page<Chat> findDistinctByAcademyOrderByCreatedAtDesc(Academy academy, Pageable pageable);
 }
