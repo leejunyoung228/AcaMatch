@@ -533,10 +533,12 @@
         COALESCE(G.star, 0) AS star,
         COALESCE(R.reviewCount, 0) AS reviewCount,
         COALESCE(L.likesCount, 0) AS likeCount,
+        <if test="signedUserId != null and signedUserId != '' ">
         CASE
         WHEN UL.user_id IS NOT NULL THEN TRUE
         ELSE FALSE
         END AS isLiked,
+        </if>
         IFNULL(PR.certification, 0) AS JCCertification,
 
         -- 클래스 정보
@@ -584,11 +586,13 @@
         LEFT JOIN category CAT ON CC.category_id = CAT.category_id
         LEFT JOIN classweekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
+        <if test="signedUserId != null and signedUserId != '' ">
         LEFT JOIN (
         SELECT aca_id, user_id
         FROM `like`
         WHERE user_id = #{signedUserId}
         ) UL ON UL.aca_id = A.aca_id
+        </if>
         LEFT JOIN PagedReviews PR ON PR.reviewJoinClassId = C.class_id
 
         WHERE A.aca_id = #{acaId}
