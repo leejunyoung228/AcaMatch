@@ -9,7 +9,7 @@ import com.green.acamatch.entity.user.RelationshipId;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.user.model.RelationshipReq;
-import com.green.acamatch.user.model.UserInfo;
+import com.green.acamatch.user.model.RelationshipRes;
 import com.green.acamatch.user.repository.RelationshipRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,15 +22,6 @@ public class RelationshipService {
     private final UserUtils userUtils;
     private final RelationshipRepository relationshipRepository;
 
-    public List<UserInfo> getRequiredRelationships() {
-        List<Relationship> relationships = relationshipRepository
-                .findRelationshipsByParentAndCertification(
-                        userUtils.findUserById(AuthenticationFacade.getSignedUserId()),
-                        0
-                );
-        return getStudentInfoByRelationships(relationships);
-    }
-
     public int acceptRelationship(Long studentId) {
         User parent = userUtils.findUserById(AuthenticationFacade.getSignedUserId());
         User student = userUtils.findUserById(studentId);
@@ -41,14 +32,14 @@ public class RelationshipService {
         return 1;
     }
 
-    public List<UserInfo> getRelationships(int type) {
+    public List<RelationshipRes> getRelationships(int type) {
         User user = userUtils.findUserById(AuthenticationFacade.getSignedUserId());
         List<Relationship> relationships;
         if (type == 1) {
-            relationships = relationshipRepository.findRelationshipsByParentAndCertification(user, 1);
+            relationships = relationshipRepository.findRelationshipsByParent(user);
             return getStudentInfoByRelationships(relationships);
         } else if (type == 2) {
-            relationships = relationshipRepository.findRelationshipsByStudentAndCertification(user, 1);
+            relationships = relationshipRepository.findRelationshipsByStudent(user);
             return getParentInfoByRelationships(relationships);
         } else {
             throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
@@ -81,36 +72,33 @@ public class RelationshipService {
         return 1;
     }
 
-    private List<UserInfo> getStudentInfoByRelationships(List<Relationship> relationships) {
+    private List<RelationshipRes> getStudentInfoByRelationships(List<Relationship> relationships) {
         return relationships.stream()
-                .map(relationship -> UserInfo.builder()
+                .map(relationship -> RelationshipRes.builder()
                         .userId(relationship.getStudent().getUserId())
                         .email(relationship.getStudent().getEmail())
                         .birth(relationship.getStudent().getBirth())
                         .name(relationship.getStudent().getName())
                         .phone(relationship.getStudent().getPhone())
+                        .certification(relationship.getCertification())
+                        .updatedAt(relationship.getUpdatedAt())
+                        .userPic(relationship.getStudent().getUserPic())
                         .build())
                 .toList();
     }
 
-    private List<UserInfo> getParentInfoByRelationships(List<Relationship> relationships) {
+    private List<RelationshipRes> getParentInfoByRelationships(List<Relationship> relationships) {
         return relationships.stream()
-                .map(relationship -> UserInfo.builder()
+                .map(relationship -> RelationshipRes.builder()
                         .userId(relationship.getParent().getUserId())
                         .email(relationship.getParent().getEmail())
                         .birth(relationship.getParent().getBirth())
                         .name(relationship.getParent().getName())
                         .phone(relationship.getParent().getPhone())
+                        .certification(relationship.getCertification())
+                        .updatedAt(relationship.getUpdatedAt())
+                        .userPic(relationship.getParent().getUserPic())
                         .build())
                 .toList();
-    }
-
-    public List<UserInfo> getRequireRelationships() {
-        List<Relationship> relationships = relationshipRepository
-                .findRelationshipsByStudentAndCertification(
-                        userUtils.findUserById(AuthenticationFacade.getSignedUserId()),
-                        0
-                );
-        return getParentInfoByRelationships(relationships);
     }
 }
