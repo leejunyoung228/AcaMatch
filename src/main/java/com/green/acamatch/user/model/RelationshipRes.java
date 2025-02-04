@@ -16,5 +16,6 @@ public class RelationshipRes {
     private LocalDate birth;
     private String userPic;
     private Integer certification;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
