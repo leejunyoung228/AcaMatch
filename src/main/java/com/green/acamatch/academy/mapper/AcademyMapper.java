@@ -92,4 +92,6 @@ public interface AcademyMapper {
     List<PopularSearchRes> popularSearch();
 
     List<GetDefaultRes> getDefault();
+
+    GetAcademyCountRes GetAcademyCount();
 }

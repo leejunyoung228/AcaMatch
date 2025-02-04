@@ -521,4 +521,8 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
         return list;
     }
 
+    public GetAcademyCountRes GetAcademyCount(){
+        return academyMapper.GetAcademyCount();
+    }
+
 }
