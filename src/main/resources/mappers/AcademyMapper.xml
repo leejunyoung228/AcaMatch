@@ -668,6 +668,7 @@
         JOIN tag T ON S.tag_id = T.tag_id
         GROUP BY T.tag_name
         ORDER BY tag_count DESC
+        LIMIT 0 ,10;
     </select>
 
     <resultMap id="Default" type = "com.green.acamatch.academy.model.GetDefaultRes">

@@ -232,7 +232,7 @@ public class AcademyController {
     }
 
     @GetMapping("popularSearch")
-    @Operation(summary = "인기 검색어")
+    @Operation(summary = "인기 태그")
     public ResultResponse<List<PopularSearchRes>> popularSearch(){
         List<PopularSearchRes> res = academyService.popularSearch();
         return ResultResponse.<List<PopularSearchRes>>builder()
