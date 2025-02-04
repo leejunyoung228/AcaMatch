@@ -9,7 +9,7 @@ public class GetAcademyDetailReq extends Paging{
     @Schema(title = "로그인한 유저 PK", example = "2119")
     private long signedUserId;
 
-    @Schema(title = "학원 PK", example = "324")
+    @Schema(title = "학원 PK", example = "277")
     private long acaId;
 
     public GetAcademyDetailReq(Integer page, Integer size, long signedUserId, long acaId, Integer startIdx, Integer size1) {
