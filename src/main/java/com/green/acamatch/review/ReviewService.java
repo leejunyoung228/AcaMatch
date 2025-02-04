@@ -130,33 +130,43 @@ public class ReviewService {
 
 
     /**  리뷰 수정 */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public int updateReview(ReviewUpdateReq req) {
+        userMessage.setMessage(null); // 🔥 요청 시작 전에 초기화
+        log.debug("Updating review for user ID: {}, class ID: {}", req.getUserId(), req.getClassId());
 
-        // 유저 존재 여부 확인 (추가)
+        // 유저 존재 여부 확인
         validateUserExists(req.getUserId());
 
+        // 유저 인증 확인
         if (!isAuthorizedUser(req.getUserId())) {
-            return 0;  //  인증되지 않은 요청이면 바로 종료
-        }
-
-        validateReviewRequest(req);
-        if (!validateReviewRequest(req)) {
+            log.warn("Unauthorized access attempt by user ID: {}", req.getUserId());
             return 0;
         }
-        //  유효성 검사에서 설정된 에러 메시지가 있다면 요청 중단
+
+        // 리뷰 요청 유효성 검사
+        boolean isValid = validateReviewRequest2(req);
+        if (!isValid) {
+            log.warn("Invalid review update request: {}", req);
+            return 0;
+        }
+
+        // 유효성 검사 실패 메시지가 존재하는 경우 처리 중단
         if (userMessage.getMessage() != null) {
+            log.warn("Validation failed with message: {}", userMessage.getMessage());
+            userMessage.setMessage(null); // 메시지 초기화
             return 0;
         }
 
+        // 리뷰 업데이트 수행
         int rowsUpdated = mapper.updateReview(req);
         if (rowsUpdated == 0) {
             userMessage.setMessage("수정할 리뷰를 찾을 수 없습니다.");
             return 0;
         }
 
-
-
+        // 데이터 반영 확인
+        log.debug("Review update successful for user ID: {}, class ID: {}", req.getUserId(), req.getClassId());
         userMessage.setMessage("리뷰 수정이 완료되었습니다.");
         return 1;
     }
@@ -333,7 +343,7 @@ public class ReviewService {
         return true;
     }
     
-    private boolean validateReviewRequest(ReviewUpdateReq req) {
+    private boolean validateReviewRequest2(ReviewUpdateReq req) {
         if (req.getClassId() == null || req.getClassId() <= 0 || mapper.isValidJoinClassId(req.getClassId()) == 0) {
             userMessage.setMessage("유효하지 않은 수업 참여 ID입니다.");
             return false;

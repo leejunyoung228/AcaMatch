@@ -39,12 +39,11 @@
 
     <!-- 학생 유저 리뷰 수정 -->
     <update id="updateReview">
-        UPDATE review r
-        INNER JOIN joinclass j ON r.join_class_id = j.join_class_id
-        INNER JOIN class c ON j.class_id = c.class_id
-        SET r.comment = #{comment}, r.star = #{star}
-        WHERE j.class_id = #{classId}
-        AND j.user_id = #{userId};
+        UPDATE review
+        SET comment = #{comment}, star = #{star}
+        WHERE join_class_id = (
+        SELECT join_class_id FROM joinclass WHERE class_id = #{classId} AND user_id = #{userId}
+        );
     </update>
 
 
