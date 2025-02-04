@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class GetAcademyCountRes {
     private int academyCount;
+    private int userCount;
 }

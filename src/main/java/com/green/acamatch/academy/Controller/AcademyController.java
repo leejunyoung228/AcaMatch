@@ -252,7 +252,7 @@ public class AcademyController {
     }
 
     @GetMapping("GetAcademyCount")
-    @Operation(summary = "총 학원 수")
+    @Operation(summary = "총 학원, 유저 수")
     public ResultResponse<GetAcademyCountRes> getAcademyCount(){
         GetAcademyCountRes res = academyService.GetAcademyCount();
         return ResultResponse.<GetAcademyCountRes>builder()
