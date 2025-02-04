@@ -41,7 +41,7 @@ constant:
     refresh-token-cookie-expiry: 1_296_000 #15일 (S)
 
 file:
-  directory: D:\GSY\excelFile
+  directory: D:/LJY/GreenGramTdd/image
 
 mybatis:
   configuration:
@@ -67,7 +67,6 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: false
-    default-property-inclusion: non_null
   jpa:
     open-in-view: false
     properties:
@@ -97,4 +96,4 @@ springdoc:
     disabled: true
 
 excel:
-  path: ${EXCEL_FILE_PATH:/app/temp/student_grades.xlsx} #docker에서 excel 파일을 보기위해 추가
+  path: ${EXCEL_FILE_PATH:/home/download/student_grades.xlsx} #docker에서 excel 파일을 보기위해 추가
