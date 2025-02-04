@@ -503,6 +503,7 @@
         <result property="likeCount" column="likeCount"/>
         <result property="isLiked" column="isLiked"/>
         <result property="JCCertification" column="JCCertification"/>
+        <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
 
         <!-- 클래스 정보 매핑 (하위 리스트) -->
         <collection property="classes" ofType="com.green.acamatch.academy.model.GetAcademyDetailClassDto">
@@ -530,6 +531,26 @@
     </resultMap>
 
     <select id="getAcademyWithClasses" resultMap="AcademyResultMap">
+        WITH PagedReviews AS (
+        SELECT
+        RV.comment AS reviewComment,
+        RV.star AS reviewStar,
+        RV.created_at AS reviewCreatedAt,
+        JC.user_id AS reviewUserId,
+        U.nick_name AS reviewUserNickName,
+        RC.class_name AS reviewClassName,
+        RV.join_class_id AS reviewJoinClassId,
+        JC.certification
+        FROM review RV
+        LEFT JOIN joinclass JC ON RV.join_class_id = JC.join_class_id
+        LEFT JOIN user U ON JC.user_id = U.user_id
+        LEFT JOIN class RC ON RV.join_class_id = RC.class_id
+        JOIN class C ON RV.join_class_id = C.class_id
+        WHERE C.aca_id = #{acaId}
+        ORDER BY RV.created_at DESC
+        LIMIT #{startIdx}, #{size}
+        )
+
         SELECT
         A.aca_id AS acaId,
         A.aca_name AS acaName,
@@ -537,6 +558,7 @@
         A.address,
         A.aca_phone AS acaPhone,
         A.teacher_num AS teacherNum,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
         IFNULL(A.comment, 'No comments') AS comments,
         COALESCE(G.star, 0) AS star,
         COALESCE(R.reviewCount, 0) AS reviewCount,
@@ -545,7 +567,7 @@
         WHEN UL.user_id IS NOT NULL THEN TRUE
         ELSE FALSE
         END AS isLiked,
-        IFNULL (JC.certification, 0) AS JCCertification,
+        IFNULL(PR.certification, 0) AS JCCertification,
 
         -- 클래스 정보
         C.class_id AS classId,
@@ -559,15 +581,17 @@
         GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,
         GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
 
-        -- 리뷰 정보
-        RV.comment AS reviewComment,
-        RV.star AS reviewStar,
-        RV.created_at AS reviewCreatedAt,
-        JC.user_id AS reviewUserId,
-        U.nick_name AS reviewUserNickName,
-        RC.class_name AS reviewClassName
+        -- 리뷰 정보 (페이징된 결과)
+        PR.reviewComment,
+        PR.reviewStar,
+        PR.reviewCreatedAt,
+        PR.reviewUserId,
+        PR.reviewUserNickName,
+        PR.reviewClassName
 
         FROM academy A
+        LEFT JOIN academytag E ON A.aca_id = E.aca_id
+        LEFT JOIN tag F ON E.tag_id = F.tag_id
         LEFT JOIN (
         SELECT ROUND(AVG(R.star), 2) AS star, C.aca_id
         FROM review R
@@ -595,13 +619,12 @@
         FROM `like`
         WHERE user_id = #{signedUserId}
         ) UL ON UL.aca_id = A.aca_id
-        LEFT JOIN review RV ON RV.join_class_id = C.class_id
-        LEFT JOIN joinclass JC ON RV.join_class_id = JC.join_class_id
-        LEFT JOIN user U ON JC.user_id = U.user_id
-        LEFT JOIN class RC ON RV.join_class_id = RC.class_id
+        LEFT JOIN PagedReviews PR ON PR.reviewJoinClassId = C.class_id
+
         WHERE A.aca_id = #{acaId}
-        GROUP BY A.aca_id, C.class_id, RV.comment, RV.star, RV.created_at, JC.user_id, U.nick_name, RC.class_name
-        ORDER BY C.class_id
+        GROUP BY A.aca_id, C.class_id, PR.reviewComment, PR.reviewStar, PR.reviewCreatedAt, PR.reviewUserId, PR.reviewUserNickName, PR.reviewClassName
+        ORDER BY C.class_id;
+
     </select>
 
     <select id="getAcademyListRandom">

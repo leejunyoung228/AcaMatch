@@ -45,6 +45,8 @@ public class GetAcademyDetailRes {
     @Schema(title = "모든 주소")
     private AddressDto addressDto;
 
+    private List<GetAcademyTagDto> tagName;
+
     @Schema(title = "학원 정보")
     private List<GetAcademyDetailClassDto> classes;
 
@@ -52,6 +54,8 @@ public class GetAcademyDetailRes {
     private List<ReviewDto> reviews;
 
     private int JCCertification;
+
+
 
 }
 
