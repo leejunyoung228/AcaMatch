@@ -67,6 +67,7 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: false
+    default-property-inclusion: non_null
   jpa:
     open-in-view: false
     properties:

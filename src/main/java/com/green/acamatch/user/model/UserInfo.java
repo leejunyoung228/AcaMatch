@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 public class UserInfo {
-    private long userId;
-    private long roleId;
+    private Long userId;
+    private Long roleId;
     private String name;
     private String email;
     private String phone;
