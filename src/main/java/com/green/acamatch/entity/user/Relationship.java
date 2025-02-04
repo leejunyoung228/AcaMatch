@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -23,4 +25,10 @@ public class Relationship{
 
     @Column(name = "certification", nullable = false)
     private int certification = 0;
+
+    private LocalDateTime updatedAt;
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

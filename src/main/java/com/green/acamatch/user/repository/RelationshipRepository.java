@@ -13,9 +13,9 @@ import java.util.Optional;
 public interface RelationshipRepository extends JpaRepository<Relationship, RelationshipId> {
     Optional<Relationship> findRelationshipByParentAndStudent(User parent, User student);
 
-    List<Relationship> findRelationshipsByParentAndCertification(User parent, int certification);
-
-    List<Relationship> findRelationshipsByStudentAndCertification(User student, int certification);
-
     Optional<Relationship> findRelationshipByParentAndStudentAndCertification(User parent, User student, int certification);
+
+    List<Relationship> findRelationshipsByParent(User user);
+
+    List<Relationship> findRelationshipsByStudent(User user);
 }
