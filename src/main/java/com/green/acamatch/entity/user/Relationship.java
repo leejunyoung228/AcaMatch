@@ -13,12 +13,12 @@ public class Relationship{
 
     @ManyToOne
     @MapsId("parentsId")
-    @JoinColumn(name = "parents_id", insertable = false, updatable = false)
+    @JoinColumn(name = "parents_id")
     private User parent;
 
     @ManyToOne
     @MapsId("studentId")
-    @JoinColumn(name = "student_id", insertable = false, updatable = false)
+    @JoinColumn(name = "student_id")
     private User student;
 
     @Column(name = "certification", nullable = false)

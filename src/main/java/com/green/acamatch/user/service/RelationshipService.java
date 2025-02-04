@@ -28,7 +28,7 @@ public class RelationshipService {
                         userUtils.findUserById(AuthenticationFacade.getSignedUserId()),
                         0
                 );
-        return getUserInfoByRelationships(relationships);
+        return getStudentInfoByRelationships(relationships);
     }
 
     public int acceptRelationship(Long studentId) {
@@ -46,12 +46,13 @@ public class RelationshipService {
         List<Relationship> relationships;
         if (type == 1) {
             relationships = relationshipRepository.findRelationshipsByParentAndCertification(user, 1);
+            return getStudentInfoByRelationships(relationships);
         } else if (type == 2) {
             relationships = relationshipRepository.findRelationshipsByStudentAndCertification(user, 1);
+            return getParentInfoByRelationships(relationships);
         } else {
             throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
         }
-        return getUserInfoByRelationships(relationships);
     }
 
     public int addRelationship(RelationshipReq req) {
@@ -63,6 +64,8 @@ public class RelationshipService {
 
         Relationship relationship = new Relationship();
         relationship.setId(relationshipId);
+        relationship.setParent(parent);
+        relationship.setStudent(userUtils.findUserById(AuthenticationFacade.getSignedUserId()));
         relationship.setCertification(0);
 
         relationshipRepository.save(relationship);
@@ -73,18 +76,31 @@ public class RelationshipService {
         User student = userUtils.findUserById(AuthenticationFacade.getSignedUserId());
         User parent = userUtils.findUserByEmail(req.getEmail());
         Relationship relationship = relationshipRepository.findRelationshipByParentAndStudentAndCertification(parent, student, 0)
-                        .orElseThrow(() -> new CustomException(RelationshipErrorCode.REQUEST_RELATIONSHIP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(RelationshipErrorCode.REQUEST_RELATIONSHIP_NOT_FOUND));
         relationshipRepository.delete(relationship);
         return 1;
     }
 
-    private List<UserInfo> getUserInfoByRelationships(List<Relationship> relationships) {
+    private List<UserInfo> getStudentInfoByRelationships(List<Relationship> relationships) {
         return relationships.stream()
                 .map(relationship -> UserInfo.builder()
                         .userId(relationship.getStudent().getUserId())
                         .email(relationship.getStudent().getEmail())
                         .birth(relationship.getStudent().getBirth())
                         .name(relationship.getStudent().getName())
+                        .phone(relationship.getStudent().getPhone())
+                        .build())
+                .toList();
+    }
+
+    private List<UserInfo> getParentInfoByRelationships(List<Relationship> relationships) {
+        return relationships.stream()
+                .map(relationship -> UserInfo.builder()
+                        .userId(relationship.getParent().getUserId())
+                        .email(relationship.getParent().getEmail())
+                        .birth(relationship.getParent().getBirth())
+                        .name(relationship.getParent().getName())
+                        .phone(relationship.getParent().getPhone())
                         .build())
                 .toList();
     }
@@ -95,6 +111,6 @@ public class RelationshipService {
                         userUtils.findUserById(AuthenticationFacade.getSignedUserId()),
                         0
                 );
-        return getUserInfoByRelationships(relationships);
+        return getParentInfoByRelationships(relationships);
     }
 }
