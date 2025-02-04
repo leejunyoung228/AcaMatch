@@ -96,4 +96,4 @@ springdoc:
     disabled: true
 
 excel:
-  path: ${file.directory:/app/temp/student_grades.xlsx} #docker에서 excel 파일을 보기위해 추가
+  path: ${EXCEL_FILE_PATH:/app/temp/student_grades.xlsx} #docker에서 excel 파일을 보기위해 추가
