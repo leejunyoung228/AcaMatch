@@ -446,12 +446,12 @@
         WHERE 1 = 1
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
         AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
-        <if test=" tagId != null and tagId != '' ">
+        <if test=" tagName != null and tagName != '' ">
             AND (
             SELECT 1 FROM academytag E2
             JOIN tag F2 ON E2.tag_id = F2.tag_id
             WHERE E2.aca_id = A.aca_id
-            AND F2.tag_id = #{tagId})
+            AND F2.tag_name = #{tagName})
         </if>
         <if test=" categoryIds != null and categoryIds != '' ">
             AND ( A.aca_id IN
@@ -473,7 +473,7 @@
         SET tag_id =
         (SELECT tag_id
         FROM tag
-        WHERE tag_id = #{tagId})
+        WHERE tag_name = #{tagName})
     </insert>
 
     <resultMap id="AcademyResultMap" type="com.green.acamatch.academy.model.GetAcademyDetailRes">

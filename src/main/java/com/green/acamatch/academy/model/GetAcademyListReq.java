@@ -1,5 +1,6 @@
 package com.green.acamatch.academy.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.green.acamatch.config.model.Paging;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -16,17 +17,20 @@ public class GetAcademyListReq extends Paging {
     @Schema(title = "검색어", example = "영어")
     private String searchName;
 
-    @Schema(title = "태그명", example = "1")
+    @Schema(title = "태그명", example = "초등 영어")
+    private String tagName;
+
+    @JsonIgnore
     private Integer tagId;
 
     @Schema(title = "카테고리 PK", example = "")
     private List<Integer> categoryIds;
 
-    public GetAcademyListReq(Integer page, Integer size, Integer dongId, String searchName, Integer tagId, List<Integer> categoryIds) {
+    public GetAcademyListReq(Integer page, Integer size, Integer dongId, String searchName, String tagName, List<Integer> categoryIds) {
         super(page, size);
         this.dongId = dongId;
         this.searchName = searchName;
-        this.tagId = tagId;
+        this.tagName = tagName;
         this.categoryIds = categoryIds;
     }
 
