@@ -89,6 +89,7 @@ public class ChatService {
             return ChatUserRes.builder().totalPages(0).users(new ArrayList<>()).build();
         }
         return ChatUserRes.builder()
+
                 .totalPages(res.getTotalPages())
                 .users(res.getContent().stream().map(ChatUserList::new).collect(Collectors.toList()))
                 .build();
