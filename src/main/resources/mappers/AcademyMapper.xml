@@ -493,6 +493,7 @@
         <collection property="reviews" ofType="com.green.acamatch.academy.model.ReviewDto">
             <result property="comment" column="reviewComment"/>
             <result property="star" column="reviewStar"/>
+            <result property="reviewId" column="reviewId"/>
             <result property="createdAt" column="reviewCreatedAt"/>
             <result property="userId" column="reviewUserId"/>
             <result property="nickName" column="reviewUserNickName"/>
@@ -506,6 +507,7 @@
         A.comment AS reviewComment,
         A.star AS reviewStar,
         A.created_at AS reviewCreatedAt,
+        A.review_id AS reviewId,
         B.user_id AS reviewUserId,
         D.nick_name AS reviewUserNickName,
         C.class_name AS reviewClassName,
@@ -517,7 +519,6 @@
         JOIN class C ON B.class_id = C.class_id
         JOIN user D ON B.user_id = D.user_id
         WHERE C.aca_id = #{acaId}
-        ORDER BY A.review_id DESC
         LIMIT #{startIdx}, #{size}
         ),
         ReviewStats AS (
@@ -624,6 +625,7 @@
         R.reviewComment,
         R.reviewStar,
         R.reviewCreatedAt,
+        R.reviewId,
         R.reviewUserId,
         R.reviewUserNickName,
         R.reviewClassName,
@@ -638,6 +640,7 @@
         LEFT JOIN UserLikes UL ON UL.aca_id = A.aca_id
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
+        ORDER BY R.reviewId DESC
     </select>
 
     <select id="getAcademyListRandom">
