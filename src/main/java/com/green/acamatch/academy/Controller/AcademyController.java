@@ -101,66 +101,6 @@ public class AcademyController {
                 .build();
     }
 
-    @GetMapping("getCity")
-    @Operation(summary = "도시 리스트 불러오기")
-    public ResultResponse<List<GetCityRes>> getCityList(){
-        List<GetCityRes> res = academyService.getCityList();
-        return ResultResponse.<List<GetCityRes>>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(res)
-                .build();
-    }
-
-    @GetMapping("getStreet")
-    @Operation(summary = "시/군/구 리스트 불러오기")
-    public ResultResponse<List<GetStreetRes>> getStreetList(GetStreetReq p){
-        List<GetStreetRes> res = academyService.getStreetList(p);
-        return ResultResponse.<List<GetStreetRes>>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(res)
-                .build();
-    }
-
-    @GetMapping("getDong")
-    @Operation(summary = "동 리스트 불러오기")
-    public ResultResponse<List<GetDongRes>> getDongList(GetDongReq p) {
-        List<GetDongRes> res = academyService.getDongList(p);
-        return ResultResponse.<List<GetDongRes>>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(res)
-                .build();
-    }
-
-    @GetMapping("getAcademyListByDong")
-    @Operation(summary = "동만 입력받아 학원 리스트 불러오기")
-    public ResultResponse<List<GetAcademyByDongRes>> getAcademyByDongList(@ParameterObject @ModelAttribute GetAcademyByDongReq p){
-        List<GetAcademyByDongRes> list = academyService.getAcademyByDongResList(p);
-        return ResultResponse.<List<GetAcademyByDongRes>>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(list)
-                .build();
-    }
-
-    @GetMapping("getAcademyListBySearchName")
-    @Operation(summary = "동과 검색어를 입력받아 학원 리스트 불러오기")
-    public ResultResponse<List<GetAcademyBySearchNameRes>> getAcademyListBySearchName(@ParameterObject @ModelAttribute GetAcademyBySearchNameReq p){
-        List<GetAcademyBySearchNameRes> list = academyService.getAcademyListBySearchName(p);
-        return ResultResponse.<List<GetAcademyBySearchNameRes>>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(list)
-                .build();
-    }
-
-    @GetMapping("getAcademyListByOnlySearName")
-    @Operation(summary = "검색어만 입력받아 학원 리스트 불러오기")
-    public ResultResponse<List<GetAcademyByOnlySearchNameRes>> getAcademyByOnlySearchName(@ParameterObject @ModelAttribute GetAcademyByOnlySearchNameReq p){
-        List<GetAcademyByOnlySearchNameRes> list = academyService.getAcademyByOnlySearchName(p);
-        return ResultResponse.<List<GetAcademyByOnlySearchNameRes>>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(list)
-                .build();
-    }
-
     @GetMapping("getTagListBySearchName/")
     @Operation(summary = "태그 리스트 불러오기", description = "공백을 입력해도 됩니다.")
     public ResultResponse<List<GetTagListBySearchNameRes>> getTagListBySearchName(@ParameterObject  @ModelAttribute GetTagListBySearchNameReq p) {
@@ -176,16 +116,6 @@ public class AcademyController {
     public ResultResponse<List<GetAcademyListByUserIdRes>> getAcademyListByUserId(@ParameterObject @ModelAttribute GetAcademyListByUserIdReq p) {
         List<GetAcademyListByUserIdRes> list = academyService.getAcademyListByUserId(p);
         return ResultResponse.<List<GetAcademyListByUserIdRes>>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(list)
-                .build();
-    }
-
-    @GetMapping("getAcademyListByCategory")
-    @Operation(summary = "카테고리와 동을 입력받아 학원 리스트 출력하기")
-    public ResultResponse<List<GetCategorySearchRes>> getAcademyListByCategory(@ParameterObject @ModelAttribute GetCategorySearchReq p) {
-        List<GetCategorySearchRes> list = academyService.getCategorySearch(p);
-        return ResultResponse.<List<GetCategorySearchRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(list)
                 .build();
@@ -260,16 +190,5 @@ public class AcademyController {
                 .resultMessage("총 학원 수 출력 완료")
                 .resultData(res)
                 .build();
-    }
-
-    @GetMapping("GetReviewInfo")
-    @Operation(summary = "GetReviewInfo")
-    public ResultResponse<List<GetReviewInfoRes>> getReviewInfo(@ParameterObject @ModelAttribute GetReviewInfoReq p) {
-        List<GetReviewInfoRes> res = academyService.getReviewInfo(p);
-        return ResultResponse.<List<GetReviewInfoRes>>builder()
-                .resultMessage("출력 완료")
-                .resultData(res)
-                .build();
-
     }
 }
