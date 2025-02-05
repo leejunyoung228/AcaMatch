@@ -33,7 +33,8 @@ public class StudentGradeService {
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public ResponseEntity<Map<String, String>> exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
-//        Path excelFilePath = Paths.get(filePath);
+        Path excelFilePath = Paths.get(filePath, "studentGrade.xlsx");
+        log.info("Excel file path: {}", excelFilePath);
 //
 //        try {
 //            Files.createDirectories(excelFilePath.getParent());
@@ -58,8 +59,6 @@ public class StudentGradeService {
                 "WHERE E.subject_id = ?\n" +
                 "GROUP BY user_id\n" +
                 "ORDER BY A.user_id;";
-
-        Path excelFilePath = Paths.get(filePath, "studentGrade.xlsx");
 
         try (Connection conn = MariaDBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -93,6 +92,7 @@ public class StudentGradeService {
             }
 
             Files.createDirectories(excelFilePath.getParent());
+            log.info("Excel file will be saved at: {}", excelFilePath.getParent());
 
             try (FileOutputStream fileOut = new FileOutputStream(excelFilePath.toFile())) {
                 workbook.write(fileOut);
@@ -101,9 +101,15 @@ public class StudentGradeService {
             // 프론트엔드에 파일 경로 반환
             Map<String, String> response = new HashMap<>();
             response.put("filePath", excelFilePath.toString());
-
             return ResponseEntity.ok(response);
 
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "데이터베이스 오류 발생"));
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "엑셀 파일 저장 오류 발생"));
 
 //            response.setContentType("application/vnd.ms-excel");
 //            response.setHeader("Content-Disposition", "attachment; filename=student_grades.xlsx");
@@ -111,9 +117,8 @@ public class StudentGradeService {
 //            response.getOutputStream().flush();
 
         } catch (Exception e) {
-            log.error("엑셀 파일 저장 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "엑셀 파일 저장 실패"));
+                    .body(Collections.singletonMap("error", "서버 내부 오류 발생"));
         }
     }
 

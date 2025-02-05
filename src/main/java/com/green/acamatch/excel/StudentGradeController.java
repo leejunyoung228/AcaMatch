@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.Map;
 
 @Tag(name = "엑셀 관리", description = "엑셀로 내보내기, 수정")
@@ -21,13 +22,15 @@ import java.util.Map;
 @RequestMapping("/grade")
 public class StudentGradeController {
 
-    @Autowired
     private final StudentGradeService studentGradeService;
 
     // 1. 성적 엑셀 파일로 내보내기 (GET 요청)
-    @GetMapping("/export/{subjectId}")
+    @GetMapping("/export")
     @Operation(summary = "엑셀 파일로 내보내기")
-    public ResponseEntity<Map<String,String>> exportToExcel(@PathVariable long subjectId) {
+    public ResponseEntity<Map<String,String>> exportToExcel(@RequestParam("subjectId") Long subjectId) {
+        if (subjectId == null) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "subjectId가 필요합니다."));
+        }
         return studentGradeService.exportToExcel(subjectId);
 //        boolean isSuccess = !result.startsWith("엑셀 파일 저장 실패");
 //        return ResultResponse.<String>builder()
