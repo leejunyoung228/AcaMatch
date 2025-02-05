@@ -1,7 +1,9 @@
 package com.green.acamatch.academy.Service;
 
 import com.green.acamatch.academy.mapper.AcademyMapper;
-import com.green.acamatch.academy.model.*;
+import com.green.acamatch.academy.model.JW.AcademyMessage;
+import com.green.acamatch.academy.model.JW.AcademyPostReq;
+import com.green.acamatch.academy.model.JW.AcademyUpdateReq;
 import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
 import com.green.acamatch.academy.tag.SelTagRes;
@@ -12,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 @Slf4j

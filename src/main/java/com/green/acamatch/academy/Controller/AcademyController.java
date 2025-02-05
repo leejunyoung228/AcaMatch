@@ -2,7 +2,8 @@ package com.green.acamatch.academy.Controller;
 
 import com.green.acamatch.academy.Service.AcademyService;
 import com.green.acamatch.academy.Service.TagService;
-import com.green.acamatch.academy.model.*;
+import com.green.acamatch.academy.model.HB.*;
+import com.green.acamatch.academy.model.JW.*;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

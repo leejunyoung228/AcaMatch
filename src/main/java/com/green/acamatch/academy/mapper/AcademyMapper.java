@@ -1,12 +1,12 @@
 package com.green.acamatch.academy.mapper;
 
-import com.green.acamatch.academy.model.*;
+import com.green.acamatch.academy.model.HB.*;
+import com.green.acamatch.academy.model.JW.*;
 import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
-import java.util.Optional;
 
 @Mapper
 public interface AcademyMapper {
