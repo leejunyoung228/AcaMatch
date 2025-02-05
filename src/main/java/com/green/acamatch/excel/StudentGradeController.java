@@ -29,14 +29,14 @@ public class StudentGradeController {
     // 1. 성적 엑셀 파일로 내보내기 (GET 요청)
     @GetMapping("/export")
     @Operation(summary = "엑셀 파일로 내보내기")
-    public ResultResponse<URL > exportToExcel(@RequestParam("subjectId") Long subjectId) {
+    public ResultResponse<String  > exportToExcel(@RequestParam("subjectId") Long subjectId) {
 //        if (subjectId == null) {
 //            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "subjectId가 필요합니다."));
 //        }
 //        return studentGradeService.exportToExcel(subjectId);
 
 //        boolean isSuccess = !result.startsWith("엑셀 파일 저장 실패");
-        return ResultResponse.<URL>builder()
+        return ResultResponse.<String >builder()
                 .resultMessage("엑셀 파일 내보내기에 성공하였습니다.")
                 .resultData(studentGradeService.exportToExcel(subjectId))
                 .build();
