@@ -542,6 +542,8 @@
         C.price AS classPrice,
         GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,  -- 요일 리스트
         GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
+        C.aca_id
+        FROM class C
         LEFT JOIN classweekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
         LEFT JOIN classcategory CC ON C.class_id = CC.class_id
@@ -626,6 +628,7 @@
         R.reviewUserNickName,
         R.reviewClassName,
         R.reviewJoinClassId
+
         FROM academy A
         JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
         LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택
