@@ -542,51 +542,6 @@
         C.price AS classPrice,
         GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,  -- 요일 리스트
         GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
-
-        C.aca_id
-        FROM class C
-
-
-        -- 리뷰 정보 (페이징된 결과)
-        PR.reviewComment,
-        PR.reviewStar,
-        PR.reviewCreatedAt,
-        PR.reviewUserId,
-        PR.reviewUserNickName,
-        PR.reviewClassName
-
-        FROM academy A
-        LEFT JOIN academytag E ON A.aca_id = E.aca_id
-        LEFT JOIN tag F ON E.tag_id = F.tag_id
-        LEFT JOIN (
-        SELECT ROUND(AVG(R.star), 2) AS star, C.aca_id
-        FROM review R
-        JOIN class C ON R.join_class_id = C.class_id
-        GROUP BY C.aca_id
-        ) G ON G.aca_id = A.aca_id
-        LEFT JOIN class C ON A.aca_id = C.aca_id
-        LEFT JOIN (
-        SELECT aca_id, COUNT(*) AS likesCount
-        FROM `like`
-        GROUP BY aca_id
-        ) L ON L.aca_id = A.aca_id
-        LEFT JOIN (
-        SELECT RC.reviewCount, C.class_id
-        FROM review R
-        JOIN joinclass JC ON JC.join_class_id = R.join_class_id
-        JOIN class C ON C.class_id = JC.class_id
-        JOIN (
-        SELECT COUNT(R.join_class_id) AS reviewCount, C.class_id
-        FROM review R
-        JOIN joinclass JC ON JC.join_class_id = R.join_class_id
-        JOIN class C ON C.class_id = JC.class_id
-        WHERE C.aca_id = 1
-        ) RC
-        ON C.class_id = C.class_id;
-        ) R ON R.aca_id = A.aca_id
-        LEFT JOIN classcategory CC ON C.class_id = CC.class_id
-        LEFT JOIN category CAT ON CC.category_id = CAT.category_id
-
         LEFT JOIN classweekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
         LEFT JOIN classcategory CC ON C.class_id = CC.class_id
@@ -671,7 +626,6 @@
         R.reviewUserNickName,
         R.reviewClassName,
         R.reviewJoinClassId
-
         FROM academy A
         JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
         LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택
@@ -681,11 +635,6 @@
         LEFT JOIN UserLikes UL ON UL.aca_id = A.aca_id
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
-
-        WHERE A.aca_id = #{acaId}
-        GROUP BY A.aca_id, C.class_id, PR.reviewComment, PR.reviewStar, PR.reviewCreatedAt, PR.reviewUserId, PR.reviewUserNickName, PR.reviewClassName
-        ORDER BY C.class_id
-
     </select>
 
     <select id="getAcademyListRandom">
