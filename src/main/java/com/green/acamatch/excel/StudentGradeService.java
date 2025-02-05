@@ -1,6 +1,8 @@
 
 package com.green.acamatch.excel;
 
+import com.green.acamatch.config.exception.CommonErrorCode;
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.excel.MariaDBConnection;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,7 +37,7 @@ public class StudentGradeService {
     private String filePath;
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
-    public ResponseEntity<Resource> exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
+    public URL  exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
         Path excelFilePath = Paths.get(filePath, "studentGrade.xlsx");
         log.info("Excel file path: {}", excelFilePath);
 
@@ -42,7 +45,7 @@ public class StudentGradeService {
             Files.createDirectories(excelFilePath.getParent());
         } catch (IOException e) {
             log.error("디렉터리 생성 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
         String sql = "SELECT B.user_id, E.grade_id, A.`name`, D.subject_name, E.exam_date,\n" +
@@ -101,10 +104,7 @@ public class StudentGradeService {
                 log.info("엑셀 파일 저장 경로: {}", excelFilePath);
                 Resource fileResource  = new FileSystemResource(excelFilePath.toFile());
 
-                return ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=studentGrade.xlsx")
-                        .body(fileResource);
+                return fileResource.getURL();
             }
 
 //            // 프론트엔드에 파일 경로 반환
@@ -126,7 +126,7 @@ public class StudentGradeService {
 //            response.getOutputStream().flush();
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
