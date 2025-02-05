@@ -6,7 +6,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import com.green.acamatch.academy.model.AcademyPostReq;
 import com.green.acamatch.academy.model.AddressDto;
 import org.json.JSONArray;
 import org.json.JSONObject;

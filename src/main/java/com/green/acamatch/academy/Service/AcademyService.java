@@ -2,26 +2,23 @@ package com.green.acamatch.academy.Service;
 
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.model.*;
+import com.green.acamatch.academy.model.HB.*;
+import com.green.acamatch.academy.model.JW.*;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AddressConst;
 import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
-import com.green.acamatch.config.exception.ErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
-import com.green.acamatch.entity.academy.Academy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.time.LocalDate;
-import java.util.*;
 
 @Slf4j
 @Service

@@ -111,7 +111,7 @@
     </delete>
 
 <!--학원 좋아요 순-->
-    <select id="getAcademyBest" resultType="com.green.acamatch.academy.model.AcademyBestLikeGetRes">
+    <select id="getAcademyBest" resultType="com.green.acamatch.academy.model.JW.AcademyBestLikeGetRes">
         SELECT a.aca_id,
                 COUNT(DISTINCT a.user_id) AS like_count,
                 b.aca_name, b.aca_pic,
@@ -149,7 +149,7 @@
 
     <!-- 학원 검색 -->
 
-    <resultMap id="searchResultMap" type = "com.green.acamatch.academy.model.GetAcademyListRes">
+    <resultMap id="searchResultMap" type = "com.green.acamatch.academy.model.HB.GetAcademyListRes">
         <id property="acaId" column="acaId" />
         <result property="acaPic" column="acaPic" />
         <result property="acaName" column="acaName" />
@@ -459,7 +459,7 @@
         WHERE tag_name = #{tagName})
     </insert>
 
-    <resultMap id="AcademyResultMap" type="com.green.acamatch.academy.model.GetAcademyDetailRes">
+    <resultMap id="AcademyResultMap" type="com.green.acamatch.academy.model.HB.GetAcademyDetailRes">
         <!-- 학원 정보 매핑 -->
         <id property="acaId" column="aca_id"/>
         <result property="acaName" column="aca_name"/>
@@ -475,7 +475,7 @@
         <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
 
         <!-- 클래스 정보 매핑 (하위 리스트) -->
-        <collection property="classes" ofType="com.green.acamatch.academy.model.GetAcademyDetailClassDto">
+        <collection property="classes" ofType="com.green.acamatch.academy.model.HB.GetAcademyDetailClassDto">
             <id property="classId" column="classId"/>
             <result property="className" column="className"/>
             <result property="classComment" column="classComment"/>
@@ -490,7 +490,7 @@
         </collection>
 
         <!-- 리뷰 정보 매핑 (하위 리스트) -->
-        <collection property="reviews" ofType="com.green.acamatch.academy.model.ReviewDto">
+        <collection property="reviews" ofType="com.green.acamatch.academy.model.HB.ReviewDto">
             <result property="comment" column="reviewComment"/>
             <result property="star" column="reviewStar"/>
             <result property="reviewId" column="reviewId"/>
@@ -700,7 +700,7 @@
         LIMIT 0 ,10;
     </select>
 
-    <resultMap id="Default" type = "com.green.acamatch.academy.model.GetDefaultRes">
+    <resultMap id="Default" type = "com.green.acamatch.academy.model.HB.GetDefaultRes">
         <id property="acaId" column="acaId" />
         <result property="acaPic" column="acaPic" />
         <result property="acaName" column="acaName" />
