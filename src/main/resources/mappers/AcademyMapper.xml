@@ -461,18 +461,17 @@
 
     <resultMap id="AcademyResultMap" type="com.green.acamatch.academy.model.GetAcademyDetailRes">
         <!-- 학원 정보 매핑 -->
-        <id property="acaId" column="acaId"/>
-        <result property="acaName" column="acaName"/>
-        <result property="acaPic" column="acaPic"/>
+        <id property="acaId" column="aca_id"/>
+        <result property="acaName" column="aca_name"/>
+        <result property="acaPic" column="aca_pic"/>
         <result property="address" column="address"/>
-        <result property="acaPhone" column="acaPhone"/>
-        <result property="teacherNum" column="teacherNum"/>
-        <result property="comments" column="comments"/>
+        <result property="acaPhone" column="aca_phone"/>
+        <result property="teacherNum" column="teacher_num"/>
+        <result property="comments" column="comment"/>
         <result property="star" column="star"/>
         <result property="reviewCount" column="reviewCount"/>
         <result property="likeCount" column="likeCount"/>
         <result property="isLiked" column="isLiked"/>
-        <result property="JCCertification" column="JCCertification"/>
         <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
 
         <!-- 클래스 정보 매핑 (하위 리스트) -->
@@ -487,6 +486,7 @@
             <result property="classPrice" column="classPrice"/>
             <result property="classDay" column="classDay"/>
             <result property="classCategoryName" column="classCategoryName"/>
+            <result property="userCertification" column="userCertification"/>
         </collection>
 
         <!-- 리뷰 정보 매핑 (하위 리스트) -->
@@ -501,47 +501,37 @@
     </resultMap>
 
     <select id="getAcademyWithClasses" resultMap="AcademyResultMap">
-        WITH PagedReviews AS (
+        WITH LatestReviews AS (
         SELECT
-        RV.comment AS reviewComment,
-        RV.star AS reviewStar,
-        RV.created_at AS reviewCreatedAt,
-        JC.user_id AS reviewUserId,
-        U.nick_name AS reviewUserNickName,
-        RC.class_name AS reviewClassName,
-        RV.join_class_id AS reviewJoinClassId,
-        JC.certification
-        FROM review RV
-        LEFT JOIN joinclass JC ON RV.join_class_id = JC.join_class_id
-        LEFT JOIN user U ON JC.user_id = U.user_id
-        LEFT JOIN class RC ON RV.join_class_id = RC.class_id
-        JOIN class C ON RV.join_class_id = C.class_id
+        A.comment AS reviewComment,
+        A.star AS reviewStar,
+        A.created_at AS reviewCreatedAt,
+        B.user_id AS reviewUserId,
+        D.nick_name AS reviewUserNickName,
+        C.class_name AS reviewClassName,
+        B.join_class_id AS reviewJoinClassId,
+        C.aca_id,
+        C.class_id
+        FROM review A
+        JOIN joinclass B ON A.join_class_id = B.join_class_id
+        JOIN class C ON B.class_id = C.class_id
+        JOIN user D ON B.user_id = D.user_id
         WHERE C.aca_id = #{acaId}
-        ORDER BY RV.created_at DESC
+        ORDER BY A.created_at DESC
         LIMIT #{startIdx}, #{size}
-        )
-
+        ),
+        ReviewStats AS (
         SELECT
-        A.aca_id AS acaId,
-        A.aca_name AS acaName,
-        A.aca_pic AS acaPic,
-        A.address,
-        A.aca_phone AS acaPhone,
-        A.teacher_num AS teacherNum,
-        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
-        IFNULL(A.comment, 'No comments') AS comments,
-        COALESCE(G.star, 0) AS star,
-        COALESCE(R.reviewCount, 0) AS reviewCount,
-        COALESCE(L.likesCount, 0) AS likeCount,
-        <if test="signedUserId != null and signedUserId != '' ">
-        CASE
-        WHEN UL.user_id IS NOT NULL THEN TRUE
-        ELSE FALSE
-        END AS isLiked,
-        </if>
-        IFNULL(PR.certification, 0) AS JCCertification,
-
-        -- 클래스 정보
+        C.class_id,
+        ROUND(AVG(A.star), 2) AS avgStar,  -- 별점 평균
+        COUNT(A.join_class_id) AS reviewCount  -- 리뷰 개수 수정
+        FROM review A
+        JOIN joinclass B ON A.join_class_id = B.join_class_id  -- 수정된 조인
+        JOIN class C ON B.class_id = C.class_id  -- 수정된 조인
+        GROUP BY C.aca_id
+        ),
+        AcademyClass AS (
+        SELECT
         C.class_id AS classId,
         C.class_name AS className,
         C.class_comment AS classComment,
@@ -550,55 +540,104 @@
         C.start_time AS classStartTime,
         C.end_time AS classEndTime,
         C.price AS classPrice,
-        GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,
+        GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,  -- 요일 리스트
         GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
-
-        -- 리뷰 정보 (페이징된 결과)
-        PR.reviewComment,
-        PR.reviewStar,
-        PR.reviewCreatedAt,
-        PR.reviewUserId,
-        PR.reviewUserNickName,
-        PR.reviewClassName
-
-        FROM academy A
-        LEFT JOIN academytag E ON A.aca_id = E.aca_id
-        LEFT JOIN tag F ON E.tag_id = F.tag_id
-        LEFT JOIN (
-        SELECT ROUND(AVG(R.star), 2) AS star, C.aca_id
-        FROM review R
-        JOIN class C ON R.join_class_id = C.class_id
-        GROUP BY C.aca_id
-        ) G ON G.aca_id = A.aca_id
-        LEFT JOIN class C ON A.aca_id = C.aca_id
-        LEFT JOIN (
-        SELECT aca_id, COUNT(*) AS likesCount
-        FROM `like`
-        GROUP BY aca_id
-        ) L ON L.aca_id = A.aca_id
-        LEFT JOIN (
-        SELECT C.aca_id, COUNT(*) AS reviewCount
-        FROM review R
-        JOIN class C ON R.join_class_id = C.class_id
-        GROUP BY C.aca_id
-        ) R ON R.aca_id = A.aca_id
-        LEFT JOIN classcategory CC ON C.class_id = CC.class_id
-        LEFT JOIN category CAT ON CC.category_id = CAT.category_id
+        C.aca_id
+        FROM class C
         LEFT JOIN classweekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
-        <if test="signedUserId != null and signedUserId != '' ">
-        LEFT JOIN (
-        SELECT aca_id, user_id
+        LEFT JOIN classcategory CC ON C.class_id = CC.class_id
+        LEFT JOIN category CAT ON CC.category_id = CAT.category_id
+        GROUP BY C.class_id
+        ),
+        UserCertification AS (
+        SELECT
+        JC.class_id,
+        CASE
+        WHEN COUNT(JC.join_class_id) > 0 THEN 1
+        ELSE 0
+        END AS isCertified
+        FROM joinclass JC
+        WHERE JC.user_id = #{signedUserId}  -- 특정 유저 ID
+        GROUP BY JC.class_id
+        ),
+        UserLikes AS (
+        SELECT
+        L.aca_id,
+        1 AS isLiked
+        FROM `like` L
+        WHERE L.user_id = #{signedUserId}  -- 특정 유저 ID
+        ),
+        LikeCount AS (
+        SELECT
+        aca_id,
+        COUNT(*) AS likeCount
         FROM `like`
-        WHERE user_id = #{signedUserId}
-        ) UL ON UL.aca_id = A.aca_id
-        </if>
-        LEFT JOIN PagedReviews PR ON PR.reviewJoinClassId = C.class_id
+        GROUP BY aca_id
+        ),
+        AcademyTag AS (
+        SELECT
+        AT.aca_id,
+        GROUP_CONCAT(DISTINCT T.tag_name ORDER BY T.tag_name ASC SEPARATOR ', ') AS tagName
+        FROM academytag AS AT
+        JOIN tag AS T
+        ON AT.tag_id = T.tag_id
+        GROUP BY AT.aca_id
+        )
+        SELECT
+        A.aca_id,
+        A.aca_name,
+        A.address,
+        A.aca_phone,
+        A.teacher_num,
+        A.comment,
+        A.aca_pic,
 
+        AT.tagName,
+
+        -- 클래스별 정보
+        AC.classId,
+        AC.className,
+        AC.classComment,
+        AC.classStartDate,
+        AC.classEndDate,
+        AC.classStartTime,
+        AC.classEndTime,
+        AC.classPrice,
+        AC.classDay,
+        AC.classCategoryName,
+
+        -- 학원별 총 좋아요 수
+        COALESCE(LC.likeCount, 0) AS likeCount,
+
+        -- 클래스별 평균 별점 및 리뷰 개수
+        COALESCE(RS.avgStar, 0) AS star,
+        COALESCE(RS.reviewCount, 0) AS reviewCount,
+
+        -- 해당 유저의 클래스별 수강 여부
+        COALESCE(UC.isCertified, 0) AS userCertification,
+
+        -- 해당 유저의 좋아요 여부 (학원 또는 클래스에 대한 좋아요)
+        COALESCE(UL.isLiked, 0) AS isLiked,
+
+        -- 최신 리뷰 정보 (클래스별로)
+        R.reviewComment,
+        R.reviewStar,
+        R.reviewCreatedAt,
+        R.reviewUserId,
+        R.reviewUserNickName,
+        R.reviewClassName,
+        R.reviewJoinClassId
+
+        FROM academy A
+        JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
+        LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택
+        LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId  -- 클래스별 별점 평균 및 리뷰 개수
+        LEFT JOIN UserCertification UC ON UC.class_id = AC.classId  -- 유저의 클래스별 수강 여부
+        LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id
+        LEFT JOIN UserLikes UL ON UL.aca_id = A.aca_id
+        LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
-        GROUP BY A.aca_id, C.class_id, PR.reviewComment, PR.reviewStar, PR.reviewCreatedAt, PR.reviewUserId, PR.reviewUserNickName, PR.reviewClassName
-        ORDER BY C.class_id;
-
     </select>
 
     <select id="getAcademyListRandom">
@@ -695,5 +734,23 @@
         FROM academy A
         RIGHT JOIN user U
         ON A.user_id = U.user_id
+    </select>
+    <select id="getReviewInfo">
+        SELECT R.join_class_id, R.`comment`, R.star, R.created_at, JCC.reviewCount, JCC.starAvg
+        , U.user_id, U.user_pic, U.nick_name, C.class_name
+        FROM review R
+        JOIN joinclass JC ON R.join_class_id = JC.join_class_id
+        JOIN class C ON C.class_id = JC.class_id
+        JOIN academy A ON A.aca_id = C.aca_id
+        JOIN (
+        SELECT COUNT(R.join_class_id) AS reviewCount, A.aca_id, ROUND(AVG(R.star), 1) AS starAvg
+        FROM review R
+        JOIN joinclass JC ON R.join_class_id = JC.join_class_id
+        JOIN class C ON C.class_id = JC.class_id
+        JOIN academy A ON A.aca_id = C.aca_id
+        WHERE A.aca_id = #{acaId}
+        ) JCC ON JCC.aca_id = A.aca_id
+        JOIN user U ON JC.user_id = U.user_Id
+        LIMIT #{startIdx}, #{size};
     </select>
 </mapper>
