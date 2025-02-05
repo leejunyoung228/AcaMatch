@@ -30,17 +30,17 @@ public class StudentGradeService {
     private String filePath;
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
-    public String exportToExcel(long subjectId, HttpServletResponse response) { // subjectId를 매개변수로 추가
-        Path excelFilePath = Paths.get(filePath);
+    public void exportToExcel(long subjectId, HttpServletResponse response) { // subjectId를 매개변수로 추가
+//        Path excelFilePath = Paths.get(filePath);
+//
+//        try {
+//            Files.createDirectories(excelFilePath.getParent());
+//        } catch (IOException e) {
+//            log.error("디렉터리 생성 실패", e);
+//            return "엑셀 파일 저장 실패: 디렉터리 생성 오류";
+//        }
 
-        try {
-            Files.createDirectories(excelFilePath.getParent());
-        } catch (IOException e) {
-            log.error("디렉터리 생성 실패", e);
-            return "엑셀 파일 저장 실패: 디렉터리 생성 오류";
-        }
-
-        String sql = "SELECT A.user_id, E.grade_id, A.`name`, D.subject_name, E.exam_date,\n" +
+        String sql = "SELECT B.user_id, E.grade_id, A.`name`, D.subject_name, E.exam_date,\n" +
                 "CASE WHEN D.SCORE_TYPE = 0 THEN E.score ELSE NULL END AS result_score,\n" +
                 "CASE WHEN D.SCORE_TYPE != 0 THEN\n" +
                 "CASE WHEN COALESCE(E.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass\n" +
@@ -49,13 +49,13 @@ public class StudentGradeService {
                 "ON A.user_id = B.user_id\n" +
                 "INNER JOIN class C\n" +
                 "ON B.class_id = C.class_id\n" +
-                "INNER JOIN subject D\n" +
+                "INNER JOIN `subject` D\n" +
                 "ON C.class_id = D.class_id\n" +
                 "INNER JOIN grade E\n" +
                 "ON B.join_class_id = E.join_class_id\n" +
-                "WHERE D.subject_id = ?\n" +
-                "GROUP BY A.user_id\n" +
-                "ORDER BY A.user_id";
+                "WHERE E.subject_id = ?\n" +
+                "GROUP BY user_id\n" +
+                "ORDER BY A.user_id;";
 
         try (Connection conn = MariaDBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -63,7 +63,6 @@ public class StudentGradeService {
 
             pstmt.setLong(1, subjectId);
             ResultSet rs = pstmt.executeQuery();
-
             Sheet sheet = workbook.createSheet("Student Grades");
             int rowIndex = 0;
 
@@ -91,26 +90,29 @@ public class StudentGradeService {
 
             response.setContentType("application/vnd.ms-excel");
             response.setHeader("Content-Disposition", "attachment; filename=student_grades.xlsx");
+            workbook.write(response.getOutputStream());
+            response.getOutputStream().flush();
 
-            // 엑셀 파일 저장
-            try {
-                workbook.write(response.getOutputStream());
-                workbook.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return response.toString();
+//            // 엑셀 파일 저장
+//            try {
+//                workbook.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            return response.toString();
 
         } catch (Exception e) {
             log.error("엑셀 내보내기 실패", e);
-            return "엑셀 파일 저장 실패: " + e.getMessage();
         }
     }
 
-    public String importFromExcel(MultipartFile file) {
+    public ResultResponse<Integer> importFromExcel(MultipartFile file) {
 
         if (!file.getOriginalFilename().endsWith(".xlsx") && !file.getOriginalFilename().endsWith(".xls")) {
-            return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
+            return ResultResponse.<Integer>builder()
+                    .resultMessage("엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.")
+                    .resultData(0) // 실패를 나타내는 값 0
+                    .build();
         }
 
         try {
@@ -135,15 +137,22 @@ public class StudentGradeService {
                     // DB 업데이트 시 예외 발생하면 그대로 throw
                     updateStudentGrade(gradeId, score, pass);
                 }
-                return "DB에 수정을 성공하였습니다.";
-
-            } catch (org.apache.poi.openxml4j.exceptions.OLE2NotOfficeXmlFileException e) {
-                return "엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.";
+                return ResultResponse.<Integer>builder()
+                        .resultMessage("DB에 수정을 성공하였습니다.")
+                        .resultData(1)
+                        .build();
+                
             } catch (Exception e) {
-                return "DB 수정 중 오류 발생: " + e.getMessage();
+                return ResultResponse.<Integer>builder()
+                        .resultMessage("DB 수정 중 오류 발생: " + e.getMessage())
+                        .resultData(0)
+                        .build();
             }
         } catch (IOException e) {
-            return "파일 처리 중 오류 발생" + e.getMessage();
+            return ResultResponse.<Integer>builder()
+                    .resultMessage("파일 처리 중 오류 발생: " + e.getMessage())
+                    .resultData(0)
+                    .build();
         }
     }
 

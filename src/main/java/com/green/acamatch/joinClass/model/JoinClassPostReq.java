@@ -16,6 +16,6 @@ public class JoinClassPostReq {
     private long userId;
     @Schema(title = "할인율", example = "0")
     private int discount;
-//    @Schema(title = "인가 여부", example = "true")
-//    private boolean certification;
+    @Schema(title = "인가 여부", example = "true")
+    private boolean certification;
 }

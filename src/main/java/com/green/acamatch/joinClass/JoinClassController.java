@@ -22,7 +22,7 @@ public class JoinClassController {
     private final UserMessage userMessage;
 
     @PostMapping
-    @Operation(summary = "수강 신청 하기")
+    @Operation(summary = "수강 신청 하기/ true = 1, false = 0")
     public ResultResponse<Integer> postJoinClass(@RequestBody JoinClassPostReq p) {
         try {
         Integer result = service.postJoinClass(p);
