@@ -28,7 +28,7 @@ public class CSDController {
     public ResultResponse<List<GetCityRes>> getCityList(){
         List<GetCityRes> res = service.getCityList();
         return ResultResponse.<List<GetCityRes>>builder()
-                .resultMessage(academyMessage.getMessage())
+                .resultMessage("도시 리스트 불러오기 성공")
                 .resultData(res)
                 .build();
     }
@@ -38,7 +38,7 @@ public class CSDController {
     public ResultResponse<List<GetStreetRes>> getStreetList(GetStreetReq p){
         List<GetStreetRes> res = service.getStreetList(p);
         return ResultResponse.<List<GetStreetRes>>builder()
-                .resultMessage(academyMessage.getMessage())
+                .resultMessage("시/군/구 리스트 불러오기 성공")
                 .resultData(res)
                 .build();
     }
@@ -48,7 +48,7 @@ public class CSDController {
     public ResultResponse<List<GetDongRes>> getDongList(GetDongReq p) {
         List<GetDongRes> res = service.getDongList(p);
         return ResultResponse.<List<GetDongRes>>builder()
-                .resultMessage(academyMessage.getMessage())
+                .resultMessage("동 리스트 불러오기 성공")
                 .resultData(res)
                 .build();
     }
