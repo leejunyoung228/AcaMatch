@@ -14,7 +14,7 @@ import java.util.Objects;
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long qnaId;
+    private Long chatId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
