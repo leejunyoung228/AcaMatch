@@ -41,29 +41,8 @@ public interface AcademyMapper {
     //학원 상세 정보 불러오기
     GetAcademyDetail getAcademyDetail(Long acaId);
 
-    //카테고리로 학원 필터링하기
-    List<GetCategorySearchRes> getCategorySearch(GetCategorySearchReq p);
-
     //학원이 등록한 태그 리스트 불러오기
     List<GetAcademyTagDto> getTagList(Long acaId);
-
-    // 도시 리스트 가져오기
-    List<GetCityRes> getCity();
-
-    // 시/군/구 리스트 가져오기
-    List<GetStreetRes> getStreet(GetStreetReq p);
-
-    // 동 리스트 가져오기
-    List<GetDongRes> getDong(GetDongReq p);
-
-    //동만 입력해서 학원 리스트 불러오기
-    List<GetAcademyByDongRes> getAcademyListByDong(GetAcademyByDongReq p);
-
-    //동과 검색어를 입력받아 학원 리스트 불러오기
-    List<GetAcademyBySearchNameRes> getAcademyListBySearchName(GetAcademyBySearchNameReq p);
-
-    //검색어만 입력받아 학원 리스트 불러오기
-    List<GetAcademyByOnlySearchNameRes> getAcademyByOnlySearchName(GetAcademyByOnlySearchNameReq p);
 
     //검색어를 입력받아 태그 리스트 불러오기
     List<GetTagListBySearchNameRes> getTagListBySearchName(GetTagListBySearchNameReq p);
@@ -93,6 +72,4 @@ public interface AcademyMapper {
     List<GetDefaultRes> getDefault();
 
     GetAcademyCountRes GetAcademyCount();
-
-    List<GetReviewInfoRes> getReviewInfo(GetReviewInfoReq p);
 }

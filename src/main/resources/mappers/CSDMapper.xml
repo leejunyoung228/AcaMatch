@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.acamatch.academy.mapper.CSDMapper">
+    <!-- 도시 리스트 불러오기-->
+    <select id="getCity">
+        SELECT city_id, city_name
+        FROM city
+    </select>
+
+    <!-- 시/군/구 리스트 불러오기-->
+    <select id="getStreet">
+        SELECT street_id, street_name
+        FROM street
+        WHERE city_id = #{cityId}
+    </select>
+
+    <!-- 동 리스트 불러오기-->
+    <select id="getDong">
+        SELECT A.dong_id, A.dong_name
+        FROM dong A
+        JOIN street B
+        ON A.street_id = B.street_id
+        WHERE B.street_id = #{streetId}
+        AND city_id = #{cityId};
+    </select>
+</mapper>
