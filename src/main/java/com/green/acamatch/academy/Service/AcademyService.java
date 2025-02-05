@@ -525,4 +525,7 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
         return academyMapper.GetAcademyCount();
     }
 
+    public List<GetReviewInfoRes> getReviewInfo(GetReviewInfoReq p){
+        return academyMapper.getReviewInfo(p);
+    }
 }

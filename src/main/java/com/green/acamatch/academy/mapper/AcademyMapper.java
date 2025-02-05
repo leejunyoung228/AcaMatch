@@ -94,4 +94,6 @@ public interface AcademyMapper {
     List<GetDefaultRes> getDefault();
 
     GetAcademyCountRes GetAcademyCount();
+
+    List<GetReviewInfoRes> getReviewInfo(GetReviewInfoReq p);
 }
