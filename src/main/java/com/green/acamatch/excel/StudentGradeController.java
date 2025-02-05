@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +24,8 @@ public class StudentGradeController {
     @GetMapping("/export")
     @Operation(summary = "엑셀 파일로 내보내기")
     public ResultResponse<String> exportToExcel(@Parameter(name = "subjectId", required = true, in = ParameterIn.QUERY)
-                                                @RequestParam long subjectId) {
-        String result = studentGradeService.exportToExcel(subjectId);
+                                                @RequestParam long subjectId, HttpServletResponse response) {
+        String result = studentGradeService.exportToExcel(subjectId, response);
         boolean isSuccess = !result.startsWith("엑셀 파일 저장 실패");
         return ResultResponse.<String>builder()
                 .resultMessage(isSuccess ? "엑셀 파일 내보내기에 성공하였습니다." : "엑셀 파일 내보내기에 실패하였습니다.")
