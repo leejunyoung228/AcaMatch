@@ -3,6 +3,7 @@ package com.green.acamatch.excel;
 
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.excel.MariaDBConnection;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -29,7 +30,7 @@ public class StudentGradeService {
     private String filePath;
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
-    public String exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
+    public String exportToExcel(long subjectId, HttpServletResponse response) { // subjectId를 매개변수로 추가
         Path excelFilePath = Paths.get(filePath);
 
         try {
@@ -88,12 +89,17 @@ public class StudentGradeService {
                 row.createCell(6).setCellValue(rs.getInt("result_pass"));
             }
 
+            response.setContentType("application/vnd.ms-excel");
+            response.setHeader("Content-Disposition", "attachment; filename=student_grades.xlsx");
+
             // 엑셀 파일 저장
-            try (FileOutputStream fos = new FileOutputStream(excelFilePath.toString())) {
-                workbook.write(fos);
-                log.info("엑셀 파일 저장 경로: {}", excelFilePath);
-                return excelFilePath.toString();
+            try {
+                workbook.write(response.getOutputStream());
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            return response.toString();
 
         } catch (Exception e) {
             log.error("엑셀 내보내기 실패", e);
