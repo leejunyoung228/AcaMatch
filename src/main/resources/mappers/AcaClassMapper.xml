@@ -74,7 +74,7 @@
     </resultMap>
 
     <select id="selAcaClassDetail" resultMap="ClassResultMap">
-        SELECT A.class_id, B.aca_name, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price,
+        SELECT B.aca_name, A.class_id, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price,
         D.`day`, F.category_name
         FROM class A
         INNER JOIN academy B
@@ -118,8 +118,9 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
+    <!-- 학원당 강좌 가져오기 -->
     <select id = "selAcaClass">
-        SELECT A.aca_pic, B.class_name, B.start_date, B.end_date
+        SELECT A.aca_pic, B.class_id, B.class_name, B.start_date, B.end_date
         FROM academy A
         INNER JOIN class B
         ON A.aca_id = B.aca_id

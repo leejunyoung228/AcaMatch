@@ -134,4 +134,13 @@ public class UserController {
                 .resultData(authService.getAccessToken(request))
                 .build();
     }
+
+    @GetMapping("total_user")
+    @Operation(summary = "유저수 조회")
+    public ResultResponse<Long> getTotalUser() {
+        return ResultResponse.<Long>builder()
+                .resultMessage("유저수 조회 성공")
+                .resultData(userService.getTotalUserCount())
+                .build();
+    }
 }

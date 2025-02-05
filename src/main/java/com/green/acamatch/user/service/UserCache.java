@@ -5,7 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import com.green.acamatch.config.constant.EmailConst;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.EmailErrorCode;
-import com.green.acamatch.user.entity.User;
+import com.green.acamatch.entity.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

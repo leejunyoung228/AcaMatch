@@ -55,7 +55,7 @@
     <update id="updAcademy">
         UPDATE academy
         <set>
-            <if test="dongId != ''">
+            <if test="dongId != '' and dongId != null">
                 dong_id = #{dongId}
             </if>
             <if test="acaName != null and acaName != ''">
@@ -76,7 +76,7 @@
             <if test="closeTime != null and closeTime != ''">
                 , close_time = #{closeTime}
             </if>
-            <if test="acaPic != null and acaPic != ''">
+            <if test="acaPic != null">
                 , aca_pic = #{acaPic}
             </if>
             <if test="address != null and address != ''">
@@ -88,36 +88,6 @@
         AND user_id = #{userId}
     </update>
 
-<!--&lt;!&ndash;학원주소 다른 테이블에 삽입&ndash;&gt;
-    <insert id="insAcademyAddress">
-        <choose>
-            <when test="address != null and address != ''">
-                INSERT INTO academyupdates (aca_id, address)
-                VALUES (#{acaId}, #{address})
-            </when>
-            <otherwise>
-                &lt;!&ndash; address가 없으면 아무 것도 삽입하지 않음 &ndash;&gt;
-            </otherwise>
-        </choose>
-    </insert>
-
-&lt;!&ndash;학원주소 다른 테이블 뽑기&ndash;&gt;
-    <select id="selAcademyUpdatesAddress">
-        SELECT address
-        FROM academyupdates
-        WHERE aca_id = #{acaId}
-    </select>
-
-&lt;!&ndash;학원주소 다른 테이블에서 수정&ndash;&gt;
-    <update id="updAcademyAddress">
-        UPDATE academyupdates
-        <set>
-            <if test="address != null and address != ''">
-                address = #{address}
-            </if>
-        </set>
-        WHERE aca_id = #{acaId}
-    </update>-->
 
 <!-- db에 주소 뽑아내기-->
     <select id="getAcademyAddress">
@@ -144,9 +114,10 @@
     <select id="getAcademyBest" resultType="com.green.acamatch.academy.model.AcademyBestLikeGetRes">
         SELECT a.aca_id,
                 COUNT(DISTINCT a.user_id) AS like_count,
-                b.aca_pic,
+                b.aca_name, b.aca_pic,
                 GROUP_CONCAT(DISTINCT c.tag_id ORDER BY c.tag_id ASC) AS tag_ids,
-                AVG(f.star) AS star_avg,
+                GROUP_CONCAT(DISTINCT g.tag_name ORDER BY c.tag_id ASC) AS tag_names,
+                ifnull(AVG(f.star), 0) AS star_avg,
                 COUNT(DISTINCT f.`comment`) AS review_count
          FROM `like` a
          LEFT JOIN `academy` b
@@ -159,9 +130,21 @@
            ON d.class_id = e.class_id
          LEFT JOIN `review` f
            ON e.join_class_id = f.join_class_id
+         LEFT JOIN `tag` g
+           ON c.tag_id = g.tag_id
         GROUP BY a.aca_id
         ORDER BY like_count DESC
         LIMIT #{startIdx}, #{size}
+    </select>
+
+    <select id="selAcademyCount">
+        SELECT COUNT(aca_id) AS academy_count
+        FROM academy
+    </select>
+
+    <select id="selAcademyLikeCount">
+        SELECT COUNT(DISTINCT a.aca_id) AS academy_like_count
+        FROM `like` a
     </select>
 
     <!-- 학원 검색 -->
@@ -559,8 +542,6 @@
         C.price AS classPrice,
         GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,  -- 요일 리스트
         GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
-        C.aca_id
-        FROM class C
         LEFT JOIN classweekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
         LEFT JOIN classcategory CC ON C.class_id = CC.class_id
@@ -645,7 +626,6 @@
         R.reviewUserNickName,
         R.reviewClassName,
         R.reviewJoinClassId
-
         FROM academy A
         JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
         LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택

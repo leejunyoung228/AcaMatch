@@ -9,12 +9,11 @@ import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
 import com.green.acamatch.config.jwt.JwtUser;
 import com.green.acamatch.user.UserUtils;
-import com.green.acamatch.user.entity.User;
+import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.FindPwReq;
 import com.green.acamatch.user.model.UserSignInReq;
 import com.green.acamatch.user.model.UserSignInRes;
 import com.green.acamatch.user.model.UserSignUpReq;
-import com.green.acamatch.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +29,6 @@ public class AuthService {
     private final EmailService emailService;
     private final UserCache userCache;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtConst jwtConst;
     private final EmailConst emailConst;
@@ -38,8 +36,8 @@ public class AuthService {
     private final UserUtils userUtils;
 
     public UserSignInRes signIn(UserSignInReq req, HttpServletResponse response) {
-        User user = userRepository.getUserByEmail(req.getEmail());
-        if (user == null || !passwordEncoder.matches(req.getUpw(), user.getUpw())) {
+        User user = userUtils.findUserByEmail(req.getEmail());
+        if (!passwordEncoder.matches(req.getUpw(), user.getUpw())) {
             throw new CustomException(UserErrorCode.INCORRECT_ID_PW);
         }
 
@@ -63,17 +61,14 @@ public class AuthService {
     }
 
     public int sendTempPwEmail(FindPwReq req) {
-        User user = userRepository.getUserByEmail(req.getEmail());
-        if (user == null) {
-            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
-        }
+        User user = userUtils.findUserByEmail(req.getEmail());
         String pw = CodeGenerate.generateCode(8);
         userCache.saveTempPw(user.getUserId(), pw);
         emailService.sendCodeToEmail(
                 req.getEmail(),
                 emailConst.getFindPwSubject(),
                 emailService.getHtmlTemplate(emailConst.getFindPwTemplateName(),
-                        emailService.getContext( emailConst.getTempPwUrl(), user.getUserId(), pw))
+                        emailService.getContext(emailConst.getTempPwUrl(), user.getUserId(), pw))
         );
         return 1;
     }

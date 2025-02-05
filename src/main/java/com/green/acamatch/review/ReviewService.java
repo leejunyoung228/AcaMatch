@@ -7,10 +7,13 @@ import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -77,85 +80,93 @@ public class ReviewService {
         return true;
     }
 
-    /**  리뷰 등록 */
+    // 리뷰 등록
     @Transactional
     public int addReview(ReviewPostReq req) {
         long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
         long requestUserId = req.getUserId();
-        //  유효성 검사 적용
-        validateReviewRequest(req);
-        if (!validateReviewRequest(req)) {
-            return 0;
-        }
 
+        // 1. 본인 계정 검증
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
             return 0;
         }
 
-        //  유효성 검사에서 설정된 에러 메시지가 있다면 요청 중단
-        if (userMessage.getMessage() != null) {
-            return 0;
-        }
-        //  유저 존재 여부 확인 (추가)
+        // 2. 유효한 유저인지 확인
         validateUserExists(requestUserId);
 
-        //  요청 바디의 userId가 0이면 메시지 설정 후 요청 중단
-        if (requestUserId == 0) {
-            userMessage.setMessage("유효하지 않은 요청입니다. 올바른 유저 ID를 입력하세요.");
+        validateReviewRequest(req);
+        if (!validateReviewRequest(req)) {
             return 0;
         }
 
-
-        //  JWT userId와 요청 userId 비교
-        if (jwtUserId != requestUserId) {
-            String errorMessage = String.format("로그인한 유저의 아이디(%d)와 요청한 유저의 아이디(%d)가 일치하지 않습니다.", jwtUserId, requestUserId);
-            userMessage.setMessage(errorMessage);
+        // 3. 수업 참여 여부 확인 (joinClassId 조회)
+        Long joinClassId = mapper.findJoinClassIdByClassAndUser(req.getClassId(), requestUserId);
+        if (joinClassId == null) {
+            userMessage.setMessage("해당 수업에 등록된 기록이 없습니다.");
             return 0;
         }
 
-
+        // 4. 리뷰 등록 (중복 예외 처리 포함)
         try {
-            mapper.insertReview(req);
+            log.info("리뷰 등록 시도 - joinClassId: {}, userId: {}, comment: {}, star: {}",
+                    joinClassId, requestUserId, req.getComment(), req.getStar());
+
+            mapper.insertReview(joinClassId, req.getUserId(), req.getComment(), req.getStar());
+
+            log.info("리뷰 등록 성공 - joinClassId: {}, userId: {}", joinClassId, requestUserId);
         } catch (DuplicateKeyException ex) {
-            userMessage.setMessage("이미 등록된 리뷰입니다.");
-            return 0;
+            log.error("이미 등록된 리뷰입니다. joinClassId: {}, userId: {}", joinClassId, requestUserId);
+            throw new  CustomException(ReviewErrorCode.CONFLICT_REVIEW_ALREADY_EXISTS);
         } catch (Exception ex) {
-            userMessage.setMessage("리뷰 등록 중 오류가 발생했습니다.");
-            return 0;
+            log.error("리뷰 등록 중 오류 발생 - joinClassId: {}, userId: {}, 오류: {}",
+                    joinClassId, requestUserId, ex.getMessage(), ex);
+            throw new RuntimeException("리뷰 등록 중 오류가 발생했습니다.", ex);
         }
 
         userMessage.setMessage("리뷰 등록이 완료되었습니다.");
         return 1;
     }
 
+
     /**  리뷰 수정 */
     @Transactional
     public int updateReview(ReviewUpdateReq req) {
+        userMessage.setMessage(null); // 🔥 요청 시작 전에 초기화
+        log.debug("Updating review for user ID: {}, class ID: {}", req.getUserId(), req.getClassId());
 
-        // 유저 존재 여부 확인 (추가)
+        // 유저 존재 여부 확인
         validateUserExists(req.getUserId());
 
-
+        // 유저 인증 확인
         if (!isAuthorizedUser(req.getUserId())) {
-            return 0;  //  인증되지 않은 요청이면 바로 종료
-        }
-
-        validateReviewRequest(req);
-        if (!validateReviewRequest(req)) {
+            log.warn("Unauthorized access attempt by user ID: {}", req.getUserId());
             return 0;
         }
-        //  유효성 검사에서 설정된 에러 메시지가 있다면 요청 중단
+
+        // 리뷰 요청 유효성 검사
+        boolean isValid = validateReviewRequest2(req);
+        if (!isValid) {
+            log.warn("Invalid review update request: {}", req);
+            return 0;
+        }
+
+        // 유효성 검사 실패 메시지가 존재하는 경우 처리 중단
         if (userMessage.getMessage() != null) {
+            log.warn("Validation failed with message: {}", userMessage.getMessage());
+            userMessage.setMessage(null); // 메시지 초기화
             return 0;
         }
 
+        // 리뷰 업데이트 수행
         int rowsUpdated = mapper.updateReview(req);
         if (rowsUpdated == 0) {
             userMessage.setMessage("수정할 리뷰를 찾을 수 없습니다.");
             return 0;
         }
 
+        // 데이터 반영 확인
+        log.debug("Review update successful for user ID: {}, class ID: {}", req.getUserId(), req.getClassId());
         userMessage.setMessage("리뷰 수정이 완료되었습니다.");
         return 1;
     }
@@ -196,7 +207,7 @@ public class ReviewService {
         validateUserExists(req.getUserId());
 
         validateAuthenticatedUser(req.getUserId());
-        validateAcademyOwnership(req.getAcaId(), req.getUserId());
+        checkUserAcademyOwnership(req.getAcaId(), req.getUserId());
 
 
         validateReviewRequest(req);
@@ -221,20 +232,18 @@ public class ReviewService {
         return 1;
     }
 
-    /**  학원 리뷰 조회 (로그인 필요) */
+    /**  학원 관리자의 자신의 모든 학원 리뷰 조회 (로그인 필요) */
     @Transactional
-    public List<ReviewDto> getAcademyReviews(ReviewListGetReq req) {
-        validateAcademy(req.getAcaId());
+    public List<ReviewDto> getMyAcademyReviews (MyAcademyReviewListGetReq req) {
+
         //  유저 존재 여부 확인 (추가)
         validateUserExists(req.getUserId());
         validateAuthenticatedUser(req.getUserId());
-        validateAcademy(req.getAcaId());
 
+//        // 학원 관계자 권한 검증 (본인이 관리하는 학원의 리뷰만 조회 가능)
+//        checkUserAcademyOwnership(req.getAcaId(), req.getUserId());
 
-        // 학원 관계자 권한 검증 (본인이 관리하는 학원의 리뷰만 조회 가능)
-        validateAcademyOwnership(req.getAcaId(), req.getUserId());
-
-        List<ReviewDto> reviews = mapper.getAcademyReviews(req);
+        List<ReviewDto> reviews = mapper.getMyAcademyReviews(req);
         if (reviews.isEmpty()) {
             userMessage.setMessage("리뷰가 존재하지 않습니다.");
             return Collections.emptyList();
@@ -243,6 +252,8 @@ public class ReviewService {
         userMessage.setMessage("리뷰 조회가 완료되었습니다.");
         return reviews;
     }
+
+
 
     /**  본인이 작성한 리뷰 목록 조회 */
     @Transactional
@@ -301,30 +312,43 @@ public class ReviewService {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
     }
+
+
     private boolean validateReviewRequest(ReviewPostReq req) {
-        if (req.getJoinClassId() == null || req.getJoinClassId() <= 0 || mapper.isValidJoinClassId(req.getJoinClassId()) == 0) {
-            userMessage.setMessage("유효하지 않은 수업 참여 ID입니다.");
+        // 1. 수업 참여 ID 조회 (classId + userId 기반으로 조회)
+        Long joinClassId = mapper.findJoinClassIdByClassAndUser(req.getClassId(), req.getUserId());
+
+        if (joinClassId == null) {
+            userMessage.setMessage("해당 수업에 등록된 기록이 없습니다.");
             return false;
         }
-        if (mapper.checkEnrollment(req.getJoinClassId(), req.getUserId()) == 0) {
+
+        // 2. 사용자가 수업을 정상적으로 수료했는지 확인
+        if (mapper.checkEnrollment(req.getClassId(), req.getUserId()) == 0) {
             userMessage.setMessage("수업에 참여한 사용자만 리뷰를 작성할 수 있습니다.");
             return false;
         }
+
+        // 3. 별점 유효성 검사
         if (req.getStar() < 1 || req.getStar() > 5) {
             userMessage.setMessage("별점은 1~5 사이의 값이어야 합니다.");
             return false;
         }
+
+        // 4. 리뷰 내용 검증 (빈 문자열 허용)
         if (req.getComment() == null || req.getComment().trim().isEmpty()) {
             req.setComment(""); // 빈 문자열로 설정
         }
+
         return true;
     }
-    private boolean validateReviewRequest(ReviewUpdateReq req) {
-        if (req.getJoinClassId() == null || req.getJoinClassId() <= 0 || mapper.isValidJoinClassId(req.getJoinClassId()) == 0) {
+    
+    private boolean validateReviewRequest2(ReviewUpdateReq req) {
+        if (req.getClassId() == null || req.getClassId() <= 0 || mapper.isValidJoinClassId(req.getClassId()) == 0) {
             userMessage.setMessage("유효하지 않은 수업 참여 ID입니다.");
             return false;
         }
-        if (mapper.checkEnrollment(req.getJoinClassId(), req.getUserId()) == 0) {
+        if (mapper.checkEnrollment(req.getClassId(), req.getUserId()) == 0) {
             userMessage.setMessage("수업에 참여한 사용자만 리뷰를 작성할 수 있습니다.");
             return false;
         }
@@ -372,7 +396,7 @@ public class ReviewService {
     }
 
     /**  학원 관계자 권한 검증 */
-    private void validateAcademyOwnership(long acaId, long userId) {
+    private void checkUserAcademyOwnership(long acaId, long userId) {
         if (!isUserLinkedToAcademy(acaId, userId)) {
             throw new CustomException(ReviewErrorCode.UNAUTHORIZED_ACADEMY_ACCESS);
         }
@@ -388,7 +412,6 @@ public class ReviewService {
         Integer result = mapper.isReviewLinkedToAcademy(joinClassId, acaId);
         return result != null && result > 0;
     }
-
 
 
 }

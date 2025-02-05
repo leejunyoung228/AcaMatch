@@ -4,35 +4,39 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 public class MyReviewDto {
 
-    @Schema(title = "수업 참여 ID", description = "리뷰가 연결된 수업 참여 ID", example = "5")
-    private long joinClassId;  // 리뷰 ID
+    @Schema(title = "수업 ID", description = "개설된 수업강좌 ID", example = "5")
+    private Long classId;
 
-    @Schema(title = "리뷰 내용", description = "리뷰 내용", example = "정말 좋은 수업이었습니다!")
-    private String comment;    // 리뷰 내용
+    @Schema(title = "강좌 이름", description = "개설된 수업강좌 이름", example = "원어민 영어")
+    private String className;
 
-    @Schema(title = "별점", description = "리뷰 별점", example = "5")
-    private int star;          // 별점
-
-    @Schema(title = "작성 날짜", description = "리뷰 작성 날짜", example = "2025-01-18")
-    private String createdAt; // 작성 시간
-
-    @Schema(title = "학원 ID", description = "학원 고유 ID", example = "101")
-    private long acaId;        // 학원 ID
-
-    @Schema(title = "학원 이름", description = "학원 이름", example = "이혜림음악학원")
-    private String acaName; // 학원 이름
-
-    @Schema(title = "작성자 프로필 사진", description = "리뷰 작성자의 프로필 사진 파일명", example = "default_user_pic.jpg")
-    private String userPic;
-
-    @Schema(title = "유저 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long userId;
+    @Schema(title = "작성자 ID", description = "리뷰 작성자의 유저 ID", example = "1")
+    private Long userId;
 
     @Schema(title = "작성자 닉네임", description = "리뷰 작성자의 닉네임", example = "Student123")
     private String writerName;
+
+    @Schema(title = "작성자 프로필 사진", description = "리뷰 작성자의 프로필 사진 파일명", example = "default_user_pic.jpg")
+    private String writerPic;
+
+    @Schema(title = "리뷰 내용", description = "리뷰 내용", example = "정말 좋은 수업이었습니다!")
+    private String comment;
+
+    @Schema(title = "별점", description = "리뷰 별점", example = "5")
+    private int star;
+
+    @Schema(title = "작성 날짜", description = "리뷰 작성 날짜", example = "2025-01-18")
+    private String createdAt;
+
+    @Schema(title = "학원 고유 PK ID", description = "등록된 학원의 ID", example = "26")
+    private Long acaId;
+
+    @Schema(description = "리뷰의 총 갯수")
+    private Integer reviewCount;
 
 }

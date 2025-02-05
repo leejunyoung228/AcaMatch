@@ -40,7 +40,7 @@
     </select>
 
     <select id = "selGradeStatus">
-        SELECT A.aca_pic, C.subject_name, D.exam_date, D.processing_status
+        SELECT A.aca_pic, C.subject_id, C.subject_name, D.exam_date, D.processing_status
         FROM academy A
         INNER JOIN class B
         ON A.aca_id = B.aca_id
@@ -55,13 +55,14 @@
     <resultMap id="gradeUserResultMap" type="com.green.acamatch.grade.model.GradeUserDto">
         <result property="userPic" column="user_pic" />
         <result property="userName" column="name" />
+        <result property="gradeId" column="grade_id" />
         <result property="examDate" column="exam_date" />
         <result property="score" column="result_score" />
         <result property="pass" column="result_pass" />
     </resultMap>
 
     <select id="selGradeUser" resultMap="gradeUserResultMap">
-        SELECT E.user_pic, E.name, D.exam_date,
+        SELECT E.user_pic, E.name, D.grade_id, D.exam_date,
         CASE WHEN F.SCORE_TYPE = 0 THEN D.score ELSE NULL END AS result_score,
         CASE WHEN F.SCORE_TYPE != 0 THEN
         CASE WHEN COALESCE(D.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass

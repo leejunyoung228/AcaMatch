@@ -8,6 +8,7 @@ import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.ErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.entity.academy.Academy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -136,6 +137,7 @@ public class AcademyService {
             if(isValidValue(req.getAddressDto().getAddress())
                     && isValidValue(req.getAddressDto().getDetailAddress())
                     && isValidValue(req.getAddressDto().getPostNum()))  {
+                req.setAddress(addressEncoding(req.getAddressDto()));
                 try {
                     String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
                     Long dongPk = academyMapper.selAddressDong(dongName);
@@ -180,9 +182,6 @@ public class AcademyService {
                     req.setAddress(null);
                 }
             }*/
-        }
-
-            // address, detailAddress, postNum 중 하나 또는 두 개가 비어있으면 에러
             String address = req.getAddressDto().getAddress();
             String detailAddress = req.getAddressDto().getDetailAddress();
             String postNum = req.getAddressDto().getPostNum();
@@ -201,14 +200,32 @@ public class AcademyService {
             if (emptyCount > 0 && emptyCount < 3) {
                 throw new CustomException(AcademyException.ILLEGAL_ARGUMENT_EXCEPTION);
             }
+        }
 
-        /*//academyupdates 테이블 값 넣거나 수정할때
-        AcademyUpdatesGetRes academyUpdatesGetRes = academyMapper.selAcademyUpdatesAddress(req);
-        if(academyUpdatesGetRes == null) {
-            academyMapper.insAcademyAddress(req);
-        }else{
-            academyMapper.updAcademyAddress(req);
-        }*/
+
+        //태그만 값을 가질때
+        if ((req.getTagIdList() != null && !req.getTagIdList().isEmpty()) &&
+                (req.getAcaName() == null || req.getAcaName().isEmpty()) &&
+                (req.getAcaPhone() == null || req.getAcaPhone().isEmpty()) &&
+                (req.getComment() == null || req.getComment().isEmpty()) &&
+                req.getTeacherNum() == 0 &&
+                (req.getOpenTime() == null || req.getOpenTime().isEmpty()) &&
+                (req.getCloseTime() == null || req.getCloseTime().isEmpty()) &&
+                (req.getAddress() == null || req.getAddress().isEmpty()) &&
+                req.getAddressDto() == null &&
+                (req.getAcaPic() == null || req.getAcaPic().isEmpty())) {
+
+                try {
+                    academyMapper.delAcaTag(req.getAcaId());
+                    academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+
+                } catch (DataIntegrityViolationException e) {
+                    throw new CustomException(AcademyException.DUPLICATE_TAG);
+                }
+
+            academyMessage.setMessage("학원정보수정이 완료되었습니다.");
+            return 1;
+        }
 
         int result = academyMapper.updAcademy(req);
 
@@ -218,7 +235,7 @@ public class AcademyService {
             return result;
         }
 
-        if (req.getTagIdList() != null) {
+        if (req.getTagIdList() !=null && !req.getTagIdList().isEmpty()) {
             try {
                 academyMapper.delAcaTag(req.getAcaId());
                 academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
@@ -248,6 +265,12 @@ public class AcademyService {
     //학원좋아요순
     public List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req) {
         List<AcademyBestLikeGetRes> list = academyMapper.getAcademyBest(req);
+
+        AcademyBestLikeGetRes academyLikeCountRes = academyMapper.selAcademyLikeCount();
+
+        for (AcademyBestLikeGetRes academy : list) {
+            academy.setAcademyLikeCount(academyLikeCountRes.getAcademyLikeCount());
+        }
 
         if(list == null) {
             academyMessage.setMessage("좋아요를 받은 학원이 없습니다.");

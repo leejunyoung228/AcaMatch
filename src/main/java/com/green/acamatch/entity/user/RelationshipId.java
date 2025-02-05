@@ -1,4 +1,4 @@
-package com.green.acamatch.user.entity;
+package com.green.acamatch.entity.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

@@ -9,6 +9,8 @@ import lombok.Setter;
 @Getter
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public class GradeUserDto {
+
+    private long gradeId;
     @Schema(title = "유저 사진")
     private String userPic;
     @Schema(title = "유저 이름", example = "홍길동")

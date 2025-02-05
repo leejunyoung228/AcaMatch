@@ -2,10 +2,12 @@ package com.green.acamatch.chat.model;
 
 import com.green.acamatch.config.model.Paging;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.web.bind.annotation.BindParam;
 
 @Getter
+@EqualsAndHashCode(callSuper = false)
 public class ChatReq extends Paging {
     @Schema(name = "user-id")
     private Long userId;
