@@ -1,6 +1,9 @@
 
 package com.green.acamatch.excel;
 
+import com.green.acamatch.config.MyFileUtils;
+import com.green.acamatch.config.constant.EmailConst;
+import com.green.acamatch.config.constant.UserConst;
 import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.ResultResponse;
@@ -30,17 +33,19 @@ import java.sql.*;
 
 @Slf4j
 @Service
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class StudentGradeService {
+    private final EmailConst emailConst;
+    private final MyFileUtils myFileUtils;
 
-    @Value("${excel.path}")  // application.yml의 excel.path 값 주입
+    @Value("${file.directory}")  // application.yml의 excel.path 값 주입
     private String filePath;
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
-    public URL  exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
-        Path excelFilePath = Paths.get(filePath, "studentGrade.xlsx");
+    public String exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
+        Path excelFilePath = Paths.get(filePath, "/student_grades/studentGrade.xlsx");
         log.info("Excel file path: {}", excelFilePath);
-
+        myFileUtils.makeFolders(excelFilePath.getParent().toString());
         try {
             Files.createDirectories(excelFilePath.getParent());
         } catch (IOException e) {
@@ -103,8 +108,8 @@ public class StudentGradeService {
                 workbook.write(fos);
                 log.info("엑셀 파일 저장 경로: {}", excelFilePath);
                 Resource fileResource  = new FileSystemResource(excelFilePath.toFile());
-
-                return fileResource.getURL();
+                String url = String.format("%s/xlsx/student_grades/studentGrade.xlsx", emailConst.getBaseUrl());
+                return url;
             }
 
 //            // 프론트엔드에 파일 경로 반환
