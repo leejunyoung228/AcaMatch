@@ -17,14 +17,14 @@ import java.util.List;
 public class ChatController {
     private final ChatService chatService;
     @PostMapping
-    @Operation(summary = "메세지 전송(로그인 필수)", description = "sender-type : {0: user-> aca, 1: aca -> user}")
+    @Operation(summary = "메세지 전송(로그인 필수)", description = "user-id,aca-id는 채팅하는 사람이 바뀌지 않으면 고정</br>sender-type : {0: user-> aca, 1: aca -> user}")
     public ResultResponse<Integer> sendMessage(ChatSendReq req) {
         chatService.sendMessage(req);
         return ResultResponse.<Integer>builder().resultData(1).build();
     }
 
     @GetMapping("log")
-    @Operation(summary = "메세지 내역 조회(로그인 필수)")
+    @Operation(summary = "메세지 내역 조회(로그인 필수)", description = "user-id,aca-id는 필수")
     public ResultResponse<List<ChatLogList>> getQnas(@ParameterObject @ModelAttribute ChatReq req) {
         return ResultResponse.<List<ChatLogList>>builder().resultData(chatService.getQna(req)).build();
     }

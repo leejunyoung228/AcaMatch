@@ -76,22 +76,22 @@ public class ChatService {
     }
 
     public ChatUserRes getUserList(ChatReq req) {
-        Page<Chat> res;
+        Page<ChatUserList> res;
         Pageable pageable = PageRequest.of(req.getPage() - 1, req.getSize());
         if (req.getUserId() != null) {
             User user = userUtils.findUserById(req.getUserId());
-            res = chatRepository.findDistinctByUserOrderByCreatedAtDesc(user, pageable);
+            res = chatRepository.findByUser(user, pageable);
         } else if (req.getAcaId() != null) {
             Academy academy = academyRepository.findById(req.getAcaId())
                     .orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
-            res = chatRepository.findDistinctByAcademyOrderByCreatedAtDesc(academy, pageable);
+            res = chatRepository.findByAcademy(academy, pageable);
         } else {
             return ChatUserRes.builder().totalPages(0).users(new ArrayList<>()).build();
         }
         return ChatUserRes.builder()
-
                 .totalPages(res.getTotalPages())
-                .users(res.getContent().stream().map(ChatUserList::new).collect(Collectors.toList()))
+                .totalElements(res.getNumberOfElements())
+                .users(res.getContent())
                 .build();
     }
 }
