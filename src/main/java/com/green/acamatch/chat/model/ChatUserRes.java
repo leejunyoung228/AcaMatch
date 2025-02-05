@@ -9,5 +9,6 @@ import java.util.List;
 @Builder
 public class ChatUserRes {
     private int totalPages;
+    private int totalElements;
     private List<ChatUserList> users;
 }
