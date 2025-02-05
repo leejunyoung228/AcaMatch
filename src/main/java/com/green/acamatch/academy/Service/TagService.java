@@ -27,13 +27,14 @@ public class TagService {
     //모든태그 불러오기
     public SelTagRes selTagList(SelTagReq req) {
         List<SelTagDto> list = academyMapper.selTagDtoList(req);
-        if(list == null) {
-            academyMessage.setMessage("관련 태그가 없습니다.");
+        if(list == null || list.isEmpty()) {
+            academyMessage.setMessage(req.getSearchTag() + "관련된 태그가 없습니다.");
             SelTagRes res = new SelTagRes();
             res.setSelTagList(list);
             return res;
         }
 
+        academyMessage.setMessage(req.getSearchTag() + "과 관련된 태그입니다.");
         SelTagRes res = new SelTagRes();
         res.setSelTagList(list);
         return res;

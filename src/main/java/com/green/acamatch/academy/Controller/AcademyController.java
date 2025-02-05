@@ -59,7 +59,7 @@ public class AcademyController {
 
     @GetMapping("best")
     @Operation(summary = "학원들의 좋아요 순", description = "메인페이지는 page=1, size=4, 다른페이지는 맞게 값 요청해주세요.")
-    public ResultResponse<List<AcademyBestLikeGetRes>> getAcademyBest(@ModelAttribute AcademySelOrderByLikeReq req) {
+    public ResultResponse<List<AcademyBestLikeGetRes>> getAcademyBest(@ParameterObject @ModelAttribute AcademySelOrderByLikeReq req) {
         List<AcademyBestLikeGetRes> list = academyService.getAcademyBest(req);
         return ResultResponse.<List<AcademyBestLikeGetRes>>builder()
                 .resultMessage(academyMessage.getMessage())
