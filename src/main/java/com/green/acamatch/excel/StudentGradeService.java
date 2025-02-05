@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -27,7 +32,7 @@ public class StudentGradeService {
     private String filePath;
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
-    public void exportToExcel(long subjectId, HttpServletResponse response) { // subjectId를 매개변수로 추가
+    public ResponseEntity<Map<String, String>> exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
 //        Path excelFilePath = Paths.get(filePath);
 //
 //        try {
@@ -53,6 +58,8 @@ public class StudentGradeService {
                 "WHERE E.subject_id = ?\n" +
                 "GROUP BY user_id\n" +
                 "ORDER BY A.user_id;";
+
+        Path excelFilePath = Paths.get(filePath, "studentGrade.xlsx");
 
         try (Connection conn = MariaDBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -85,21 +92,28 @@ public class StudentGradeService {
                 row.createCell(6).setCellValue(rs.getInt("result_pass"));
             }
 
-            response.setContentType("application/vnd.ms-excel");
-            response.setHeader("Content-Disposition", "attachment; filename=student_grades.xlsx");
-            workbook.write(response.getOutputStream());
-            response.getOutputStream().flush();
+            Files.createDirectories(excelFilePath.getParent());
 
-//            // 엑셀 파일 저장
-//            try {
-//                workbook.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            return response.toString();
+            try (FileOutputStream fileOut = new FileOutputStream(excelFilePath.toFile())) {
+                workbook.write(fileOut);
+            }
+
+            // 프론트엔드에 파일 경로 반환
+            Map<String, String> response = new HashMap<>();
+            response.put("filePath", excelFilePath.toString());
+
+            return ResponseEntity.ok(response);
+
+
+//            response.setContentType("application/vnd.ms-excel");
+//            response.setHeader("Content-Disposition", "attachment; filename=student_grades.xlsx");
+//            workbook.write(response.getOutputStream());
+//            response.getOutputStream().flush();
 
         } catch (Exception e) {
-            log.error("엑셀 내보내기 실패", e);
+            log.error("엑셀 파일 저장 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "엑셀 파일 저장 실패"));
         }
     }
 
