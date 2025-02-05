@@ -9,7 +9,7 @@
         SELECT COUNT(*)
         FROM review r
         JOIN joinclass j ON r.join_class_id = j.join_class_id
-        WHERE r.join_class_id = #{joinClassId}
+        WHERE r.review_id = #{reviewId}
         AND j.user_id = #{userId};
     </select>
 
@@ -53,8 +53,8 @@
         FROM review r
         JOIN joinclass j ON r.join_class_id = j.join_class_id
         JOIN class c ON j.class_id = c.class_id
-        WHERE r.join_class_id = #{joinClassId}
-        AND c.aca_id = #{acaId}  <!-- 학원 ID 추가 -->
+        WHERE r.review_id = #{reviewId}
+        AND c.aca_id = #{acaId}
     </delete>
 
     <!-- 본인 리뷰 삭제 -->
@@ -63,10 +63,22 @@
         FROM review r
         INNER JOIN joinclass j
         ON r.join_class_id = j.join_class_id
-        WHERE r.join_class_id = #{joinClassId}
+        WHERE r.review_id = #{reviewId}
         AND j.user_id = #{userId};
     </delete>
 
+    <select id="checkClassExists">
+        SELECT COUNT(*)
+        FROM class
+        WHERE class_id = #{classId};
+    </select>
+
+
+    <select id="checkReviewExists">
+        SELECT COUNT(*)
+        FROM review
+        WHERE review_id = #{reviewId};
+    </select>
 
     <!-- 학원-사용자 연관 확인 -->
     <select id="isUserLinkedToAcademy">
@@ -105,6 +117,7 @@
         r.comment AS comment,
         r.star AS star,
         r.created_at AS createdAt,
+        r.review_id AS reviewId,
         (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
         JOIN joinclass j ON r.join_class_id = j.join_class_id
@@ -130,6 +143,7 @@
         r.comment AS comment,
         r.star AS star,
         r.created_at AS createdAt,
+        r.review_id AS reviewId,
         (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
         JOIN joinclass j ON r.join_class_id = j.join_class_id
@@ -169,10 +183,11 @@
             u.user_id AS userId,
             u.user_pic AS userPic,
             u.nick_name AS writerName,
-            (SELECT COUNT(*)
-            FROM review r2
-            JOIN joinclass j2 ON r2.join_class_id = j2.join_class_id
-            WHERE j2.class_id = c.class_id) AS reviewCount
+            r.review_id AS reviewId,
+            (SELECT COUNT(*) AS totalReviewCount
+            FROM review r
+            JOIN joinclass j ON r.join_class_id = j.join_class_id
+            WHERE j.user_id = #{userId}) AS myReviewCount
             FROM
             review r
             JOIN
