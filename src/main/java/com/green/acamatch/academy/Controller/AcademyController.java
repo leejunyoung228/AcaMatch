@@ -260,4 +260,15 @@ public class AcademyController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("GetReviewInfo")
+    @Operation(summary = "GetReviewInfo")
+    public ResultResponse<List<GetReviewInfoRes>> getReviewInfo(@ParameterObject @ModelAttribute GetReviewInfoReq p) {
+        List<GetReviewInfoRes> res = academyService.getReviewInfo(p);
+        return ResultResponse.<List<GetReviewInfoRes>>builder()
+                .resultMessage("출력 완료")
+                .resultData(res)
+                .build();
+
+    }
 }

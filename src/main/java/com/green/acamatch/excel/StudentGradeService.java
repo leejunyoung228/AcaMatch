@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -115,42 +112,40 @@ public class StudentGradeService {
                     .build();
         }
 
-        try {
-            File tempFile = File.createTempFile("upload_", ".xlsx");
-            file.transferTo(tempFile);
+        try (InputStream fis = file.getInputStream(); // 클라이언트가 업로드한 파일을 직접 읽음
+             Workbook workbook = WorkbookFactory.create(fis)) {
 
-            try (FileInputStream fis = new FileInputStream(new File(filePath));
-                 Workbook workbook = WorkbookFactory.create(fis)) {
-                Sheet sheet = workbook.getSheetAt(0);
+            Sheet sheet = workbook.getSheetAt(0);
 
-                for (Row row : sheet) {
-                    if (row.getRowNum() == 0) continue; // 헤더는 건너뜀
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) continue; // 헤더는 건너뜀
 
-                    long userId = (long) row.getCell(0).getNumericCellValue();
-                    long gradeId = (long) row.getCell(1).getNumericCellValue();
-                    String name = row.getCell(2).getStringCellValue();
-                    String subjectName = row.getCell(3).getStringCellValue();
-                    String examDate = row.getCell(4).getStringCellValue();
-                    int score = (int) row.getCell(5).getNumericCellValue();
-                    int pass = (int) row.getCell(6).getNumericCellValue();
+                long userId = (long) row.getCell(0).getNumericCellValue();
+                long gradeId = (long) row.getCell(1).getNumericCellValue();
+                String name = row.getCell(2).getStringCellValue();
+                String subjectName = row.getCell(3).getStringCellValue();
+                String examDate = row.getCell(4).getStringCellValue();
+                int score = (int) row.getCell(5).getNumericCellValue();
+                int pass = (int) row.getCell(6).getNumericCellValue();
 
-                    // DB 업데이트 시 예외 발생하면 그대로 throw
-                    updateStudentGrade(gradeId, score, pass);
-                }
-                return ResultResponse.<Integer>builder()
-                        .resultMessage("DB에 수정을 성공하였습니다.")
-                        .resultData(1)
-                        .build();
-                
-            } catch (Exception e) {
-                return ResultResponse.<Integer>builder()
-                        .resultMessage("DB 수정 중 오류 발생: " + e.getMessage())
-                        .resultData(0)
-                        .build();
+                // DB 업데이트
+                updateStudentGrade(gradeId, score, pass);
             }
-        } catch (IOException e) {
+
             return ResultResponse.<Integer>builder()
-                    .resultMessage("파일 처리 중 오류 발생: " + e.getMessage())
+                    .resultMessage("DB에 수정을 성공하였습니다.")
+                    .resultData(1)
+                    .build();
+
+        } catch (org.apache.poi.openxml4j.exceptions.OLE2NotOfficeXmlFileException e) {
+            return ResultResponse.<Integer>builder()
+                    .resultMessage("엑셀 파일이 아닙니다. 올바른 파일을 선택해주세요.")
+                    .resultData(0) // 실패
+                    .build();
+
+        } catch (Exception e) {
+            return ResultResponse.<Integer>builder()
+                    .resultMessage("DB 수정 중 오류 발생: " + e.getMessage())
                     .resultData(0)
                     .build();
         }
