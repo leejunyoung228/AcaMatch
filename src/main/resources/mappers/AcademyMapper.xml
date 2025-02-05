@@ -577,10 +577,18 @@
         GROUP BY aca_id
         ) L ON L.aca_id = A.aca_id
         LEFT JOIN (
-        SELECT C.aca_id, COUNT(*) AS reviewCount
+        SELECT RC.reviewCount, C.class_id
         FROM review R
-        JOIN class C ON R.join_class_id = C.class_id
-        GROUP BY C.aca_id
+        JOIN joinclass JC ON JC.join_class_id = R.join_class_id
+        JOIN class C ON C.class_id = JC.class_id
+        JOIN (
+        SELECT COUNT(R.join_class_id) AS reviewCount, C.class_id
+        FROM review R
+        JOIN joinclass JC ON JC.join_class_id = R.join_class_id
+        JOIN class C ON C.class_id = JC.class_id
+        WHERE C.aca_id = 1
+        ) RC
+        ON C.class_id = C.class_id;
         ) R ON R.aca_id = A.aca_id
         LEFT JOIN classcategory CC ON C.class_id = CC.class_id
         LEFT JOIN category CAT ON CC.category_id = CAT.category_id
@@ -597,8 +605,7 @@
 
         WHERE A.aca_id = #{acaId}
         GROUP BY A.aca_id, C.class_id, PR.reviewComment, PR.reviewStar, PR.reviewCreatedAt, PR.reviewUserId, PR.reviewUserNickName, PR.reviewClassName
-        ORDER BY C.class_id;
-
+        ORDER BY C.class_id
     </select>
 
     <select id="getAcademyListRandom">
@@ -695,5 +702,23 @@
         FROM academy A
         RIGHT JOIN user U
         ON A.user_id = U.user_id
+    </select>
+    <select id="getReviewInfo">
+        SELECT R.join_class_id, R.`comment`, R.star, R.created_at, JCC.reviewCount, JCC.starAvg
+        , U.user_id, U.user_pic, U.nick_name, C.class_name
+        FROM review R
+        JOIN joinclass JC ON R.join_class_id = JC.join_class_id
+        JOIN class C ON C.class_id = JC.class_id
+        JOIN academy A ON A.aca_id = C.aca_id
+        JOIN (
+        SELECT COUNT(R.join_class_id) AS reviewCount, A.aca_id, ROUND(AVG(R.star), 1) AS starAvg
+        FROM review R
+        JOIN joinclass JC ON R.join_class_id = JC.join_class_id
+        JOIN class C ON C.class_id = JC.class_id
+        JOIN academy A ON A.aca_id = C.aca_id
+        WHERE A.aca_id = #{acaId}
+        ) JCC ON JCC.aca_id = A.aca_id
+        JOIN user U ON JC.user_id = U.user_Id
+        LIMIT #{startIdx}, #{size};
     </select>
 </mapper>
