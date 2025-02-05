@@ -53,8 +53,6 @@ public class GetAcademyDetailRes {
     @Schema(title = "리뷰 정보")
     private List<ReviewDto> reviews;
 
-    private int JCCertification;
-
 
 
 }
