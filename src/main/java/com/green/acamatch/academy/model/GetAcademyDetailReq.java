@@ -14,7 +14,7 @@ public class GetAcademyDetailReq extends Paging{
 
     public GetAcademyDetailReq(Integer page, Integer size, Integer signedUserId, long acaId) {
         super(page, size);
-        this.signedUserId = signedUserId;
+        this.signedUserId = signedUserId == null ? 0 : signedUserId;
         this.acaId = acaId;
     }
 }

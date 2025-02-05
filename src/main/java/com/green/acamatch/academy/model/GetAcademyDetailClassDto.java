@@ -36,5 +36,7 @@ public class GetAcademyDetailClassDto {
 
     @Schema(title = "수업 카테고리")
     private String classCategoryName;
+
+    private Integer userCertification;
 }
 
