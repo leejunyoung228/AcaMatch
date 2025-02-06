@@ -34,4 +34,14 @@ public class ChatController {
     public ResultResponse<ChatUserRes> getUserList(@ParameterObject @ModelAttribute ChatReq req) {
         return ResultResponse.<ChatUserRes>builder().resultData(chatService.getUserList(req)).build();
     }
+
+    @GetMapping("unread-message")
+    @Operation(summary = "읽지 않은 메세지 유무 조회(로그인 필수)", description = "읽지 않은 메세지 가 있으면 true 없으면 false")
+    public ResultResponse<Boolean> unreadMessage() {
+        return ResultResponse.<Boolean>builder()
+                .resultMessage("읽지 않은 메세지 유무 조회 성공")
+                .resultData(chatService.checkUnreadMessage())
+                .build();
+    }
+
 }
