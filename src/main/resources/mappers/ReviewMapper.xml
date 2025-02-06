@@ -21,7 +21,7 @@
     </select>
 
     <!-- reviewId 조회 -->
-    <select id="findReviewIdByJoinClassId" resultType="Long">
+    <select id="findReviewIdByJoinClassId">
         SELECT review_id FROM review
         WHERE join_class_id = #{joinClassId}
     </select>
@@ -57,8 +57,9 @@
     <select id="checkExistingReview">
         SELECT COUNT(*) FROM review r
         JOIN joinclass j ON r.join_class_id = j.join_class_id
-        WHERE r.join_class_id = #{joinClassId}
-        AND j.user_id = #{requestUserId}
+        JOIN class c ON j.class_id = c.class_id
+        WHERE c.aca_id = #{acaId}
+        AND j.user_id = #{userId}
     </select>
 
 
@@ -232,13 +233,19 @@
     </select>
 
     <!-- classId와 userId로 joinClassId 찾기 -->
-    <select id="findJoinClassIdByClassAndUser">
-        SELECT join_class_id
-        FROM joinclass
-        WHERE class_id = #{classId}
-        AND user_id = #{userId}
+    <select id="findJoinClassIdByAcademyAndUser">
+        SELECT j.join_class_id
+        FROM joinclass j
+        JOIN class c ON j.class_id = c.class_id
+        WHERE c.aca_id = #{acaId}
+        AND j.user_id = #{userId}
         AND certification = 1;
     </select>
+
+    <select id="findClassIdByAcaId">
+        SELECT class_id FROM class WHERE aca_id = #{acaId};
+    </select>
+
 
 
 </mapper>
