@@ -359,13 +359,18 @@
         ReviewStats AS (
         SELECT
         C.class_id,
-        ROUND(AVG(A.star), 2) AS avgStar,  -- 별점 평균
-        COUNT(A.join_class_id) AS reviewCount  -- 리뷰 개수 수정
+        C.aca_id,  -- 학원 ID 추가
+        ROUND(AVG(A.star), 2) AS avgStar,  -- 클래스별 별점 평균
+        (SELECT COUNT(*) FROM review A1
+        JOIN joinclass B1 ON A1.join_class_id = B1.join_class_id
+        JOIN class C1 ON B1.class_id = C1.class_id
+        WHERE C1.aca_id = C.aca_id) AS reviewCount  -- 학원 전체 리뷰 개수
         FROM review A
-        JOIN joinclass B ON A.join_class_id = B.join_class_id  -- 수정된 조인
-        JOIN class C ON B.class_id = C.class_id  -- 수정된 조인
-        GROUP BY C.aca_id
+        JOIN joinclass B ON A.join_class_id = B.join_class_id
+        JOIN class C ON B.class_id = C.class_id
+        GROUP BY C.class_id, C.aca_id  -- class_id 기준으로 그룹화
         ),
+
         AcademyClass AS (
         SELECT
         C.class_id AS classId,
@@ -402,7 +407,7 @@
         L.aca_id,
         1 AS isLiked
         FROM `like` L
-        WHERE L.user_id = #{signedUserId}  -- 특정 유저 ID
+        WHERE L.user_id = #{signedUserId}
         ),
         LikeCount AS (
         SELECT
@@ -475,7 +480,7 @@
         LEFT JOIN UserLikes UL ON UL.aca_id = A.aca_id
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
-        ORDER BY R.reviewId DESC
+        ORDER BY R.reviewId DESC;
     </select>
 
     <select id="getAcademyListRandom">
