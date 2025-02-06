@@ -520,7 +520,8 @@
         SELECT DISTINCT
         A.aca_id,
         A.aca_pic,
-        A.aca_name
+        A.aca_name,
+        JC.registraion_date
         FROM academy A
         JOIN class C ON A.aca_id = C.aca_id
         JOIN joinclass JC ON C.class_id = JC.class_id
