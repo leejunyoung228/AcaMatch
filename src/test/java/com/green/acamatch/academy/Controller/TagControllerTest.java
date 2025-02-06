@@ -32,14 +32,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import static org.hamcrest.Matchers.containsString;
+
 
 
 @Import(JwtTokenProvider.class)
 @WebMvcTest(
-        controllers = TagController.class
-        , excludeAutoConfiguration = SecurityAutoConfiguration.class
+        controllers = TagController.class,
+        excludeAutoConfiguration = SecurityAutoConfiguration.class
 )
 @EnableConfigurationProperties(JwtConst.class)
 class TagControllerTest {
@@ -50,7 +52,6 @@ class TagControllerTest {
     MockMvc mockMvc;
     @MockitoBean
     private AcademyMessage academyMessage;
-
     @MockitoBean
     TagService tagService;
 
@@ -60,7 +61,8 @@ class TagControllerTest {
 
     @Test
     @DisplayName("태그 불러오기")
-    void selTagList() throws Exception{
+    void selTagList() throws Exception {
+        // Given (테스트 데이터 준비)
         SelTagReq givenParam = new SelTagReq();
         givenParam.setSearchTag(tagName_9);
 
@@ -71,24 +73,28 @@ class TagControllerTest {
         SelTagRes expectedResult = new SelTagRes();
         expectedResult.setSelTagList(List.of(selTagDto));
 
+        // resultMessage를 mock으로 설정
+        given(academyMessage.getMessage()).willReturn("1 rows");
+
         given(tagService.selTagList(givenParam)).willReturn(expectedResult);
-        ResultActions resultActions = mockMvc.perform(get(BASE_URL).queryParams(getParameter(givenParam)));
-        String expectedResJson;
-        expectedResJson = getExpectedResJson(expectedResult);
 
+        // When (API 호출)
+        ResultActions resultActions = mockMvc.perform(get(BASE_URL)
+                .queryParams(getParameter(givenParam)));
 
-    resultActions.andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().json(expectedResJson));
+        // Then (검증)
+        resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultMessage").value("1 rows")) // 메시지 검증
+                .andExpect(jsonPath("$.resultData.selTagList[0].tagId").value(tagId_9)) // 태그 ID 검증
+                .andExpect(jsonPath("$.resultData.selTagList[0].tagName").value(tagName_9)); // 태그 이름 검증
 
-    verify(tagService).selTagList(givenParam);
-
+        verify(tagService).selTagList(givenParam);
     }
 
     private MultiValueMap<String, String> getParameter(SelTagReq givenParam) {
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>(1);
-
-        queryParams.add("searchTag", String.valueOf(givenParam.getSearchTag()));
+        queryParams.add("searchTag", givenParam.getSearchTag());
         return queryParams;
     }
 
