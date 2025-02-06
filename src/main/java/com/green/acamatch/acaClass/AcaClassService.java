@@ -104,6 +104,17 @@ public class AcaClassService {
         return mapper.insAcaClassClassWeekDays(p);
     }
 
+    //카테고리 등록
+    @Transactional
+    public int insAcaClassCategory(AcaClassCategoryReq p) {
+
+        int exists = mapper.existsCategory(p.getClassId(), p.getCategoryId());
+        if(exists > 0) {
+            throw new IllegalArgumentException("중복된 카테고리입니다.");
+        }
+        return mapper.insAcaClassCategory(p);
+    }
+
     //수업 상세정보 불러오기
     public List<AcaClassDetailDto> getClass(AcaClassDetailGetReq p) {
         try {
