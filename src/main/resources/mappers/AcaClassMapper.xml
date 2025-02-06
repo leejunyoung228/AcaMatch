@@ -79,13 +79,13 @@
         FROM class A
         INNER JOIN academy B
         ON A.aca_id = B.aca_id
-        INNER JOIN classweekdays C
+        LEFT JOIN classweekdays C
         ON C.class_id = A.class_id
-        INNER JOIN weekdays D
+        LEFT JOIN weekdays D
         ON C.day_id = D.day_id
-        INNER JOIN classcategory E
+        LEFT JOIN classcategory E
         ON A.class_id = E.class_id
-        INNER JOIN category F
+        LEFT JOIN category F
         ON E.category_id = F.category_id
         WHERE A.aca_id = #{acaId}
         ORDER BY D.day_id
