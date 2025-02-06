@@ -33,8 +33,9 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/api/user/relationship").hasRole(UserRole.STUDENT.name())
                                 .requestMatchers(HttpMethod.DELETE, "/api/user/relationship").hasRole(UserRole.STUDENT.name())
                                 .requestMatchers(HttpMethod.GET, "/api/user/relationship/**").hasRole(UserRole.PARENT.name())
-                                .requestMatchers(HttpMethod.DELETE, "/api/review/academy").hasAnyRole(UserRole.ACADEMY.name())
+                                .requestMatchers(HttpMethod.DELETE, "/api/review/academy").hasRole(UserRole.ACADEMY.name())
                                 .requestMatchers(HttpMethod.GET, "/api/review/my-academy").hasAnyRole(UserRole.ACADEMY.name(), UserRole.TEACHER.name())
+                                .requestMatchers("/api/academy").hasRole(UserRole.ACADEMY.name())
                                 .anyRequest().permitAll()
                 )
                 .build();
