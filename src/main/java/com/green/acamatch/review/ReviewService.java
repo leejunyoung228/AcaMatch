@@ -105,11 +105,6 @@ public class ReviewService {
         }
 
 
-        validateReviewRequest(req);
-        if (!validateReviewRequest(req)) {
-            return 0;
-        }
-
         // 3. 수업 참여 여부 확인 (joinClassId 조회)
         Long joinClassId = mapper.findJoinClassIdByClassAndUser(req.getClassId(), requestUserId);
         if (joinClassId == null) {
@@ -117,12 +112,25 @@ public class ReviewService {
             return 0;
         }
 
+        // 중복 리뷰 체크
+        int existingReviewCount = mapper.checkExistingReview(joinClassId, requestUserId);
+        if (existingReviewCount > 0) {
+            userMessage.setMessage("이미 해당 수업에 대한 리뷰를 작성하셨습니다.");
+            return 0;
+        }
+
+        validateReviewRequest(req);
+        if (!validateReviewRequest(req)) {
+            return 0;
+        }
+
+
+        req.setJoinClassId(joinClassId);
+
         // 4. 리뷰 등록
         try {
-            log.info("리뷰 등록 시도 - joinClassId: {}, userId: {}, comment: {}, star: {}",
-                    joinClassId, requestUserId, req.getComment(), req.getStar());
 
-            mapper.insertReview(joinClassId, req.getUserId(), req.getComment(), req.getStar());
+            mapper.insertReview(req);
 
             log.info("리뷰 등록 성공 - joinClassId: {}, userId: {}", joinClassId, requestUserId);
         } catch (DuplicateKeyException ex) {
@@ -165,6 +173,14 @@ public class ReviewService {
             return 0;
         }
 
+        Long joinClassId = mapper.findJoinClassIdByClassAndUser(req.getClassId(), requestUserId);
+        if (joinClassId == null) {
+            userMessage.setMessage("해당 수업에 등록된 기록이 없습니다.");
+            return 0;
+        }
+
+        req.setJoinClassId(joinClassId);
+
         // 리뷰 요청 유효성 검사
         boolean isValid = validateReviewRequest2(req);
         if (!isValid) {
@@ -197,52 +213,65 @@ public class ReviewService {
      */
     @Transactional
     public int deleteReviewByUser(ReviewDelReq req) {
-        // 유저 존재 여부 확인
+        // 유효성 검사 - classId와 userId는 필수
+        if (req.getClassId() == null || req.getUserId() == null) {
+            userMessage.setMessage("잘못된 요청입니다. classId와 userId가 필요합니다.");
+            return 0;
+        }
 
         long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
         long requestUserId = req.getUserId();
 
-        // 1. 본인 계정 검증
+        // 1️⃣ 본인 계정 검증
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 삭제할 수 있습니다.");
             return 0;
         }
+
+        // 2️⃣ 유저 존재 여부 확인
         validateUserExists(req.getUserId());
-        if (!isAuthorizedUser(req.getUserId())) {
-            return 0;  //  인증되지 않은 요청이면 바로 종료
-        }
-
 
         if (!isAuthorizedUser(req.getUserId())) {
-            return 0;  // 인증되지 않은 요청이면 빈 리스트 반환
+            return 0; // 인증되지 않은 요청이면 종료
         }
 
-        // 수업 자체가 존재하는지 확인 (수업 자체가 없다면 삭제 불가)
+        // 3️⃣ 수업 존재 여부 확인
         if (mapper.checkClassExists(req.getClassId()) == 0) {
             userMessage.setMessage("존재하지 않는 수업입니다.");
             return 0;
         }
 
-        // 유저가 해당 수업을 수강했는지 확인 (수업은 존재하지만 수강하지 않은 경우)
+        // 4️⃣ 유저가 해당 수업을 수강했는지 확인
         if (mapper.checkEnrollment(req.getClassId(), req.getUserId()) == 0) {
             userMessage.setMessage("해당 수업을 수강하지 않았습니다.");
             return 0;
         }
 
-        // 리뷰 존재 여부 확인
-        if (mapper.checkReviewExists(req.getReviewId()) == 0) {
+        // 5️⃣ `joinClassId` 자동 조회
+        Long joinClassId = mapper.findJoinClassIdByClassAndUser(req.getClassId(), req.getUserId());
+
+        if (joinClassId == null) {
+            userMessage.setMessage("삭제할 리뷰가 없습니다.");
+            return 0;
+        }
+
+        // 6️⃣ `reviewId` 자동 조회
+        Long reviewId = mapper.findReviewIdByJoinClassId(joinClassId);
+
+        if (reviewId == null) {
             userMessage.setMessage("이미 삭제된 리뷰입니다.");
             return 0;
         }
 
-        // 작성자인지 검증
-        if (!isUserAuthorOfReview(req.getReviewId(), req.getUserId())) {
+        // 7️⃣ 작성자인지 검증
+        if (!isUserAuthorOfReview(joinClassId, req.getUserId())) {
             userMessage.setMessage("해당 리뷰의 작성자가 아닙니다. 삭제할 권한이 없습니다.");
             return 0;
         }
 
-        // 리뷰 삭제 수행
+        // 8️⃣ 리뷰 삭제 수행
         int rowsDeleted = mapper.deleteReviewByUser(req);
+
         if (rowsDeleted == 0) {
             userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
             return 0;
@@ -270,6 +299,14 @@ public class ReviewService {
             return 0;
         }
 
+        long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
+        long requestUserId = req.getUserId();
+        // 1. 본인 계정 검증
+        if (jwtUserId != requestUserId) {
+            userMessage.setMessage("잘못된 요청입니다. 로그인 한 유저는 해당 학원의 관리자가 아닙니다.");
+            return 0;
+        }
+
         if (mapper.checkAcaExists(req.getAcaId()) == null || req.getAcaId() == 0) {
             userMessage.setMessage("존재하지 않는 학원입니다");
             return 0;
@@ -279,11 +316,11 @@ public class ReviewService {
             return 0;  //  인증되지 않은 요청이면 바로 종료
         }
 
-        long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
-        long requestUserId = req.getUserId();
-        // 1. 본인 계정 검증
-        if (jwtUserId != requestUserId) {
-            userMessage.setMessage("잘못된 요청입니다. 로그인 한 유저는 해당 학원의 관리자가 아닙니다.");
+
+
+        //  학원 관계자 권한 확인
+        if (!isUserLinkedToAcademy(req.getAcaId(), req.getUserId())) {
+            userMessage.setMessage("해당 학원을 관리할 권한이 없습니다.");
             return 0;
         }
 
@@ -292,12 +329,6 @@ public class ReviewService {
             userMessage.setMessage("삭제할 리뷰가 존재하지 않습니다.");
             return 0;
         }
-        //  학원 관계자 권한 확인
-        if (!isUserLinkedToAcademy(req.getAcaId(), req.getUserId())) {
-            userMessage.setMessage("해당 학원을 관리할 권한이 없습니다.");
-            return 0;
-        }
-
 
 
 
@@ -453,6 +484,10 @@ public class ReviewService {
             req.setComment(""); // 빈 문자열로 설정
         }
 
+        if (req.getReviewId() != null) {
+            userMessage.setMessage("");
+            return false;
+        }
         return true;
     }
     
@@ -501,8 +536,8 @@ public class ReviewService {
     }
 
     /**  해당 유저가 리뷰 작성자인지 확인 */
-    private boolean isUserAuthorOfReview(long reviewId, long userId) {
-        Integer isAuthor = mapper.isUserAuthorOfReview(reviewId, userId);
+    private boolean isUserAuthorOfReview(long joinClassId, long userId) {
+        Integer isAuthor = mapper.isUserAuthorOfReview(joinClassId, userId);
         return isAuthor != null && isAuthor > 0;
     }
 
