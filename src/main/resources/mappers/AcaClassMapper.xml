@@ -120,7 +120,7 @@
 
     <!-- 특정 user가 등록한 수업 가져오기 -->
     <select id="selAcaClassUser">
-        SELECT C.user_pic, C.name, C.phone, C.birth
+        SELECT C.user_id, C.user_pic, C.name, C.phone, C.birth
         FROM joinclass A
         INNER JOIN class B
         ON A.class_id = B.class_id
