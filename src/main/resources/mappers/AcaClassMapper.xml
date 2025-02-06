@@ -36,19 +36,31 @@
         SET day = #{day}
     </insert>
 
-    <!-- 수업 개강 요일이 존재하는지 중복체크-->
-    <select id="existsClassWeekDays" parameterType="map" resultType="int">
-        SELECT COUNT(*)
-        FROM classweekdays
-        WHERE day_id = #{dayId} AND class_id = #{classId}
-    </select>
-
     <!-- 수업과 요일을 잇는 관계 테이블 등록하기 -->
     <insert id = "insAcaClassClassWeekDays">
         INSERT classweekdays
         SET class_id = #{classId},
         day_id = #{dayId}
     </insert>
+
+    <!-- 수업 개강 요일이 존재하는지 중복체크-->
+    <select id ="existsClassWeekDays" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM classweekdays
+        WHERE day_id = #{dayId} AND class_id = #{classId}
+    </select>
+
+    <insert id = "insAcaClassCategory">
+        INSERT classcategory
+        SET class_id = #{classId},
+        category_id = #{categoryId}
+    </insert>
+
+    <select id = "existsCategory" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM classcategory
+        WHERE class_id = #{classId} AND category_id = #{categoryId}
+    </select>
 
     <!-- class 상세 정보 가져오기
     중복된 내용은 나오지 않게 하기위해 resultmap 사용 -->
@@ -79,13 +91,13 @@
         FROM class A
         INNER JOIN academy B
         ON A.aca_id = B.aca_id
-        INNER JOIN classweekdays C
+        LEFT JOIN classweekdays C
         ON C.class_id = A.class_id
-        INNER JOIN weekdays D
+        LEFT JOIN weekdays D
         ON C.day_id = D.day_id
-        INNER JOIN classcategory E
+        LEFT JOIN classcategory E
         ON A.class_id = E.class_id
-        INNER JOIN category F
+        LEFT JOIN category F
         ON E.category_id = F.category_id
         WHERE A.aca_id = #{acaId}
         ORDER BY D.day_id
