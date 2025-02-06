@@ -483,16 +483,26 @@
         ORDER BY R.reviewId DESC;
     </select>
 
-    <select id="getAcademyListRandom">
+    <resultMap id="randomResultMap" type = "com.green.acamatch.academy.model.HB.GetAcademyRandomRes">
+        <id property="acaId" column="acaId" />
+        <result property="acaPic" column="acaPic" />
+        <result property="acaName" column="acaName" />
+        <result property="address" column="address" />
+        <result property="starAvg" column="starAvg" />
+        <result property="likeCount" column="likeCount" />
+        <result property="reviewCount" column="reviewCount" />
+        <result property="tagNames" column="tagNames" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
+    </resultMap>
+
+    <select id="getAcademyListRandom" resultMap="randomResultMap">
         SELECT
         A.aca_id AS acaId,
         A.aca_name AS acaName,
         COUNT(L.aca_id) AS likeCount,
         COALESCE(G.star, 0) AS starAvg,
-        G.reviewCount,
+        COALESCE(G.reviewCount, 0),
         A.aca_pic AS acaPic,
         A.address AS address,
-        IFNULL(GROUP_CONCAT(DISTINCT F.tag_id ORDER BY F.tag_id SEPARATOR ', '), '') AS tagIds,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagNames
         FROM academy A
         left JOIN `like` L
