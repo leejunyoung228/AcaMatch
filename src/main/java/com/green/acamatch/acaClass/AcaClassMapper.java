@@ -13,6 +13,8 @@ public interface AcaClassMapper {
     int existsDay(String day);
     int insAcaClassClassWeekDays(AcaClassWeekDaysRelation p);
     int existsClassWeekDays(long dayId, long classId);
+    int insAcaClassCategory(AcaClassCategoryReq p);
+    int existsCategory(long classId, long categoryId);
     List<AcaClassDetailDto> selAcaClassDetail(AcaClassDetailGetReq p);
     List<AcaClassUserDto> selAcaClassUser(AcaClassUserGetReq p);
     List<AcaClassDto> selAcaClass(AcaClassGetReq p);

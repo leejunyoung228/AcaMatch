@@ -10,20 +10,17 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 @Schema(description = "리뷰 삭제 요청")
-public class ReviewDelReq {
-
-    @Schema(title = "강좌 이름", description = "개설된 수업강좌 이름", example = "원어민 영어")
-    private Long classId;
-
+public class ReviewDelMyacademyReq {
 
     @Schema(title = "유저 ID", description = "리뷰 삭제 요청을 한 유저의 ID", example = "1")
-    private Long userId;
+    private long userId;
 
-    @JsonIgnore
+    @Schema(title = "학원 고유 PK ID", description = "등록된 학원의 ID", example = "26")
+    private Long acaId;
+
+    @Schema(title = "리뷰 ID", description = "삭제할 리뷰의 ID", example = "1")
     private Long reviewId;
 
-    @JsonIgnore
-    private Long acaId;
 
     @JsonIgnore
     private Long joinClassId;

@@ -69,8 +69,25 @@ public class AcaClassController {
         }
     }
 
+    @PostMapping("classCategory")
+    @Operation(summary = "카테고리 관계 등록하기")
+    public ResultResponse<Integer> insAcaClassCategory(@RequestBody AcaClassCategoryReq p) {
+        try {
+            Integer result = service.insAcaClassCategory(p);
+            return ResultResponse.<Integer>builder()
+                    .resultMessage("카테고리 등록에 성공하였습니다.")
+                    .resultData(result)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return ResultResponse.<Integer>builder()
+                    .resultMessage(e.getMessage())
+                    .resultData(0)
+                    .build();
+        }
+    }
+
     @GetMapping("detail")
-    @Operation(summary = "강좌 상세 정보 가져오기/ null일 경우 resultData 반환 값이 없습니다.")
+    @Operation(summary = "강좌 상세 정보 가져오기/ 요일과 카테고리 등록이 안된 경우 []로 뜹니다.")
     public ResultResponse<List<AcaClassDetailDto>> getClass(@ModelAttribute @ParameterObject AcaClassDetailGetReq p) {
         List<AcaClassDetailDto> result = service.getClass(p);
         return ResultResponse.<List<AcaClassDetailDto>>builder()
@@ -129,4 +146,4 @@ public class AcaClassController {
                 .resultData(result)
                 .build();
     }
-}
+    }

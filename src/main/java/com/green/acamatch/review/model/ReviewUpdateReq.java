@@ -1,5 +1,6 @@
 package com.green.acamatch.review.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,5 +23,8 @@ public class ReviewUpdateReq {
 
     @Schema(title = "별점", description = "수정된 리뷰 별점", example = "4")
     private int star;
+
+    @JsonIgnore
+    private Long joinClassId;
 
 }

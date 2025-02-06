@@ -34,11 +34,9 @@ public class GetAcademyRandomRes {
     private AddressDto addressDto;
 
     @Schema(title = "학원이 등록한 태그List", example = "국어, 영어...")
-    private List<GetAcademyTagDto> tagName;
+    private List<GetAcademyTagDto> tagNames;
 
     private int likeCount;
 
     private int reviewCount;
-
-    private List<Long> tagIds;
 }

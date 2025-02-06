@@ -37,6 +37,9 @@ public class MyReviewDto {
     private Long acaId;
 
     @Schema(description = "리뷰의 총 갯수")
-    private Integer reviewCount;
+    private Integer myReviewCount;
+
+    @Schema(title = "리뷰 ID", description = "리뷰의 고유 PK", example = "1")
+    private Long reviewId;
 
 }
