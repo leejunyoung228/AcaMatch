@@ -15,11 +15,12 @@ public class ReviewDelReq {
     @Schema(title = "강좌 이름", description = "개설된 수업강좌 이름", example = "원어민 영어")
     private Long classId;
 
-    @Schema(title = "리뷰 ID", description = "삭제할 리뷰의 ID", example = "1")
-    private Long reviewId;
 
     @Schema(title = "유저 ID", description = "리뷰 삭제 요청을 한 유저의 ID", example = "1")
-    private long userId;
+    private Long userId;
+
+    @JsonIgnore
+    private Long reviewId;
 
     @JsonIgnore
     private Long acaId;

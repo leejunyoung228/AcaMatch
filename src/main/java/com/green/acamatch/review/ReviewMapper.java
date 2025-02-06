@@ -3,7 +3,9 @@ package com.green.acamatch.review;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.model.*;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
 public interface ReviewMapper {
 
     // 리뷰 작성자 확인 (joinClassId 기반)
-    Integer isUserAuthorOfReview(long reviewId, long userId);
+    Integer isUserAuthorOfReview(long joinClassId, long userId);
 
     // join_class_id 유효성 확인
     int isValidJoinClassId(long joinClassId);
@@ -22,7 +24,7 @@ public interface ReviewMapper {
     int checkEnrollment(Long classId, long userId);
 
     // 리뷰 등록
-    void insertReview(Long joinClassId, Long userId, String comment, int star);
+    int insertReview(ReviewPostReq req);
 
     // 리뷰 수정
     int updateReview(ReviewUpdateReq req);
@@ -59,5 +61,10 @@ public interface ReviewMapper {
     int checkUserAcademyOwnership(Long userId, Long acaId);
 
     Long findJoinClassIdByClassAndUser(Long classId, Long userId);
+
+
+    int checkExistingReview(Long joinClassId, Long requestUserId);
+
+    Long findReviewIdByJoinClassId(Long joinClassId);
 
 }

@@ -2,6 +2,7 @@ package com.green.acamatch.review.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Id;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,4 +24,10 @@ public class ReviewPostReq {
 
     @Schema(title = "유저 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private long userId;
+
+    @JsonIgnore
+    private Long reviewId;
+
+    @JsonIgnore
+    private Long joinClassId;
 }
