@@ -45,7 +45,7 @@ public class StudentGradeController {
     // 2. 성적 엑셀 파일을 읽어 DB 업데이트 (POST 요청)
     @PostMapping(value = "/import", consumes = "multipart/form-data")
     @Operation(summary = "엑셀 파일을 읽어 DB 업데이트")
-    public ResponseEntity<ResultResponse<Integer>> importGrades(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ResultResponse<Integer>> importGrades(@RequestParam("gradeFile") MultipartFile file) {
         ResultResponse<Integer> result = studentGradeService.importFromExcel(file);
         if (result.getResultData() == 1) {
             return ResponseEntity.ok(result);
