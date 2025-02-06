@@ -87,7 +87,7 @@ public class AcaClassController {
     }
 
     @GetMapping("detail")
-    @Operation(summary = "강좌 상세 정보 가져오기/ null일 경우 resultData 반환 값이 없습니다.")
+    @Operation(summary = "강좌 상세 정보 가져오기/ 요일과 카테고리 등록이 안된 경우 []로 뜹니다.")
     public ResultResponse<List<AcaClassDetailDto>> getClass(@ModelAttribute @ParameterObject AcaClassDetailGetReq p) {
         List<AcaClassDetailDto> result = service.getClass(p);
         return ResultResponse.<List<AcaClassDetailDto>>builder()
