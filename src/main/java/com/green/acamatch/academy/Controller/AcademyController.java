@@ -23,7 +23,6 @@ import java.util.List;
 @Tag(name = "학원")
 public class AcademyController {
     private final AcademyService academyService;
-    private final TagService tagService;
     private final AcademyMessage academyMessage;
 
 
@@ -31,7 +30,6 @@ public class AcademyController {
     @Operation(summary = "학원정보등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진, 태그")
     public ResultResponse<Integer> postAcademy(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart AcademyPostReq req) {
         int result1 = academyService.insAcademy(pic, req);
-        int result2 = tagService.insAcaTag(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(result1 != 0 ? 1 : 0)

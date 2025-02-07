@@ -54,10 +54,11 @@ public class KakaoApiExample {
                     String region2depthName = document.getJSONObject("address").getString("region_2depth_name"); // 구 이름
                     String region3depthName = document.getJSONObject("address").getString("region_3depth_name"); // 동 이름
 
+
                     KakaoMapAddress kakaoMapAddress = new KakaoMapAddress();
                     kakaoMapAddress.setCityName(region1depthName);
-                    kakaoMapAddress.setStreetName(region2depthName);
-                    kakaoMapAddress.setDongName(region3depthName);
+                    kakaoMapAddress.setStreetName(cutAddress(region2depthName));
+                    kakaoMapAddress.setDongName(cutAddress(region3depthName));
                     return kakaoMapAddress;
                 } else {
                     return null;
@@ -77,4 +78,16 @@ public class KakaoApiExample {
             return null;
         }
     }
+
+    private static String cutAddress(String address) {
+        if((address.contains("시")) && ((address.contains("구") || address.contains("군")) )){
+            return address.substring(0,address.indexOf("시") + 1);
+        }
+        if((address.contains("면") && (address.contains("리")))) {
+            return address.substring(0,address.indexOf("면") + 1);
+        }
+        return address;
+    }
 }
+
+
