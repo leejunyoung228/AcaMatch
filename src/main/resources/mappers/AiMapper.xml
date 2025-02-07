@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.acamatch.ai.AiMapper">
+    <insert id="postFeedBack">
+        INSERT INTO ai
+        SET grade_id = #{gradeId}
+        , feed_back = #{feedBack}
+    </insert>
+
+    <select id="getFeedBack">
+        SELECT feed_back AS feedBack
+        FROM ai
+        ORDER BY created_at DESC
+        LIMIT 0, 3;
+    </select>
+</mapper>
