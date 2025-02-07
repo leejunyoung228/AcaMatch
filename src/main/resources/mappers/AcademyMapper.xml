@@ -276,7 +276,8 @@
         ROUND(AVG(R.star), 2) AS star,
         C.aca_id
         FROM review R
-        JOIN class C ON R.join_class_id = C.class_id
+        JOIN joinclass JC ON R.join_class_id = JC.join_class_id
+        JOIN class C ON JC.class_id = C.class_id
         GROUP BY C.aca_id ) G ON G.aca_id = A.aca_id
         WHERE 1 = 1
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
@@ -386,7 +387,7 @@
         FROM review A
         JOIN joinclass B ON A.join_class_id = B.join_class_id
         JOIN class C ON B.class_id = C.class_id
-        GROUP BY C.class_id, C.aca_id  -- class_id 기준으로 그룹화
+        GROUP BY C.aca_id  -- class_id 기준으로 그룹화
         ),
 
         AcademyClass AS (
@@ -492,7 +493,7 @@
         FROM academy A
         JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
         LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택
-        LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId  -- 클래스별 별점 평균 및 리뷰 개수
+        LEFT JOIN ReviewStats RS ON RS.aca_id = AC.aca_id  -- 클래스별 별점 평균 및 리뷰 개수
         LEFT JOIN UserCertification UC ON UC.class_id = AC.classId  -- 유저의 클래스별 수강 여부
         LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id
         LEFT JOIN UserLikes UL ON UL.aca_id = A.aca_id
