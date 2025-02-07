@@ -370,6 +370,7 @@
         JOIN class C ON B.class_id = C.class_id
         JOIN user D ON B.user_id = D.user_id
         WHERE C.aca_id = #{acaId}
+        ORDER BY A.review_id DESC
         LIMIT #{startIdx}, #{size}
         ),
         ReviewStats AS (
