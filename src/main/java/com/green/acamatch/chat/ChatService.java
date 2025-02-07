@@ -94,4 +94,20 @@ public class ChatService {
                 .users(res.getContent())
                 .build();
     }
+
+    public boolean checkUnreadMessage() {
+        User user = userUtils.findUserById(AuthenticationFacade.getSignedUserId());
+        if (user.getRole().getRoleId() < 3) {
+            return chatRepository.existsUnreadMessagesByUser(user);
+        }
+        if (user.getRole().getRoleId() == 3) {
+            List<Academy> academyList = academyRepository.findAllByUser(user);
+            for (Academy academy : academyList) {
+                if (chatRepository.existsUnreadMessagesByAcademy(academy)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

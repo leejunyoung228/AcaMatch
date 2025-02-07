@@ -3,9 +3,11 @@ package com.green.acamatch.user.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
+@EqualsAndHashCode
 @AllArgsConstructor
 public class UserSignInReq {
     @Email

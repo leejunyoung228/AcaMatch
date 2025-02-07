@@ -28,13 +28,13 @@ public class TagService {
     public SelTagRes selTagList(SelTagReq req) {
         List<SelTagDto> list = academyMapper.selTagDtoList(req);
         if(list == null || list.isEmpty()) {
-            academyMessage.setMessage(req.getSearchTag() + "관련된 태그가 없습니다.");
+            academyMessage.setMessage(req.getSearchTag() + " 관련된 태그가 없습니다.");
             SelTagRes res = new SelTagRes();
             res.setSelTagList(list);
             return res;
         }
 
-        academyMessage.setMessage(req.getSearchTag() + "과 관련된 태그입니다.");
+        academyMessage.setMessage(req.getSearchTag() + " 관련된 태그입니다.");
         SelTagRes res = new SelTagRes();
         res.setSelTagList(list);
         return res;

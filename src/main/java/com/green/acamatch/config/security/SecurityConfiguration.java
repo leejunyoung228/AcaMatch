@@ -26,13 +26,16 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(new TokenAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/user", "/api/user/log-out", "/api/chat", "/api/chat/**")
+                        req.requestMatchers("/api/user", "/api/user/log-out", "/api/chat", "/api/chat/**", "/api/review/user")
                                 .authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/user/relationship/list/**")
                                 .hasAnyRole(UserRole.PARENT.name(), UserRole.STUDENT.name())
                                 .requestMatchers(HttpMethod.POST, "/api/user/relationship").hasRole(UserRole.STUDENT.name())
                                 .requestMatchers(HttpMethod.DELETE, "/api/user/relationship").hasRole(UserRole.STUDENT.name())
                                 .requestMatchers(HttpMethod.GET, "/api/user/relationship/**").hasRole(UserRole.PARENT.name())
+                                .requestMatchers(HttpMethod.DELETE, "/api/review/academy").hasRole(UserRole.ACADEMY.name())
+                                .requestMatchers(HttpMethod.GET, "/api/review/my-academy").hasAnyRole(UserRole.ACADEMY.name(), UserRole.TEACHER.name())
+                                .requestMatchers("/api/academy").hasRole(UserRole.ACADEMY.name())
                                 .anyRequest().permitAll()
                 )
                 .build();

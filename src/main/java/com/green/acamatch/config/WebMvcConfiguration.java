@@ -25,6 +25,7 @@ class WebMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/pic/**").addResourceLocations("file:" + uploadPath + "/");
+        registry.addResourceHandler("/xlsx/**").addResourceLocations("file:" + uploadPath + "/");
 
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/").resourceChain(true).addResolver(new PathResourceResolver() {
             @Override
@@ -40,7 +41,7 @@ class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**").allowedOrigins("http://localhost:5173")
+        registry.addMapping("/api/**").allowedOrigins("http://localhost:5173", "http://localhost:4173/")
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true)

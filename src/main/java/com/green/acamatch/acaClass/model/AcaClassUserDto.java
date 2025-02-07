@@ -7,6 +7,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class AcaClassUserDto {
+    @Schema(title = "유저 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private long userId;
     @Schema(title = "회원 사진")
     private String userPic;
     @Schema(title = "회원 이름")

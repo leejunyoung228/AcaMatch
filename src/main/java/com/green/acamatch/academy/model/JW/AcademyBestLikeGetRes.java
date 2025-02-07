@@ -1,5 +1,6 @@
 package com.green.acamatch.academy.model.JW;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -7,6 +8,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class AcademyBestLikeGetRes {
     private long acaId;
     private String acaName;
