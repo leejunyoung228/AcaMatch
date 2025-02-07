@@ -1,6 +1,5 @@
 package com.green.acamatch.subject;
 
-import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.subject.model.SubjectPostReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SubjectService {
     private final SubjectMapper mapper;
-    private final UserMessage userMessage;
 
     public int postSubject(SubjectPostReq p) {
         int exists = mapper.existsSubject(p.getClassId(), p.getSubjectName());

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class SubjectController {
     private final SubjectService service;
-    private final UserMessage userMessage;
 
     @PostMapping
     @Operation(summary = "시험 회차 등록 하기")
