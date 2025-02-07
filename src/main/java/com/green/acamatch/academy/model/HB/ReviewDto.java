@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class ReviewDto {
     private String comment;
-    private double star;
+    private int star;
     private long reviewId;
     private String createdAt;
     private long userId;
