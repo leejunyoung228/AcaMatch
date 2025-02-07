@@ -40,21 +40,23 @@
     </select>
 
     <select id = "selGradeStatus">
-        SELECT A.aca_pic, D.subject_id, D.subject_name, E.exam_date, E.processing_status,
+        SELECT
+        A.aca_pic, D.subject_id, D.subject_name, E.exam_date, E.processing_status, F.user_id,
         CASE WHEN D.SCORE_TYPE = 0 THEN E.score ELSE 0 END AS score,
-        CASE WHEN D.SCORE_TYPE != 0 THEN
-        CASE WHEN COALESCE(E.PASS, 0) = 0 THEN NULL ELSE 1 END ELSE NULL END AS pass
+        CASE WHEN D.SCORE_TYPE != 0 THEN CASE WHEN COALESCE(E.PASS, 0) = 0 THEN NULL ELSE 1 END ELSE NULL END AS pass
         FROM academy A
         INNER JOIN class B
         ON A.aca_id = B.aca_id
-        INNER JOIN joinclass C
+        LEFT JOIN joinclass C
         ON B.class_id = C.class_id
-        LEFT JOIN subject D
-        ON C.class_id = D.class_id
+        LEFT JOIN `user` F
+        ON C.user_id = F.user_id
+        CROSS JOIN subject D
+        ON B.class_id = D.class_id
         LEFT JOIN grade E
-        ON C.join_class_id = E.join_class_id
+        ON D.subject_id = E.subject_id
         WHERE A.aca_id = #{acaId} AND B.class_id = #{classId}
-        GROUP BY subject_id
+        GROUP BY D.subject_id, F.user_id
         LIMIT #{startIdx}, #{size}
     </select>
 
