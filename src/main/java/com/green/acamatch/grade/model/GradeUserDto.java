@@ -16,6 +16,8 @@ public class GradeUserDto {
     private String userPic;
     @Schema(title = "유저 이름", example = "홍길동")
     private String userName;
+    @Schema(title = "수강생 PK", example = "1")
+    private long joinClassId;
     @Schema(title = "성적 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private long gradeId;
     @Schema(title = "시험 이름", example = "1회 모의고사")
@@ -26,4 +28,5 @@ public class GradeUserDto {
     private Integer score;
     @Schema(title = "통과 여부", example = "null")
     private Integer pass;
+
 }
