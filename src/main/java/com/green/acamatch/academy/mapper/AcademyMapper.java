@@ -16,7 +16,9 @@ public interface AcademyMapper {
     int insAcaTag(long acaId, List<Long>tagIdList);
     int delAcaTag(long acaId);
 
-    Long selAddressDong(String dongName);
+    Long selAddressCity(KakaoMapAddress kakaoMapAddress);
+    Long selAddressStreet(KakaoMapAddress kakaoMapAddress);
+    Long selAddressDong(KakaoMapAddress kakaoMapAddress);
 
     int insAcademy(AcademyPostReq req);
 
