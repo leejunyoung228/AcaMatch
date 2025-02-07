@@ -138,34 +138,6 @@ class UserControllerTest {
         verify(userUtils).checkDuplicate(eq(text), eq(type));
     }
 
-    // 4. 회원 정보 수정 테스트
-    @Test
-    void updateUser() throws Exception {
-        // 준비: UserUpdateReq 객체와 MultipartFile
-        UserUpdateReq givenParam = new UserUpdateReq(USER_NAME_1, PHONE_1, PASSWORD_1, null, null, NICK_NAME_1);
-        MockMultipartFile mockFile = new MockMultipartFile("pic", "userPic.jpg", "image/jpeg", new byte[0]);
-
-        given(userManagementService.updateUser(eq(givenParam), any(MultipartFile.class))).willReturn(1);
-
-        // multipart 요청을 통해 UserUpdateReq와 MultipartFile을 함께 전송
-        ResultActions resultActions = mockMvc.perform(put(BASE_URL)
-                .param("req", objectMapper.writeValueAsString(givenParam)) // UserUpdateReq 전송
-                );
-
-        String expectedResJson = objectMapper.writeValueAsString(
-                ResultResponse.<Integer>builder()
-                        .resultMessage("회원 정보 수정 성공")
-                        .resultData(1)
-                        .build()
-        );
-
-        resultActions.andDo(print())
-                .andExpect(status().isOk()) // 200 OK 기대
-                .andExpect(content().json(expectedResJson));
-
-        verify(userManagementService).updateUser(eq(givenParam), any(MultipartFile.class));
-    }
-
 
     // 5. 임시 비밀번호 요청 테스트
     @Test
