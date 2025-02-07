@@ -6,8 +6,8 @@ constant:
     post-num-sep: post
 
   info-const:
-    title: JWT Practice
-    description: JWT + Security 고도화
+    title: AcaMatch
+    description: AcaMatch
     version: v0.1
 
   email-const:
@@ -50,7 +50,7 @@ mybatis:
 
 spring:
   application:
-    name: studyBridge
+    name: AcaMatch
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     url: jdbc:log4jdbc:mariadb://localhost/acamatch
@@ -58,9 +58,8 @@ spring:
     password: green502
   servlet:
     multipart:
-      enabled: true
       max-file-size: 30MB
-      max-request-size: 30MB
+      max-request-size: 150MB
 
   # API때문에 이걸로 바꿈
   jackson:
