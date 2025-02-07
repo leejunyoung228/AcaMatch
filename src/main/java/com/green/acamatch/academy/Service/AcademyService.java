@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -384,14 +385,23 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
     //학원 상세 모든 정보 보기
     public GetAcademyDetailRes getAcademyDetail(GetAcademyDetailReq p){
         GetAcademyDetailRes res = academyMapper.getAcademyWithClasses(p);
-        res.setAddressDto(addressDecoding(res.getAddress()));
-        res.setAddress(res.getAddressDto().getAddress());
-        if(res == null){
+
+        if (res == null) {
             academyMessage.setMessage("상세 정보 불러오기 실패");
             return null;
         }
+
+        res.setAddressDto(addressDecoding(res.getAddress()));
+        res.setAddress(res.getAddressDto().getAddress());
+
+        if (res.getClasses() == null || res.getClasses().isEmpty()) {
+            res.setClasses(null); // classes 필드를 아예 제거 (필요 시 JSON 직렬화 시 무시 가능)
+        }
+
         academyMessage.setMessage("상세 정보 불러오기 성공");
         return res;
+
+
     }
 
 
