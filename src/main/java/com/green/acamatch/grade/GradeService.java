@@ -72,7 +72,7 @@ public class GradeService {
             List<GradeStatusGetDto> result = mapper.selGradeStatus(p);
             if (result == null || result.isEmpty()) {
                 userMessage.setMessage("시험 처리 상태 불러오기에 실패하였습니다.");
-                return null;
+                return result;
             }
             userMessage.setMessage("시험 처리 상태 불러오기에 성공하였습니다.");
             return result;

@@ -19,4 +19,8 @@ public class GradeStatusGetDto {
     private String examDate;
     @Schema(title = "처리 상태", example = "0")
     private int processingStatus;
+    @Schema(title = "과목 점수", example = "90")
+    private Integer score;
+    @Schema(title = "패스 여부", example = "0")
+    private Integer pass;
 }
