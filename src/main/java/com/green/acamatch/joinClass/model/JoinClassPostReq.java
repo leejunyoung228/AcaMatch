@@ -18,4 +18,6 @@ public class JoinClassPostReq {
     private int discount;
     @Schema(title = "인가 여부", example = "1")
     private int certification;
+    @Schema(title = "신청 날짜", example = "2025-02-06")
+    private String registraionDate;
 }

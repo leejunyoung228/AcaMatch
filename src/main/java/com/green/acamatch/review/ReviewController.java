@@ -7,7 +7,6 @@ import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,7 +49,7 @@ public class ReviewController {
             summary = "학원 관계자 리뷰 삭제",
             description = "학원 관계자가 본인의 학원 리뷰를 삭제합니다."
     )
-    public ResultResponse<Integer> deleteReviewByAcademy(@RequestBody ReviewDelReq req) {
+    public ResultResponse<Integer> deleteReviewByAcademy(@RequestBody ReviewDelMyacademyReq req) {
         int result = service.deleteReviewByAcademy(req); // 0 또는 1 반환
         return ResultResponse.<Integer>builder()
                 .resultMessage(userMessage.getMessage()) // 서비스에서 설정된 메시지 사용

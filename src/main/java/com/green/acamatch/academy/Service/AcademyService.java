@@ -234,7 +234,7 @@ public class AcademyService {
             academy.setAcademyLikeCount(academyLikeCountRes.getAcademyLikeCount());
         }
 
-        if(list == null) {
+        if(list == null || list.isEmpty()) {
             academyMessage.setMessage("좋아요를 받은 학원이 없습니다.");
             return null;
         }

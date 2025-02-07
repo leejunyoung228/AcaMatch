@@ -1,6 +1,11 @@
 
 package com.green.acamatch.excel;
 
+import com.green.acamatch.config.MyFileUtils;
+import com.green.acamatch.config.constant.EmailConst;
+import com.green.acamatch.config.constant.UserConst;
+import com.green.acamatch.config.exception.CommonErrorCode;
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.excel.MariaDBConnection;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,8 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,29 +28,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Service
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class StudentGradeService {
+    private final EmailConst emailConst;
+    private final MyFileUtils myFileUtils;
 
-    @Value("${excel.path}")  // application.yml의 excel.path 값 주입
+    @Value("${file.directory}")  // application.yml의 excel.path 값 주입
     private String filePath;
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
-    public ResponseEntity<Map<String, String>> exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
-        Path excelFilePath = Paths.get(filePath, "studentGrade.xlsx");
+    public String exportToExcel(long subjectId) { // subjectId를 매개변수로 추가
+        Path excelFilePath = Paths.get(filePath, "/student_grades/studentGrade.xlsx");
         log.info("Excel file path: {}", excelFilePath);
-//
-//        try {
-//            Files.createDirectories(excelFilePath.getParent());
-//        } catch (IOException e) {
-//            log.error("디렉터리 생성 실패", e);
-//            return "엑셀 파일 저장 실패: 디렉터리 생성 오류";
-//        }
+        myFileUtils.makeFolders(excelFilePath.getParent().toString());
+        try {
+            Files.createDirectories(excelFilePath.getParent());
+        } catch (IOException e) {
+            log.error("디렉터리 생성 실패", e);
+            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
 
         String sql = "SELECT B.user_id, E.grade_id, A.`name`, D.subject_name, E.exam_date,\n" +
                 "CASE WHEN D.SCORE_TYPE = 0 THEN E.score ELSE NULL END AS result_score,\n" +
@@ -91,25 +99,29 @@ public class StudentGradeService {
                 row.createCell(6).setCellValue(rs.getInt("result_pass"));
             }
 
-            Files.createDirectories(excelFilePath.getParent());
-            log.info("Excel file will be saved at: {}", excelFilePath.getParent());
+//            Files.createDirectories(excelFilePath.getParent());
+//            log.info("Excel file will be saved at: {}", excelFilePath.getParent());
 
-            try (FileOutputStream fileOut = new FileOutputStream(excelFilePath.toFile())) {
-                workbook.write(fileOut);
+            try (FileOutputStream fos = new FileOutputStream(excelFilePath.toString())) {
+                workbook.write(fos);
+                log.info("엑셀 파일 저장 경로: {}", excelFilePath);
+                Resource fileResource  = new FileSystemResource(excelFilePath.toFile());
+                String url = String.format("%s/xlsx/student_grades/studentGrade.xlsx", emailConst.getBaseUrl());
+                return url;
             }
 
-            // 프론트엔드에 파일 경로 반환
-            Map<String, String> response = new HashMap<>();
-            response.put("filePath", excelFilePath.toString());
-            return ResponseEntity.ok(response);
+//            // 프론트엔드에 파일 경로 반환
+//            Map<String, String> response = new HashMap<>();
+//            response.put("filePath", excelFilePath.toString());
+//            return ResponseEntity.ok(response);
 
-        } catch (SQLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "데이터베이스 오류 발생"));
-
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "엑셀 파일 저장 오류 발생"));
+//        } catch (SQLException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Collections.singletonMap("error", "데이터베이스 오류 발생"));
+//
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Collections.singletonMap("error", "엑셀 파일 저장 오류 발생"));
 
 //            response.setContentType("application/vnd.ms-excel");
 //            response.setHeader("Content-Disposition", "attachment; filename=student_grades.xlsx");
@@ -117,8 +129,7 @@ public class StudentGradeService {
 //            response.getOutputStream().flush();
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "서버 내부 오류 발생"));
+            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 

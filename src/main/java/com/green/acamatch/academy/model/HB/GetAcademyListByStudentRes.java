@@ -9,4 +9,5 @@ public class GetAcademyListByStudentRes {
     private long acaId;
     private String acaPic;
     private String acaName;
+    private String registraionDate;
 }
