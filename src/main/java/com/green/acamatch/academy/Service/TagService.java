@@ -42,13 +42,7 @@ public class TagService {
 
     //학원등록할때 태그 insert
     public int insAcaTag(AcademyPostReq req) {
-        try {
-            int result = academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
-            return result;
-        } catch (DataIntegrityViolationException e) {
-            academyMapper.delAcademy(req.getAcaId(), req.getUserId());
-            throw new CustomException(AcademyException.DUPLICATE_TAG);
-        }
+        return academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
     }
 
 

@@ -28,7 +28,7 @@ public class AcademyService {
     private final AcademyMapper academyMapper;
     private final MyFileUtils myFileUtils;
     private final AcademyMessage academyMessage;
-    private final UserMessage userMessage;
+    private final TagService tagService;
     private final AddressConst addressConst;
     private final KakaoApiExample kakaoApiExample;
 
@@ -36,6 +36,9 @@ public class AcademyService {
     //학원정보등록
     @Transactional
     public int insAcademy(MultipartFile pic, AcademyPostReq req) {
+        if (req.getTagIdList().isEmpty()) {
+            throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
+        }
 
         req.setAddress(addressEncoding(req.getAddressDto()));
 
@@ -48,24 +51,19 @@ public class AcademyService {
         //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
         KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddressDto());
 
-            // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
-            Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
-            kakaoMapAddressImp.setCityId(cityPk);
-            // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
-            Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
-            kakaoMapAddressImp.setStreetId(streetPk);
-            // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
-            Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
+        // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
+        Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
+        kakaoMapAddressImp.setCityId(cityPk);
+        // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
+        Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
+        kakaoMapAddressImp.setStreetId(streetPk);
+        // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+        Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
 
-            req.setDongId(dongPk);
+        req.setDongId(dongPk);
 
 
-
-        try {
-            int result = academyMapper.insAcademy(req);
-        } catch (Exception e) {
-            throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
-        }
+        academyMapper.insAcademy(req);
 
         if (pic == null) {
             academyMessage.setMessage("학원정보등록이 완료되었습니다.");
@@ -82,7 +80,7 @@ public class AcademyService {
         } catch (IOException e) {
             throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
         }
-
+        tagService.insAcaTag(req);
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;
     }
@@ -95,7 +93,7 @@ public class AcademyService {
                 (req.getAcaName() == null || req.getAcaName().trim().isEmpty()) &&
                 (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) &&
                 (req.getComment() == null || req.getComment().trim().isEmpty()) &&
-                (req.getTeacherNum() == 0 ) && // int 타입은 null 체크 불필요
+                (req.getTeacherNum() == 0) && // int 타입은 null 체크 불필요
                 (req.getOpenTime() == null || req.getOpenTime().trim().isEmpty()) &&
                 (req.getCloseTime() == null || req.getCloseTime().trim().isEmpty()) &&
                 (req.getAddressDto() == null || req.getAddressDto().toString().trim().isEmpty()) &&
@@ -118,7 +116,7 @@ public class AcademyService {
             // 파일 저장
             String filePath = String.format("%s/%s", targetDir, savedFileName);
 
-            try{
+            try {
                 myFileUtils.transferTo(pic, filePath);
             } catch (IOException e) {
                 throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
@@ -136,11 +134,11 @@ public class AcademyService {
             }
         }
 
-        if(req.getAddressDto() != null) {
+        if (req.getAddressDto() != null) {
             //주소수정을 하려고 할때(셋다 값이 들어있을때)
-            if(isValidValue(req.getAddressDto().getAddress())
+            if (isValidValue(req.getAddressDto().getAddress())
                     && isValidValue(req.getAddressDto().getDetailAddress())
-                    && isValidValue(req.getAddressDto().getPostNum()))  {
+                    && isValidValue(req.getAddressDto().getPostNum())) {
                 req.setAddress(addressEncoding(req.getAddressDto()));
 
 
@@ -193,13 +191,13 @@ public class AcademyService {
                 req.getAddressDto() == null &&
                 (req.getAcaPic() == null || req.getAcaPic().isEmpty())) {
 
-                try {
-                    academyMapper.delAcaTag(req.getAcaId());
-                    academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+            try {
+                academyMapper.delAcaTag(req.getAcaId());
+                academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
 
-                } catch (DataIntegrityViolationException e) {
-                    throw new CustomException(AcademyException.DUPLICATE_TAG);
-                }
+            } catch (DataIntegrityViolationException e) {
+                throw new CustomException(AcademyException.DUPLICATE_TAG);
+            }
 
             academyMessage.setMessage("학원정보수정이 완료되었습니다.");
             return 1;
@@ -213,7 +211,7 @@ public class AcademyService {
             return result;
         }
 
-        if (req.getTagIdList() !=null && !req.getTagIdList().isEmpty()) {
+        if (req.getTagIdList() != null && !req.getTagIdList().isEmpty()) {
             try {
                 academyMapper.delAcaTag(req.getAcaId());
                 academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
@@ -231,7 +229,7 @@ public class AcademyService {
         academyMapper.delAcaTag(req.getAcaId());
         int result = academyMapper.delAcademy(req.getAcaId(), req.getUserId());
 
-        if(result == 1) {
+        if (result == 1) {
             academyMessage.setMessage("학원정보가 삭제되었습니다.");
             return result;
         } else {
@@ -250,7 +248,7 @@ public class AcademyService {
             academy.setAcademyLikeCount(academyLikeCountRes.getAcademyLikeCount());
         }
 
-        if(list == null || list.isEmpty()) {
+        if (list == null || list.isEmpty()) {
             academyMessage.setMessage("좋아요를 받은 학원이 없습니다.");
             return null;
         }
@@ -302,32 +300,31 @@ public class AcademyService {
     }
 
 
-
-// --------------------------------------------------------------
+    // --------------------------------------------------------------
 //동과 태그를 입력받아 검색하고 search 테이블에 검색한 태그를 저장
-public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
-    PostAcademySearch search = new PostAcademySearch();
-    search.setTagId(p.getTagId());
-    int post = academyMapper.postSearch(search);
-    List<GetAcademyRes> res = academyMapper.getAcademy(p);
-    for(GetAcademyRes re : res) {
-        re.setAddressDto(addressDecoding(re.getAddress()));
-        re.setAddress(re.getAddressDto().getAddress());
+    public List<GetAcademyRes> getAcademyRes(GetAcademyReq p) {
+        PostAcademySearch search = new PostAcademySearch();
+        search.setTagId(p.getTagId());
+        int post = academyMapper.postSearch(search);
+        List<GetAcademyRes> res = academyMapper.getAcademy(p);
+        for (GetAcademyRes re : res) {
+            re.setAddressDto(addressDecoding(re.getAddress()));
+            re.setAddress(re.getAddressDto().getAddress());
+        }
+        if (res.size() == 0) {
+            academyMessage.setMessage("학원 검색을 실패했습니다.");
+            return null;
+        }
+        academyMessage.setMessage("학원 검색을 성공했습니다.");
+        return res;
     }
-    if(res.size() == 0) {
-        academyMessage.setMessage("학원 검색을 실패했습니다.");
-        return null;
-    }
-    academyMessage.setMessage("학원 검색을 성공했습니다.");
-    return res;
-}
 
     //학원 PK를 받아 학원 상세 정보 불러오기
-    public GetAcademyDetail getAcademyDetail(Long acaId){
+    public GetAcademyDetail getAcademyDetail(Long acaId) {
         GetAcademyDetail res = academyMapper.getAcademyDetail(acaId);
         res.setAddressDto(addressDecoding(res.getAddress()));
         res.setAddress(res.getAddressDto().getAddress());
-        if(res == null) {
+        if (res == null) {
             academyMessage.setMessage("학원의 상세 정보 불러오기를 실패했습니다.");
             return null;
         }
@@ -336,18 +333,18 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
     }
 
     //태그 리스트 가져오기
-    public List<GetAcademyTagDto> getTagList(Long acaId){
+    public List<GetAcademyTagDto> getTagList(Long acaId) {
         return academyMapper.getTagList(acaId);
     }
 
     //검색어를 입력받아 태그 리스트 불러오기
-    public List<GetTagListBySearchNameRes> getTagListBySearchName(GetTagListBySearchNameReq p){
+    public List<GetTagListBySearchNameRes> getTagListBySearchName(GetTagListBySearchNameReq p) {
         List<GetTagListBySearchNameRes> list = academyMapper.getTagListBySearchName(p);
-        if(p.getTagName() == null){
+        if (p.getTagName() == null) {
             List<GetTagListBySearchNameRes> allTagList = academyMapper.getAllTagList();
             return allTagList;
         }
-        if(list.size() == 0){
+        if (list.size() == 0) {
             academyMessage.setMessage("태그 리스트 불러오기 실패");
             return null;
         }
@@ -356,9 +353,9 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
     }
 
     //로그인한 유저의 PK를 받아 그 유저가 등록한 학원 리스트 불러오기
-    public List<GetAcademyListByUserIdRes> getAcademyListByUserId(GetAcademyListByUserIdReq p){
+    public List<GetAcademyListByUserIdRes> getAcademyListByUserId(GetAcademyListByUserIdReq p) {
         List<GetAcademyListByUserIdRes> list = academyMapper.getAcademyListByUserId(p);
-        if(list.size() == 0){
+        if (list.size() == 0) {
             academyMessage.setMessage("학원 리스트 불러오기 실패");
             return null;
         }
@@ -367,14 +364,14 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
     }
 
     //모든 입력을 받아 학원 리스트 출력하기
-    public List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p){
+    public List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p) {
         int post = academyMapper.postToSearch(p.getTagId());
         List<GetAcademyListRes> list = academyMapper.getAcademyListByAll(p);
-        for(GetAcademyListRes re : list) {
+        for (GetAcademyListRes re : list) {
             re.setAddressDto(addressDecoding(re.getAddress()));
             re.setAddress(re.getAddressDto().getAddress());
         }
-        if(list.size() == 0){
+        if (list.size() == 0) {
             academyMessage.setMessage("학원 리스트 불러오기 실패");
             return null;
         }
@@ -383,7 +380,7 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
     }
 
     //학원 상세 모든 정보 보기
-    public GetAcademyDetailRes getAcademyDetail(GetAcademyDetailReq p){
+    public GetAcademyDetailRes getAcademyDetail(GetAcademyDetailReq p) {
         GetAcademyDetailRes res = academyMapper.getAcademyWithClasses(p);
 
         if (res == null) {
@@ -405,10 +402,9 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
     }
 
 
-
     public List<GetAcademyRandomRes> generateRandomAcademyList() {
         List<GetAcademyRandomRes> list = academyMapper.getAcademyListRandom();
-        if(list.size() == 0){
+        if (list.size() == 0) {
             academyMessage.setMessage("학원 출력 실패");
             return null;
         }
@@ -416,9 +412,9 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
         return list;
     }
 
-    public List<GetAcademyListByStudentRes> getAcademyListByStudent(GetAcademyListByStudentReq p){
+    public List<GetAcademyListByStudentRes> getAcademyListByStudent(GetAcademyListByStudentReq p) {
         List<GetAcademyListByStudentRes> list = academyMapper.getAcademyListByStudent(p);
-        if(list.size() == 0){
+        if (list.size() == 0) {
             academyMessage.setMessage("학원 출력 실패");
             return null;
         }
@@ -426,9 +422,9 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
         return list;
     }
 
-    public List<PopularSearchRes> popularSearch(){
+    public List<PopularSearchRes> popularSearch() {
         List<PopularSearchRes> list = academyMapper.popularSearch();
-        if(list.size() == 0){
+        if (list.size() == 0) {
             academyMessage.setMessage("인기 검색어가 없습니다.");
             return null;
         }
@@ -436,13 +432,13 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
         return list;
     }
 
-    public List<GetDefaultRes> getDefault(){
+    public List<GetDefaultRes> getDefault() {
         List<GetDefaultRes> list = academyMapper.getDefault();
-        for(GetDefaultRes re : list) {
+        for (GetDefaultRes re : list) {
             re.setAddressDto(addressDecoding(re.getAddress()));
             re.setAddress(re.getAddressDto().getAddress());
         }
-        if(list.size() == 0){
+        if (list.size() == 0) {
             academyMessage.setMessage("디폴트 학원 리스트 출력 실패");
             return null;
         }
@@ -450,7 +446,7 @@ public List<GetAcademyRes> getAcademyRes(GetAcademyReq p){
         return list;
     }
 
-    public GetAcademyCountRes GetAcademyCount(){
+    public GetAcademyCountRes GetAcademyCount() {
         return academyMapper.GetAcademyCount();
     }
 }

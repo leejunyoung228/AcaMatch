@@ -1,6 +1,7 @@
 package com.green.acamatch.joinClass;
 
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.grade.model.GradeUserDto;
 import com.green.acamatch.grade.model.GradeUserGetReq;
 import com.green.acamatch.joinClass.model.*;
@@ -28,6 +29,7 @@ public class JoinClassService {
     }
 
     public List<JoinClassDto> selJoinClass(JoinClassGetReq p) {
+        p.setUserId(AuthenticationFacade.getSignedUserId());
         try {
             List<JoinClassDto> result = mapper.selJoinClass(p);
             if (result == null || result.isEmpty()) {

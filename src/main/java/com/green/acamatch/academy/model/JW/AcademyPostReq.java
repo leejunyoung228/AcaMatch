@@ -32,7 +32,7 @@ public class AcademyPostReq {
     private String acaName;
     @NotEmpty
     @Schema(title = "학원전화번호", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Pattern(regexp = "^(0[0-9][0-9])-\\d{3,4}-\\d{4}$", message = "Invalid phone number format. Example: 010-1234-5678")
+    @Pattern(regexp = "^(0(10|2|3[1-3]|4[1-3]|5[1-5]|6[1-4]))-\\d{3,4}-\\d{4}$", message = "Invalid phone number format. Example: 010-1234-5678")
     private String acaPhone;
 
     @Schema(title = "학원내용", example = "여기는 수학전문학원입니다.")

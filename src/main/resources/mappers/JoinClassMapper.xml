@@ -8,7 +8,7 @@
         user_id = #{userId},
         discount = #{discount},
         certification = #{certification},
-        registraion_date = #{registraionDate}
+        registration_date = #{registrationDate}
     </insert>
 
     <select id = "existsJoinClass" parameterType="map" resultType="int">

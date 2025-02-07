@@ -31,7 +31,7 @@ public interface ReviewMapper {
     int deleteReviewByAcademy(ReviewDelMyacademyReq req);
 
     // 학원 ID와 리뷰 ID 간의 관계 확인
-    Integer isReviewLinkedToAcademy(long joinClassId, long acaId);
+    Long isReviewLinkedToAcademy(long joinClassId, long acaId);
 
     // 리뷰 삭제 - 작성자 기준
     int deleteReviewByUser(ReviewDelReq req);
@@ -64,6 +64,8 @@ public interface ReviewMapper {
     int checkExistingReview(Long acaId, Long userId);
 
    List<Long>  findReviewIdByJoinClassId(Long joinClassId);
+
+   Long  findAcademyIdByReviewId (Long reviewId);
 
     List<Long> findClassIdByAcaId(Long acaId);
 

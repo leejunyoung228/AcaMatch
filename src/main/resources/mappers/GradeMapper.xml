@@ -65,20 +65,21 @@
 
     <select id="selGradeUser" resultMap="gradeUserResultMap">
         SELECT E.user_id, E.user_pic, E.name, D.grade_id, F.subject_name, D.exam_date,
-        CASE WHEN F.SCORE_TYPE = 0 THEN D.score ELSE NULL END AS result_score,
+        CASE WHEN F.SCORE_TYPE = 0 THEN D.score ELSE 0 END AS score,
         CASE WHEN F.SCORE_TYPE != 0 THEN
-        CASE WHEN COALESCE(D.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass
+        CASE WHEN COALESCE(D.PASS, 0) = 0 THEN NULL ELSE 1 END ELSE NULL END AS pass
         FROM academy A
         INNER JOIN class B
         ON A.aca_id = B.aca_id
         INNER JOIN joinclass C
         ON B.class_id = C.class_id
-        INNER JOIN grade D
-        ON C.join_class_id = D.join_class_id
         INNER JOIN `user` E
         ON E.user_id = C.user_id
         INNER JOIN `subject` F
-        ON F.subject_id = D.subject_id
+        ON B.class_id = F.class_id
+        LEFT JOIN grade D
+        ON C.join_class_id = D.join_class_id
+        AND F.subject_id = D.subject_id
         WHERE F.subject_id = #{subjectId}
         LIMIT #{startIdx}, #{size}
     </select>

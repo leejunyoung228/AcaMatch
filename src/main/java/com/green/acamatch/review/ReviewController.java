@@ -80,10 +80,12 @@ public class ReviewController {
     )
     public ResultResponse<List<ReviewDto>> getMyAcademyReviews(
             @RequestParam long userId,
+            @RequestParam long acaId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
         MyAcademyReviewListGetReq req = new MyAcademyReviewListGetReq(page, size); // 페이징 정보를 포함한 요청 객체 생성
         req.setUserId(userId); // 유저 ID 설정
+        req.setAcaId(acaId);
         List<ReviewDto> reviews = service.getMyAcademyReviews(req); // 서비스 호출
         return ResultResponse.<List<ReviewDto>>builder()
                 .resultMessage(userMessage.getMessage()) // 사용자 메시지 반환

@@ -43,13 +43,21 @@
         VALUES (#{joinClassId}, #{comment}, #{star});
     </insert>
 
-
-    <!-- 학생 유저 리뷰 수정 -->
     <update id="updateReview">
         UPDATE review
         SET comment = #{comment}, star = #{star}
-        WHERE join_class_id = (
-        SELECT join_class_id FROM joinclass WHERE class_id = #{classId} AND user_id = #{userId}
+        WHERE review_id = (
+        SELECT review_id
+        FROM review r
+        JOIN joinclass j ON r.join_class_id = j.join_class_id
+        WHERE j.class_id IN (
+        SELECT class_id
+        FROM class
+        WHERE aca_id = #{acaId}
+        )
+        AND j.user_id = #{userId}
+        ORDER BY r.review_id DESC
+        LIMIT 1
         );
     </update>
 
@@ -75,13 +83,20 @@
 
     <!-- 본인 리뷰 삭제 -->
     <delete id="deleteReviewByUser">
-        DELETE r
-        FROM review r
-        INNER JOIN joinclass j
-        ON r.join_class_id = j.join_class_id
-        WHERE j.class_id = #{classId}
-        AND j.user_id = #{userId};
+        DELETE FROM review
+        WHERE review_id = (
+        SELECT review_id
+        FROM review
+        JOIN joinclass j ON review.join_class_id = j.join_class_id
+        WHERE j.class_id IN (
+        SELECT class_id FROM class WHERE aca_id = #{acaId}
+        )
+        AND j.user_id = #{userId}
+        ORDER BY review.review_id DESC
+        LIMIT 1
+        );
     </delete>
+
 
     <select id="checkClassExists">
         SELECT COUNT(*)
@@ -246,6 +261,12 @@
         SELECT class_id FROM class WHERE aca_id = #{acaId};
     </select>
 
-
+    <select id="findAcademyIdByReviewId">
+        SELECT c.aca_id
+        FROM review r
+        JOIN joinclass j ON r.join_class_id = j.join_class_id
+        JOIN class c ON j.class_id = c.class_id
+        WHERE r.review_id = #{reviewId}
+    </select>
 
 </mapper>
