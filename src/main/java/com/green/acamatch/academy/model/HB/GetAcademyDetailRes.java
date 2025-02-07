@@ -1,14 +1,18 @@
 package com.green.acamatch.academy.model.HB;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.green.acamatch.academy.model.AddressDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Getter
 @Setter
+@ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GetAcademyDetailRes {
     @Schema(title = "학원 PK")
     private Long acaId;
