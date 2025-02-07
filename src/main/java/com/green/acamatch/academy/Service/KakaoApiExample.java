@@ -7,18 +7,19 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import com.green.acamatch.academy.model.AddressDto;
+import com.green.acamatch.academy.model.JW.KakaoMapAddress;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 @Component
 public class KakaoApiExample {
-    public static String addressSearchMain(AddressDto dto) {
+    public static KakaoMapAddress addressSearchMain(AddressDto dto) {
         try {
             // 요청 주소
             String address = dto.getAddress();
             if (address == null || address.trim().isEmpty()) {
-                return "입력 주소가 비어 있습니다.";
+                return null;
             }
 
             String query = URLEncoder.encode(address.trim(), "UTF-8");
@@ -49,10 +50,17 @@ public class KakaoApiExample {
                     JSONObject document = documents.getJSONObject(0);
 
                     // 지번 주소의 동 정보 추출
-                    String region3depthName = document.getJSONObject("address").getString("region_3depth_name");
-                    return region3depthName;
+                    String region1depthName = document.getJSONObject("address").getString("region_1depth_name");  // 시 이름
+                    String region2depthName = document.getJSONObject("address").getString("region_2depth_name"); // 구 이름
+                    String region3depthName = document.getJSONObject("address").getString("region_3depth_name"); // 동 이름
+
+                    KakaoMapAddress kakaoMapAddress = new KakaoMapAddress();
+                    kakaoMapAddress.setCityName(region1depthName);
+                    kakaoMapAddress.setStreetName(region2depthName);
+                    kakaoMapAddress.setDongName(region3depthName);
+                    return kakaoMapAddress;
                 } else {
-                    return "검색 결과가 없습니다.";
+                    return null;
                 }
             } else {
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getErrorStream(), "UTF-8"));
@@ -62,11 +70,11 @@ public class KakaoApiExample {
                     errorResponse.append(inputLine);
                 }
                 in.close();
-                return "API 요청 실패. 응답 코드: " + responseCode + ", 오류 메시지: " + errorResponse.toString();
+                return null;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "예외 발생: " + e.getMessage();
+            return null;
         }
     }
 }

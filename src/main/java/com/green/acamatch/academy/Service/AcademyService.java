@@ -45,14 +45,20 @@ public class AcademyService {
         //req.getAddressDto().getAddress();
 
         //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
-        try {
-            String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
+        KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddressDto());
+
+            // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
+            Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
+            kakaoMapAddressImp.setCityId(cityPk);
+            // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
+            Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
+            kakaoMapAddressImp.setStreetId(streetPk);
             // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
-            Long dongPk = academyMapper.selAddressDong(dongName);
+            Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
+
             req.setDongId(dongPk);
-        } catch (NullPointerException e) {
-            throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
-        }
+
+
 
         try {
             int result = academyMapper.insAcademy(req);
@@ -135,13 +141,22 @@ public class AcademyService {
                     && isValidValue(req.getAddressDto().getDetailAddress())
                     && isValidValue(req.getAddressDto().getPostNum()))  {
                 req.setAddress(addressEncoding(req.getAddressDto()));
-                try {
-                    String dongName = kakaoApiExample.addressSearchMain(req.getAddressDto());
-                    Long dongPk = academyMapper.selAddressDong(dongName);
-                    req.setDongId(dongPk);
-                } catch (NoSuchElementException e) {
-                    throw new CustomException(AcademyException.NO_SUCH_ELEMENT_EXCEPTION);
-                }
+
+
+                //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
+                KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddressDto());
+
+                // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
+                Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
+                kakaoMapAddressImp.setCityId(cityPk);
+                // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
+                Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
+                kakaoMapAddressImp.setStreetId(streetPk);
+                // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+                Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
+
+                req.setDongId(dongPk);
+
             }
 
             String address = req.getAddressDto().getAddress();

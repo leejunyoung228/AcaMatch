@@ -27,11 +27,27 @@
         </foreach>
     </insert>
 
+<!--학원 주소 시pk 뽑아내기-->
+    <select id="selAddressCity">
+        SELECT city_id
+        FROM city
+        WHERE city_name LIKE '%${cityName}%'
+    </select>
+
+<!--학원 주소 구pk 뽑아내기-->
+    <select id="selAddressStreet">
+        SELECT street_id
+        FROM street
+        WHERE street_name LIKE '%${streetName}%'
+        AND city_id = #{cityId}
+    </select>
+
 <!--학원 주소 동pk 뽑아내기-->
     <select id="selAddressDong">
         SELECT dong_id
         FROM dong
-        WHERE dong_name LIKE CONCAT('%', #{dongName}, '%');
+        WHERE dong_name LIKE '%${dongName}%'
+        AND street_id = #{streetId}
     </select>
 
 
