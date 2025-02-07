@@ -56,12 +56,11 @@ spring:
     url: jdbc:log4jdbc:mariadb://localhost/acamatch
     username: root
     password: green502
-  spring:
-    servlet:
-      multipart:
-        enabled: true
-        max-file-size: 5MB
-        max-request-size: 5MB
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 30MB
 
   # API때문에 이걸로 바꿈
   jackson:
@@ -94,6 +93,3 @@ springdoc:
     tags-sorter: alpha
   cache:
     disabled: true
-
-excel:
-  path: ${EXCEL_FILE_PATH:/home/download/student_grades}  #docker에서 excel 파일을 보기위해 추가
