@@ -9,9 +9,9 @@ import lombok.Setter;
 @Getter
 public class JoinClassGetReq extends Paging {
     @Schema(title = "사용자 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long userId;
+    private Long userId;
 
-    public JoinClassGetReq(Integer page, Integer size, long userId) {
+    public JoinClassGetReq(Integer page, Integer size, Long userId) {
         super(page, size);
         this.userId = userId;
     }
