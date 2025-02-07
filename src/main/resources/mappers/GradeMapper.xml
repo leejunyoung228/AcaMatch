@@ -59,8 +59,8 @@
         <result property="gradeId" column="grade_id" />
         <result property="subjectName" column="subject_name"/>
         <result property="examDate" column="exam_date" />
-        <result property="score" column="result_score" />
-        <result property="pass" column="result_pass" />
+        <result property="score" column="score" />
+        <result property="pass" column="pass" />
     </resultMap>
 
     <select id="selGradeUser" resultMap="gradeUserResultMap">
