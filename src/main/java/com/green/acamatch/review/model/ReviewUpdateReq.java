@@ -28,4 +28,7 @@ public class ReviewUpdateReq {
     @JsonIgnore
     private Long joinClassId;
 
+    @JsonIgnore
+    private Long classId;
+
 }
