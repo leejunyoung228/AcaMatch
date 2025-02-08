@@ -1,15 +1,13 @@
 package com.green.acamatch.ai;
 
 
-import com.green.acamatch.academy.model.AddressDto;
 import com.green.acamatch.ai.model.GetFeedBackRes;
 import com.green.acamatch.ai.model.PostFeedBackReq;
 import com.green.acamatch.config.constant.ApiConst;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
