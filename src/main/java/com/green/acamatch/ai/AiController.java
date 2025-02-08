@@ -6,6 +6,7 @@ import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,16 @@ public class AiController {
         List<GetFeedBackRes> result = service.getFeedBack(gradeId);
         return ResultResponse.<List<GetFeedBackRes>>builder()
                 .resultMessage(result == null ? "피드백이 없습니다." : "피드백 출력 완료")
+                .resultData(result)
+                .build();
+    }
+
+    @GetMapping("getApiKey")
+    @Operation(summary = "api키 가져오기")
+    public ResultResponse<String> getApiKey(){
+        String result = service.getApiKey();
+        return ResultResponse.<String>builder()
+                .resultMessage("출력 성공")
                 .resultData(result)
                 .build();
     }

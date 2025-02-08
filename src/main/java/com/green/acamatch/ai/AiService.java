@@ -1,8 +1,10 @@
 package com.green.acamatch.ai;
 
 
+import com.green.acamatch.academy.model.AddressDto;
 import com.green.acamatch.ai.model.GetFeedBackRes;
 import com.green.acamatch.ai.model.PostFeedBackReq;
+import com.green.acamatch.config.constant.ApiConst;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AiService {
     private final AiMapper mapper;
+    private final ApiConst apiConst;
 
     public int postFeedBack(PostFeedBackReq p){
         if(p.getGradeId() == null){
@@ -32,5 +35,9 @@ public class AiService {
     public List<GetFeedBackRes> getFeedBack(Integer gradeId){
         List<GetFeedBackRes> res = mapper.getFeedBack(gradeId);
         return res;
+    }
+
+    public String getApiKey() {
+        return apiConst.getApiKey();
     }
 }
