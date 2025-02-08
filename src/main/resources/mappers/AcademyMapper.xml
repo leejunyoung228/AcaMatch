@@ -531,7 +531,7 @@
             <result property="userCertification" column="userCertification"/>
         </collection>
         <!-- 리뷰 정보 매핑 (하위 리스트) -->
-        <collection property="reviews" ofType="com.green.acamatch.academy.model.HB.ReviewDto">
+        <collection property="reviews" ofType="com.green.acamatch.academy.model.HB.ReviewDto" javaType="ArrayList" notNullColumn="reviewId">
             <result property="comment" column="reviewComment"/>
             <result property="star" column="reviewStar"/>
             <result property="reviewId" column="reviewId"/>
@@ -669,11 +669,11 @@
         COALESCE(R.reviewComment, '') AS reviewComment,
         COALESCE(R.reviewStar, 0) AS reviewStar,
         COALESCE(R.reviewCreatedAt, '') AS reviewCreatedAt,
-        COALESCE(R.reviewId, 0) AS reviewId,
+        R.reviewId AS reviewId,   -- reviewId가 NULL이면 0으로 설정
         COALESCE(R.reviewUserId, 0) AS reviewUserId,
         COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
-        COALESCE(R.reviewClassName, '') AS reviewClassName,
-        COALESCE(R.reviewJoinClassId, 0) AS reviewJoinClassId
+        COALESCE(R.reviewClassName, '') AS reviewClassName
+
 
         FROM academy A
         LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
