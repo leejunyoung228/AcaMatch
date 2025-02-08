@@ -13,4 +13,5 @@ public class ReviewDto {
     private long userId;
     private String nickName;
     private String className;
+    private long reviewJoinClassId;
 }
