@@ -49,6 +49,7 @@
         INNER JOIN grade D
         ON C.subject_id = D.subject_id
         WHERE A.aca_id = #{acaId} AND B.class_id = #{classId}
+        GROUP BY subject_id
         LIMIT #{startIdx}, #{size}
     </select>
 
