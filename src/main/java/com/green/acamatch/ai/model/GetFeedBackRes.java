@@ -7,4 +7,6 @@ import lombok.Setter;
 @Setter
 public class GetFeedBackRes {
     private String feedBack;
+
+    private String createdAt;
 }
