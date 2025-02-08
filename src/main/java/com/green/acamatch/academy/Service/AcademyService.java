@@ -392,7 +392,7 @@ public class AcademyService {
         res.setAddress(res.getAddressDto().getAddress());
 
         if (res.getClasses() == null || res.getClasses().isEmpty()) {
-            res.setClasses(null); // classes 필드를 아예 제거 (필요 시 JSON 직렬화 시 무시 가능)
+            res.setClasses(res.getClasses()); // classes 필드를 아예 제거 (필요 시 JSON 직렬화 시 무시 가능)
         }
 
         academyMessage.setMessage("상세 정보 불러오기 성공");

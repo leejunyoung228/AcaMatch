@@ -565,6 +565,7 @@
         ORDER BY A.review_id DESC
         LIMIT #{startIdx}, #{size}
         ),
+
         ReviewStats AS (
         SELECT
         C.aca_id,
@@ -575,26 +576,50 @@
         JOIN class C ON B.class_id = C.class_id
         GROUP BY C.aca_id
         ),
-        AcademyClass AS (
+
+        ClassDays AS (
         SELECT
-        C.class_id AS classId,
-        C.class_name AS className,
-        C.class_comment AS classComment,
-        C.start_date AS classStartDate,
-        C.end_date AS classEndDate,
-        C.start_time AS classStartTime,
-        C.end_time AS classEndTime,
-        C.price AS classPrice,
-        GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,
-        GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
-        C.aca_id
+        C.class_id,
+        GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay
         FROM class C
         LEFT JOIN classweekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
+        GROUP BY C.class_id
+        ),
+
+        ClassCategories AS (
+        SELECT
+        C.class_id,
+        GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName
+        FROM class C
         LEFT JOIN classcategory CC ON C.class_id = CC.class_id
         LEFT JOIN category CAT ON CC.category_id = CAT.category_id
         GROUP BY C.class_id
         ),
+
+        AcademyClass AS (
+        SELECT
+        C.aca_id,
+        JSON_ARRAYAGG(
+        JSON_OBJECT(
+        'classId', C.class_id,
+        'className', C.class_name,
+        'classComment', C.class_comment,
+        'classStartDate', C.start_date,
+        'classEndDate', C.end_date,
+        'classStartTime', C.start_time,
+        'classEndTime', C.end_time,
+        'classPrice', C.price,
+        'classDay', IFNULL(D.classDay, ''),
+        'classCategoryName', IFNULL(E.classCategoryName, '')
+        )
+        ) AS classList
+        FROM class C
+        LEFT JOIN ClassDays D ON C.class_id = D.class_id
+        LEFT JOIN ClassCategories E ON C.class_id = E.class_id
+        GROUP BY C.aca_id
+        ),
+
         UserCertification AS (
         SELECT
         JC.class_id,
@@ -603,6 +628,7 @@
         WHERE JC.user_id = #{signedUserId}
         GROUP BY JC.class_id
         ),
+
         UserLikes AS (
         SELECT
         L.aca_id,
@@ -610,6 +636,7 @@
         FROM `like` L
         WHERE L.user_id = #{signedUserId}
         ),
+
         LikeCount AS (
         SELECT
         aca_id,
@@ -617,6 +644,7 @@
         FROM `like`
         GROUP BY aca_id
         ),
+
         AcademyTag AS (
         SELECT
         AT.aca_id,
@@ -625,6 +653,7 @@
         JOIN tag AS T ON AT.tag_id = T.tag_id
         GROUP BY AT.aca_id
         )
+
         SELECT
         A.aca_id,
         A.aca_name,
@@ -634,18 +663,6 @@
         A.comment,
         A.aca_pic,
         AT.tagName,
-
-        -- 클래스별 정보
-        AC.classId,
-        AC.className,
-        AC.classComment,
-        AC.classStartDate,
-        AC.classEndDate,
-        AC.classStartTime,
-        AC.classEndTime,
-        AC.classPrice,
-        AC.classDay,
-        AC.classCategoryName,
 
         -- 학원별 총 좋아요 수
         COALESCE(LC.likeCount, 0) AS likeCount,
@@ -668,19 +685,21 @@
         R.reviewUserId,
         R.reviewUserNickName,
         R.reviewClassName,
-        R.reviewJoinClassId
+        R.reviewJoinClassId,
+
+        -- 클래스 정보를 JSON으로 반환
+        COALESCE(AC.classList, '[]') AS classes
 
         FROM academy A
-        LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- LEFT JOIN으로 변경
-        LEFT JOIN LatestReviews R ON R.class_id = AC.classId
+        LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id
+        LEFT JOIN LatestReviews R ON R.aca_id = A.aca_id
         LEFT JOIN ReviewStats RS ON RS.aca_id = A.aca_id
-        LEFT JOIN UserCertification UC ON UC.class_id = AC.classId
+        LEFT JOIN UserCertification UC ON UC.class_id = AC.aca_id
         LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id
         LEFT JOIN UserLikes UL ON UL.aca_id = A.aca_id
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
         ORDER BY R.reviewId DESC;
-
     </select>
 
     <resultMap id="randomResultMap" type = "com.green.acamatch.academy.model.HB.GetAcademyRandomRes">
@@ -700,12 +719,12 @@
         A.aca_name AS acaName,
         COUNT(L.aca_id) AS likeCount,
         COALESCE(G.star, 0) AS starAvg,
-        COALESCE(G.reviewCount, 0),
+        COALESCE(G.reviewCount, 0) AS reviewCount,
         A.aca_pic AS acaPic,
         A.address AS address,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagNames
         FROM academy A
-        left JOIN `like` L
+        LEFT JOIN `like` L
         ON A.aca_id = L.aca_id
         LEFT JOIN academytag E
         ON A.aca_id = E.aca_id
@@ -713,8 +732,9 @@
         ON E.tag_id = F.tag_id
         LEFT JOIN (
         SELECT
+        C.aca_id,
         ROUND(AVG(R.star), 2) AS star,
-        C.aca_id, COUNT(R.join_class_id) AS reviewCount
+        COUNT(DISTINCT R.join_class_id) AS reviewCount
         FROM review R
         JOIN joinclass JC
         ON JC.join_class_id = R.join_class_id
