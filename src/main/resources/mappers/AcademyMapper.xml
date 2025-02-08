@@ -516,9 +516,8 @@
         <result property="likeCount" column="likeCount"/>
         <result property="isLiked" column="isLiked"/>
         <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
-
         <!-- 클래스 정보 매핑 (하위 리스트) -->
-        <collection property="classes" ofType="com.green.acamatch.academy.model.HB.GetAcademyDetailClassDto">
+        <collection property="classes" ofType="com.green.acamatch.academy.model.HB.GetAcademyDetailClassDto" javaType="ArrayList" notNullColumn="classId">
             <id property="classId" column="classId"/>
             <result property="className" column="className"/>
             <result property="classComment" column="classComment"/>
@@ -531,7 +530,6 @@
             <result property="classCategoryName" column="classCategoryName"/>
             <result property="userCertification" column="userCertification"/>
         </collection>
-
         <!-- 리뷰 정보 매핑 (하위 리스트) -->
         <collection property="reviews" ofType="com.green.acamatch.academy.model.HB.ReviewDto">
             <result property="comment" column="reviewComment"/>
@@ -543,7 +541,6 @@
             <result property="className" column="reviewClassName"/>
         </collection>
     </resultMap>
-
     <select id="getAcademyWithClasses" resultMap="AcademyResultMap">
         WITH LatestReviews AS (
         SELECT
@@ -565,70 +562,51 @@
         ORDER BY A.review_id DESC
         LIMIT #{startIdx}, #{size}
         ),
-
         ReviewStats AS (
         SELECT
-        C.aca_id,
-        ROUND(AVG(A.star), 2) AS avgStar,
-        COUNT(A.review_id) AS reviewCount
+        C.class_id,
+        C.aca_id,  -- 학원 ID 추가
+        ROUND(AVG(A.star), 2) AS avgStar,  -- 클래스별 별점 평균
+        (SELECT COUNT(*) FROM review A1
+        JOIN joinclass B1 ON A1.join_class_id = B1.join_class_id
+        JOIN class C1 ON B1.class_id = C1.class_id
+        WHERE C1.aca_id = C.aca_id) AS reviewCount  -- 학원 전체 리뷰 개수
         FROM review A
         JOIN joinclass B ON A.join_class_id = B.join_class_id
         JOIN class C ON B.class_id = C.class_id
-        GROUP BY C.aca_id
+        GROUP BY C.class_id, C.aca_id  -- class_id 기준으로 그룹화
         ),
-
-        ClassDays AS (
+        AcademyClass AS (
         SELECT
-        C.class_id,
-        GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay
+        C.class_id AS classId,
+        C.class_name AS className,
+        C.class_comment AS classComment,
+        C.start_date AS classStartDate,
+        C.end_date AS classEndDate,
+        C.start_time AS classStartTime,
+        C.end_time AS classEndTime,
+        C.price AS classPrice,
+        GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,  -- 요일 리스트
+        GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
+        C.aca_id
         FROM class C
         LEFT JOIN classweekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
-        GROUP BY C.class_id
-        ),
-
-        ClassCategories AS (
-        SELECT
-        C.class_id,
-        GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName
-        FROM class C
         LEFT JOIN classcategory CC ON C.class_id = CC.class_id
         LEFT JOIN category CAT ON CC.category_id = CAT.category_id
         GROUP BY C.class_id
         ),
-
-        AcademyClass AS (
-        SELECT
-        C.aca_id,
-        JSON_ARRAYAGG(
-        JSON_OBJECT(
-        'classId', C.class_id,
-        'className', C.class_name,
-        'classComment', C.class_comment,
-        'classStartDate', C.start_date,
-        'classEndDate', C.end_date,
-        'classStartTime', C.start_time,
-        'classEndTime', C.end_time,
-        'classPrice', C.price,
-        'classDay', IFNULL(D.classDay, ''),
-        'classCategoryName', IFNULL(E.classCategoryName, '')
-        )
-        ) AS classList
-        FROM class C
-        LEFT JOIN ClassDays D ON C.class_id = D.class_id
-        LEFT JOIN ClassCategories E ON C.class_id = E.class_id
-        GROUP BY C.aca_id
-        ),
-
         UserCertification AS (
         SELECT
         JC.class_id,
-        1 AS isCertified
+        CASE
+        WHEN COUNT(JC.join_class_id) > 0 THEN 1
+        ELSE 0
+        END AS isCertified
         FROM joinclass JC
-        WHERE JC.user_id = #{signedUserId}
+        WHERE JC.user_id = #{signedUserId}  -- 특정 유저 ID
         GROUP BY JC.class_id
         ),
-
         UserLikes AS (
         SELECT
         L.aca_id,
@@ -636,7 +614,6 @@
         FROM `like` L
         WHERE L.user_id = #{signedUserId}
         ),
-
         LikeCount AS (
         SELECT
         aca_id,
@@ -644,16 +621,15 @@
         FROM `like`
         GROUP BY aca_id
         ),
-
         AcademyTag AS (
         SELECT
         AT.aca_id,
         GROUP_CONCAT(DISTINCT T.tag_name ORDER BY T.tag_name ASC SEPARATOR ', ') AS tagName
         FROM academytag AS AT
-        JOIN tag AS T ON AT.tag_id = T.tag_id
+        JOIN tag AS T
+        ON AT.tag_id = T.tag_id
         GROUP BY AT.aca_id
         )
-
         SELECT
         A.aca_id,
         A.aca_name,
@@ -664,37 +640,46 @@
         A.aca_pic,
         AT.tagName,
 
+        -- 클래스별 정보 (클래스가 없으면 NULL 대신 기본값)
+        COALESCE(AC.classId, 0) AS classId,
+        COALESCE(AC.className, '') AS className,
+        COALESCE(AC.classComment, '') AS classComment,
+        COALESCE(AC.classStartDate, '') AS classStartDate,
+        COALESCE(AC.classEndDate, '') AS classEndDate,
+        COALESCE(AC.classStartTime, '') AS classStartTime,
+        COALESCE(AC.classEndTime, '') AS classEndTime,
+        COALESCE(AC.classPrice, 0) AS classPrice,
+        COALESCE(AC.classDay, '') AS classDay,
+        COALESCE(AC.classCategoryName, '') AS classCategoryName,
+
         -- 학원별 총 좋아요 수
         COALESCE(LC.likeCount, 0) AS likeCount,
 
-        -- 학원별 평균 별점 및 리뷰 개수
+        -- 클래스별 평균 별점 및 리뷰 개수
         COALESCE(RS.avgStar, 0) AS star,
         COALESCE(RS.reviewCount, 0) AS reviewCount,
 
         -- 해당 유저의 클래스별 수강 여부
         COALESCE(UC.isCertified, 0) AS userCertification,
 
-        -- 해당 유저의 좋아요 여부
+        -- 해당 유저의 좋아요 여부 (학원 또는 클래스에 대한 좋아요)
         COALESCE(UL.isLiked, 0) AS isLiked,
 
-        -- 최신 리뷰 정보
-        R.reviewComment,
-        R.reviewStar,
-        R.reviewCreatedAt,
-        R.reviewId,
-        R.reviewUserId,
-        R.reviewUserNickName,
-        R.reviewClassName,
-        R.reviewJoinClassId,
-
-        -- 클래스 정보를 JSON으로 반환
-        COALESCE(AC.classList, '[]') AS classes
+        -- 최신 리뷰 정보 (클래스별로)
+        COALESCE(R.reviewComment, '') AS reviewComment,
+        COALESCE(R.reviewStar, 0) AS reviewStar,
+        COALESCE(R.reviewCreatedAt, '') AS reviewCreatedAt,
+        COALESCE(R.reviewId, 0) AS reviewId,
+        COALESCE(R.reviewUserId, 0) AS reviewUserId,
+        COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
+        COALESCE(R.reviewClassName, '') AS reviewClassName,
+        COALESCE(R.reviewJoinClassId, 0) AS reviewJoinClassId
 
         FROM academy A
-        LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id
-        LEFT JOIN LatestReviews R ON R.aca_id = A.aca_id
-        LEFT JOIN ReviewStats RS ON RS.aca_id = A.aca_id
-        LEFT JOIN UserCertification UC ON UC.class_id = AC.aca_id
+        LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
+        LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택
+        LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId  -- 클래스별 별점 평균 및 리뷰 개수
+        LEFT JOIN UserCertification UC ON UC.class_id = AC.classId  -- 유저의 클래스별 수강 여부
         LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id
         LEFT JOIN UserLikes UL ON UL.aca_id = A.aca_id
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
