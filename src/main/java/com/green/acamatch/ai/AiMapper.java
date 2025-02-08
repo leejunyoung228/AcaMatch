@@ -11,4 +11,6 @@ public interface AiMapper {
     int postFeedBack(PostFeedBackReq p);
 
     List<GetFeedBackRes> getFeedBack(Integer gradeId);
+
+    String GetApiKey();
 }
