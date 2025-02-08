@@ -10,8 +10,9 @@
     </insert>
 
     <select id="getFeedBack">
-        SELECT feed_back AS feedBack
+        SELECT feed_back AS feedBack, created_at AS createdAt
         FROM ai
+        WHERE grade_id = #{gradeId}
         ORDER BY created_at DESC
         LIMIT 0, 3;
     </select>
