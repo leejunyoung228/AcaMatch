@@ -253,7 +253,7 @@
 
     <!-- 학원 관리자가 본인이 등록한 학원 리스트 보기-->
     <select id="getAcademyListByUserId">
-        SELECT A.aca_id, A.aca_name, A.created_at, A.aca_agree
+        SELECT A.aca_id, A.aca_name, A.created_at, A.aca_agree, A.aca_pic
         FROM academy A
         WHERE user_id = #{signedUserId}
     </select>
@@ -738,7 +738,7 @@
         A.aca_id,
         A.aca_pic,
         A.aca_name,
-        JC.registraion_date
+        JC.registration_date
         FROM academy A
         JOIN class C ON A.aca_id = C.aca_id
         JOIN joinclass JC ON C.class_id = JC.class_id
