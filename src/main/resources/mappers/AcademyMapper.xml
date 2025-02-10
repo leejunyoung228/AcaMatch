@@ -282,13 +282,17 @@
         WHERE 1 = 1
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
         AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
-        <if test=" tagName != null and tagName != '' ">
-            AND (
+        <if test="tagName != null and tagName != ''">
+            AND EXISTS (
             SELECT 1 FROM academytag E2
             JOIN tag F2 ON E2.tag_id = F2.tag_id
             WHERE E2.aca_id = A.aca_id
-            AND F2.tag_name = #{tagName})
+            <foreach collection="tagName.split(',')" item="tag" open="AND (" separator="OR" close=")">
+                F2.tag_name LIKE CONCAT('%', #{tag}, '%')
+            </foreach>
+            )
         </if>
+
         <if test=" categoryIds != null and categoryIds != '' ">
             AND ( A.aca_id IN
             (SELECT CL.aca_id FROM class CL
