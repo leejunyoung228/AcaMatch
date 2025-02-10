@@ -300,7 +300,7 @@ public class ReviewService {
 
     @Transactional
     public int deleteReviewByUser(ReviewDelReq req) {
-        // 유효성 검사 - acaId와 userId가 필수
+        // 필수 파라미터 확인
         if (req.getAcaId() == null || req.getUserId() == null) {
             userMessage.setMessage("잘못된 요청입니다. acaId와 userId가 필요합니다.");
             return 0;
@@ -316,52 +316,24 @@ public class ReviewService {
         }
 
         // 유저 존재 여부 확인
-        validateUserExists(req.getUserId());
-
-
-        if (mapper.checkAcaExists(req.getAcaId()) == 0) {
-            userMessage.setMessage("유효하지 않은 학원 ID입니다.");
-            return 0;
-        }
-
-        if (mapper.checkUserExists(req.getUserId()) == 0) {
+        if (mapper.checkUserExists(requestUserId) == 0) {
             userMessage.setMessage("유효하지 않은 유저 ID입니다.");
             return 0;
         }
 
-        if (!isAuthorizedUser(req.getUserId())) {
-            return 0;
-        }
-
-        Long acaId = req.getAcaId();
-        if (acaId == null) {
-            userMessage.setMessage("학원 ID가 제공되지 않았습니다.");
-            log.error("AcaId is null for userId: {}", requestUserId);
-            return 0;
-        }
-
-        // 학원에 속한 수업 목록 조회
-        List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId());
-        log.info("📌 클래스 ID 리스트: {}", classIds);
+        // 학원 존재 여부 확인
+        List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId()); // acaId 기준으로 classId 조회
+        log.info("📌 학원(acaId: {})에 속한 클래스 ID 리스트: {}", req.getAcaId(), classIds);
 
         if (classIds.isEmpty()) {
             userMessage.setMessage("해당 학원에 등록된 수업이 없습니다.");
-            log.warn("⚠️ No classes found for acaId: {}", req.getAcaId());
             return 0;
         }
 
-        // 가장 최근의 `classId` 선택 (NULL 방지)
-        Long classId = classIds.stream().findFirst().orElse(null);
-        if (classId == null) {
-            log.error("❌ classId가 NULL입니다! 삭제 중단.");
-            return 0;
-        }
-        log.info("📌 최종 classId 값: {}", classId);
-
-        // 유저가 수업을 수강했는지 확인
-        int enrollmentCheck = mapper.checkEnrollment(classId, requestUserId);
+// 올바른 class_id 리스트를 가져와서 JOINCLASS 확인
+        int enrollmentCheck = mapper.checkEnrollmentByClassIds(classIds, requestUserId);
         if (enrollmentCheck == 0) {
-            userMessage.setMessage("해당 수업을 수강하지 않았습니다.");
+            userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다.");
             return 0;
         }
 
@@ -369,41 +341,36 @@ public class ReviewService {
         List<Long> joinClassIds = mapper.findJoinClassIdByAcademyAndUser(req.getAcaId(), requestUserId);
         log.info("📌 joinClassId 리스트: {}", joinClassIds);
 
-        Long joinClassId = joinClassIds.stream().findFirst().orElse(null);
-        if (joinClassId == null) {
+        if (joinClassIds.isEmpty()) {
             userMessage.setMessage("해당 학원에 등록된 기록이 없습니다.");
-            log.error("❌ joinClassId가 NULL입니다! 삭제 중단.");
             return 0;
         }
-        log.info("📌 최종 joinClassId 값: {}", joinClassId);
 
         // 리뷰 ID 조회
-        List<Long> reviewIds = mapper.findReviewIdByJoinClassId(joinClassId);
-        Long reviewId = reviewIds.stream().findFirst().orElse(null);
-        if (reviewId == null) {
-            userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
-            log.error("❌ reviewId가 NULL입니다! 삭제 중단.");
+        List<Integer> reviewIds = mapper.getReviewIdsByAcaIdAndUser(req.getAcaId(), requestUserId);
+        if (reviewIds.isEmpty()) {
+            userMessage.setMessage("삭제할 리뷰가 없습니다.");
+            log.warn("❌ 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
             return 0;
         }
-        log.info("📌 삭제할 reviewId: {}", reviewId);
 
-        // 작성자인지 검증
-        if (!isUserAuthorOfReview(joinClassId, req.getUserId())) {
+        // 작성자 확인
+        if (!reviewIds.isEmpty() && !isUserAuthorOfReview(reviewIds, requestUserId)) {
             userMessage.setMessage("해당 리뷰의 작성자가 아닙니다. 삭제할 권한이 없습니다.");
             return 0;
         }
 
         // 리뷰 삭제 수행
-        int rowsDeleted = mapper.deleteReviewByUser(req);
+        int rowsDeleted = mapper.deleteReviewByReviewId(reviewIds);
         if (rowsDeleted == 0) {
             userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
             return 0;
         }
 
+        log.info("✅ 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", req.getAcaId(), requestUserId);
         userMessage.setMessage("리뷰 삭제가 완료되었습니다.");
         return 1;
     }
-
     /**
      * 리뷰 삭제 (학원 관계자)
      */
@@ -450,6 +417,15 @@ public class ReviewService {
 
         if (!isAuthorizedUser(req.getUserId())) {
             return 0;  // 인증되지 않은 요청이면 종료
+        }
+
+        List<Integer> reviewIds = mapper.getReviewIdsByAcaIdAndUser(acaId, requestUserId);
+
+        if (!reviewIds.isEmpty()) {
+            mapper.deleteReviewByReviewId(reviewIds);
+            log.info("✅ 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", acaId, requestUserId);
+        } else {
+            log.warn("❌ 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
         }
 
         if (mapper.checkAcaExists(acaId) == 0) {
@@ -710,15 +686,15 @@ public class ReviewService {
         }
 
         /**  리뷰 작성자인지 검증 */
-        private void validateReviewAuthor ( long reviewId, long userId){
-            if (!isUserAuthorOfReview(reviewId, userId)) {
+        private void validateReviewAuthor ( List<Integer> reviewIds, long userId){
+            if (!isUserAuthorOfReview(reviewIds, userId)) {
                 throw new CustomException(ReviewErrorCode.UNRIGHT_USER);
             }
         }
 
         /**  해당 유저가 리뷰 작성자인지 확인 */
-        private boolean isUserAuthorOfReview ( long joinClassId, long userId){
-            Integer isAuthor = mapper.isUserAuthorOfReview(joinClassId, userId);
+        private boolean isUserAuthorOfReview (List<Integer> reviewIds, long userId){
+            Integer isAuthor = mapper.isUserAuthorOfReview(reviewIds, userId);
             return isAuthor != null && isAuthor > 0;
         }
 

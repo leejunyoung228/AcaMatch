@@ -10,8 +10,11 @@ import java.util.List;
 @Mapper
 public interface ReviewMapper {
 
+    int checkEnrollmentByClassIds( List<Long> classIds, Long userId);
+
+
     // 리뷰 작성자 확인 (joinClassId 기반)
-    Integer isUserAuthorOfReview(long joinClassId, long userId);
+    int isUserAuthorOfReview(List<Integer> reviewIds, Long userId);
 
     // join_class_id 유효성 확인
     int isValidJoinClassId(long joinClassId);
@@ -68,6 +71,12 @@ public interface ReviewMapper {
    Long  findAcademyIdByReviewId (Long reviewId);
 
     List<Long> findClassIdByAcaId(Long acaId);
+
+    // 학원 ID와 사용자 ID로 리뷰 ID 목록 조회
+    List<Integer> getReviewIdsByAcaIdAndUser(Long acaId, Long userId);
+
+    // 조회된 리뷰 ID 목록을 기반으로 리뷰 삭제
+    int deleteReviewByReviewId(List<Integer> reviewIds);
 
 
 }
