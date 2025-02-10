@@ -88,10 +88,10 @@ public class LikeService {
             return new AcaLikeRes(false);
         }
 
-        if (mapper.isUserManagingAcademy(requestUserId, acaId)) {
-            userMessage.setMessage("본인이 관리하는 학원에는 좋아요를 누를 수 없습니다.");
-            return new AcaLikeRes( false);
-        }
+//        if (mapper.isUserManagingAcademy(requestUserId, acaId)) {
+//            userMessage.setMessage("본인이 관리하는 학원에는 좋아요를 누를 수 없습니다.");
+//            return new AcaLikeRes( false);
+//        }
 
         try {
             int result = mapper.insertLike(req);
