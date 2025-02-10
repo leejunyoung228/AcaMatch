@@ -40,8 +40,21 @@
     <!-- 변경된 리뷰 등록 쿼리 -->
     <insert id="insertReview" useGeneratedKeys="true" keyProperty="reviewId">
         INSERT INTO review (join_class_id, comment, star)
-        VALUES (#{joinClassId}, #{comment}, #{star});
+        VALUES (
+        (SELECT j.join_class_id
+        FROM joinclass j
+        WHERE j.user_id = #{userId}
+        AND j.class_id IN (
+        SELECT c.class_id
+        FROM class c
+        WHERE c.aca_id = #{acaId}
+        )
+        LIMIT 1),
+        #{comment},
+        #{star}
+        )
     </insert>
+
 
     <update id="updateReview">
         UPDATE review
