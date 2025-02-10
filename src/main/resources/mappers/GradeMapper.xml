@@ -70,7 +70,7 @@
         SELECT E.user_id, E.user_pic, E.name, C.join_class_id, F.score_type, D.grade_id, F.subject_name, D.exam_date,
         CASE WHEN F.SCORE_TYPE = 0 THEN D.score ELSE 0 END AS score,
         CASE WHEN F.SCORE_TYPE != 0 THEN
-        CASE WHEN COALESCE(D.PASS, 0) = 0 THEN NULL ELSE 1 END ELSE NULL END AS pass
+        CASE WHEN COALESCE(D.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS pass
         FROM academy A
         INNER JOIN class B
         ON A.aca_id = B.aca_id
