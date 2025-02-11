@@ -12,6 +12,7 @@ public interface JoinClassMapper {
     int insJoinClass(JoinClassPostReq p);
     int existsJoinClass(long classId, long userId);
     List<JoinClassDto> selJoinClass(JoinClassGetReq p);
+    List<JoinClassDto> selParents(JoinClassGetReq p);
     int updJoinClass(JoinClassPutReq p);
     int delJoinClass(JoinClassDel p);
 }
