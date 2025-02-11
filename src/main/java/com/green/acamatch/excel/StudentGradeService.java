@@ -64,9 +64,9 @@ public class StudentGradeService {
                 "                ON A.subject_id = D.subject_id\n" +
                 "                INNER JOIN class E\n" +
                 "                ON D.class_id = E.class_id\n" +
-                "                WHERE D.subject_id = #{subjectId}\n" +
+                "                WHERE D.subject_id = ?\n" +
                 "                GROUP BY user_id\n" +
-                "                ORDER BY C.user_id;";
+                "                ORDER BY C.user_id";
 
         try (Connection conn = MariaDBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
