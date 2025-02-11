@@ -64,7 +64,7 @@ public class StudentGradeService {
                 "                ON A.subject_id = D.subject_id\n" +
                 "                INNER JOIN class E\n" +
                 "                ON D.class_id = E.class_id\n" +
-                "                WHERE D.subject_id = 161\n" +
+                "                WHERE D.subject_id = #{subjectId}\n" +
                 "                GROUP BY user_id\n" +
                 "                ORDER BY C.user_id;";
 
