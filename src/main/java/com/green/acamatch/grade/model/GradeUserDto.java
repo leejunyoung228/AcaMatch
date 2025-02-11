@@ -28,5 +28,6 @@ public class GradeUserDto {
     private Integer score;
     @Schema(title = "통과 여부", example = "null")
     private Integer pass;
-
+    @Schema(title = "과목 유형", example = "0")
+    private Integer scoreType;
 }

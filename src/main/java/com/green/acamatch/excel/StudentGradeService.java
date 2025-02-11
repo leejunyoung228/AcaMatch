@@ -51,10 +51,10 @@ public class StudentGradeService {
             throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
-        String sql = "SELECT B.user_id, E.grade_id, A.`name`, D.subject_name, E.exam_date,\n" +
-                "CASE WHEN D.SCORE_TYPE = 0 THEN E.score ELSE NULL END AS result_score,\n" +
+        String sql = "SELECT B.user_id, E.grade_id, A.`name`, D.subject_name, E.exam_date, D.score_type, \n" +
+                "CASE WHEN D.SCORE_TYPE = 0 THEN E.score ELSE NULL END AS score,\n" +
                 "CASE WHEN D.SCORE_TYPE != 0 THEN\n" +
-                "CASE WHEN COALESCE(E.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass\n" +
+                "CASE WHEN COALESCE(E.PASS, 0) = 0 THEN null ELSE 1 END ELSE NULL END AS pass\n" +
                 "FROM `user` A\n" +
                 "INNER JOIN joinclass B\n" +
                 "ON A.user_id = B.user_id\n" +
@@ -76,7 +76,8 @@ public class StudentGradeService {
             ResultSet rs = pstmt.executeQuery();
             Sheet sheet = workbook.createSheet("Student Grades");
             int rowIndex = 0;
-
+            rs.next();
+            int scoreType = rs.getInt("score_type");
             // 헤더 생성
             Row headerRow = sheet.createRow(rowIndex++);
             headerRow.createCell(0).setCellValue("User ID");
@@ -84,20 +85,22 @@ public class StudentGradeService {
             headerRow.createCell(2).setCellValue("Name");
             headerRow.createCell(3).setCellValue("Subject Name");
             headerRow.createCell(4).setCellValue("Exam Date");
-            headerRow.createCell(5).setCellValue("Score");
-            headerRow.createCell(6).setCellValue("Pass");
+            headerRow.createCell(5).setCellValue(scoreType == 0 ? "Score" : "Pass - 0이면 불합격 / 1이면 합격");
+//            headerRow.createCell(5).setCellValue("Score");
+//            headerRow.createCell(6).setCellValue("Pass - 0이면 불합격 / 1이면 합격");
 
             // 데이터 추가
-            while (rs.next()) {
+            do {
                 Row row = sheet.createRow(rowIndex++);
                 row.createCell(0).setCellValue(rs.getLong("user_id"));
                 row.createCell(1).setCellValue(rs.getLong("grade_id"));
                 row.createCell(2).setCellValue(rs.getString("name"));
                 row.createCell(3).setCellValue(rs.getString("subject_name"));
                 row.createCell(4).setCellValue(rs.getString("exam_date"));
-                row.createCell(5).setCellValue(rs.getInt("result_score"));
-                row.createCell(6).setCellValue(rs.getInt("result_pass"));
-            }
+                row.createCell(5).setCellValue(rs.getString(scoreType == 0 ? "score" : "pass"));
+//                row.createCell(5).setCellValue(rs.getInt("score"));
+//                row.createCell(6).setCellValue(rs.getInt("pass"));
+            } while (rs.next());
 
 //            Files.createDirectories(excelFilePath.getParent());
 //            log.info("Excel file will be saved at: {}", excelFilePath.getParent());
@@ -146,17 +149,25 @@ public class StudentGradeService {
              Workbook workbook = WorkbookFactory.create(fis)) {
 
             Sheet sheet = workbook.getSheetAt(0);
+            int scoreType = 0;
 
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; // 헤더는 건너뜀
+                if (row.getRowNum() == 0) {
+                    String type = row.getCell(5).getStringCellValue();
+                    if (type.equals("Score")) {
+                        scoreType = 0;
+                    }else {
+                        scoreType = 1;
+                    }
+                    // 헤더는 건너뜀
+                    continue;
+                }
 
-                long userId = (long) row.getCell(0).getNumericCellValue();
                 long gradeId = (long) row.getCell(1).getNumericCellValue();
-                String name = row.getCell(2).getStringCellValue();
-                String subjectName = row.getCell(3).getStringCellValue();
-                String examDate = row.getCell(4).getStringCellValue();
-                int score = (int) row.getCell(5).getNumericCellValue();
-                int pass = (int) row.getCell(6).getNumericCellValue();
+                Integer score = null;
+                Integer pass = null;
+                if (scoreType == 0) score = (int) row.getCell(5).getNumericCellValue();
+                else pass = (int) row.getCell(5).getNumericCellValue();
 
                 // DB 업데이트
                 updateStudentGrade(gradeId, score, pass);
@@ -182,17 +193,19 @@ public class StudentGradeService {
     }
 
     // DB 업데이트 메서드 수정 (예외를 던지도록 변경)
-    private void updateStudentGrade(long gradeId, int score, int pass) throws SQLException {
-        String updateQuery = "UPDATE grade SET score = ?, pass = ? WHERE grade_id = ?;";
+    private void updateStudentGrade(long gradeId, Integer score, Integer pass) throws SQLException {
+        String updateQuery;
+        if (score != null) updateQuery = "UPDATE grade SET score = ? WHERE grade_id = ?;";
+        else updateQuery = "UPDATE grade SET pass = ? WHERE grade_id = ?;";
 
         try (Connection conn = MariaDBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
 
             conn.setAutoCommit(false);
 
-            pstmt.setInt(1, score);
-            pstmt.setInt(2, pass);
-            pstmt.setLong(3, gradeId);
+            if (score != null) pstmt.setInt(1, score);
+            else pstmt.setInt(1, pass);
+            pstmt.setLong(2, gradeId);
 
             int rowsAffected = pstmt.executeUpdate();
             conn.commit();
