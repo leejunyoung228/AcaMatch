@@ -27,7 +27,7 @@ public class SecurityConfiguration {
                 .addFilterBefore(new TokenAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(req ->
                         req.requestMatchers("/ws/**").permitAll()
-                                .requestMatchers("/api/user", "/api/user/log-out",  "/api/review/user")
+                                .requestMatchers("/api/user", "/api/user/log-out",  "/api/chat", "/api/chat/**","/api/review/user")
                                 .authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/user/relationship/list/**")
                                 .hasAnyRole(UserRole.PARENT.name(), UserRole.STUDENT.name())
