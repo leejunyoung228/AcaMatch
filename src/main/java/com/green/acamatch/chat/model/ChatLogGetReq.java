@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.BindParam;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
-public class ChatReq extends Paging {
+public class ChatLogGetReq extends Paging {
     @Schema(name = "user-id")
     private Long userId;
     @Schema(name = "aca-id")
     private Long acaId;
 
 
-    public ChatReq(Integer page, Integer size, @BindParam("user-id") Long userId, @BindParam("aca-id") Long acaId) {
+    public ChatLogGetReq(Integer page, Integer size, @BindParam("user-id") Long userId, @BindParam("aca-id") Long acaId) {
         super(page, size);
         this.userId = userId;
         this.acaId = acaId;

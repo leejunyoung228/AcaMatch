@@ -59,7 +59,7 @@ public class UserUtils {
         user.setBirth(req.getBirth());
         user.setPhone(req.getPhone());
         user.setNickName(req.getNickName());
-        user.setSignUpType(req.getSignUpType());
+        user.setSnsLoginKey(req.getSnsLoginKey());
         user.setRole(role);
         return user;
     }

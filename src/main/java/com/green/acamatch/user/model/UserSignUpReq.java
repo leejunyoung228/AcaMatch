@@ -15,7 +15,7 @@ public class UserSignUpReq {
     @Min(1)
     @Max(4)
     private long roleId;
-    private int signUpType;
+    private String  snsLoginKey;
     private String name;
     @Pattern(regexp = "^(01[0-9])-\\d{3,4}-\\d{4}$", message = "Invalid phone number format. Example: 010-1234-5678")
     private String phone;

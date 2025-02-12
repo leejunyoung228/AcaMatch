@@ -28,5 +28,5 @@ public class Chat extends CreatedAt {
     private String message;
 
     private Integer senderType;
-    private Integer isRead = 0;
+    private boolean isRead = false;
 }

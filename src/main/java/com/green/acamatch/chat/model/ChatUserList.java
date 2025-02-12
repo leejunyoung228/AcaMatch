@@ -15,5 +15,5 @@ public class ChatUserList {
     private String acaName;
     private String acaPic;
     private LocalDateTime createdAt;
-    private Integer isRead;
+    private long unReadCount;
 }

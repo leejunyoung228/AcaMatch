@@ -25,7 +25,7 @@ public class User extends UpdatedAt {
     private Role role;
 
     @Column(nullable = false)
-    private Integer signUpType;
+    private String snsLoginKey;
 
     @Column(length = 20, nullable = false)
     private String name;
