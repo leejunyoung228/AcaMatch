@@ -10,70 +10,48 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
 public interface ChatRepository extends JpaRepository<Chat, Long> {
+    @Query("""
+        SELECT new com.green.acamatch.chat.model.ChatUserList(
+                c.user.userId, c.user.name, c.user.userPic,
+                c.academy.acaId, c.academy.acaName, c.academy.acaPic,
+                c.createdAt, cnt.count
+            ) FROM Chat AS c
+            JOIN (
+                SELECT COUNT(*) AS count, MAX(c.chatId) AS chatId FROM Chat c
+                WHERE c.user.userId = :userId AND c.isRead = false
+                GROUP BY c.academy, c.user
+            ) AS cnt ON cnt.chatId = c.chatId
+            WHERE c.user.userId = :userId
+            GROUP BY c.academy
+            ORDER BY c.chatId DESC
+    """)
+    Page<ChatUserList> findChatRoomByUserId(long userId, Pageable pageable);
+
+    @Query("""
+        SELECT new com.green.acamatch.chat.model.ChatUserList(
+                c.user.userId, c.user.name, c.user.userPic,
+                c.academy.acaId, c.academy.acaName, c.academy.acaPic,
+                c.createdAt, cnt.count
+            ) FROM Chat AS c
+            JOIN (
+                SELECT COUNT(*) AS count, MAX(c.chatId) AS chatId FROM Chat c
+                WHERE c.academy.acaId = :acaId AND c.isRead = false
+                GROUP BY c.academy, c.user
+            ) AS cnt ON cnt.chatId = c.chatId
+            WHERE c.academy.acaId = :acaId
+            GROUP BY c.user
+            ORDER BY c.chatId DESC
+    """)
+    Page<ChatUserList> findChatRoomByAcaId(long acaId, Pageable pageable);
 
     List<Chat> findAllByUserAndAcademyOrderByCreatedAtDesc(User user, Academy academy, Pageable pageable);
 
-    @Query("""
-                 SELECT new com.green.acamatch.chat.model.ChatUserList(
-                             c.user.userId, c.user.name,c.user.userPic,
-                             c.academy.acaId, c.academy.acaName, c.academy.acaPic,
-                             c.createdAt,
-                             CASE WHEN c.senderType != 0 THEN 1 ELSE c.isRead END
-                             ) FROM Chat c
-                 WHERE c.chatId IN (
-                     SELECT MAX(c2.chatId) FROM Chat c2
-                     WHERE c2.user = :user
-                     GROUP BY c2.academy
-                 )
-                 ORDER BY c.createdAt DESC
-            """)
-    Page<ChatUserList> findByUser(User user, Pageable pageable);
+    Integer countChatByAcademyInAndSenderTypeAndIsRead(Collection<Academy> academies, Integer senderType, boolean read);
 
-    @Query("""
-                SELECT new com.green.acamatch.chat.model.ChatUserList(
-                            c.user.userId, c.user.name,c.user.userPic,
-                            c.academy.acaId, c.academy.acaName, c.academy.acaPic,
-                            c.createdAt,
-                            CASE WHEN c.senderType != 1 THEN 1 ELSE c.isRead END
-                            ) FROM Chat c
-                WHERE c.chatId IN (
-                    SELECT MAX(c2.chatId) FROM Chat c2
-                    WHERE c2.academy = :academy
-                    GROUP BY c2.user
-                )
-                ORDER BY c.createdAt DESC
-            """)
-    Page<ChatUserList> findByAcademy(Academy academy, Pageable pageable);
-
-    @Query("""
-                SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END
-                FROM Chat c
-                WHERE c.chatId IN (
-                    SELECT MAX(c2.chatId)
-                    FROM Chat c2
-                    WHERE c2.user = :user
-                    GROUP BY c2.academy
-                )
-                AND c.isRead = 0 AND c.senderType = 1
-            """)
-    boolean existsUnreadMessagesByUser(User user);
-
-    @Query("""
-                SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END
-                FROM Chat c
-                WHERE c.chatId IN (
-                    SELECT MAX(c2.chatId)
-                    FROM Chat c2
-                    WHERE c2.academy = :academy
-                    GROUP BY c2.user
-                )
-                AND c.isRead = 0 AND c.senderType = 0
-            """)
-    boolean existsUnreadMessagesByAcademy(Academy academy);
-
-
+    Integer countChatByUserAndSenderTypeAndIsRead(User user, Integer senderType, boolean read);
 }

@@ -1,17 +1,16 @@
 package com.green.acamatch.entity.user;
 
+import com.green.acamatch.entity.datetime.UpdatedAt;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @Entity
-public class Relationship{
+public class Relationship extends UpdatedAt {
     @EmbeddedId
-    private RelationshipId id;
+    private RelationshipIds id;
 
     @ManyToOne
     @MapsId("parentsId")
@@ -25,17 +24,4 @@ public class Relationship{
 
     @Column(name = "certification", nullable = false)
     private int certification = 0;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }

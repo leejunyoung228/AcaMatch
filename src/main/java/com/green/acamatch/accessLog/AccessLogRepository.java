@@ -9,7 +9,8 @@ import java.util.List;
 
 @Repository
 public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
-    List<AccessLog> findByTimeStampAfter(LocalDateTime oneDayAgo);
+    List<AccessLog> findByCreatedAtAfter(LocalDateTime oneDayAgo);
 
-    void deleteAccessLogByTimeStampBefore(LocalDateTime timeStampBefore);
+    void deleteAccessLogByCreatedAtBefore(LocalDateTime timeStampBefore);
 }
+
