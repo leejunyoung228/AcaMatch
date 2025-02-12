@@ -1,6 +1,7 @@
 package com.green.acamatch.academy.Service;
 
 import com.green.acamatch.academy.mapper.AcademyMapper;
+import com.green.acamatch.academy.mapper.AcademyPicsMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
@@ -26,6 +27,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class AcademyService {
     private final AcademyMapper academyMapper;
+    private final AcademyPicsMapper academyPicsMapper;
     private final MyFileUtils myFileUtils;
     private final AcademyMessage academyMessage;
     private final TagService tagService;
@@ -35,16 +37,16 @@ public class AcademyService {
 
     //학원정보등록
     @Transactional
-    public int insAcademy(MultipartFile pic, AcademyPostReq req) {
+    public int insAcademy(List<MultipartFile> pics, AcademyPostReq req) {
         if (req.getTagIdList().isEmpty()) {
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
         }
 
         req.setAddress(addressEncoding(req.getAddressDto()));
 
-        String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
+        ////String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
 
-        req.setAcaPic(savedPicName);
+        ////req.setAcaPic(savedPicName);
 
         //req.getAddressDto().getAddress();
 
@@ -65,7 +67,7 @@ public class AcademyService {
 
         academyMapper.insAcademy(req);
 
-        if (pic == null) {
+        if (pics == null || pics.isEmpty()) {
             academyMessage.setMessage("학원정보등록이 완료되었습니다.");
             return 1;
         }
@@ -73,13 +75,24 @@ public class AcademyService {
         long acaId = req.getAcaId();
         String middlePath = String.format("academy/%d", acaId);
         myFileUtils.makeFolders(middlePath);
-        String filePath = String.format("%s/%s", middlePath, savedPicName);
 
-        try {
-            myFileUtils.transferTo(pic, filePath);
-        } catch (IOException e) {
-            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+        List<String> picNameList = new ArrayList<>();
+        for(MultipartFile pic : pics) {
+            String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
+            picNameList.add(savedPicName);
+            String filePath = String.format("%s/%s", middlePath, savedPicName);
+
+            try {
+                myFileUtils.transferTo(pic, filePath);
+            } catch (IOException e) {
+                throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+            }
         }
+        AcademyPicDto academyPicDto = new AcademyPicDto();
+        academyPicDto.setAcaId(acaId);
+        academyPicDto.setPics(picNameList);
+
+        academyPicsMapper.insAcademyPics(academyPicDto);
         tagService.insAcaTag(req);
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;

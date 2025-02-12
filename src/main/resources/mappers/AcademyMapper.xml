@@ -51,6 +51,15 @@
         AND street_id = #{streetId}
     </select>
 
+<!--학원 사진 여러장 삽입-->
+    <insert id="insAcademyPics">
+        INSERT INTO academy (aca_id, aca_pic)
+        VALUES
+        <foreach collection="picNameList" item="acaPic" separator=",">
+            (#{acaId}, #{acaPic})
+        </foreach>
+    </insert>
+
 
 <!--학원정보등록-->
     <insert id="insAcademy" useGeneratedKeys="true" keyProperty="acaId">
