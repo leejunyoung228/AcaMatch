@@ -31,7 +31,9 @@ public class JoinClassService {
     public List<JoinClassDto> selJoinClass(JoinClassGetReq p) {
         p.setUserId(AuthenticationFacade.getSignedUserId());
         try {
-            List<JoinClassDto> result = mapper.selJoinClass(p);
+            List<JoinClassDto> result = null;
+            if (p.getRole() == 1) result= mapper.selJoinClass(p);
+            else if (p.getRole() == 2) result= mapper.selParents(p);
             if (result == null || result.isEmpty()) {
                 userMessage.setMessage("성적확인을 위한 학원명/강좌명 불러오기에 실패하였습니다.");
                 return null;
