@@ -1,5 +1,6 @@
 package com.green.acamatch.user.model;
 
+import com.green.acamatch.entity.myenum.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -12,10 +13,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @AllArgsConstructor
 public class UserSignUpReq {
-    @Min(1)
-    @Max(4)
-    private long roleId;
-    private String  snsLoginKey;
+    private UserRole userRole;
     private String name;
     @Pattern(regexp = "^(01[0-9])-\\d{3,4}-\\d{4}$", message = "Invalid phone number format. Example: 010-1234-5678")
     private String phone;

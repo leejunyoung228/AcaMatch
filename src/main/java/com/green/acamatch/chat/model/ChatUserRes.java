@@ -10,5 +10,5 @@ import java.util.List;
 public class ChatUserRes {
     private int totalPages;
     private int totalElements;
-    private List<ChatUserList> users;
+    private List<ChatRoomDto> users;
 }

@@ -1,5 +1,6 @@
 package com.green.acamatch.user.model;
 
+import com.green.acamatch.entity.myenum.UserRole;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @ToString
 public class UserInfo {
     private Long userId;
-    private Long roleId;
+    private UserRole userRole;
     private String name;
     private String email;
     private String phone;

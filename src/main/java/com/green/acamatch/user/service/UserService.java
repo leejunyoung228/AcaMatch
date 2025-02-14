@@ -22,7 +22,7 @@ public class UserService {
         return UserInfo.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
-                .roleId(user.getRole().getRoleId())
+                .userRole(user.getUserRole())
                 .userPic(user.getUserPic())
                 .email(user.getEmail())
                 .birth(user.getBirth())
