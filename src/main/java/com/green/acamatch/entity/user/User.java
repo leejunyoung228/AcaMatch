@@ -1,6 +1,7 @@
 package com.green.acamatch.entity.user;
 
 import com.green.acamatch.entity.datetime.UpdatedAt;
+import com.green.acamatch.entity.myenum.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
@@ -20,12 +21,8 @@ public class User extends UpdatedAt {
     private Long userId;
 
     // 'role_id' 컬럼과 'role' 객체 연결
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
-
     @Column(nullable = false)
-    private String snsLoginKey;
+    private UserRole userRole;
 
     @Column(length = 20, nullable = false)
     private String name;

@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class ChatUserList {
+public class ChatRoomDto {
+    private long chatRoomId;
     private long userId;
     private String userName;
     private String userPic;

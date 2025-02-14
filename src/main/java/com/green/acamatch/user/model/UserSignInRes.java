@@ -1,5 +1,6 @@
 package com.green.acamatch.user.model;
 
+import com.green.acamatch.entity.myenum.UserRole;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.Getter;
 @EqualsAndHashCode
 public class UserSignInRes {
     private long userId;
-    private long roleId;
+    private UserRole userRole;
     private String name;
     private String accessToken;
 }

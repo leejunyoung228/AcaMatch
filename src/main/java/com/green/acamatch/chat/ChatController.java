@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,7 +31,7 @@ public class ChatController {
     public ResultResponse<List<ChatLogList>> getChatLogList(@ParameterObject @ModelAttribute ChatLogGetReq req) {
         return ResultResponse.<List<ChatLogList>> builder()
                 .resultMessage("조회 성공")
-                .resultData(chatService.getChatLog(req))
+//                .resultData(chatService.getChatLog(req))
                 .build();
     }
 
@@ -45,17 +44,20 @@ public class ChatController {
                 .build();
     }
 
+    @GetMapping
+    public ResultResponse<Long>  getChatRoomId(@ParameterObject @ModelAttribute GetChatRoomIdReq req) {
+        return ResultResponse.<Long> builder()
+                .resultMessage("채팅방 id 조회 성공")
+                .resultData(chatService.getChatRoomId(req))
+                .build();
+    }
+
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatSendReq req) {
         chatService.saveMessage(req);
 
         // 특정 유저 또는 학원에게 메시지 전송
 
-    }
-    @MessageMapping("/send")
-    @SendTo("/topic/messages")
-    public String sendMessage(String message) {
-        return "Received: " + message;
     }
 
 

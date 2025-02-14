@@ -1,5 +1,6 @@
 package com.green.acamatch.chat.model;
 
+import com.green.acamatch.entity.myenum.SenderType;
 import com.green.acamatch.entity.academy.Chat;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,14 +14,14 @@ public class ChatLogList {
     private String userName;
     private String acaName;
     private String message;
-    private int senderType;
+    private SenderType senderType;
     private boolean isRead;
     private LocalDateTime createdAt;
 
     public ChatLogList(Chat chat){
         this.chatId = chat.getChatId();
-        this.userName = chat.getUser().getName();
-        this.acaName = chat.getAcademy().getAcaName();
+//        this.userName = chat.getUser().getName();
+//        this.acaName = chat.getAcademy().getAcaName();
         this.message = chat.getMessage();
         this.senderType = chat.getSenderType();
         this.isRead = chat.isRead();
