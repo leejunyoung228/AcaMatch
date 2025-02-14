@@ -51,22 +51,22 @@ public class StudentGradeService {
             throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
-        String sql = "SELECT B.user_id, E.grade_id, A.`name`, D.subject_name, E.exam_date, D.score_type, \n" +
-                "CASE WHEN D.SCORE_TYPE = 0 THEN E.score ELSE NULL END AS score,\n" +
+        String sql = "SELECT C.user_id, A.grade_id, C.name, D.subject_name, A.exam_date, D.score_type,\n" +
+                "CASE WHEN D.SCORE_TYPE = 0 THEN A.score ELSE NULL END AS score,\n" +
                 "CASE WHEN D.SCORE_TYPE != 0 THEN\n" +
-                "CASE WHEN COALESCE(E.PASS, 0) = 0 THEN null ELSE 1 END ELSE NULL END AS pass\n" +
-                "FROM `user` A\n" +
+                "CASE WHEN COALESCE(A.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS pass\n" +
+                "FROM grade A\n" +
                 "INNER JOIN joinclass B\n" +
-                "ON A.user_id = B.user_id\n" +
-                "INNER JOIN class C\n" +
-                "ON B.class_id = C.class_id\n" +
+                "ON A.join_class_id = B.join_class_id\n" +
+                "INNER JOIN `user` C\n" +
+                "ON B.user_id = C.user_id\n" +
                 "INNER JOIN `subject` D\n" +
-                "ON C.class_id = D.class_id\n" +
-                "INNER JOIN grade E\n" +
-                "ON B.join_class_id = E.join_class_id\n" +
-                "WHERE E.subject_id = ?\n" +
-                "GROUP BY user_id\n" +
-                "ORDER BY A.user_id;";
+                "ON A.subject_id = D.subject_id\n" +
+                "INNER JOIN class E\n" +
+                "ON D.class_id = E.class_id\n" +
+                "WHERE D.subject_id = ?\n" +
+                "GROUP BY C.user_id, A.grade_id, C.name, D.subject_name, A.exam_date, D.score_type, A.score, A.pass\n" +
+                "ORDER BY C.user_id";
 
         try (Connection conn = MariaDBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);

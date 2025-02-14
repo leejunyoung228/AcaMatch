@@ -8,9 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +40,6 @@ public class AccessLogService {
     @Scheduled(cron = "0 0 0 * * ?")
     public void deleteOldAccessLogs() {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
-        accessLogRepository.deleteAccessLogByTimeStampBefore(oneWeekAgo);
+        accessLogRepository.deleteAccessLogByCreatedAtBefore(oneWeekAgo);
     }
 }

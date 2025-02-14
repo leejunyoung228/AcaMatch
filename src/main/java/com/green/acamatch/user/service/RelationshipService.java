@@ -5,7 +5,7 @@ import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.RelationshipErrorCode;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.user.Relationship;
-import com.green.acamatch.entity.user.RelationshipId;
+import com.green.acamatch.entity.user.RelationshipIds;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.user.model.RelationshipReq;
@@ -49,7 +49,7 @@ public class RelationshipService {
     public int addRelationship(RelationshipReq req) {
         User parent = userUtils.findUserByEmail(req.getEmail());
 
-        RelationshipId relationshipId = new RelationshipId();
+        RelationshipIds relationshipId = new RelationshipIds();
         relationshipId.setParentsId(parent.getUserId());
         relationshipId.setStudentId(AuthenticationFacade.getSignedUserId());
 
