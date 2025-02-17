@@ -42,6 +42,20 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
+    <select id="selParents" resultMap="JoinClassResultMap">
+        SELECT C.aca_id, C.aca_pic, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
+        FROM joinclass A
+        INNER JOIN class B
+        ON A.class_id = B.class_id
+        INNER JOIN academy C
+        ON B.aca_id = C.aca_id
+        INNER JOIN relationship R
+        ON A.user_id = R.student_id
+        WHERE R.parents_id = #{userId}
+        AND R.certification = 1
+        LIMIT #{startIdx}, #{size}
+    </select>
+
     <update id = "updJoinClass">
         UPDATE joinclass
         <set>
