@@ -12,7 +12,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @NoArgsConstructor  // 기본 생성자 추가
 @AllArgsConstructor // 모든 필드를 받는 생성자 추가
-public class RelationshipId implements Serializable {
+public class RelationshipIds implements Serializable {
     @Column(name = "parents_id")
     private Long parentsId;
 

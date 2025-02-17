@@ -1,11 +1,12 @@
 package com.green.acamatch.entity.user;
 
+import com.green.acamatch.entity.datetime.UpdatedAt;
+import com.green.acamatch.entity.myenum.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,19 +14,15 @@ import java.time.LocalDateTime;
 @Entity
 @DynamicUpdate
 @Table(name = "user")
-public class User{
+public class User extends UpdatedAt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
     // 'role_id' 컬럼과 'role' 객체 연결
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
-
     @Column(nullable = false)
-    private Integer signUpType;
+    private UserRole userRole;
 
     @Column(length = 20, nullable = false)
     private String name;
@@ -47,17 +44,4 @@ public class User{
 
     @Column(length = 50)
     private String userPic;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }

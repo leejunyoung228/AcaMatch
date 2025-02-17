@@ -4,110 +4,81 @@ import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.chat.model.*;
 import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.entity.academy.ChatRoom;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.Chat;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.UserUtils;
+import com.green.acamatch.entity.myenum.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
     private final ChatRepository chatRepository;
-    private final NotificationController notificationController;
+    private final ChatRoomRepository chatRoomRepository;
     private final AcademyRepository academyRepository;
     private final UserUtils userUtils;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public void sendMessage(ChatSendReq req) {
-        Chat chat = new Chat();
-        Academy academy = academyRepository.findById(req.getAcaId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
-        User user = userUtils.findUserById(req.getUserId());
-        chat.setAcademy(academy);
-        chat.setUser(user);
-        chat.setMessage(req.getMessage());
-        chat.setSenderType(req.getSenderType());
-        chatRepository.save(chat);
-        switch (SenderType.fromValue(req.getSenderType())) {
-            case ACADEMY_TO_USER:
-                notificationController.sendNotification(user.getUserId(), "메세지가 도착했습니다");
-                break;
-            case USER_TO_ACADEMY:
-                notificationController.sendNotification(academy.getUser().getUserId(), "메세지가 도착했습니다");
-                break;
-            default:
-                throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
+    public ChatUserRes getChatUserList(ChatRoomGetReq req) {
+        if (req == null || (req.getUserId() != null && req.getAcaId() != null)) {
+            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
         }
-    }
-
-    @Transactional
-    public List<ChatLogList> getQna(ChatReq req) {
-        User user = userUtils.findUserById(req.getUserId());
-        Academy academy = academyRepository.findById(req.getAcaId())
-                .orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
         Pageable pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+        Page<ChatRoomDto> res = chatRoomRepository.getChatRooms(req, pageable);
 
-        List<Chat> chats = chatRepository.findAllByUserAndAcademyOrderByCreatedAtDesc(user, academy, pageable);
-
-        int userType = req.getUserId().equals(AuthenticationFacade.getSignedUserId()) ? 1 : 0;
-
-        // 읽지 않은 메시지에서 isRead 상태만 업데이트
-        List<Chat> updatedChats = chats.stream()
-                .filter(chat -> chat.getIsRead() == 0 && chat.getSenderType() == userType)  // 읽지 않은 메시지
-                .peek(chat -> chat.setIsRead(1))  // isRead를 1로 설정
-                .collect(Collectors.toList());
-
-        if (!updatedChats.isEmpty()) {
-            chatRepository.saveAll(updatedChats);  // 변경된 메시지만 DB에 저장
-        }
-
-        return chats.stream()
-                .map(ChatLogList::new)
-                .collect(Collectors.toList());
-    }
-
-    public ChatUserRes getUserList(ChatReq req) {
-        Page<ChatUserList> res;
-        Pageable pageable = PageRequest.of(req.getPage() - 1, req.getSize());
-        if (req.getUserId() != null) {
-            User user = userUtils.findUserById(req.getUserId());
-            res = chatRepository.findByUser(user, pageable);
-        } else if (req.getAcaId() != null) {
-            Academy academy = academyRepository.findById(req.getAcaId())
-                    .orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
-            res = chatRepository.findByAcademy(academy, pageable);
-        } else {
-            return ChatUserRes.builder().totalPages(0).users(new ArrayList<>()).build();
-        }
         return ChatUserRes.builder()
-                .totalPages(res.getTotalPages())
-                .totalElements(res.getNumberOfElements())
                 .users(res.getContent())
+                .totalElements(res.getNumberOfElements())
+                .totalPages(res.getTotalPages())
                 .build();
     }
 
-    public boolean checkUnreadMessage() {
+    public Integer checkUnreadMessage() {
         User user = userUtils.findUserById(AuthenticationFacade.getSignedUserId());
-        if (user.getRole().getRoleId() < 3) {
-            return chatRepository.existsUnreadMessagesByUser(user);
+        if (user.getUserRole().equals(UserRole.STUDENT) || user.getUserRole().equals(UserRole.PARENT)) {
+//            return chatRepository.countChatByUserAndSenderTypeAndIsRead(user, SenderType.ACADEMY_TO_USER, false);
         }
-        if (user.getRole().getRoleId() == 3) {
+        if (user.getUserRole().equals(UserRole.ACADEMY)) {
             List<Academy> academyList = academyRepository.findAllByUser(user);
-            for (Academy academy : academyList) {
-                if (chatRepository.existsUnreadMessagesByAcademy(academy)) {
-                    return true;
-                }
-            }
+//            return chatRepository.countChatByAcademyInAndSenderTypeAndIsRead(academyList, SenderType.USER_TO_ACADEMY,false);
         }
-        return false;
+        return 0;
+    }
+
+    public void saveMessage(ChatSendReq req) {
+
+        ChatRoom chatRoom = chatRoomRepository.findById(req.getChatRoomId())
+                .orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
+        Chat chat = new Chat();
+        chat.setChatRoom(chatRoom);
+        chat.setSenderType(req.getSenderType());
+        chat.setMessage(req.getMessage());
+        chatRepository.save(chat);
+
+        messagingTemplate.convertAndSend("/queue/" + chatRoom.getChatRoomId(), req);
+    }
+
+    public long getChatRoomId(GetChatRoomIdReq req) {
+        User user = userUtils.findUserById(req.getUserId());
+        Academy academy = academyRepository.findById(req.getAcaId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
+        ChatRoom chatRoom = chatRoomRepository.findByUserAndAcademy(user, academy)
+                .orElse(null);
+        if (chatRoom == null) {
+            chatRoom = new ChatRoom();
+            chatRoom.setUser(user);
+            chatRoom.setAcademy(academy);
+            chatRoomRepository.save(chatRoom);
+        }
+        return chatRoom.getChatRoomId();
     }
 }

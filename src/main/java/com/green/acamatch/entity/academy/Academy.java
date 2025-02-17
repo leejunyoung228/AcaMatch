@@ -7,14 +7,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @Getter
 @Setter
 @Entity
-public class Academy{
+public class Academy extends CreatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long acaId;
@@ -46,11 +44,4 @@ public class Academy{
 
     @Column(length = 50)
     private String acaPic;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 }

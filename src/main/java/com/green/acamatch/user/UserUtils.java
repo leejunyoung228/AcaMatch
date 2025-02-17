@@ -2,16 +2,13 @@ package com.green.acamatch.user;
 
 import com.green.acamatch.config.CookieUtils;
 import com.green.acamatch.config.constant.JwtConst;
-import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
 import com.green.acamatch.config.jwt.JwtUser;
-import com.green.acamatch.entity.user.Role;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.UserSignInRes;
 import com.green.acamatch.user.model.UserSignUpReq;
-import com.green.acamatch.user.repository.RoleRepository;
 import com.green.acamatch.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +21,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class UserUtils {
-    private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -50,8 +46,6 @@ public class UserUtils {
     }
 
     public User generateUserByUserSignUpReq(UserSignUpReq req) {
-        Role role = roleRepository.findByRoleId(req.getRoleId())
-                .orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
         User user = new User();
         user.setName(req.getName());
         user.setEmail(req.getEmail());
@@ -59,14 +53,13 @@ public class UserUtils {
         user.setBirth(req.getBirth());
         user.setPhone(req.getPhone());
         user.setNickName(req.getNickName());
-        user.setSignUpType(req.getSignUpType());
-        user.setRole(role);
+        user.setUserRole(req.getUserRole());
         return user;
     }
 
     public UserSignInRes generateUserSignInResByUser(User user, HttpServletResponse response) {
         List<String > roles = new ArrayList<>();
-        roles.add(user.getRole().getRoleName());
+        roles.add("ROLE_" + user.getUserRole().toString());
         JwtUser jwtUser = new JwtUser(user.getUserId(), roles);
 
         String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
@@ -77,7 +70,7 @@ public class UserUtils {
         return UserSignInRes.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
-                .roleId(user.getRole().getRoleId())
+                .userRole(user.getUserRole())
                 .accessToken(accessToken)
                 .build();
     }

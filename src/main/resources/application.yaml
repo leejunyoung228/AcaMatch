@@ -10,7 +10,7 @@ constant:
   info-const:
     title: AcaMatch
     description: AcaMatch
-    version: v0.1
+    version: v2.0
 
   email-const:
     base-url: http://localhost:8080
@@ -28,7 +28,7 @@ constant:
 
   user-const:
     user-pic-file-path: /user/%d # %d는 유저 아이디 값이 들어갈 자리
-    redirect-url: /
+    redirect-url: /login
 
   jwt-const:
     issuer: green@green.kr #토큰 발행자
@@ -55,7 +55,9 @@ spring:
     name: AcaMatch
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: jdbc:log4jdbc:mariadb://localhost/acamatch
+#    driver-class-name: org.mariadb.jdbc.Driver
+#    url: jdbc:mariadb://localhost/acamatch_ver2
+    url: jdbc:log4jdbc:mariadb://localhost/acamatch_ver2
     username: root
     password: green502
   servlet:
@@ -67,11 +69,15 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: false
+    default-property-inclusion: non_null
   jpa:
+    show-sql: true
     open-in-view: false
+    hibernate:
+      ddl-auto: create
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
   mail:
     host: smtp.gmail.com
     port: 587
