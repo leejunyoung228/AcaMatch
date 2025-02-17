@@ -4,6 +4,7 @@ import com.green.acamatch.entity.datetime.UpdatedAt;
 import com.green.acamatch.entity.myenum.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
+import org.checkerframework.common.aliasing.qual.Unique;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
@@ -33,9 +34,11 @@ public class User extends UpdatedAt {
     @Column(nullable = false)
     private LocalDate birth;
 
+    @Unique
     @Column(length = 20, nullable = false, unique = true)
     private String nickName;
 
+    @Unique
     @Column(length = 50, nullable = false, unique = true)
     private String email;
 
