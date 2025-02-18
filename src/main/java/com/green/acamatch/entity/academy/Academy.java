@@ -6,6 +6,7 @@ import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.ibatis.annotations.Many;
 
 import java.time.LocalTime;
 
@@ -25,6 +26,9 @@ public class Academy extends CreatedAt {
     @JoinColumn(name = "dong_id")
     private Dong dong;
 
+    @Column(nullable = false)
+    private int premium;
+
     @Column(length = 50, nullable = false)
     private String acaName;
 
@@ -34,14 +38,47 @@ public class Academy extends CreatedAt {
     @Column(length = 300)
     private String comment;
 
+    @Column
     private int teacherNum;
 
+    @Column
     private LocalTime openTime;
+
+    @Column
     private LocalTime closeTime;
 
     @Column(length = 100, nullable = false)
     private String address;
 
-    @Column(length = 50)
-    private String acaPic;
+    @Column(length = 50, nullable = false)
+    private String detailAddress;
+
+    @Column(length = 5, nullable = false)
+    private String postNum;
+
+    @Column(nullable = false)
+    private int acaAgree;
+
+    @Column(nullable = false)
+    private double lat;
+
+    @Column(nullable = false)
+    private double lon;
+
+    @Column(length = 20, nullable = false)
+    private String businessName;
+
+    @Column(length = 20, nullable = false)
+    private String businessNumber;
+
+    @Column(length = 50, nullable = false)
+    private String businessPic;
+
+    @Column(length = 50, nullable = false)
+    private String operationLicencePic;
+
+    @Column(length = 20, nullable = false)
+    private String corporateNumber;
+
+
 }
