@@ -35,16 +35,16 @@ public class User extends UpdatedAt {
     private LocalDate birth;
 
     @Unique
-    @Column(length = 20, nullable = false, unique = true)
+    @Column(length = 200, nullable = false, unique = true)
     private String nickName;
 
     @Unique
     @Column(length = 50, nullable = false, unique = true)
     private String email;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String upw;
 
-    @Column(length = 50)
+    @Column()
     private String userPic;
 }

@@ -2,10 +2,14 @@ package com.green.acamatch.entity.user;
 
 import com.green.acamatch.entity.myenum.SignInProviderType;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Entity
+@EqualsAndHashCode
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(

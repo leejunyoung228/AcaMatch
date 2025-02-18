@@ -81,7 +81,7 @@ public class AuthService {
     }
 
     public int logOutUser(HttpServletResponse response) {
-        cookieUtils.deleteCookie(response, jwtConst.getRefreshTokenCookieName());
+        cookieUtils.deleteCookieToken(response, jwtConst.getRefreshTokenCookieName());
         return 1;
     }
 }

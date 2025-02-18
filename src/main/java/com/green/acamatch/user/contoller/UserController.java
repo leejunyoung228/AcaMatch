@@ -143,4 +143,14 @@ public class UserController {
                 .resultData(userService.getTotalUserCount())
                 .build();
     }
+
+    @PostMapping("simple-login-user-data")
+    @Operation(summary = "간편 로그인으로 회원가입하는 유저 정보 업데이트")
+    public ResultResponse<Boolean> updateSimpleUserData(@RequestBody SimpleUserDataUpdateReq req) {
+        userManagementService.updateSimpleUser(req);
+        return ResultResponse.<Boolean>builder()
+                .resultMessage("간편 로그인 유저 정보 업데이트 성공")
+                .resultData(true)
+                .build();
+    }
 }
