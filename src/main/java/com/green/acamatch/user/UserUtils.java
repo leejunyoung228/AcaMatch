@@ -65,7 +65,7 @@ public class UserUtils {
         String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
         String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
 
-        cookieUtils.setCookie(response, jwtConst.getRefreshTokenCookieName(), refreshToken, jwtConst.getRefreshTokenCookieExpiry());
+        cookieUtils.setCookieToken(response, jwtConst.getRefreshTokenCookieName(), refreshToken, jwtConst.getRefreshTokenCookieExpiry());
 
         return UserSignInRes.builder()
                 .userId(user.getUserId())

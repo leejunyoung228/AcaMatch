@@ -5,5 +5,6 @@ public enum UserRole {
     STUDENT,
     PARENT,
     ACADEMY,
-    TEACHER
+    TEACHER,
+    NOT_SELECTED
 }

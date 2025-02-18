@@ -8,6 +8,7 @@ import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.user.model.SimpleUserDataUpdateReq;
 import com.green.acamatch.user.model.UserDeleteReq;
 import com.green.acamatch.user.model.UserUpdateReq;
 import com.green.acamatch.user.repository.UserRepository;
@@ -98,5 +99,16 @@ public class UserManagementService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void updateSimpleUser(SimpleUserDataUpdateReq req) {
+        User user = userUtils.findUserById(req.getUserId());
+        user.setUserRole(req.getUserRole());
+        user.setName(req.getName());
+        user.setUpw(passwordEncoder.encode(req.getUpw()));
+        user.setBirth(req.getBirth());
+        user.setPhone(req.getPhone());
+        user.setNickName(req.getNickName());
+        userRepository.save(user);
     }
 }
