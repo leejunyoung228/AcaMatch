@@ -1,6 +1,6 @@
 constant:
   email-const:
-    base-url: http://112.222.157.156:5233
+    base-url: http://112.222.157.157:5233
 
 file:
   directory: /home/download/image
@@ -12,4 +12,4 @@ spring:
       password: exynos
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
