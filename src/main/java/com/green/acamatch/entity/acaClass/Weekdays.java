@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "weekDays")
-public class WeekDays {
+@Table(name = "weekdays")
+public class Weekdays {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dayId;
