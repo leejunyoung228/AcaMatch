@@ -1,5 +1,7 @@
 package com.green.acamatch.chat.model;
 
+import com.green.acamatch.config.exception.CommonErrorCode;
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.Paging;
 import com.green.acamatch.entity.myenum.SenderType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,8 +21,11 @@ public class ChatRoomGetReq extends Paging {
 
     public ChatRoomGetReq(Integer page, Integer size, @BindParam("user-id") Long userId, @BindParam("aca-id") Long acaId) {
         super(page, size);
+        if ((userId != null && acaId != null) || (userId == null && acaId == null) ) {
+            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
+        }
         this.userId = userId;
         this.acaId = acaId;
-        this.senderType = userId != null ? SenderType.ACADEMY_TO_USER : SenderType.ACADEMY_TO_USER;
+        this.senderType = userId != null ? SenderType.ACADEMY_TO_USER : SenderType.USER_TO_ACADEMY;
     }
 }

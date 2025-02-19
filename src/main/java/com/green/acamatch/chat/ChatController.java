@@ -20,18 +20,11 @@ public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("chat-room")
+    @Operation(description = "user-id OR aca-id 택 1")
     public ResultResponse<ChatUserRes> getChatRoom(@ParameterObject @ModelAttribute ChatRoomGetReq req) {
         return ResultResponse.<ChatUserRes>builder()
                 .resultMessage("조회 성공")
                 .resultData(chatService.getChatUserList(req))
-                .build();
-    }
-
-    @GetMapping("log")
-    public ResultResponse<List<ChatLogList>> getChatLogList(@ParameterObject @ModelAttribute ChatLogGetReq req) {
-        return ResultResponse.<List<ChatLogList>> builder()
-                .resultMessage("조회 성공")
-//                .resultData(chatService.getChatLog(req))
                 .build();
     }
 
