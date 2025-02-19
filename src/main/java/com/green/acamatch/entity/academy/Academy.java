@@ -4,17 +4,17 @@ import com.green.acamatch.entity.datetime.CreatedAt;
 import com.green.acamatch.entity.location.Dong;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.ibatis.annotations.Many;
 
 import java.time.LocalTime;
-import java.util.List;
 
 @Getter
 @Setter
 @Entity
+@EqualsAndHashCode(callSuper = false)
 public class Academy extends CreatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,9 +82,4 @@ public class Academy extends CreatedAt {
 
     @Column(length = 20, nullable = false)
     private String corporateNumber;
-
-    @OneToMany
-    List<AcademyPic> academyPics;
-
-
 }
