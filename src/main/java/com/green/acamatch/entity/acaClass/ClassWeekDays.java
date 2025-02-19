@@ -18,6 +18,7 @@ public class ClassWeekDays {
     private Class classId;
 
     @ManyToOne
+    @MapsId("dayId")
     @JoinColumn(name = "day_id", nullable = false)
     private WeekDays day;
 }
