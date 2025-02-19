@@ -23,7 +23,6 @@ public class Grade {
     private JoinClass joinClass;
 
     @ManyToOne
-    @MapsId("examId")
     @JoinColumn(name = "exam_id", nullable = false)
     private Exam exam;
 
