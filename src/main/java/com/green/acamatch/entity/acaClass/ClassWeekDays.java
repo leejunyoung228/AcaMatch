@@ -12,6 +12,12 @@ import org.apache.poi.ss.formula.functions.Days;
 public class ClassWeekDays {
     @EmbeddedId
     private ClassWeekDaysIds classWeekDaysIds;
-
-
+  
+    @ManyToOne
+    @JoinColumn(name = "class_id", nullable = false)
+    private Class classId;
+  
+    @ManyToOne
+    @JoinColumn(name = "day_id", nullable = false)
+    private WeekDays day;
 }

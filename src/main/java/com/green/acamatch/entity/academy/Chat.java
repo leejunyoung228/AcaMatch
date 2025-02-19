@@ -25,6 +25,7 @@ public class Chat extends CreatedAt {
 
     @Column(nullable = false)
     private SenderType senderType;
+
     @Column(nullable = false)
     private boolean isRead = false;
 }
