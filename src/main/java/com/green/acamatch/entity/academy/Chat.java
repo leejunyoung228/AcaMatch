@@ -17,7 +17,7 @@ public class Chat extends CreatedAt {
     private Long chatId;
 
     @ManyToOne
-    @JoinColumn(name = "chat_room_id")
+    @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoom chatRoom;
 
     @Column(length = 100, nullable = false)

@@ -52,6 +52,14 @@ public class ChatController {
                 .build();
     }
 
+    @GetMapping("{chatRoomId}")
+    public ResultResponse<List<ChatLogList>> getChatLog(@PathVariable Long chatRoomId) {
+        List<ChatLogList> res = chatService.getChatLog(chatRoomId);
+        return ResultResponse.<List<ChatLogList>>builder()
+                .resultMessage(String.format("%d rows", res.size()))
+                .resultData(res).build();
+    }
+
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatSendReq req) {
         chatService.saveMessage(req);
