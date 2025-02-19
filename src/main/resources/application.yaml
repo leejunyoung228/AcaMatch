@@ -8,8 +8,10 @@ global:
     cookie-expiry-seconds: 180
     authorized-redirect-uris: # 리다이렉트용 uri
       - http://localhost:8080/fe/redirect
-      - http://192.168.0.144:8080/fe/redirect
-      - http://112.222.157.156:8080/fe/redirect
+      - http://192.168.0.144:5233/fe/redirect
+      - http://112.222.157.156:5233/fe/redirect
+      - http://www.acamatch.site:5233/fe/redirect
+      - http://acamatch.site:5233/fe/redirect
 
 
 constant:
