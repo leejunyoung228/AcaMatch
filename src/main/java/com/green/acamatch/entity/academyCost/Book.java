@@ -1,5 +1,6 @@
 package com.green.acamatch.entity.academyCost;
 
+import com.green.acamatch.entity.acaClass.Class;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;

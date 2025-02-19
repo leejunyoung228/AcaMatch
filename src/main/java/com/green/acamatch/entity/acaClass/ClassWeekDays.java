@@ -13,12 +13,5 @@ public class ClassWeekDays {
     @EmbeddedId
     private ClassWeekDaysIds classWeekDaysIds;
 
-    @ManyToOne
-    @JoinColumn(name = "class_id", nullable = false)
-    private Class classId;
 
-    @ManyToOne
-    @MapsId("dayId")
-    @JoinColumn(name = "day_id", nullable = false)
-    private WeekDays day;
 }

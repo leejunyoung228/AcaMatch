@@ -18,12 +18,10 @@ public class Grade {
     private Long gradeId;
 
     @ManyToOne
-    @MapsId("joinClassId")
     @JoinColumn(name = "join_class_id", nullable = false)
     private JoinClass joinClass;
 
     @ManyToOne
-    @MapsId("examId")
     @JoinColumn(name = "exam_id", nullable = false)
     private Exam exam;
 
