@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.apache.ibatis.annotations.Many;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -81,6 +82,9 @@ public class Academy extends CreatedAt {
 
     @Column(length = 20, nullable = false)
     private String corporateNumber;
+
+    @OneToMany
+    List<AcademyPic> academyPics;
 
 
 }
