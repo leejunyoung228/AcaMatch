@@ -20,6 +20,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("chat-room")
+    @Operation(description = "user-id OR aca-id 택 1")
     public ResultResponse<ChatUserRes> getChatRoom(@ParameterObject @ModelAttribute ChatRoomGetReq req) {
         return ResultResponse.<ChatUserRes>builder()
                 .resultMessage("조회 성공")
