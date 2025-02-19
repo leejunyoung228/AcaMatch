@@ -19,11 +19,12 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     @Query("""
     SELECT new com.green.acamatch.chat.model.ChatRoomDto(
-        cr, MAX(c1.createdAt), COALESCE(COUNT(c2.chatId), 0)
+        cr, ap, MAX(c1.createdAt), COALESCE(COUNT(c2.chatId), 0)
     )
     FROM ChatRoom cr
     LEFT JOIN Chat c1 ON cr.chatRoomId = c1.chatRoom.chatRoomId
     LEFT JOIN Chat c2 ON cr.chatRoomId = c2.chatRoom.chatRoomId AND c2.isRead = false AND c2.senderType = :#{#req.senderType}
+    LEFT JOIN AcademyPic ap ON cr.academy = ap.academy
     WHERE (:#{#req.userId} IS NULL OR cr.user.userId = :#{#req.userId})
     AND (:#{#req.acaId} IS NULL OR cr.academy.acaId = :#{#req.acaId})
     GROUP BY cr.chatRoomId
