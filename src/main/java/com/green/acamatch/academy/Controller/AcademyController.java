@@ -28,8 +28,11 @@ public class AcademyController {
 
     @PostMapping
     @Operation(summary = "학원정보등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진, 태그")
-    public ResultResponse<Integer> postAcademy(@RequestPart(required = false) List<MultipartFile> pics, @Valid @RequestPart AcademyPostReq req) {
-        int result1 = academyService.insAcademy(pics, req);
+    public ResultResponse<Integer> postAcademy(@RequestPart(required = false) List<MultipartFile> pics
+                                             , @RequestPart MultipartFile businessLicensePic
+                                             , @RequestPart MultipartFile operationLicensePic
+                                             , @Valid @RequestPart AcademyPostReq req) {
+        int result1 = academyService.insAcademy(pics, businessLicensePic, operationLicensePic, req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(result1 != 0 ? 1 : 0)

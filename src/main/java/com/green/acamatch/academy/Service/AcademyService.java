@@ -14,9 +14,13 @@ import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.security.AuthenticationFacade;
+import com.green.acamatch.entity.academy.Academy;
+import com.green.acamatch.entity.academy.AcademyPic;
+import com.green.acamatch.entity.academy.AcademyPicIds;
 import com.green.acamatch.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +50,14 @@ public class AcademyService {
 
     //학원정보등록
     @Transactional
-    public int insAcademy(List<MultipartFile> pics, AcademyPostReq req) {
+    public int insAcademy(List<MultipartFile> pics, MultipartFile businessLicensePic, MultipartFile operationLicensePic, AcademyPostReq req) {
+        /*List<AcademyPic> academyPics = new ArrayList<>(pics.size());
+        for (MultipartFile pic : pics ) {
+            academyPics.add();
+
+        } 3차에 참고
+        academyPicRepository.saveAll(academyPics);*/
+
         User signedUser = new User();
         signedUser.setUserId(authenticationFacade.getSignedUserId());
 
@@ -54,7 +65,7 @@ public class AcademyService {
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
         }
 
-        req.setAddress(addressEncoding(req.getAddressDto()));
+        ////req.setAddress(addressEncoding(req.getAddressDto())); 2차에 사용
 
         ////String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
 
@@ -63,7 +74,7 @@ public class AcademyService {
         //req.getAddressDto().getAddress();
 
         //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
-        KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddressDto());
+        KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddress());
 
         // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
         Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
@@ -77,7 +88,29 @@ public class AcademyService {
         req.setDongId(dongPk);
 
 
-        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ academyMapper.insAcademy(req);
+        //@@ academyMapper.insAcademy(req);
+        Academy academy = new Academy();
+        academy.setUser(signedUser);
+        academy.setDongId(req.getDongId());
+        academy.setPremium(req.getPremium());
+        academy.setAcaName(req.getAcaName());
+        academy.setAcaPhone(req.getAcaPhone());
+        academy.setComment(req.getComment());
+        academy.setTeacherNum(req.getTeacherNum());
+        academy.setOpenTime(req.getOpenTime());
+        academy.setCloseTime(req.getCloseTime());
+        academy.setAddress(req.getAddress());
+        academy.setDetailAddress(req.getDetailAddress());
+        academy.setPostNum(req.getPostNum());
+        academy.setAcaAgree(req.getAcaAgree());
+        academy.setLat(req.getLat());
+        academy.setLon(req.getLon());
+        academy.setBusinessName(req.getBusinessName());
+        academy.setBusinessNumber(req.getBusinessNumber());
+        academy.setBusinessPic(req.getBusinessPic());
+        academy.setOperationLicencePic(req.getOperationLicencePic());
+        academy.setCorporateNumber(req.getCorporateNumber());
+        academyRepository.save(academy);
 
 
         if (pics == null || pics.isEmpty()) {
@@ -89,6 +122,13 @@ public class AcademyService {
         String middlePath = String.format("academy/%d", acaId);
         myFileUtils.makeFolders(middlePath);
 
+        String middlePath2 = String.format("businessLicence/%d", acaId);
+        myFileUtils.makeFolders(middlePath2);
+
+        String middlePath3 = String.format("operationLicence/%d", acaId);
+        myFileUtils.makeFolders(middlePath3);
+
+        // 학원 사진들
         List<String> picNameList = new ArrayList<>();
         for(MultipartFile pic : pics) {
             String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
@@ -96,17 +136,75 @@ public class AcademyService {
             String filePath = String.format("%s/%s", middlePath, savedPicName);
 
             try {
+                AcademyPicIds academyPicIds = new AcademyPicIds();
+                academyPicIds.setAcaId(acaId);
+                academyPicIds.setAcaPic(savedPicName);
+
+                AcademyPic academyPic = new AcademyPic();
+                academyPic.setAcademyPicIds(academyPicIds);
+                academyPic.setAcademy(academy);
+
+                academyPicRepository.save(academyPic);
+
                 myFileUtils.transferTo(pic, filePath);
             } catch (IOException e) {
+                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                myFileUtils.deleteFolder(delFolderPath, true);
                 throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
             }
         }
-        AcademyPicDto academyPicDto = new AcademyPicDto();
-        academyPicDto.setAcaId(acaId);
-        academyPicDto.setPics(picNameList);
 
-        academyPicsMapper.insAcademyPics(academyPicDto);
-        tagService.insAcaTag(req);
+        // 사업자등록증
+        String savedPicName2 = (businessLicensePic != null ? myFileUtils.makeRandomFileName(businessLicensePic) : null);
+        String filePath2 = String.format("%s/%s", middlePath2, savedPicName2);
+
+        try{
+            AcademyPicIds academyPicIds = new AcademyPicIds();
+            academyPicIds.setAcaId(acaId);
+            academyPicIds.setAcaPic(savedPicName2);
+
+            AcademyPic academyPic = new AcademyPic();
+            academyPic.setAcademyPicIds(academyPicIds);
+            academyPic.setAcademy(academy);
+
+            academyPicRepository.save(academyPic);
+
+            myFileUtils.transferTo(businessLicensePic, filePath2);
+        } catch (IOException e) {
+            String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath2);
+            myFileUtils.deleteFolder(delFolderPath, true);
+            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+        }
+
+        // 학원운영증
+        String savedPicName3 = (operationLicensePic != null ? myFileUtils.makeRandomFileName(businessLicensePic) : null);
+        String filePath3 = String.format("%s/%s", middlePath3, savedPicName3);
+
+        try{
+            AcademyPicIds academyPicIds = new AcademyPicIds();
+            academyPicIds.setAcaId(acaId);
+            academyPicIds.setAcaPic(savedPicName3);
+
+            AcademyPic academyPic = new AcademyPic();
+            academyPic.setAcademyPicIds(academyPicIds);
+            academyPic.setAcademy(academy);
+
+            academyPicRepository.save(academyPic);
+
+            myFileUtils.transferTo(operationLicensePic, filePath3);
+        } catch (IOException e) {
+            String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath3);
+            myFileUtils.deleteFolder(delFolderPath, true);
+            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+        }
+
+
+        /* AcademyPicDto academyPicDto = new AcademyPicDto();
+        academyPicDto.setAcaId(acaId);
+        academyPicDto.setPics(picNameList);*/ //2차때 사용함
+
+        ////academyPicsMapper.insAcademyPics(academyPicDto); 2차때 사용함.
+        ////tagService.insAcaTag(req); 2차때 사용함.
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;
     }

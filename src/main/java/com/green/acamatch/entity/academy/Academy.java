@@ -24,8 +24,11 @@ public class Academy extends CreatedAt {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "dong_id", nullable = false) // Dong의 ID를 직접 저장
+    private Long dongId;  // 이제 Long 타입으로 저장
+
     @ManyToOne
-    @JoinColumn(name = "dong_id", nullable = false)
+    @JoinColumn(name = "dong_id", nullable = false, insertable = false, updatable = false)
     private Dong dong;
 
     @Column(nullable = false)

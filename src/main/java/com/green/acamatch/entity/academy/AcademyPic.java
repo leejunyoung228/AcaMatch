@@ -14,7 +14,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @ToString
 public class AcademyPic extends CreatedAt {
     @EmbeddedId
-    private AcademyPicIds feedPicIds;
+    private AcademyPicIds academyPicIds;
 
     @ManyToOne
     @MapsId("acaId")

@@ -48,18 +48,51 @@ public class AcademyPostReq {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime closeTime;
 
-    @JsonIgnore
     @Schema(title = "학원주소", example = "대구 중구 중앙대로394", requiredMode = Schema.RequiredMode.REQUIRED)
     private String address;
-    @Valid
-    private AddressDto addressDto;
 
-    @JsonIgnore
+    @Schema(title = "학원상세주소", example = "그린빌딩 5층 501호", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String detailAddress;
+
+    @Schema(title = "우편번호", example = "456-78", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String postNum;
+
+    @Schema(title = "학원정보등록승인여부", example = "1: 승인, 0: 미승인")
+    private int acaAgree;
+
+    /*@Valid
+    private AddressDto addressDto;*/
+
+    /*@JsonIgnore
     @Schema(title = "학원사진")
-    private String acaPic;
-
-
+    private String acaPic;*/
 
     @Schema(title = "태그Id 리스트")
     private List<Long> tagIdList;
+
+    @Schema(title = "프리미엄학원 여부")
+    private int premium;
+
+    @Schema(title = "위도", requiredMode = Schema.RequiredMode.REQUIRED)
+    private double lat;
+
+    @Schema(title = "경도", requiredMode = Schema.RequiredMode.REQUIRED)
+    private double lon;
+
+    @Schema(title = "사업자명", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String businessName;
+
+    @Schema(title = "사업자번호", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String businessNumber;
+
+    @Schema(title = "사업자등록증", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String businessPic;
+
+    @Schema(title = "학원운영증", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String operationLicencePic;
+
+    @Schema(title = "법인번호", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String corporateNumber;
+
+
 }
