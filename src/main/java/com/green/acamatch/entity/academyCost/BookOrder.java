@@ -1,7 +1,5 @@
 package com.green.acamatch.entity.academyCost;
 
-import com.green.acamatch.entity.acaClass.Class;
-import com.green.acamatch.entity.acaClass.WeekDays;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

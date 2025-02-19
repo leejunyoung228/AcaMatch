@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class AcaClassUserGetReq extends Paging {
-    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "강좌 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private long classId;
 
     public AcaClassUserGetReq(Integer page, Integer size, long classId) {
