@@ -32,6 +32,4 @@ public class PremiumAcademy extends CreatedAt {
 
     @Column
     private int price;
-
-
 }
