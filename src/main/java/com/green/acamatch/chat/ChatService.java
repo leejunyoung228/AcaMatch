@@ -8,18 +8,22 @@ import com.green.acamatch.entity.academy.ChatRoom;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.Chat;
+import com.green.acamatch.entity.myenum.SenderType;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.entity.myenum.UserRole;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -46,11 +50,10 @@ public class ChatService {
     public Integer checkUnreadMessage() {
         User user = userUtils.findUserById(AuthenticationFacade.getSignedUserId());
         if (user.getUserRole().equals(UserRole.STUDENT) || user.getUserRole().equals(UserRole.PARENT)) {
-//            return chatRepository.countChatByUserAndSenderTypeAndIsRead(user, SenderType.ACADEMY_TO_USER, false);
+            return chatRepository.countByChatRoom_User_UserIdAndSenderTypeAndIsRead(user.getUserId(), SenderType.ACADEMY_TO_USER, false);
         }
         if (user.getUserRole().equals(UserRole.ACADEMY)) {
-            List<Academy> academyList = academyRepository.findAllByUser(user);
-//            return chatRepository.countChatByAcademyInAndSenderTypeAndIsRead(academyList, SenderType.USER_TO_ACADEMY,false);
+            return chatRepository.countByChatRoom_Academy_User_UserIdAndSenderTypeAndIsRead(user.getUserId(), SenderType.USER_TO_ACADEMY, false);
         }
         return 0;
     }
@@ -80,5 +83,27 @@ public class ChatService {
             chatRoomRepository.save(chatRoom);
         }
         return chatRoom.getChatRoomId();
+    }
+
+    public List<ChatLogList> getChatLog(Long chatRoomId) {
+        List<Chat> chats = chatRepository.findByChatRoom_ChatRoomId(chatRoomId);
+        if (!chats.isEmpty()) {
+            List<Chat> updatedChats = new ArrayList<>();
+            SenderType senderType;
+            if (chats.get(0).getChatRoom().getUser().getUserId().equals(AuthenticationFacade.getSignedUserId())) {
+                senderType = SenderType.ACADEMY_TO_USER;
+            } else {
+                senderType = SenderType.USER_TO_ACADEMY;
+            }
+            chats.stream()
+                    .filter(chat -> !chat.isRead() && chat.getSenderType().equals(senderType))
+                    .forEach(chat -> {
+                        chat.setRead(true);
+                        updatedChats.add(chat);  // 업데이트된 객체만 저장
+                    });
+            chatRepository.saveAll(updatedChats);
+            return chats.stream().map(ChatLogList::new).toList();
+        }
+        return new ArrayList<>();
     }
 }
