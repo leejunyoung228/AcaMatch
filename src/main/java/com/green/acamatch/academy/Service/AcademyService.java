@@ -1,5 +1,8 @@
 package com.green.acamatch.academy.Service;
 
+import com.green.acamatch.academy.AcademyPicRepository;
+import com.green.acamatch.academy.AcademyRepository;
+import com.green.acamatch.academy.AcademyTagRepository;
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.mapper.AcademyPicsMapper;
 import com.green.acamatch.academy.model.*;
@@ -10,6 +13,8 @@ import com.green.acamatch.config.constant.AddressConst;
 import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.config.security.AuthenticationFacade;
+import com.green.acamatch.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,11 +38,18 @@ public class AcademyService {
     private final TagService tagService;
     private final AddressConst addressConst;
     private final KakaoApiExample kakaoApiExample;
+    private final AcademyRepository academyRepository;
+    private final AuthenticationFacade authenticationFacade;
+    private final AcademyPicRepository academyPicRepository;
+    private final AcademyTagRepository academyTagRepository;
 
 
     //학원정보등록
     @Transactional
     public int insAcademy(List<MultipartFile> pics, AcademyPostReq req) {
+        User signedUser = new User();
+        signedUser.setUserId(authenticationFacade.getSignedUserId());
+
         if (req.getTagIdList().isEmpty()) {
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
         }
@@ -65,7 +77,8 @@ public class AcademyService {
         req.setDongId(dongPk);
 
 
-        academyMapper.insAcademy(req);
+        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ academyMapper.insAcademy(req);
+
 
         if (pics == null || pics.isEmpty()) {
             academyMessage.setMessage("학원정보등록이 완료되었습니다.");
