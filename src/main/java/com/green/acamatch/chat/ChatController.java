@@ -20,18 +20,11 @@ public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("chat-room")
+    @Operation(description = "user-id OR aca-id 택 1")
     public ResultResponse<ChatUserRes> getChatRoom(@ParameterObject @ModelAttribute ChatRoomGetReq req) {
         return ResultResponse.<ChatUserRes>builder()
                 .resultMessage("조회 성공")
                 .resultData(chatService.getChatUserList(req))
-                .build();
-    }
-
-    @GetMapping("log")
-    public ResultResponse<List<ChatLogList>> getChatLogList(@ParameterObject @ModelAttribute ChatLogGetReq req) {
-        return ResultResponse.<List<ChatLogList>> builder()
-                .resultMessage("조회 성공")
-//                .resultData(chatService.getChatLog(req))
                 .build();
     }
 
@@ -50,6 +43,14 @@ public class ChatController {
                 .resultMessage("채팅방 id 조회 성공")
                 .resultData(chatService.getChatRoomId(req))
                 .build();
+    }
+
+    @GetMapping("{chatRoomId}")
+    public ResultResponse<List<ChatLogList>> getChatLog(@PathVariable Long chatRoomId) {
+        List<ChatLogList> res = chatService.getChatLog(chatRoomId);
+        return ResultResponse.<List<ChatLogList>>builder()
+                .resultMessage(String.format("%d rows", res.size()))
+                .resultData(res).build();
     }
 
     @MessageMapping("/chat.sendMessage")

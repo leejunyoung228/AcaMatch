@@ -22,7 +22,6 @@ public class JoinClass {
     private Class classId;
 
     @ManyToOne
-    @MapsId("userId")
     @JoinColumn(name= "user_id", nullable = false)
     private User user;
 

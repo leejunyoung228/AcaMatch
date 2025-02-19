@@ -19,12 +19,10 @@ public class Class {
     private Long classId;
 
     @ManyToOne
-    @MapsId("acaId")
     @JoinColumn(name = "aca_id", nullable = false)
     private Academy academy;
 
     @ManyToOne
-    @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

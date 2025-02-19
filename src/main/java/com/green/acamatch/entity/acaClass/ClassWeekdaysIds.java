@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Setter
 @Embeddable
 @EqualsAndHashCode
-public class ClassWeekDaysIds implements Serializable {
+public class ClassWeekdaysIds implements Serializable {
     private Long classId;
     private Long dayId;
 }

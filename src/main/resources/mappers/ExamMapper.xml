@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.green.acamatch.exam.ExamMapper">
+    <insert id="insExamScore" useGeneratedKeys="true" keyProperty="examId">
+        INSERT INTO exam
+        SET class_id = #{classId},
+            exam_name = #{examName},
+            score_type = #{scoreType}
+    </insert>
+
+    <select id ="existsExam" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM exam
+        WHERE class_id = #{classId} AND exam_name = #{examName}
+    </select>
+</mapper>

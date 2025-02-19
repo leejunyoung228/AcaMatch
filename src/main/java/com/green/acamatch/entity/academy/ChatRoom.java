@@ -11,7 +11,7 @@ import lombok.Setter;
 public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer chatRoomId;
+    private Long chatRoomId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

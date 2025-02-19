@@ -11,12 +11,12 @@ public class AcaClassPutReq {
     @Schema(title = "학원 PK", example = "324", requiredMode = Schema.RequiredMode.REQUIRED)
     private long acaId;
 
-    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "강좌 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private long classId;
 
-    @Schema(title = "수업 이름", example = "원어민 영어")
+    @Schema(title = "강좌 이름", example = "원어민 영어")
     private String className;
-    @Schema(title = "수업 설명", example = "원어민급 영어반이다.")
+    @Schema(title = "강좌 설명", example = "원어민급 영어반이다.")
     private String classComment;
     @Schema(title = "수업 시작 날짜", example = "2025-01-23")
     private String startDate;
