@@ -17,7 +17,6 @@ public class Attendance extends CreatedAt{
     private Long attendanceId;
 
     @ManyToOne
-    @MapsId("joinClassId")
     @JoinColumn(name = "join_class_id", nullable = false)
     private JoinClass joinClass;
 
