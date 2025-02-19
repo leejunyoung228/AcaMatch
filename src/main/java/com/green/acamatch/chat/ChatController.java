@@ -27,14 +27,6 @@ public class ChatController {
                 .build();
     }
 
-    @GetMapping("log")
-    public ResultResponse<List<ChatLogList>> getChatLogList(@ParameterObject @ModelAttribute ChatLogGetReq req) {
-        return ResultResponse.<List<ChatLogList>> builder()
-                .resultMessage("조회 성공")
-//                .resultData(chatService.getChatLog(req))
-                .build();
-    }
-
     @GetMapping("unread-message")
     @Operation(summary = "읽지 않은 메세지 개수 조회(로그인 필수)", description = "읽지 않은 메세지 가 있으면 true 없으면 false")
     public ResultResponse<Integer> unreadMessage() {
