@@ -211,31 +211,33 @@ public class AcademyService {
 
     //학원정보수정
     @Transactional
-    public int updAcademy(MultipartFile pic, MultipartFile businessLicensePic, MultipartFile operationLicensePic, AcademyUpdateReq req) {
+    public int updAcademy(List<MultipartFile> pics, MultipartFile businessLicensePic, MultipartFile operationLicensePic, AcademyUpdateReq req) {
         //아무것도 입력안했을 때
-        if ((pic == null || pic.toString().trim().isEmpty()) &&
-                (req.getAcaName() == null || req.getAcaName().trim().isEmpty()) &&
-                (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) &&
-                (req.getComment() == null || req.getComment().trim().isEmpty()) &&
-                (req.getTeacherNum() == 0) && // int 타입은 null 체크 불필요
-                (req.getOpenTime() == null || req.getOpenTime().trim().isEmpty()) &&
-                (req.getCloseTime() == null || req.getCloseTime().trim().isEmpty()) &&
-                (req.getAddress() == null || req.getAddress().trim().isEmpty()) &&
-                (req.getDetailAddress() == null || req.getDetailAddress().trim().isEmpty()) &&
-                (req.getPostNum() == null || req.getPostNum().trim().isEmpty()) &&
-                (req.getAcaAgree() == 0) &&
-                (req.getTagIdList() == null || req.getTagIdList().isEmpty()) &&
-                (req.getPremium() == 0) &&
-                (req.getLat() == 0.0) &&
-                (req.getLon() == 0.0) &&
-                (req.getBusinessName() == null || req.getBusinessName().isEmpty()) &&
-                (req.getBusinessNumber() == null || req.getBusinessNumber().isEmpty()) &&
-                (req.getBusinessPic()== null || req.getBusinessPic().isEmpty()) &&
-                (req.getOperationLicencePic() == null || req.getOperationLicencePic().isEmpty()) &&
-                (req.getCorporateNumber() == null || req.getCorporateNumber().isEmpty())) {
-            throw new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION);
-        }
+//        if ((pics == null || pics.toString().trim().isEmpty()) &&
+//                (req.getAcaName() == null || req.getAcaName().trim().isEmpty()) &&
+//                (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) &&
+//                (req.getComment() == null || req.getComment().trim().isEmpty()) &&
+//                (req.getTeacherNum() == 0) && // int 타입은 null 체크 불필요
+//                (req.getOpenTime() == null || req.getOpenTime().trim().isEmpty()) &&
+//                (req.getCloseTime() == null || req.getCloseTime().trim().isEmpty()) &&
+//                (req.getAddress() == null || req.getAddress().trim().isEmpty()) &&
+//                (req.getDetailAddress() == null || req.getDetailAddress().trim().isEmpty()) &&
+//                (req.getPostNum() == null || req.getPostNum().trim().isEmpty()) &&
+//                (req.getAcaAgree() == 0) &&
+//                (req.getTagIdList() == null || req.getTagIdList().isEmpty()) &&
+//                (req.getPremium() == 0) &&
+//                (req.getLat() == 0.0) &&
+//                (req.getLon() == 0.0) &&
+//                (req.getBusinessName() == null || req.getBusinessName().isEmpty()) &&
+//                (req.getBusinessNumber() == null || req.getBusinessNumber().isEmpty()) &&
+//                (req.getBusinessPic()== null || req.getBusinessPic().isEmpty()) &&
+//                (req.getOperationLicencePic() == null || req.getOperationLicencePic().isEmpty()) &&
+//                (req.getCorporateNumber() == null || req.getCorporateNumber().isEmpty())) {
+//            throw new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION);
+//        }
 
+        User signedUser = new User();
+        signedUser.setUserId(authenticationFacade.getSignedUserId());
 
         long acaId = req.getAcaId();
         String middlePath = String.format("academy/%d", acaId);
@@ -247,7 +249,7 @@ public class AcademyService {
         String middlePath3 = String.format("operationLicence/%d", acaId);
         myFileUtils.makeFolders(middlePath3);
         // 프로필 사진 처리
-        if (pic != null && !pic.isEmpty()) {
+        /*if (pics != null && !pics.isEmpty()) {
             String targetDir = String.format("%s/%d", "academy", req.getAcaId());
             myFileUtils.makeFolders(targetDir);
 
@@ -262,9 +264,46 @@ public class AcademyService {
             String filePath = String.format("%s/%s", targetDir, savedFileName);
 
             try {
-                myFileUtils.transferTo(pic, filePath);
+                myFileUtils.transferTo(pics, filePath);
             } catch (IOException e) {
                 throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+            }
+        }*/ //2차때 사용함.
+
+
+        //사진을 수정할때
+        if(pics != null && !pics.isEmpty()) {
+            //기존에 사진 삭제
+            int affecteRows = academyPicRepository.deleteAcademyPicsByAcaId(req.getAcaId());
+            log.info("accectedRows: {}", affecteRows);
+
+            //새로운 사진 삽입
+            List<String> picNameList = new ArrayList<>();
+            for (MultipartFile pic : pics) {
+                String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
+                picNameList.add(savedPicName);
+                String filePath = String.format("%s/%s", middlePath, savedPicName);
+
+
+                try {
+                    Academy academy = new Academy();
+
+                    AcademyPicIds academyPicIds = new AcademyPicIds();
+                    academyPicIds.setAcaId(acaId);
+                    academyPicIds.setAcaPic(savedPicName);
+
+                    AcademyPic academyPic = new AcademyPic();
+                    academyPic.setAcademyPicIds(academyPicIds);
+                    academyPic.setAcademy(academy);
+
+                    academyPicRepository.save(academyPic);
+
+                    myFileUtils.transferTo(pic, filePath);
+                } catch (IOException e) {
+                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                    myFileUtils.deleteFolder(delFolderPath, true);
+                    throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+                }
             }
         }
 
@@ -279,16 +318,13 @@ public class AcademyService {
             }
         }
 
-        if (req.getAddressDto() != null) {
             //주소수정을 하려고 할때(셋다 값이 들어있을때)
-            if (isValidValue(req.getAddressDto().getAddress())
-                    && isValidValue(req.getAddressDto().getDetailAddress())
-                    && isValidValue(req.getAddressDto().getPostNum())) {
-                req.setAddress(addressEncoding(req.getAddressDto()));
-
+            if (isValidValue(req.getAddress())
+                    && isValidValue(req.getDetailAddress())
+                    && isValidValue(req.getPostNum())) {
 
                 //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
-                KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddressDto());
+                KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddress());
 
                 // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
                 Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
@@ -301,11 +337,10 @@ public class AcademyService {
 
                 req.setDongId(dongPk);
 
-            }
 
-            String address = req.getAddressDto().getAddress();
-            String detailAddress = req.getAddressDto().getDetailAddress();
-            String postNum = req.getAddressDto().getPostNum();
+            String address = req.getAddress();
+            String detailAddress = req.getDetailAddress();
+            String postNum = req.getPostNum();
 
             int emptyCount = 0;
             if (address == null || address.trim().isEmpty()) {
@@ -325,7 +360,7 @@ public class AcademyService {
 
 
         //태그만 값을 가질때
-        if ((req.getTagIdList() != null && !req.getTagIdList().isEmpty()) &&
+        if ( (req.getTagIdList() != null && !req.getTagIdList().isEmpty()) &&
                 (req.getAcaName() == null || req.getAcaName().isEmpty()) &&
                 (req.getAcaPhone() == null || req.getAcaPhone().isEmpty()) &&
                 (req.getComment() == null || req.getComment().isEmpty()) &&
@@ -333,8 +368,18 @@ public class AcademyService {
                 (req.getOpenTime() == null || req.getOpenTime().isEmpty()) &&
                 (req.getCloseTime() == null || req.getCloseTime().isEmpty()) &&
                 (req.getAddress() == null || req.getAddress().isEmpty()) &&
-                req.getAddressDto() == null &&
-                (req.getAcaPic() == null || req.getAcaPic().isEmpty())) {
+                (req.getDetailAddress() == null || req.getDetailAddress().isEmpty()) &&
+                (req.getPostNum() == null || req.getPostNum().isEmpty()) &&
+                (req.getAcaAgree() == 0) &&
+                (req.getLat() == 0.0) &&
+                (req.getLon() == 0.0) &&
+                (req.getBusinessName() == null || req.getBusinessName().isEmpty()) &&
+                (req.getBusinessNumber() == null || req.getBusinessNumber().isEmpty()) &&
+                (req.getBusinessPic() == null || req.getBusinessPic().isEmpty()) &&
+                (pics == null || pics.isEmpty()) &&
+                (req.getOperationLicencePic() == null || req.getOperationLicencePic().isEmpty()) &&
+                (req.getCorporateNumber() == null || req.getCorporateNumber().isEmpty()) )
+        {
 
             try {
                 academyMapper.delAcaTag(req.getAcaId());
