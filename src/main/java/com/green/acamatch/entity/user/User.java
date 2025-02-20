@@ -9,12 +9,9 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
 
+@Entity //테이블을 만들고 DML때 사용
 @Getter
 @Setter
-@ToString
-@Entity
-@DynamicUpdate
-@Table(name = "user")
 public class User extends UpdatedAt {
 
     @Id
