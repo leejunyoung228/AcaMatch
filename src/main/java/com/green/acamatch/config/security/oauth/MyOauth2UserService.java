@@ -6,6 +6,7 @@ import com.green.acamatch.config.security.oauth.userinfo.Oauth2UserInfo;
 import com.green.acamatch.config.security.oauth.userinfo.Oauth2UserInfoFactory;
 import com.green.acamatch.entity.myenum.SignInProviderType;
 import com.green.acamatch.entity.myenum.UserRole;
+import com.green.acamatch.entity.user.SnsUser;
 import com.green.acamatch.entity.user.SnsUserId;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.repository.SnsUserIdRepository;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -57,11 +58,11 @@ public class MyOauth2UserService extends DefaultOAuth2UserService {
         Oauth2UserInfo oauth2UserInfo = oauth2UserInfoFactory.getOauth2UserInfo(signInProviderType, oAuth2User.getAttributes());
 
 
-        SnsUserId snsUserId = snsUserIdRepository.findBySnsUserIdAndSignInProviderType(oauth2UserInfo.getId(), signInProviderType);
+        SnsUser snsUser = snsUserIdRepository.findBySnsUserIdAndId_SignInProviderType(oauth2UserInfo.getId(), signInProviderType);
         //기존에 회원가입이 되어있는지 체크
-        User user = null;
+        User user;
         boolean needMoreData = false;
-        if (snsUserId == null) { // 최초 로그인 상황 > 회원가입 처리
+        if (snsUser == null) { // 최초 로그인 상황 > 회원가입 처리
             user = userRepository.findByEmail(oauth2UserInfo.getEmail()).orElse(null);
             if (user == null) {
                 user = new User();
@@ -76,20 +77,23 @@ public class MyOauth2UserService extends DefaultOAuth2UserService {
                 userRepository.save(user);
                 needMoreData = true;
             }
-            snsUserId = new SnsUserId();
-            snsUserId.setSnsUserId(oauth2UserInfo.getId());
-            snsUserId.setSignInProviderType(signInProviderType);
-            snsUserId.setUser(user);
-            snsUserIdRepository.save(snsUserId);
+            snsUser = new SnsUser();
+            snsUser.setSnsUserId(oauth2UserInfo.getId());
+            snsUser.setId(SnsUserId.builder()
+                    .userId(user.getUserId())
+                    .signInProviderType(signInProviderType)
+                    .build());
+            snsUser.setUser(user);
+            snsUserIdRepository.save(snsUser);
         } else {
-            user = userRepository.findById(snsUserId.getId()).orElseThrow(() -> new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR));
+            user = userRepository.findById(snsUser.getUser().getUserId()).orElseThrow(() -> new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR));
         }
 
 
         return new OAuth2JwtUser(user.getEmail(), user.getNickName()
                 , user.getUserPic()
                 , user.getUserId()
-                , Arrays.asList(user.getUserRole().name())
+                , List.of(user.getUserRole().name())
                 , needMoreData);
     }
 }

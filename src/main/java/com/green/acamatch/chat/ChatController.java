@@ -15,12 +15,12 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("chat")
-@Tag(name = "채팅")
+@Tag(name = "채팅", description = "채팅은 기본적으로 로그인 필수 입니다")
 public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("chat-room")
-    @Operation(description = "user-id OR aca-id 택 1")
+    @Operation(summary = "채팅방 목록 조회", description = "user-id OR aca-id 택 1")
     public ResultResponse<ChatUserRes> getChatRoom(@ParameterObject @ModelAttribute ChatRoomGetReq req) {
         return ResultResponse.<ChatUserRes>builder()
                 .resultMessage("조회 성공")
@@ -29,7 +29,7 @@ public class ChatController {
     }
 
     @GetMapping("unread-message")
-    @Operation(summary = "읽지 않은 메세지 개수 조회(로그인 필수)", description = "읽지 않은 메세지 가 있으면 true 없으면 false")
+    @Operation(summary = "읽지 않은 메세지 개수 조회", description = "읽지 않은 메세지 가 있으면 true 없으면 false")
     public ResultResponse<Integer> unreadMessage() {
         return ResultResponse.<Integer>builder()
                 .resultMessage("읽지 않은 메세지 개수 조회 성공")
@@ -38,6 +38,7 @@ public class ChatController {
     }
 
     @GetMapping
+    @Operation(summary = "user-id, aca-id로 채팅방 아이디 조회 없으면 생성후 조회")
     public ResultResponse<Long>  getChatRoomId(@ParameterObject @ModelAttribute GetChatRoomIdReq req) {
         return ResultResponse.<Long> builder()
                 .resultMessage("채팅방 id 조회 성공")
@@ -46,6 +47,7 @@ public class ChatController {
     }
 
     @GetMapping("{chatRoomId}")
+    @Operation(summary = "채팅방 아이디로 채팅 내역 조회")
     public ResultResponse<List<ChatLogList>> getChatLog(@PathVariable Long chatRoomId) {
         List<ChatLogList> res = chatService.getChatLog(chatRoomId);
         return ResultResponse.<List<ChatLogList>>builder()

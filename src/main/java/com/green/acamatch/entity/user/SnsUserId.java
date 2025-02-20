@@ -1,35 +1,16 @@
 package com.green.acamatch.entity.user;
 
 import com.green.acamatch.entity.myenum.SignInProviderType;
-import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.Embeddable;
+import lombok.*;
 
 @Getter
-@Setter
-@Entity
+@Builder
+@Embeddable
 @EqualsAndHashCode
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames = { "sign_in_provider_type", "sns_user_id" }
-                )
-        }
-)
+@NoArgsConstructor  // 기본 생성자 추가
+@AllArgsConstructor
 public class SnsUserId {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @Column(nullable = false)
+    private Long userId;
     private SignInProviderType signInProviderType;
-
-    @Column(nullable = false)
-    private String snsUserId;
-
 }
