@@ -27,9 +27,8 @@ public class UserController {
 
     @PostMapping("sign-up")
     @Operation(summary = "회원가입 이메일 전송",
-            description = "이메일 인증 링크를 누르게 되면 /user/complete-sign-up?token=토큰 값 으로 이동</br>" +
-                    "token 값을 /user/sign-up?token=토큰값 으로 보내주세요</br>" +
-                    "<table border=\"1\"><thead><tr><th>ROLE_ID</th><th>Title</th></tr></thead><tbody><tr><td>1</td><td>ROLE_STUDENT</td></tr><tr><td>2</td><td>ROLE_PARENT</td></tr><tr><td>3</td><td>ROLE_ACADEMY</td></tr><tr><td>4</td><td>ROLE_TEACHER</td></tr></tbody></table>" +
+            description = "이메일 인증 링크를 누르게 되면 회원가입후 로그인 페이지로 이동</br>" +
+                    "userRole : [ADMIN, STUDENT, PARENT, ACADEMY, TEACHER] 택 1</br>" +
                     "비밀번호는 대문자, 소문자, 특수문자, 숫자 포함 8자 이상 20자 미만 "
     )
     public ResultResponse<Integer> signUp(@Valid @RequestBody UserSignUpReq req) {
@@ -81,7 +80,7 @@ public class UserController {
 
     @PutMapping
     @Operation(summary = "회원 정보 수정(로그인 필수)", description = "현재 비밀번호(currentPw)는 필수 나머지는 선택")
-    public ResultResponse<Integer> updateUser(@Valid @RequestPart UserUpdateReq req, @RequestPart(required = false) MultipartFile pic ) {
+    public ResultResponse<Integer> updateUser(@Valid @RequestPart UserUpdateReq req, @RequestPart(required = false) MultipartFile pic) {
         int res = userManagementService.updateUser(req, pic);
         return ResultResponse.<Integer>builder()
                 .resultMessage("회원 정보 수정 성공")
@@ -145,7 +144,10 @@ public class UserController {
     }
 
     @PostMapping("simple-login-user-data")
-    @Operation(summary = "간편 로그인으로 회원가입하는 유저 정보 업데이트")
+    @Operation(summary = "간편 로그인으로 회원가입하는 유저 정보 업데이트",
+            description = "userRole : [ADMIN, STUDENT, PARENT, ACADEMY, TEACHER] 택 1</br>" +
+                    "비밀번호는 대문자, 소문자, 특수문자, 숫자 포함 8자 이상 20자 미만 "
+    )
     public ResultResponse<Boolean> updateSimpleUserData(@RequestBody SimpleUserDataUpdateReq req) {
         userManagementService.updateSimpleUser(req);
         return ResultResponse.<Boolean>builder()
