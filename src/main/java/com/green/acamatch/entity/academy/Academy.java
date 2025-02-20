@@ -5,7 +5,6 @@ import com.green.acamatch.entity.location.Dong;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,14 +20,11 @@ public class Academy extends CreatedAt {
     private Long acaId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "dong_id", nullable = false) // Dong의 ID를 직접 저장
-    private Long dongId;  // 이제 Long 타입으로 저장
-
     @ManyToOne
-    @JoinColumn(name = "dong_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "dong_id")
     private Dong dong;
 
     @Column(nullable = false)
@@ -38,10 +34,9 @@ public class Academy extends CreatedAt {
     private String acaName;
 
     @Column(length = 15, nullable = false)
-    @Pattern(regexp = "^(0(10|2|3[1-3]|4[1-3]|5[1-5]|6[1-4]))-\\d{3,4}-\\d{4}$", message = "전화번호 형식이 맞지 않습니다.")
     private String acaPhone;
 
-    @Column(length = 1_000)
+    @Column(length = 300)
     private String comment;
 
     @Column
