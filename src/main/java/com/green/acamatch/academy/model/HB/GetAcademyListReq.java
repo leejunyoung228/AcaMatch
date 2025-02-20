@@ -21,7 +21,7 @@ public class GetAcademyListReq extends Paging {
     private String tagName;
 
     @JsonIgnore
-    private Integer tagId;
+    private Long tagId;
 
     @Schema(title = "카테고리 PK", example = "")
     private List<Integer> categoryIds;

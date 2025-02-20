@@ -809,4 +809,9 @@
         RIGHT JOIN user U
         ON A.user_id = U.user_id
     </select>
+    <select id="getTagListByTagName">
+        select tag_id
+        from tag
+        where tag_name = #{tagName}
+    </select>
 </mapper>
