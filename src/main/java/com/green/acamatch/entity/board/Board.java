@@ -23,6 +23,9 @@ public class Board extends CreatedAt {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = false)
+    private int userType;
+
     @Column(length = 30, nullable = false)
     private String boardName;
 
