@@ -6,6 +6,7 @@ import com.green.acamatch.user.model.RelationshipRes;
 import com.green.acamatch.user.service.RelationshipService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class RelationshipController {
 
     @PostMapping
     @Operation(summary = "요청(자녀 전용)", description = "자식이 부모의 이메일로 관계 등록 요청")
-    public ResultResponse<Integer> addRelationship(@RequestBody RelationshipReq req) {
+    public ResultResponse<Integer> addRelationship(@Valid @RequestBody RelationshipReq req) {
         int res =  relationshipService.addRelationship(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage("관계 등록 요청 성공")
@@ -40,7 +41,7 @@ public class RelationshipController {
 
     @DeleteMapping
     @Operation(summary = "요청 삭제(자녀 전용)", description = "자식이 부모의 이메일로 관계 등록 요청 취소</br>승인 전까지만 가능")
-    public ResultResponse<Integer> deleteRelationshipRequest(@RequestBody RelationshipReq req) {
+    public ResultResponse<Integer> deleteRelationshipRequest(@Valid @RequestBody RelationshipReq req) {
         int res =  relationshipService.deleteRelationshipRequest(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage("관계 등록 요청 취소 성공")
