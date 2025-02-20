@@ -1,5 +1,6 @@
 package com.green.acamatch.academy.Service;
 
+import com.green.acamatch.academy.AcademyTagRepository;
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.academy.model.JW.AcademyPostReq;
@@ -7,8 +8,14 @@ import com.green.acamatch.academy.model.JW.AcademyUpdateReq;
 import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
 import com.green.acamatch.academy.tag.SelTagRes;
+
+import com.green.acamatch.config.exception.AcademyException;
+import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.entity.academy.AcademyTag;
+
 import com.green.acamatch.academy.tag.TagRepository;
 import com.green.acamatch.entity.tag.Tag;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +31,11 @@ import java.util.stream.Collectors;
 public class TagService {
     private final AcademyMapper academyMapper;
     private final AcademyMessage academyMessage;
+
+    private final AcademyTagRepository academyTagRepository;
+
     private final TagRepository tagRepository;
+
 
 
     //모든태그 불러오기

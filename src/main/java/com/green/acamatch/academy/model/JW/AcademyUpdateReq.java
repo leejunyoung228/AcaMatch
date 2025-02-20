@@ -27,20 +27,60 @@ public class AcademyUpdateReq {
     private String comment;
     @Schema(title = "강사 수")
     private int teacherNum;
+
+    /*@Schema(title = "학원주소")
+    private AddressDto addressDto;*/
+
+    /*@Schema(title = "학원사진")
+    private String acaPic;*/
+
+
+
     @Schema(title = "오픈시간", example = "10:00")
     @JsonFormat(pattern = "HH:mm")
     private String openTime;
+
     @Schema(title = "마감시간", example = "20:00")
     @JsonFormat(pattern = "HH:mm")
     private String closeTime;
 
-    @JsonIgnore
+    @Schema(title = "학원주소", example = "대구 중구 중앙대로395")
     private String address;
-    @Schema(title = "학원주소")
-    private AddressDto addressDto;
 
-    @Schema(title = "학원사진")
-    private String acaPic;
+    @Schema(title = "학원상세주소", example = "그린빌딩 3층 301호")
+    private String detailAddress;
+
+    @Schema(title = "우편번호", example = "234-56")
+    private String postNum;
+
+    @Schema(title = "학원정보등록승인여부", example = "1: 승인, 0: 미승인")
+    private int acaAgree;
+
     @Schema(title = "태그Id 리스트")
     private List<Long> tagIdList;
+
+    @Schema(title = "프리미엄 학원 여부")
+    private int premium;
+
+    @Schema(title = "위도")
+    private double lat;
+
+    @Schema(title = "경도")
+    private double lon;
+
+    @Schema(title = "사업자명")
+    private String businessName;
+
+    @Schema(title = "사업자번호")
+    private String businessNumber;
+
+    @Schema(title = "사업자번호")
+    private String businessPic;
+
+    @Schema(title = "학원운영증")
+    private String operationLicencePic;
+
+    @Schema(title = "법인번호")
+    private String corporateNumber;
+
 }
