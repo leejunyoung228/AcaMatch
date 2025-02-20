@@ -15,9 +15,7 @@ import java.time.LocalDate;
 @Setter
 public class User extends UpdatedAt {
 
-    @Id
-    @Tsid
-    @Column(name = "user_id")
+    @Id @Tsid @Column(name = "user_id")
     private Long userId;
 
     // 'role_id' 컬럼과 'role' 객체 연결
@@ -41,7 +39,7 @@ public class User extends UpdatedAt {
     @Column(length = 50, nullable = false, unique = true)
     private String email;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String upw;
 
     @Column()
