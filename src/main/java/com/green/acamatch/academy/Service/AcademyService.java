@@ -211,7 +211,7 @@ public class AcademyService {
 
     //학원정보수정
     @Transactional
-    public int updAcademy(MultipartFile pic, AcademyUpdateReq req) {
+    public int updAcademy(MultipartFile pic, MultipartFile businessLicensePic, MultipartFile operationLicensePic, AcademyUpdateReq req) {
         //아무것도 입력안했을 때
         if ((pic == null || pic.toString().trim().isEmpty()) &&
                 (req.getAcaName() == null || req.getAcaName().trim().isEmpty()) &&
@@ -220,11 +220,32 @@ public class AcademyService {
                 (req.getTeacherNum() == 0) && // int 타입은 null 체크 불필요
                 (req.getOpenTime() == null || req.getOpenTime().trim().isEmpty()) &&
                 (req.getCloseTime() == null || req.getCloseTime().trim().isEmpty()) &&
-                (req.getAddressDto() == null || req.getAddressDto().toString().trim().isEmpty()) &&
-                (req.getTagIdList() == null || req.getTagIdList().isEmpty())) {
+                (req.getAddress() == null || req.getAddress().trim().isEmpty()) &&
+                (req.getDetailAddress() == null || req.getDetailAddress().trim().isEmpty()) &&
+                (req.getPostNum() == null || req.getPostNum().trim().isEmpty()) &&
+                (req.getAcaAgree() == 0) &&
+                (req.getTagIdList() == null || req.getTagIdList().isEmpty()) &&
+                (req.getPremium() == 0) &&
+                (req.getLat() == 0.0) &&
+                (req.getLon() == 0.0) &&
+                (req.getBusinessName() == null || req.getBusinessName().isEmpty()) &&
+                (req.getBusinessNumber() == null || req.getBusinessNumber().isEmpty()) &&
+                (req.getBusinessPic()== null || req.getBusinessPic().isEmpty()) &&
+                (req.getOperationLicencePic() == null || req.getOperationLicencePic().isEmpty()) &&
+                (req.getCorporateNumber() == null || req.getCorporateNumber().isEmpty())) {
             throw new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION);
         }
 
+
+        long acaId = req.getAcaId();
+        String middlePath = String.format("academy/%d", acaId);
+        myFileUtils.makeFolders(middlePath);
+
+        String middlePath2 = String.format("businessLicence/%d", acaId);
+        myFileUtils.makeFolders(middlePath2);
+
+        String middlePath3 = String.format("operationLicence/%d", acaId);
+        myFileUtils.makeFolders(middlePath3);
         // 프로필 사진 처리
         if (pic != null && !pic.isEmpty()) {
             String targetDir = String.format("%s/%d", "academy", req.getAcaId());
