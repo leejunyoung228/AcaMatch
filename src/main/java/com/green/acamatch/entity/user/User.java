@@ -2,6 +2,7 @@ package com.green.acamatch.entity.user;
 
 import com.green.acamatch.entity.datetime.UpdatedAt;
 import com.green.acamatch.entity.myenum.UserRole;
+import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
 import org.checkerframework.common.aliasing.qual.Unique;
@@ -9,16 +10,12 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
 
+@Entity //테이블을 만들고 DML때 사용
 @Getter
 @Setter
-@ToString
-@Entity
-@DynamicUpdate
-@Table(name = "user")
 public class User extends UpdatedAt {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @Tsid @Column(name = "user_id")
     private Long userId;
 
     // 'role_id' 컬럼과 'role' 객체 연결
