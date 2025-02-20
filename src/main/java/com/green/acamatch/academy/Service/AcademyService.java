@@ -8,16 +8,24 @@ import com.green.acamatch.academy.mapper.AcademyPicsMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
+import com.green.acamatch.academy.tag.AcademyTagRepository;
+import com.green.acamatch.academy.tag.SearchRepository;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AddressConst;
 import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
+
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.AcademyPic;
 import com.green.acamatch.entity.academy.AcademyPicIds;
 import com.green.acamatch.entity.user.User;
+
+import com.green.acamatch.entity.tag.AcademyTag;
+import com.green.acamatch.entity.tag.AcademyTagIds;
+import com.green.acamatch.entity.tag.Tag;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
@@ -29,7 +37,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -42,14 +49,19 @@ public class AcademyService {
     private final TagService tagService;
     private final AddressConst addressConst;
     private final KakaoApiExample kakaoApiExample;
+
     private final AcademyRepository academyRepository;
     private final AuthenticationFacade authenticationFacade;
     private final AcademyPicRepository academyPicRepository;
+
+    private final SearchRepository searchRepository;
+
     private final AcademyTagRepository academyTagRepository;
 
 
     //학원정보등록
     @Transactional
+
     public int insAcademy(List<MultipartFile> pics, MultipartFile businessLicensePic, MultipartFile operationLicensePic, AcademyPostReq req) {
         /*List<AcademyPic> academyPics = new ArrayList<>(pics.size());
         for (MultipartFile pic : pics ) {
@@ -62,6 +74,10 @@ public class AcademyService {
         signedUser.setUserId(authenticationFacade.getSignedUserId());
 
         if (req.getTagIdList().isEmpty()) {
+
+    public int insAcademy(List<MultipartFile> pics, AcademyPostReq req) {
+        if (req.getTagNameList().isEmpty()) {
+
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
         }
 
@@ -203,8 +219,36 @@ public class AcademyService {
         academyPicDto.setAcaId(acaId);
         academyPicDto.setPics(picNameList);*/ //2차때 사용함
 
+
         ////academyPicsMapper.insAcademyPics(academyPicDto); 2차때 사용함.
         tagService.insAcaTag(req);
+
+        academyPicsMapper.insAcademyPics(academyPicDto);
+        tagService.insTag(req);
+
+        List<AcademyTag> academyTagList = new ArrayList<>();
+
+        for (String item : req.getTagNameList()) {
+            Long tagId = academyMapper.getTagListByTagName(item);
+
+            if (tagId == null) {
+                // 태그 ID가 없을 경우 예외 처리 또는 로깅
+                continue;
+            }
+
+            AcademyTagIds academyTagIds = new AcademyTagIds();
+            academyTagIds.setAcaId(acaId);
+            academyTagIds.setTagId(tagId);
+
+            AcademyTag academyTag = new AcademyTag();
+            academyTag.setAcademyTagIds(academyTagIds);
+
+            academyTagList.add(academyTag);
+        }
+
+        // saveAll()을 사용해 배치 저장
+        academyTagRepository.saveAll(academyTagList);
+
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;
     }
@@ -555,7 +599,10 @@ public class AcademyService {
 
     //모든 입력을 받아 학원 리스트 출력하기
     public List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p) {
-        int post = academyMapper.postToSearch(p.getTagId());
+        Tag tag = new Tag();
+        tag.setTagId(p.getTagId());
+        searchRepository.save(tag);
+        //int post = academyMapper.postToSearch(p.getTagId());
         List<GetAcademyListRes> list = academyMapper.getAcademyListByAll(p);
         for (GetAcademyListRes re : list) {
             re.setAddressDto(addressDecoding(re.getAddress()));

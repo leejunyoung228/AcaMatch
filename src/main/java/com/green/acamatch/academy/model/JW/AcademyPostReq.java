@@ -3,6 +3,7 @@ package com.green.acamatch.academy.model.JW;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.green.acamatch.academy.model.AddressDto;
+import com.green.acamatch.entity.tag.Tag;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -68,6 +69,7 @@ public class AcademyPostReq {
     private String acaPic;*/
 
     @Schema(title = "태그Id 리스트")
+
     private List<Long> tagIdList;
 
     @Schema(title = "프리미엄학원 여부")
@@ -94,5 +96,8 @@ public class AcademyPostReq {
     @Schema(title = "법인번호", requiredMode = Schema.RequiredMode.REQUIRED)
     private String corporateNumber;
 
+
+
+    private List<String> tagNameList;
 
 }
