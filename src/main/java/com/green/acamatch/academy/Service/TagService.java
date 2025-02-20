@@ -1,19 +1,12 @@
 package com.green.acamatch.academy.Service;
 
-import com.green.acamatch.academy.AcademyTagRepository;
+
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.academy.model.JW.AcademyPostReq;
 import com.green.acamatch.academy.model.JW.AcademyUpdateReq;
-import com.green.acamatch.academy.tag.SelTagDto;
-import com.green.acamatch.academy.tag.SelTagReq;
-import com.green.acamatch.academy.tag.SelTagRes;
+import com.green.acamatch.academy.tag.*;
 
-import com.green.acamatch.config.exception.AcademyException;
-import com.green.acamatch.config.exception.CustomException;
-import com.green.acamatch.entity.academy.AcademyTag;
-
-import com.green.acamatch.academy.tag.TagRepository;
 import com.green.acamatch.entity.tag.Tag;
 
 import lombok.RequiredArgsConstructor;
