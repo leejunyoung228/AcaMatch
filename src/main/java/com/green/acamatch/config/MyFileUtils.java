@@ -71,12 +71,6 @@ public class MyFileUtils {
         return false; // 디렉터리가 존재하지 않거나 폴더가 아님
     }
 
-    public void deleteFile(String path) {
-        File file = new File(uploadPath, path);
-        if (file.exists()) {
-            file.delete();
-        }
-    }
 
     public void transferTo(MultipartFile mf, String path) throws IOException {
         File file = new File(uploadPath, path);
