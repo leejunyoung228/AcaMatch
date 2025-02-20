@@ -2,6 +2,7 @@ package com.green.acamatch.entity.user;
 
 import com.green.acamatch.entity.datetime.UpdatedAt;
 import com.green.acamatch.entity.myenum.UserRole;
+import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
 import org.checkerframework.common.aliasing.qual.Unique;
@@ -14,9 +15,7 @@ import java.time.LocalDate;
 @Setter
 public class User extends UpdatedAt {
 
-    @Id
-    @Tsid
-    @Column(name = "user_id")
+    @Id @Tsid @Column(name = "user_id")
     private Long userId;
 
     // 'role_id' 컬럼과 'role' 객체 연결
