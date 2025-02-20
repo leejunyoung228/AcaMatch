@@ -16,6 +16,7 @@ public class User extends UpdatedAt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id") // 테이블의 컬럼명과 매칭
     private Long userId;
 
     // 'role_id' 컬럼과 'role' 객체 연결
