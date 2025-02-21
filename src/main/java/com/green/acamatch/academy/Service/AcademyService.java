@@ -8,7 +8,7 @@ import com.green.acamatch.academy.mapper.AcademyPicsMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
-import com.green.acamatch.academy.tag.AcademyTagRepository;
+
 import com.green.acamatch.academy.tag.SearchRepository;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AddressConst;
@@ -25,7 +25,7 @@ import com.green.acamatch.entity.user.User;
 import com.green.acamatch.entity.tag.AcademyTag;
 import com.green.acamatch.entity.tag.AcademyTagIds;
 import com.green.acamatch.entity.tag.Tag;
-
+import com.green.acamatch.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -73,9 +74,7 @@ public class AcademyService {
         User signedUser = new User();
         signedUser.setUserId(authenticationFacade.getSignedUserId());
 
-        if (req.getTagIdList().isEmpty()) {
 
-    public int insAcademy(List<MultipartFile> pics, AcademyPostReq req) {
         if (req.getTagNameList().isEmpty()) {
 
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
@@ -221,34 +220,7 @@ public class AcademyService {
 
 
         ////academyPicsMapper.insAcademyPics(academyPicDto); 2차때 사용함.
-        tagService.insAcaTag(req);
-
-        academyPicsMapper.insAcademyPics(academyPicDto);
         tagService.insTag(req);
-
-        List<AcademyTag> academyTagList = new ArrayList<>();
-
-        for (String item : req.getTagNameList()) {
-            Long tagId = academyMapper.getTagListByTagName(item);
-
-            if (tagId == null) {
-                // 태그 ID가 없을 경우 예외 처리 또는 로깅
-                continue;
-            }
-
-            AcademyTagIds academyTagIds = new AcademyTagIds();
-            academyTagIds.setAcaId(acaId);
-            academyTagIds.setTagId(tagId);
-
-            AcademyTag academyTag = new AcademyTag();
-            academyTag.setAcademyTagIds(academyTagIds);
-
-            academyTagList.add(academyTag);
-        }
-
-        // saveAll()을 사용해 배치 저장
-        academyTagRepository.saveAll(academyTagList);
-
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;
     }
@@ -362,24 +334,24 @@ public class AcademyService {
             }
         }
 
-            //주소수정을 하려고 할때(셋다 값이 들어있을때)
-            if (isValidValue(req.getAddress())
-                    && isValidValue(req.getDetailAddress())
-                    && isValidValue(req.getPostNum())) {
+        //주소수정을 하려고 할때(셋다 값이 들어있을때)
+        if (isValidValue(req.getAddress())
+                && isValidValue(req.getDetailAddress())
+                && isValidValue(req.getPostNum())) {
 
-                //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
-                KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddress());
+            //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
+            KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddress());
 
-                // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
-                Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
-                kakaoMapAddressImp.setCityId(cityPk);
-                // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
-                Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
-                kakaoMapAddressImp.setStreetId(streetPk);
-                // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
-                Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
+            // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
+            Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
+            kakaoMapAddressImp.setCityId(cityPk);
+            // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
+            Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
+            kakaoMapAddressImp.setStreetId(streetPk);
+            // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+            Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
 
-                req.setDongId(dongPk);
+            req.setDongId(dongPk);
 
 
             String address = req.getAddress();
@@ -533,7 +505,6 @@ public class AcademyService {
         return false;
     }
 
-
     // --------------------------------------------------------------
 //동과 태그를 입력받아 검색하고 search 테이블에 검색한 태그를 저장
     public List<GetAcademyRes> getAcademyRes(GetAcademyReq p) {
@@ -686,4 +657,6 @@ public class AcademyService {
     public GetAcademyCountRes GetAcademyCount() {
         return academyMapper.GetAcademyCount();
     }
+
+
 }

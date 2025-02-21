@@ -9,10 +9,6 @@ import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
 import com.green.acamatch.academy.tag.SelTagRes;
 
-import com.green.acamatch.config.exception.AcademyException;
-import com.green.acamatch.config.exception.CustomException;
-import com.green.acamatch.entity.academy.AcademyTag;
-
 import com.green.acamatch.academy.tag.TagRepository;
 import com.green.acamatch.entity.tag.Tag;
 
