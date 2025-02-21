@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 
 @Repository
 public interface AcademyCostRepository extends JpaRepository<AcademyCost, Integer> {
@@ -15,4 +14,7 @@ public interface AcademyCostRepository extends JpaRepository<AcademyCost, Intege
 
         @Query("SELECT a.userId FROM AcademyCost a WHERE a.orderId = :orderId")
         String findUserIdByOrderId(@Param("orderId") int orderId);
+
+        @Query("SELECT a.cost_status FROM AcademyCost a WHERE a.orderId = :orderId")
+        int findCostStatusByOrderId(@Param("orderId") int orderId);
 }
