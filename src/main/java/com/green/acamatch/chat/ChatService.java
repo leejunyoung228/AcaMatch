@@ -69,7 +69,7 @@ public class ChatService {
         chat.setSenderType(req.getSenderType());
         chat.setMessage(req.getMessage());
         chatRepository.save(chat);
-
+        readMessage(req.getChatRoomId(),  req.getSenderType());
         messagingTemplate.convertAndSend("/queue/" + chatRoom.getChatRoomId(), req);
     }
 
@@ -116,6 +116,20 @@ public class ChatService {
             senderType = SenderType.ACADEMY_TO_USER;
         } else {
             senderType = SenderType.USER_TO_ACADEMY;
+        }
+        List<Chat> unreadChats = chatRepository.findByChatRoom_ChatRoomIdAndSenderTypeAndIsRead(chatRoomId, senderType, false);
+        if (!unreadChats.isEmpty()) {
+            for (Chat chat : unreadChats) {
+                chat.setRead(true);
+            }
+            chatRepository.saveAll(unreadChats);
+        }
+    }
+    public void readMessage(Long chatRoomId, SenderType senderType) {
+        if(senderType.equals(SenderType.ACADEMY_TO_USER)) {
+            senderType = SenderType.USER_TO_ACADEMY;
+        } else if(senderType.equals(SenderType.USER_TO_ACADEMY)) {
+            senderType = SenderType.ACADEMY_TO_USER;
         }
         List<Chat> unreadChats = chatRepository.findByChatRoom_ChatRoomIdAndSenderTypeAndIsRead(chatRoomId, senderType, false);
         if (!unreadChats.isEmpty()) {
