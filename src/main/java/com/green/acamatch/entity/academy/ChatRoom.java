@@ -2,7 +2,6 @@ package com.green.acamatch.entity.academy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.green.acamatch.entity.user.User;
-import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +13,7 @@ import java.util.List;
 @Entity
 public class ChatRoom {
     @Id
-    @Tsid
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long chatRoomId;
 
     @ManyToOne
