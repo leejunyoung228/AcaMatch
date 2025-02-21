@@ -1,18 +1,20 @@
 package com.green.acamatch.entity.tag;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Setter
+@ToString
 public class Tag {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tagId;
 
-    @Column(nullable = false)
+    @Column(length = 30, nullable = false, unique = true)
     private String tagName;
+
 }

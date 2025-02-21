@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class KakaoApiExample {
-    public static KakaoMapAddress addressSearchMain(AddressDto dto) {
+    public static KakaoMapAddress addressSearchMain(String addressOriginal) {
         try {
             // 요청 주소
-            String address = dto.getAddress();
+            String address = addressOriginal;
             if (address == null || address.trim().isEmpty()) {
                 return null;
             }

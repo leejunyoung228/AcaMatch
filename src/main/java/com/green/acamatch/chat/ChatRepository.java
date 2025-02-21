@@ -5,6 +5,7 @@ import com.green.acamatch.entity.myenum.SenderType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -14,4 +15,8 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     Integer countByChatRoom_User_UserIdAndSenderTypeAndIsRead(Long chatRoomUserUserId, SenderType senderType, boolean read);
 
     Integer countByChatRoom_Academy_User_UserIdAndSenderTypeAndIsRead(Long chatRoomAcademyUserUserId, SenderType senderType, boolean read);
+
+    void deleteChatByCreatedAtBefore(LocalDateTime createdAtBefore);
+
+    List<Chat> findByChatRoom_ChatRoomIdAndSenderTypeAndIsRead(Long chatRoomChatRoomId, SenderType senderType, boolean read);
 }

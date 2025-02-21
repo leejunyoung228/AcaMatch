@@ -25,7 +25,7 @@ public class ChatRoomDto {
         this.userPic = chatRoom.getUser().getUserPic();
         this.acaId = chatRoom.getAcademy().getAcaId();
         this.acaName = chatRoom.getAcademy().getAcaName();
-        this.acaPic = academyPic.getFeedPicIds().getAcaPic();
+        this.acaPic = academyPic.getAcademyPicIds().getAcaPic();
         this.createdAt = createdAt;
         this.unReadCount = unReadCount;
     }
