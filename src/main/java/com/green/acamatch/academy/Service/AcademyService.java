@@ -48,6 +48,7 @@ public class AcademyService {
     private final AuthenticationFacade authenticationFacade;
     private final AcademyPicRepository academyPicRepository;
     private final SearchRepository searchRepository;
+    private final BusinessNumberValidation businessNumberValidation;
 
 
     //학원정보등록
@@ -89,6 +90,14 @@ public class AcademyService {
         KakaoMapAddress kakaoMapAddressXY = kakaoApiExample.addressXY(req.getAddress());
             req.setLon(kakaoMapAddressXY.getLongitude());
             req.setLat(kakaoMapAddressXY.getLatitude());
+
+        //사업자등록번호 존재여부 api 메소드 호출
+        BusinessApiNumber businessApiNumber = businessNumberValidation.isBusinessNumberValid(req.getBusinessNumber());
+
+            if(businessApiNumber == null || !businessApiNumber.isvalid()) {
+               throw new CustomException(AcademyException.NOT_FOUND_BUSINESSNUMBER);
+            }
+
 
 
 
