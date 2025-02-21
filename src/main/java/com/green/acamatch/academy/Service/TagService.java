@@ -8,10 +8,13 @@ import com.green.acamatch.academy.model.JW.AcademyUpdateReq;
 import com.green.acamatch.academy.tag.*;
 
 import com.green.acamatch.academy.tag.TagRepository;
+import com.green.acamatch.entity.tag.AcademyTag;
+import com.green.acamatch.entity.tag.AcademyTagIds;
 import com.green.acamatch.entity.tag.Tag;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,7 @@ public class TagService {
     private final AcademyMessage academyMessage;
 
     private final TagRepository tagRepository;
+    private final AcademyTagRepository academyTagRepository;
 
 
 
@@ -66,13 +70,30 @@ public class TagService {
         tagRepository.saveAll(newTags); // 한 번에 저장
     }
 
+    //학원등록할때 학원태그 insert
+    @Transactional
+    public void insAcaTag(Long acaId, List<Long> tagIdList) {
+        for(Long tagId : tagIdList) {
+            AcademyTagIds academyTagIds = new AcademyTagIds();
+            academyTagIds.setAcaId(acaId);
+            academyTagIds.setTagId(tagId);
 
+            AcademyTag academyTag = new AcademyTag();
+            academyTag.setAcademyTagIds(academyTagIds);
+
+            academyTagRepository.save(academyTag);
+        }
+
+    }
 
 
     //학원태그 수정을 위한 delete
-    public int delAcaTag(AcademyUpdateReq req) {
-        int result = academyMapper.delAcaTag(req.getAcaId());
-        return result;
+    public void delAcaTag(Long acaId) {
+        /*int result = academyMapper.delAcaTag(req.getAcaId());
+        return result;*/ //2차때 사용함
+
+        int affecteRows = academyTagRepository.deleteAcademytag(acaId);
+        log.info("affecteRows: {}", affecteRows);
     }
 
 
