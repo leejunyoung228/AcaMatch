@@ -55,7 +55,17 @@ public class ChatController {
                 .resultData(res).build();
     }
 
-    @MessageMapping("/chat.sendMessage")
+    @GetMapping("read-message")
+    @Operation(summary = "현재 이전의 메세지 읽음 처리")
+    public ResultResponse<Boolean> readMessage(@RequestParam(name = "chat-room-id") Long chatRoomId) {
+        chatService.readMessage(chatRoomId);
+        return ResultResponse.<Boolean> builder()
+                .resultMessage("읽음 처리 성공")
+                .resultData(true)
+                .build();
+    }
+
+    @MessageMapping("/send")
     public void sendMessage(@Payload ChatSendReq req) {
         chatService.saveMessage(req);
 
