@@ -21,6 +21,7 @@ import com.green.acamatch.entity.tag.Tag;
 import com.green.acamatch.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -68,13 +69,6 @@ public class AcademyService {
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
         }
 
-        ////req.setAddress(addressEncoding(req.getAddressDto())); 2차에 사용
-
-        ////String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
-
-        ////req.setAcaPic(savedPicName);
-
-        //req.getAddressDto().getAddress();
 
         //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
         KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddress());
@@ -116,7 +110,9 @@ public class AcademyService {
         academyRepository.save(academy);
 
 
-        if (pics == null || pics.isEmpty()) {
+        if ((pics == null || pics.isEmpty()) &&
+                (businessLicensePic == null || businessLicensePic.isEmpty()) &&
+                (operationLicensePic == null || operationLicensePic.isEmpty())) {
             academyMessage.setMessage("학원정보등록이 완료되었습니다.");
             return 1;
         }
@@ -207,7 +203,8 @@ public class AcademyService {
         academyPicDto.setPics(picNameList);*/ //2차때 사용함
 
         ////academyPicsMapper.insAcademyPics(academyPicDto); 2차때 사용함.
-        tagService.insTag(req);
+        tagService.insTag(req.getTagNameList());
+        tagService.insAcaTag(req.getAcaId(), req.getTagIdList());
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;
     }
@@ -274,7 +271,7 @@ public class AcademyService {
         }*/ //2차때 사용함.
 
 
-        //사진을 수정할때
+        //학원사진을 수정할때
         if(pics != null && !pics.isEmpty()) {
             //기존에 사진 삭제
             int affecteRows = academyPicRepository.deleteAcademyPicsByAcaId(req.getAcaId());
@@ -309,6 +306,11 @@ public class AcademyService {
                 }
             }
         }
+
+        //사업자등록증 수정할 때
+
+
+        //학원운영증 수정할 때
 
         //전화번호 형식 무시할수 있게
         if (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) {
@@ -385,8 +387,10 @@ public class AcademyService {
         {
 
             try {
-                academyMapper.delAcaTag(req.getAcaId());
-                academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+                //academyMapper.delAcaTag(req.getAcaId());
+                tagService.delAcaTag(req.getAcaId());
+                //academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
+                tagService.insAcaTag(req.getAcaId(), req.getTagIdList());
 
             } catch (DataIntegrityViolationException e) {
                 throw new CustomException(AcademyException.DUPLICATE_TAG);
