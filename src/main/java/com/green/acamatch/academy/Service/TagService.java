@@ -7,6 +7,7 @@ import com.green.acamatch.academy.model.JW.AcademyPostReq;
 import com.green.acamatch.academy.model.JW.AcademyUpdateReq;
 import com.green.acamatch.academy.tag.*;
 
+import com.green.acamatch.academy.tag.TagRepository;
 import com.green.acamatch.entity.tag.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,6 @@ import java.util.stream.Collectors;
 public class TagService {
     private final AcademyMapper academyMapper;
     private final AcademyMessage academyMessage;
-
-    private final AcademyTagRepository academyTagRepository;
 
     private final TagRepository tagRepository;
 
