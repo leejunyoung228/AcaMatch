@@ -26,8 +26,6 @@ public class TagService {
     private final AcademyMapper academyMapper;
     private final AcademyMessage academyMessage;
 
-    private final AcademyTagRepository academyTagRepository;
-
     private final TagRepository tagRepository;
 
 
