@@ -3,7 +3,6 @@ package com.green.acamatch.board;
 import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.board.model.*;
 import com.green.acamatch.config.exception.*;
-import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.board.Board;
 import com.green.acamatch.entity.user.User;

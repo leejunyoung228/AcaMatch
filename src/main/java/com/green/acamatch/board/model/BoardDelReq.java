@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 public class BoardDelReq {
     @Schema(title = "공지사항 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long boardId;
+    private long boardId;
     @Schema(title = "유저 PK")
     private Long userId;
     @Schema(title = "학원 PK")

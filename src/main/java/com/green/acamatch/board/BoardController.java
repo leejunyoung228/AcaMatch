@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.xml.transform.Result;
 import java.util.List;
 
-@Tag(name = "공지사항 관리", description = "공지사항 등록, 수정, 삭제")
+@Tag(name = "공지사항 관리", description = "공지사항 등록, 가져오기, 수정, 삭제")
 @RestController
 @RequestMapping("board")
 @RequiredArgsConstructor
@@ -30,7 +30,7 @@ public class BoardController {
     }
 
     @GetMapping
-    @Operation(summary = "공지사항 리스트 불러오기")
+    @Operation(summary = "공지사항 리스트 불러오기", description = "acaId / userId 하나만 입력하면 됩니다.")
     public ResultResponse<List<BoardGetDto>> getBoardList(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
         List<BoardGetDto> res = boardService.getBoardList(p);
         return ResultResponse.<List<BoardGetDto>>builder()
@@ -40,7 +40,7 @@ public class BoardController {
     }
 
     @GetMapping("/detail")
-    @Operation(summary = "공지사항 상세보기")
+    @Operation(summary = "공지사항 상세보기", description = "acaId / userId 하나만 입력하면 됩니다.")
     public ResultResponse<List<BoardGetDetailRes>> getBoardDetail(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
         List<BoardGetDetailRes> res = boardService.getBoardDetail(p);
         return ResultResponse.<List<BoardGetDetailRes>>builder()
@@ -50,7 +50,7 @@ public class BoardController {
     }
 
     @PutMapping
-    @Operation(summary = "공지사항 수정")
+    @Operation(summary = "공지사항 수정", description = "acaId / userId 하나만 입력하면 됩니다.")
     public ResultResponse<Integer> updBoard(@Valid @ParameterObject @ModelAttribute BoardPutReq p) {
         Integer res = boardService.updBoard(p);
         return ResultResponse.<Integer>builder()
@@ -60,7 +60,7 @@ public class BoardController {
     }
 
     @DeleteMapping
-    @Operation(summary = "공지사항 삭제")
+    @Operation(summary = "공지사항 삭제", description = "acaId / userId 하나만 입력하면 됩니다.")
     public ResultResponse<Integer> delBoard(@Valid @ModelAttribute @ParameterObject BoardDelReq p){
         Integer res = boardService.delBoard(p);
         return ResultResponse.<Integer>builder()
