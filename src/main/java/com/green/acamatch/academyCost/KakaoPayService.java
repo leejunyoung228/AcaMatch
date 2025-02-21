@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,20 +42,7 @@ public class KakaoPayService {
      * 결제 완료 요청
      */
     public KakaoReadyResponse kakaoPayReady(KakaoPayPostReq req) {
-        AcademyCost academyCost = new AcademyCost();
-        academyCost.setAmount(req.getQuantity());
-        academyCost.setUserId(req.getUserId());
-        academyCost.setPrice(req.getTotalPrice() + (req.getTotalPrice()/10));
-        academyCost.setStatus(0);
-        academyCost.setOrderType(0);
-        academyCost.setSettlementPrice(0);
-        academyCost.setCost_status(0);
-        if (req.getJoinClassId() != 0) {
-            JoinClass joinClass = joinClassRepository.findById(req.getJoinClassId()).orElse(null);
-            academyCost.setJoinClass(joinClass);
-        }
 
-        academyCostRepository.save(academyCost);
 
         Map<String, Object> parameters = new HashMap<>();
 
@@ -80,20 +68,40 @@ public class KakaoPayService {
                 "https://open-api.kakaopay.com/online/v1/payment/ready",
                 requestEntity,
                 KakaoReadyResponse.class);
+
+        AcademyCost academyCost = new AcademyCost();
+        academyCost.setAmount(req.getQuantity());
+        academyCost.setUserId(req.getUserId());
+        academyCost.setPrice(req.getTotalPrice() + (req.getTotalPrice()/10));
+        academyCost.setStatus(0);
+        academyCost.setOrderType(0);
+        academyCost.setSettlementPrice(0);
+        academyCost.setCost_status(0);
+        academyCost.setOrderId(req.getOrderId());
+        if (req.getJoinClassId() != 0) {
+            JoinClass joinClass = joinClassRepository.findById(req.getJoinClassId()).orElse(null);
+            academyCost.setJoinClass(joinClass);
+        }
+        String tid = kakaoReady.getTid();
+        academyCost.setTId(tid);
+        academyCostRepository.save(academyCost);
+
         return kakaoReady;
     }
 
     /**
      * 결제 완료 승인
      */
-    public KakaoApproveResponse approveResponse (String pgToken){
+    public KakaoApproveResponse approveResponse (String pgToken, int orderId){
 
         // 카카오 요청
+        String tid = academyCostRepository.findTidByOrderId(orderId);
+        String userId = academyCostRepository.findUserIdByOrderId(orderId);
         Map<String, String> parameters = new HashMap<>();
         parameters.put("cid", payProperties.getCid());
-        parameters.put("tid", "a");
-        parameters.put("partner_order_id", "ORDER_ID");
-        parameters.put("partner_user_id", "USER_ID");
+        parameters.put("tid", tid);
+        parameters.put("partner_order_id", String.valueOf(orderId));
+        parameters.put("partner_user_id", userId);
         parameters.put("pg_token", pgToken);
 
         // 파라미터, 헤더
@@ -118,6 +126,9 @@ public class KakaoPayService {
         System.out.println();
         System.out.println();
         System.out.println();
+
+        int updatedCount = academyCostRepository.updateStatusNative(1, orderId);
+
         return approveResponse;
     }
 }
