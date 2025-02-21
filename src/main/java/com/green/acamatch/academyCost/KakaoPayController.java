@@ -3,6 +3,10 @@ package com.green.acamatch.academyCost;
 import com.green.acamatch.academyCost.model.KakaoApproveResponse;
 import com.green.acamatch.academyCost.model.KakaoPayPostReq;
 import com.green.acamatch.academyCost.model.KakaoReadyResponse;
+import com.green.acamatch.config.exception.AcademyCostException;
+import com.green.acamatch.config.exception.CustomException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/payment")
 @RequiredArgsConstructor
+@Tag(name = "카카오페이")
 public class KakaoPayController {
 
     private final KakaoPayService kakaoPayService;
@@ -29,9 +34,9 @@ public class KakaoPayController {
      * 결제성공
      */
     @PostMapping ("/success")
-    public ResponseEntity<KakaoApproveResponse> afterPayRequest(@RequestParam("pg_token") String pgToken, String tid) {
+    public ResponseEntity<KakaoApproveResponse> afterPayRequest(@RequestParam("pg_token") String pgToken, int orderId) {
 
-        KakaoApproveResponse kakaoApprove = kakaoPayService.approveResponse(pgToken);
+        KakaoApproveResponse kakaoApprove = kakaoPayService.approveResponse(pgToken, orderId);
 
         return new ResponseEntity<>(kakaoApprove, HttpStatus.OK);
     }
@@ -42,7 +47,7 @@ public class KakaoPayController {
     @GetMapping("/cancel")
     public void cancel() {
 
-        //throw new BusinessLogicException(ExceptionCode.PAY_CANCEL);
+        throw new CustomException(AcademyCostException.PAY_CANCEL);
     }
 
     /**
@@ -52,6 +57,6 @@ public class KakaoPayController {
     @GetMapping("/fail")
     public void fail() {
 
-        //throw new BusinessLogicException(ExceptionCode.PAY_FAILED);
+        throw new CustomException(AcademyCostException.PAY_FAILED);
     }
 }
