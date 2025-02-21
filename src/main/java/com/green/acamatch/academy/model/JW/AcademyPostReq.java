@@ -69,7 +69,6 @@ public class AcademyPostReq {
     private String acaPic;*/
 
     @Schema(title = "태그Id 리스트")
-
     private List<Long> tagIdList;
 
     @Schema(title = "프리미엄학원 여부")
