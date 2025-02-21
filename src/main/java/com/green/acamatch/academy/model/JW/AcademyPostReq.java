@@ -74,9 +74,11 @@ public class AcademyPostReq {
     @Schema(title = "프리미엄학원 여부")
     private int premium;
 
+    @JsonIgnore
     @Schema(title = "위도", requiredMode = Schema.RequiredMode.REQUIRED)
     private double lat;
 
+    @JsonIgnore
     @Schema(title = "경도", requiredMode = Schema.RequiredMode.REQUIRED)
     private double lon;
 

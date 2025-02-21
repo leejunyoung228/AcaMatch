@@ -1,6 +1,6 @@
 constant:
   email-const:
-    base-url: http://112.222.157.157:5233
+    base-url: http://acamatch.site:5233
 
 file:
   directory: /home/download/image

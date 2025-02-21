@@ -134,7 +134,7 @@ public class StudentGradeService {
 
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) {
-                    String type = row.getCell(5).getStringCellValue();
+                    String type = row.getCell(6).getStringCellValue();
                     if (type.equals("Score")) {
                         scoreType = 0;
                     }else {
@@ -149,10 +149,11 @@ public class StudentGradeService {
                 long gradeId = (long) row.getCell(3).getNumericCellValue();
                 String name = row.getCell(4).getStringCellValue();
                 String subjectName = row.getCell(5).getStringCellValue();
+                String examDate = row.getCell(6).getStringCellValue();
                 Integer score = null;
                 Integer pass = null;
-                if (scoreType == 0) score = (int) row.getCell(6).getNumericCellValue();
-                else pass = (int) row.getCell(6).getNumericCellValue();
+                if (scoreType == 0) score = (int) row.getCell(7).getNumericCellValue();
+                else pass = (int) row.getCell(7).getNumericCellValue();
 
                 StudentsGrade studentsGrade = new StudentsGrade();
                 // DB 업데이트
