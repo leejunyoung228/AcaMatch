@@ -16,12 +16,15 @@ public class Board extends CreatedAt {
     private Long boardId;
 
     @ManyToOne
-    @JoinColumn(name = "aca_id")
+    @JoinColumn(name = "aca_id", nullable = true)
     private Academy academy;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
+
+    @Column(nullable = false)
+    private int userType;
 
     @Column(length = 30, nullable = false)
     private String boardName;
