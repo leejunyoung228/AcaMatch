@@ -127,16 +127,14 @@ public class KakaoPayService {
         System.out.println();
         System.out.println();
 
-        AcademyCost academyCost = academyCostRepository.findCostStatusByOrderId(orderId);
+        Optional<AcademyCost> optionalAcademyCost = academyCostRepository.findById(orderId);
 
-        if (academyCost != null) {
-            // 2. orderType을 변경
-            academyCost.setOrderType(1);
-
-            // 3. 변경된 데이터를 저장 (업데이트)
+        if (optionalAcademyCost.isPresent()) {
+            AcademyCost academyCost = optionalAcademyCost.get();
+            academyCost.setCost_status(1);
             academyCostRepository.save(academyCost);
         } else {
-            System.out.println("orderId 1번 데이터가 존재하지 않습니다.");
+            System.out.println("❌ orderId 1번 데이터가 존재하지 않습니다.");
         }
 
         return approveResponse;
