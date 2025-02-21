@@ -48,8 +48,8 @@ public class TagService {
 
     //학원등록할때 태그 insert
     @Transactional
-    public void insTag(AcademyPostReq req) {
-        List<String> tagNames = req.getTagNameList(); // 입력받은 태그 리스트
+    public void insTag(List<String> req) {
+        List<String> tagNames = req; // 입력받은 태그 리스트
 
         // DB에 이미 존재하는 태그 목록 조회
         List<Tag> existingTags = tagRepository.findByTagNameIn(tagNames);

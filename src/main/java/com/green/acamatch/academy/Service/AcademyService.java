@@ -207,7 +207,7 @@ public class AcademyService {
         academyPicDto.setPics(picNameList);*/ //2차때 사용함
 
         ////academyPicsMapper.insAcademyPics(academyPicDto); 2차때 사용함.
-        tagService.insTag(req);
+        tagService.insTag(req.getTagNameList());
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;
     }
