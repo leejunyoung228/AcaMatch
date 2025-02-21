@@ -8,5 +8,5 @@ import java.util.List;
 @Setter
 @Getter
 public class BoardGetRes {
-    List<BoardGetDto> boardGetDtoList;
+    List<BoardGetDto> boardGetDto;
 }

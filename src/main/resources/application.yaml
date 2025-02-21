@@ -162,6 +162,9 @@ spring:
           auth: true  # SMTP 인증 사용
           starttls:
             enable: true
+kakaopay:
+  secret-key: DEVA2DDFFD58F667756DECD347E6F4C82F43713E
+  cid: TC0ONETIME
 
 springdoc:
   swagger-ui:
