@@ -148,7 +148,7 @@ public class UserController {
             description = "userRole : [ADMIN, STUDENT, PARENT, ACADEMY, TEACHER] 택 1</br>" +
                     "비밀번호는 대문자, 소문자, 특수문자, 숫자 포함 8자 이상 20자 미만 "
     )
-    public ResultResponse<Boolean> updateSimpleUserData(@Valid @RequestBody SimpleUserDataUpdateReq req) {
+    public ResultResponse<Boolean> updateSimpleUserData(@RequestBody SimpleUserDataUpdateReq req) {
         userManagementService.updateSimpleUser(req);
         return ResultResponse.<Boolean>builder()
                 .resultMessage("간편 로그인 유저 정보 업데이트 성공")

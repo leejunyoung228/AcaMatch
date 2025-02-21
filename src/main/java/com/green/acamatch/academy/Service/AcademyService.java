@@ -1,8 +1,6 @@
 package com.green.acamatch.academy.Service;
-
 import com.green.acamatch.academy.AcademyPicRepository;
 import com.green.acamatch.academy.AcademyRepository;
-import com.green.acamatch.academy.AcademyTagRepository;
 import com.green.acamatch.academy.mapper.AcademyMapper;
 import com.green.acamatch.academy.mapper.AcademyPicsMapper;
 import com.green.acamatch.academy.model.*;
@@ -14,16 +12,11 @@ import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AddressConst;
 import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
-
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.AcademyPic;
 import com.green.acamatch.entity.academy.AcademyPicIds;
-import com.green.acamatch.entity.user.User;
-
-import com.green.acamatch.entity.tag.AcademyTag;
-import com.green.acamatch.entity.tag.AcademyTagIds;
 import com.green.acamatch.entity.tag.Tag;
 import com.green.acamatch.entity.user.User;
 import lombok.RequiredArgsConstructor;
@@ -50,19 +43,14 @@ public class AcademyService {
     private final TagService tagService;
     private final AddressConst addressConst;
     private final KakaoApiExample kakaoApiExample;
-
     private final AcademyRepository academyRepository;
     private final AuthenticationFacade authenticationFacade;
     private final AcademyPicRepository academyPicRepository;
-
     private final SearchRepository searchRepository;
-
-    private final AcademyTagRepository academyTagRepository;
 
 
     //학원정보등록
     @Transactional
-
     public int insAcademy(List<MultipartFile> pics, MultipartFile businessLicensePic, MultipartFile operationLicensePic, AcademyPostReq req) {
         /*List<AcademyPic> academyPics = new ArrayList<>(pics.size());
         for (MultipartFile pic : pics ) {
@@ -217,7 +205,6 @@ public class AcademyService {
         /* AcademyPicDto academyPicDto = new AcademyPicDto();
         academyPicDto.setAcaId(acaId);
         academyPicDto.setPics(picNameList);*/ //2차때 사용함
-
 
         ////academyPicsMapper.insAcademyPics(academyPicDto); 2차때 사용함.
         tagService.insTag(req);
