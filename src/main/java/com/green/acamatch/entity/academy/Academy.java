@@ -59,11 +59,11 @@ public class Academy extends CreatedAt {
     @Column(length = 50, nullable = false)
     private String detailAddress;
 
-    @Column(length = 5, nullable = false)
+    @Column(length = 10, nullable = false)
     private String postNum;
 
     @Column(nullable = false)
-    private int acaAgree;
+    private int acaAgree = 0;
 
     @Column(nullable = false)
     private double lat;

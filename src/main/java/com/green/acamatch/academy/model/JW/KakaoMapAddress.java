@@ -14,4 +14,7 @@ public class KakaoMapAddress {
     private String cityName;
     private String streetName;
     private String dongName;
+
+    private Double latitude;
+    private Double longitude;
 }

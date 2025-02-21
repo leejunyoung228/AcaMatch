@@ -52,7 +52,7 @@ public class AcademyService {
 
     //학원정보등록
     @Transactional
-    public int insAcademy(List<MultipartFile> pics, MultipartFile businessLicensePic, MultipartFile operationLicensePic, AcademyPostReq req) {
+    public int insAcademy(List<MultipartFile> pics, MultipartFile businessPic, MultipartFile operationLicensePic, AcademyPostReq req) {
         /*List<AcademyPic> academyPics = new ArrayList<>(pics.size());
         for (MultipartFile pic : pics ) {
             academyPics.add();
@@ -70,19 +70,64 @@ public class AcademyService {
         }
 
 
-        //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
+        //기본주소를 통해 지번(동)이름, 위도, 경도 가져오는 api 메소드 호출
         KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddress());
 
-        // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
-        Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
-        kakaoMapAddressImp.setCityId(cityPk);
-        // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
-        Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
-        kakaoMapAddressImp.setStreetId(streetPk);
-        // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
-        Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
+            // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
+            Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
+            kakaoMapAddressImp.setCityId(cityPk);
+            // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
+            Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
+            kakaoMapAddressImp.setStreetId(streetPk);
+            // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+            Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
 
-        req.setDongId(dongPk);
+            req.setDongId(dongPk);
+
+
+        //기본주소를 통해 위도, 경도 가져오는 api 메소드 호출
+        KakaoMapAddress kakaoMapAddressXY = kakaoApiExample.addressXY(req.getAddress());
+            req.setLon(kakaoMapAddressXY.getLongitude());
+            req.setLat(kakaoMapAddressXY.getLatitude());
+
+
+
+        long acaId = req.getAcaId();
+        String middlePath = String.format("academy/%d", acaId);
+        myFileUtils.makeFolders(middlePath);
+
+        String middlePath2 = String.format("businessLicence/%d", acaId);
+        myFileUtils.makeFolders(middlePath2);
+
+        String middlePath3 = String.format("operationLicence/%d", acaId);
+        myFileUtils.makeFolders(middlePath3);
+
+        // 사업자등록증
+        String savedPicName2 = (businessPic != null ? myFileUtils.makeRandomFileName(businessPic) : null);
+        String filePath2 = String.format("%s/%s", middlePath2, savedPicName2);
+
+        try{
+            req.setBusinessPic(savedPicName2);
+            myFileUtils.transferTo(businessPic, filePath2);
+        } catch (IOException e) {
+            String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath2);
+            myFileUtils.deleteFolder(delFolderPath, true);
+            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+        }
+
+        // 학원운영증
+        String savedPicName3 = (operationLicensePic != null ? myFileUtils.makeRandomFileName(businessPic) : null);
+        String filePath3 = String.format("%s/%s", middlePath3, savedPicName3);
+
+        try{
+            req.setOperationLicencePic(savedPicName3);
+            myFileUtils.transferTo(operationLicensePic, filePath3);
+        } catch (IOException e) {
+            String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath3);
+            myFileUtils.deleteFolder(delFolderPath, true);
+            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+        }
+
 
 
         //@@ academyMapper.insAcademy(req);
@@ -110,92 +155,40 @@ public class AcademyService {
         academyRepository.save(academy);
 
 
-        if ((pics == null || pics.isEmpty()) &&
-                (businessLicensePic == null || businessLicensePic.isEmpty()) &&
-                (operationLicensePic == null || operationLicensePic.isEmpty())) {
+        if (pics == null || pics.isEmpty()) {
             academyMessage.setMessage("학원정보등록이 완료되었습니다.");
             return 1;
         }
 
-        long acaId = req.getAcaId();
-        String middlePath = String.format("academy/%d", acaId);
-        myFileUtils.makeFolders(middlePath);
 
-        String middlePath2 = String.format("businessLicence/%d", acaId);
-        myFileUtils.makeFolders(middlePath2);
 
-        String middlePath3 = String.format("operationLicence/%d", acaId);
-        myFileUtils.makeFolders(middlePath3);
+            // 학원 사진들
+            List<String> picNameList = new ArrayList<>();
+            for (MultipartFile pic : pics) {
+                String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
+                picNameList.add(savedPicName);
+                String filePath = String.format("%s/%s", middlePath, savedPicName);
 
-        // 학원 사진들
-        List<String> picNameList = new ArrayList<>();
-        for(MultipartFile pic : pics) {
-            String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
-            picNameList.add(savedPicName);
-            String filePath = String.format("%s/%s", middlePath, savedPicName);
+                try {
+                    AcademyPicIds academyPicIds = new AcademyPicIds();
+                    academyPicIds.setAcaId(acaId);
+                    academyPicIds.setAcaPic(savedPicName);
 
-            try {
-                AcademyPicIds academyPicIds = new AcademyPicIds();
-                academyPicIds.setAcaId(acaId);
-                academyPicIds.setAcaPic(savedPicName);
+                    AcademyPic academyPic = new AcademyPic();
+                    academyPic.setAcademyPicIds(academyPicIds);
+                    academyPic.setAcademy(academy);
 
-                AcademyPic academyPic = new AcademyPic();
-                academyPic.setAcademyPicIds(academyPicIds);
-                academyPic.setAcademy(academy);
+                    academyPicRepository.save(academyPic);
 
-                academyPicRepository.save(academyPic);
-
-                myFileUtils.transferTo(pic, filePath);
-            } catch (IOException e) {
-                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                myFileUtils.deleteFolder(delFolderPath, true);
-                throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+                    myFileUtils.transferTo(pic, filePath);
+                } catch (IOException e) {
+                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                    myFileUtils.deleteFolder(delFolderPath, true);
+                    throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+                }
             }
-        }
 
-        // 사업자등록증
-        String savedPicName2 = (businessLicensePic != null ? myFileUtils.makeRandomFileName(businessLicensePic) : null);
-        String filePath2 = String.format("%s/%s", middlePath2, savedPicName2);
 
-        try{
-            AcademyPicIds academyPicIds = new AcademyPicIds();
-            academyPicIds.setAcaId(acaId);
-            academyPicIds.setAcaPic(savedPicName2);
-
-            AcademyPic academyPic = new AcademyPic();
-            academyPic.setAcademyPicIds(academyPicIds);
-            academyPic.setAcademy(academy);
-
-            academyPicRepository.save(academyPic);
-
-            myFileUtils.transferTo(businessLicensePic, filePath2);
-        } catch (IOException e) {
-            String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath2);
-            myFileUtils.deleteFolder(delFolderPath, true);
-            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
-        }
-
-        // 학원운영증
-        String savedPicName3 = (operationLicensePic != null ? myFileUtils.makeRandomFileName(businessLicensePic) : null);
-        String filePath3 = String.format("%s/%s", middlePath3, savedPicName3);
-
-        try{
-            AcademyPicIds academyPicIds = new AcademyPicIds();
-            academyPicIds.setAcaId(acaId);
-            academyPicIds.setAcaPic(savedPicName3);
-
-            AcademyPic academyPic = new AcademyPic();
-            academyPic.setAcademyPicIds(academyPicIds);
-            academyPic.setAcademy(academy);
-
-            academyPicRepository.save(academyPic);
-
-            myFileUtils.transferTo(operationLicensePic, filePath3);
-        } catch (IOException e) {
-            String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath3);
-            myFileUtils.deleteFolder(delFolderPath, true);
-            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
-        }
 
 
         /* AcademyPicDto academyPicDto = new AcademyPicDto();
@@ -204,7 +197,9 @@ public class AcademyService {
 
         ////academyPicsMapper.insAcademyPics(academyPicDto); 2차때 사용함.
         tagService.insTag(req.getTagNameList());
+
         tagService.insAcaTag(req.getAcaId(), req.getTagIdList());
+
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;
     }
