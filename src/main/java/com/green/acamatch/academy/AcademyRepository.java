@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface AcademyRepository extends JpaRepository<Academy, Long> {
+
     List<Academy> findAllByUser(User user);
 }

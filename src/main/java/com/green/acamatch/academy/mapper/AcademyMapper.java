@@ -74,4 +74,6 @@ public interface AcademyMapper {
     List<GetDefaultRes> getDefault();
 
     GetAcademyCountRes GetAcademyCount();
+
+    Long getTagListByTagName(String tagName);
 }

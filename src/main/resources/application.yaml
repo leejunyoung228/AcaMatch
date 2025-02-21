@@ -135,7 +135,9 @@ spring:
     multipart:
       max-file-size: 30MB
       max-request-size: 150MB
-
+  sql:
+    init:
+      mode: always
   # API때문에 이걸로 바꿈
   jackson:
     deserialization:
@@ -145,7 +147,7 @@ spring:
     show-sql: true
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
@@ -160,6 +162,9 @@ spring:
           auth: true  # SMTP 인증 사용
           starttls:
             enable: true
+kakaopay:
+  secret-key: DEVA2DDFFD58F667756DECD347E6F4C82F43713E
+  cid: TC0ONETIME
 
 springdoc:
   swagger-ui:
