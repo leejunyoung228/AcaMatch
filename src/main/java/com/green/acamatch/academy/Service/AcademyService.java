@@ -6,7 +6,7 @@ import com.green.acamatch.academy.mapper.AcademyPicsMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
-import com.green.acamatch.academy.tag.AcademyTagRepository;
+
 import com.green.acamatch.academy.tag.SearchRepository;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AddressConst;
@@ -62,7 +62,9 @@ public class AcademyService {
         User signedUser = new User();
         signedUser.setUserId(authenticationFacade.getSignedUserId());
 
-        if (req.getTagIdList().isEmpty()) {
+
+        if (req.getTagNameList().isEmpty()) {
+
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
         }
 
