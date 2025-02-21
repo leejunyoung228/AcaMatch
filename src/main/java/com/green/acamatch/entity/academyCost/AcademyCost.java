@@ -42,4 +42,10 @@ public class AcademyCost extends UpdatedAt {
 
     @Column(nullable = false)
     private int cost_status;
+
+    @Column(nullable = false)
+    private String tId;
+
+    @Column(nullable = false)
+    private int orderId;
 }
