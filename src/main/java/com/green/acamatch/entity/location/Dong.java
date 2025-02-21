@@ -13,7 +13,7 @@ public class Dong {
     private Long dongId;
 
     @ManyToOne
-    @JoinColumn(name = "street_id")
+    @JoinColumn(name = "street_id", nullable = false)
     private Street street;
 
     @Column(length = 10, nullable = false)

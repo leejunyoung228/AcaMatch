@@ -12,6 +12,6 @@ import lombok.Setter;
 public class City {
     @Id
     private Long cityId;
-    @Column(unique=true, nullable=false, length=10)
+    @Column(nullable=false, length=10)
     private String cityName;
 }
