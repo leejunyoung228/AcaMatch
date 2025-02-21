@@ -8,9 +8,7 @@ import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.board.Board;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.repository.UserRepository;
-import jdk.jshell.spi.ExecutionControl;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -21,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardMapper boardMapper;
-    private final AuthenticationFacade authenticationFacade;
     private final BoardRepository boardRepository;
     private final AcademyRepository academyRepository;
     private final UserRepository userRepository;
