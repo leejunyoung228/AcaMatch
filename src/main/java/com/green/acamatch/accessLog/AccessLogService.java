@@ -37,7 +37,7 @@ public class AccessLogService {
         return 1;
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 0 0 * * *")
     public void deleteOldAccessLogs() {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
         accessLogRepository.deleteAccessLogByCreatedAtBefore(oneWeekAgo);

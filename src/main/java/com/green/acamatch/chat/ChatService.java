@@ -18,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,5 +107,28 @@ public class ChatService {
             return chats.stream().map(ChatLogList::new).toList();
         }
         return new ArrayList<>();
+    }
+
+    public void readMessage(Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER));
+        SenderType senderType;
+        if (chatRoom.getUser().getUserId().equals(AuthenticationFacade.getSignedUserId())) {
+            senderType = SenderType.ACADEMY_TO_USER;
+        } else {
+            senderType = SenderType.USER_TO_ACADEMY;
+        }
+        List<Chat> unreadChats = chatRepository.findByChatRoom_ChatRoomIdAndSenderTypeAndIsRead(chatRoomId, senderType, false);
+        if (!unreadChats.isEmpty()) {
+            for (Chat chat : unreadChats) {
+                chat.setRead(true);
+            }
+            chatRepository.saveAll(unreadChats);
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteChatLogs() {
+        chatRepository.deleteChatByCreatedAtBefore(LocalDateTime.now().minusMonths(6));
+        chatRoomRepository.deleteAllByChatsIsEmpty();
     }
 }
