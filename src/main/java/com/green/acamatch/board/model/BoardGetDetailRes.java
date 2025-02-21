@@ -6,9 +6,10 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+//공지사항 상세보기
 @Setter
 @Getter
-public class BoardGetDto {
+public class BoardGetDetailRes {
     @Schema(title = "공지사항 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long boardId;
     @Schema(title = "학원 PK")
@@ -17,4 +18,6 @@ public class BoardGetDto {
     private Long userId; //null 허용
     @Schema(title = "공지사항 제목", example = "2월 공지사항입니다.")
     private String boardName;
+    @Schema(title = "공지사항 내용", example = "글을 적어주세요.")
+    private String boardComment;
 }

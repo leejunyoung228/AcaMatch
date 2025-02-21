@@ -10,7 +10,7 @@ public class AuthenticationFacade {
         return ((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSignedUserId();
     }
 
-    public long getUserId() {
-        return getSignedUserId();
-    }
+//    public long getUserId() {
+//        return getSignedUserId();
+//    }
 }
