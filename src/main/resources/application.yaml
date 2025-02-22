@@ -176,3 +176,8 @@ springdoc:
     tags-sorter: alpha
   cache:
     disabled: true
+
+solapi:
+  api-key: NCSEUEYMFBLPYBNV
+  api-secret: 8AFKLPRTY7RTJIEFCUOLNVMF4GVIJ8RF
+  sender: "01022880426"
