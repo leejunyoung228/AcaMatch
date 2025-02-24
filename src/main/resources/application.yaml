@@ -13,6 +13,7 @@ global:
       - http://www.acamatch.site:5233/fe/redirect
       - http://acamatch.site:5233/fe/redirect
       - http://localhost:5173/fe/redirect
+      - http://localhost:4173/fe/redirect
 
 
 constant:
