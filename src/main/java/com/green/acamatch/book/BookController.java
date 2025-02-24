@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,11 +24,12 @@ public class BookController {
 
     @PostMapping
     @Operation(summary = "책 등록")
-    public ResultResponse<Integer> postBook(@ParameterObject BookPostReq req){
-        int result = bookService.postBook(req);
+    public ResultResponse<Integer> postBook(@RequestPart BookPostReq req,
+                                            @RequestPart MultipartFile file) {
+        int result = bookService.postBook(file, req);
         return ResultResponse.<Integer>builder()
                 .resultData(result)
-                .resultMessage("책 등록 성공")
+                .resultMessage(bookMessage.getMessage())
                 .build();
     }
 
