@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -130,5 +132,15 @@ public class KakaoPayService {
         int updatedCount = academyCostRepository.updateStatusNative(1, orderId);
 
         return approveResponse;
+    }
+
+    public List<AcademyCost> getRecentPayments() {
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);  // 한 달 전 날짜 계산
+        return academyCostRepository.findRecentPayments(oneMonthAgo);
+    }
+
+    public List<AcademyCost> getRecentPaymentsByUserId(Long userId) {
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);  // 한 달 전 날짜 계산
+        return academyCostRepository.findRecentPaymentsByUserId(userId, oneMonthAgo);
     }
 }

@@ -1,7 +1,6 @@
 package com.green.acamatch.entity.academyCost;
 
 import com.green.acamatch.entity.acaClass.Class;
-import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,4 +33,8 @@ public class Book {
     private String manager;
 
 
+    public void setClassId(Long classId) {
+        this.classId = new Class();
+        this.classId.setClassId(classId);
+    }
 }
