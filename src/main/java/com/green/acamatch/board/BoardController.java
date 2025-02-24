@@ -30,7 +30,7 @@ public class BoardController {
     }
 
     @GetMapping
-    @Operation(summary = "공지사항 리스트 불러오기", description = "acaId / userId 하나만 입력하면 됩니다.")
+    @Operation(summary = "공지사항 리스트 불러오기", description = "acaId / userId 하나만 입력하면 됩니다. , null 값은 안떠요.")
     public ResultResponse<List<BoardGetDto>> getBoardList(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
         List<BoardGetDto> res = boardService.getBoardList(p);
         return ResultResponse.<List<BoardGetDto>>builder()

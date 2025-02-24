@@ -29,7 +29,7 @@ public class PopUpController {
         log.info("p, pic: {}, {}", p, pic);
         int result = popUpService.PostPopUp(pic,p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("팝업 등록이 성공하였습니다.")
+                .resultMessage("팝업 등록 성공")
                 .resultData(result)
                 .build();
     }
@@ -49,7 +49,7 @@ public class PopUpController {
     public ResultResponse<Integer> updPopUp(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart PopUpPutReq p) {
         int result = popUpService.UpdPopUp(pic, p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("팝업 수정이 성공하였습니다.")
+                .resultMessage("팝업 수정 성공")
                 .resultData(result)
                 .build();
     }
@@ -59,7 +59,7 @@ public class PopUpController {
     public ResultResponse<Integer> delPopUp(@PathVariable @ModelAttribute Long popUpId) {
         int result = popUpService.delPopUp(popUpId);
         return ResultResponse.<Integer>builder()
-                .resultMessage("팝업 삭제를 성공하였습니다.")
+                .resultMessage("팝업 삭제 성공")
                 .resultData(result)
                 .build();
     }
