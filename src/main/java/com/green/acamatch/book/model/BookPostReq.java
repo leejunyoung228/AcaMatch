@@ -1,5 +1,6 @@
 package com.green.acamatch.book.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,11 +8,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BookPostReq {
+    @JsonIgnore
+    private long bookId;
+
     @Schema(title = "책 이름", example = "책1")
     private String bookName;
-
-    @Schema(title = "책 사진", example = "책사진.jpg")
-    private String bookPic;
 
     @Schema(title = "책 가격", example = "1000")
     private int bookPrice;

@@ -3,11 +3,13 @@ package com.green.acamatch.book;
 import com.green.acamatch.book.model.BookGetRes;
 import com.green.acamatch.book.model.BookPostReq;
 import com.green.acamatch.book.model.BookUpdateReq;
-import com.green.acamatch.entity.acaClass.Class;
+import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.entity.academyCost.Book;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -15,12 +17,12 @@ import java.util.List;
 public class BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
-    private BookMessage bookMessage;
+    private final MyFileUtils myFileUtils;
+    private final BookMessage bookMessage;
 
-    public int postBook(BookPostReq req) {
+    public int postBook(MultipartFile mf, BookPostReq req) {
         Book book = new Book();
         book.setBookName(req.getBookName());
-        book.setBookPic(req.getBookPic());
         book.setBookPrice(req.getBookPrice());
         book.setBookComment(req.getBookComment());
         Long classId = req.getClassId();
@@ -29,6 +31,29 @@ public class BookService {
 
         bookRepository.save(book);
 
+        long bookId = book.getBookId();
+
+        if(mf == null){
+            bookMessage.setMessage("사진이 필요합니다.");
+            return 0;
+        }
+        String middlePath = String.format("book/%d", bookId);
+        myFileUtils.makeFolders(middlePath);
+
+        String savedPicName = mf != null ? myFileUtils.makeRandomFileName(mf) : null;
+
+
+        String filePath = String.format("%s/%s", middlePath, savedPicName);
+
+        try{
+            book.setBookPic(savedPicName);
+            myFileUtils.transferTo(mf, filePath);
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        bookRepository.save(book);
+        bookMessage.setMessage("책 등록 성공");
         return 1;
     }
 
@@ -82,6 +107,8 @@ public class BookService {
     }
 
     public int deleteBook(Long id) {
+        String filePath = String.format("book/%d", id);
+        myFileUtils.deleteFolder(filePath, true);
         bookRepository.deleteById(id);
         return 1;
     }
