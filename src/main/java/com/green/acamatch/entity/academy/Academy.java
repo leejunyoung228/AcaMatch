@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -20,19 +21,21 @@ public class Academy extends CreatedAt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long acaId;
 
-    @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
-    private Long userId;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "user_id", nullable = false, insertable=false, updatable=false)
+    private Long userId;
+
+
+    /*@ManyToOne
+    @JoinColumn(name = "dong_id", nullable = false, insertable = false, updatable = false)
+    private Dong dong;*/
+
     @Column(name = "dong_id", nullable = false) // Dong의 ID를 직접 저장
     private Long dongId;  // 이제 Long 타입으로 저장
 
-    @ManyToOne
-    @JoinColumn(name = "dong_id", nullable = false, insertable = false, updatable = false)
-    private Dong dong;
 
     @Column(nullable = false)
     private int premium;
@@ -50,10 +53,10 @@ public class Academy extends CreatedAt {
     @Column
     private int teacherNum;
 
-    @Column
+    @Column(nullable = false, columnDefinition = "TIME(0)")
     private LocalTime openTime;
 
-    @Column
+    @Column(nullable = false, columnDefinition = "TIME(0)")
     private LocalTime closeTime;
 
     @Column(length = 100, nullable = false)
