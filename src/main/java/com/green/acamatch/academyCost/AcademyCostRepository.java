@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 @Repository
 public interface AcademyCostRepository extends JpaRepository<AcademyCost, Integer> {
@@ -21,4 +24,11 @@ public interface AcademyCostRepository extends JpaRepository<AcademyCost, Intege
         @Transactional
         @Query(value = "UPDATE academy_cost SET cost_status = :status WHERE order_id = :orderId", nativeQuery = true)
         int updateStatusNative(@Param("status") int status, @Param("orderId") int orderId);
+
+        @Query("SELECT a FROM AcademyCost a WHERE a.createdAt >= :oneMonthAgo")
+        List<AcademyCost> findRecentPayments(@Param("oneMonthAgo") LocalDateTime oneMonthAgo);
+
+        @Query("SELECT a FROM AcademyCost a WHERE a.userId = :userId AND a.createdAt >= :oneMonthAgo")
+        List<AcademyCost> findRecentPaymentsByUserId(@Param("userId") Long userId,
+                                                     @Param("oneMonthAgo") LocalDateTime oneMonthAgo);
 }

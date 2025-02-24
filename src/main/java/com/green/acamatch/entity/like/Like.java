@@ -1,16 +1,17 @@
 package com.green.acamatch.entity.like;
 
 import com.green.acamatch.entity.academy.Academy;
-import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Table(name = "likes") // 'Like'는 예약어이므로 테이블명을 변경
 @Getter
 @Setter
 public class Like {
+
     @EmbeddedId
     private LikeIds likeIds;
 
@@ -23,5 +24,4 @@ public class Like {
     @MapsId("acaId")
     @JoinColumn(name = "aca_id", nullable = false)
     private Academy academy;
-
 }
