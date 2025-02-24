@@ -1,14 +1,14 @@
 package com.green.acamatch.entity.tag;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,4 +17,7 @@ public class Tag {
     @Column(length = 30, nullable = false, unique = true)
     private String tagName;
 
+    public Tag(String tagName) {
+        this.tagName = tagName;
+    }
 }

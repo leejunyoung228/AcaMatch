@@ -1,5 +1,6 @@
 package com.green.acamatch.entity.academy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.green.acamatch.entity.datetime.CreatedAt;
 import com.green.acamatch.entity.location.Dong;
 import com.green.acamatch.entity.user.User;
@@ -11,6 +12,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,6 +29,10 @@ public class Academy extends CreatedAt {
 
     @Column(name = "user_id", nullable = false, insertable=false, updatable=false)
     private Long userId;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "academy")
+    @JsonIgnore
+    private List<AcademyPic> pics;
 
 
     /*@ManyToOne
