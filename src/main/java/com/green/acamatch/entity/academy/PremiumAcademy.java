@@ -21,15 +21,26 @@ public class PremiumAcademy extends CreatedAt {
     @JoinColumn(name = "aca_id")
     private Academy academy;
 
-    @Column
-    private LocalDate StartDate;
+    @Column(name = "aca_id", nullable = false, insertable=false, updatable=false)
+    private Long acaId;
 
-    @Column
+    @Column(columnDefinition = "TIME(0)")
+    private LocalDate startDate;
+
+    @Column(columnDefinition = "TIME(0)")
     private LocalDate endDate;
 
-    @Column
+    @Column(nullable = false)
     private int preCheck;
 
-    @Column
+    @Column(nullable = false)
     private int price;
+
+    // @PreUpdate를 사용하여 preCheck가 변경되면 academy의 premium 값을 갱신하도록 처리
+    @PreUpdate
+    public void updateAcademyPremium() {
+        if (this.preCheck == 1 && academy != null) {
+            academy.setPremium(1);  // academy 테이블의 premium 컬럼을 1로 변경
+        }
+    }
 }

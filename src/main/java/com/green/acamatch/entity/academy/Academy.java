@@ -1,5 +1,6 @@
 package com.green.acamatch.entity.academy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.green.acamatch.entity.datetime.CreatedAt;
 import com.green.acamatch.entity.location.Dong;
 import com.green.acamatch.entity.user.User;
@@ -9,7 +10,9 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,12 +27,21 @@ public class Academy extends CreatedAt {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "user_id", nullable = false, insertable=false, updatable=false)
+    private Long userId;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "academy")
+    @JsonIgnore
+    private List<AcademyPic> pics;
+
+
+    /*@ManyToOne
+    @JoinColumn(name = "dong_id", nullable = false, insertable = false, updatable = false)
+    private Dong dong;*/
+
     @Column(name = "dong_id", nullable = false) // Dong의 ID를 직접 저장
     private Long dongId;  // 이제 Long 타입으로 저장
 
-    @ManyToOne
-    @JoinColumn(name = "dong_id", nullable = false, insertable = false, updatable = false)
-    private Dong dong;
 
     @Column(nullable = false)
     private int premium;
@@ -47,10 +59,10 @@ public class Academy extends CreatedAt {
     @Column
     private int teacherNum;
 
-    @Column
+    @Column(nullable = false, columnDefinition = "TIME(0)")
     private LocalTime openTime;
 
-    @Column
+    @Column(nullable = false, columnDefinition = "TIME(0)")
     private LocalTime closeTime;
 
     @Column(length = 100, nullable = false)

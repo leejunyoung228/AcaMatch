@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class AcademyPostReq {
     @JsonIgnore
     private long dongId;
 
+    @Schema(title = "유저pk")
     private long userId;
 
 
@@ -69,12 +71,9 @@ public class AcademyPostReq {
     /*@Valid
     private AddressDto addressDto;*/
 
-    /*@JsonIgnore
-    @Schema(title = "학원사진")
-    private String acaPic;*/
 
-    @Schema(title = "태그Id 리스트")
-    private List<Long> tagIdList;
+    @Schema(title = "학원사진")
+    private List<String> acaPic;
 
     @Schema(title = "태그이름 리스트")
     private List<String> tagNameList;
