@@ -1,9 +1,7 @@
 package com.green.acamatch.popUp;
 
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.popUp.model.PopUpGetDto;
-import com.green.acamatch.popUp.model.PopUpGetReq;
-import com.green.acamatch.popUp.model.PopUpPostReq;
+import com.green.acamatch.popUp.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -42,6 +40,26 @@ public class PopUpController {
         List<PopUpGetDto> result = popUpService.getPopUpList(p);
         return ResultResponse.<List<PopUpGetDto>>builder()
                 .resultMessage("팝업 리스트 상세보기 완료")
+                .resultData(result)
+                .build();
+    }
+
+    @PutMapping
+    @Operation(summary = "팝업 수정", description = "postMan으로 테스트")
+    public ResultResponse<Integer> updPopUp(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart PopUpPutReq p) {
+        int result = popUpService.UpdPopUp(pic, p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("팝업 수정이 성공하였습니다.")
+                .resultData(result)
+                .build();
+    }
+
+    @DeleteMapping("{popUpId}")
+    @Operation(summary = "팝업 삭제")
+    public ResultResponse<Integer> delPopUp(@PathVariable @ModelAttribute Long popUpId) {
+        int result = popUpService.delPopUp(popUpId);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("팝업 삭제를 성공하였습니다.")
                 .resultData(result)
                 .build();
     }
