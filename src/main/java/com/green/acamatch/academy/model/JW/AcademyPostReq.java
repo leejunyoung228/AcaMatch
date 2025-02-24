@@ -26,6 +26,7 @@ public class AcademyPostReq {
     @JsonIgnore
     private long dongId;
 
+    @Schema(title = "유저pk")
     private long userId;
 
 
@@ -69,9 +70,9 @@ public class AcademyPostReq {
     /*@Valid
     private AddressDto addressDto;*/
 
-    /*@JsonIgnore
+
     @Schema(title = "학원사진")
-    private String acaPic;*/
+    private List<String> acaPic;
 
     @Schema(title = "태그Id 리스트")
     private List<Long> tagIdList;
