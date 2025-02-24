@@ -41,7 +41,15 @@ class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**").allowedOrigins("http://localhost:5173", "http://localhost:4173/")
+        registry.addMapping("/api/**")
+                .allowedOrigins(
+                        "http://localhost:5173",
+                        "http://localhost:4173",
+                        "http://127.0.0.1:5173",  // 추가
+                        "http://127.0.0.1:4173",  // 추가
+                        "https://dev.acamtach.site", // 추가 (개발 환경)
+                        "https://acamtach.site" // 추가 (운영 환경)
+                )
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true)
