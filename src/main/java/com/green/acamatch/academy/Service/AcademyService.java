@@ -71,7 +71,7 @@ public class AcademyService {
         }
 
 
-        //기본주소를 통해 지번(동)이름, 위도, 경도 가져오는 api 메소드 호출
+        //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
         KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddress());
 
         // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
@@ -227,7 +227,7 @@ public class AcademyService {
         if (req.getLon() != null) academy.setLon(req.getLon());
         if (req.getCorporateNumber() != null) academy.setCorporateNumber(req.getCorporateNumber());
 
-        if (businessLicensePic != null && businessLicensePic.isEmpty() && req.getBusinessName() != null && req.getBusinessNumber() != null) {
+        if ((businessLicensePic != null && businessLicensePic.isEmpty()) && req.getBusinessName() != null && req.getBusinessNumber() != null) {
             academy.setBusinessPic(
                     saveLicensePic(String.format("businessLicence/%d", acaId), businessLicensePic)
             );
@@ -236,7 +236,7 @@ public class AcademyService {
         }
         if (operationLicensePic != null && operationLicensePic.isEmpty()) {
             academy.setOperationLicencePic(
-                    saveLicensePic(String.format("operationLicensePic/%d", acaId), operationLicensePic)
+                    saveLicensePic(String.format("operationLicense/%d", acaId), operationLicensePic)
             );
         }
         //학원사진수정
