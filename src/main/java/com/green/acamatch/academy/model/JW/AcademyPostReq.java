@@ -43,7 +43,7 @@ public class AcademyPostReq {
     @Schema(title = "학원내용", example = "여기는 수학전문학원입니다.")
     private String comment;
     @Schema(title = "강사 수", example = "3")
-    private int teacherNum;
+    private Integer teacherNum;
 
     @Schema(title = "오픈시간", example = "9:00")
     @JsonFormat(pattern = "HH:mm")

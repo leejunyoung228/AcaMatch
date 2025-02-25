@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface AcademyPicRepository extends JpaRepository<AcademyPic, AcademyPicIds> {
 
     @Modifying
-    @Query(" delete from AcademyPic a where a.academy.acaId=:acaId")
+    @Query(" delete from AcademyPic a where a.academy.acaId=:acaId ")
     int deleteAcademyPicsByAcaId(Long acaId);
+
 }

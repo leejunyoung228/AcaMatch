@@ -21,13 +21,18 @@ public class PremiumPostReq {
     @Schema(title = "신청한학원pk")
     private Long acaId;
 
+    @JsonIgnore
     @Schema(title = "프리미엄 시작일")
     private LocalDate startDate;
 
+    @JsonIgnore
     @Schema(title = "프리미엄 종료일")
     private LocalDate endDate;
 
     @JsonIgnore
     @Schema(title = "프리미엄 승인여부", example = "0", description = "0(승인대기), 1(승인완료), 2(수정)")
     private int preCheck;
+
+    @Schema(title = "프리미엄 가격")
+    private int price;
 }

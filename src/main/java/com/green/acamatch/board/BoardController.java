@@ -24,7 +24,7 @@ public class BoardController {
     public ResultResponse<Integer> postBoard(@Valid @ParameterObject @ModelAttribute BoardPostReq p) {
         Integer res = boardService.postBoard(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("공지사항 등록 완료")
+                .resultMessage(res == 1 ? "공지사항 등록 완료" : "공지사항 등록 실패")
                 .resultData(res)
                 .build();
     }
@@ -54,7 +54,7 @@ public class BoardController {
     public ResultResponse<Integer> updBoard(@Valid @ParameterObject @ModelAttribute BoardPutReq p) {
         Integer res = boardService.updBoard(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("공지사항 수정 완료")
+                .resultMessage(res == 1 ? "공지사항 수정 완료" : "공지사항 수정 실패")
                 .resultData(res)
                 .build();
     }
@@ -64,7 +64,7 @@ public class BoardController {
     public ResultResponse<Integer> delBoard(@Valid @ModelAttribute @ParameterObject BoardDelReq p){
         Integer res = boardService.delBoard(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("공지사항 삭제 완료")
+                .resultMessage(res == 1 ? "공지사항 삭제 완료" : "공지사항 삭제 실패")
                 .resultData(res)
                 .build();
     }

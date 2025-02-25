@@ -7,4 +7,9 @@
         FROM pop_up
         LIMIT #{startIdx}, #{size}
     </select>
+
+    <select id="getPopUpDetail">
+        SELECT title, comment, pop_up_pic
+        FROM pop_up
+    </select>
 </mapper>

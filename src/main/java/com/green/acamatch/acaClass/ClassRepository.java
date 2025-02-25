@@ -20,4 +20,7 @@ public interface ClassRepository extends JpaRepository<AcaClass, Long> {  // ✅
     // 특정 수업을 담당하는 선생님 조회
     @Query("SELECT c.teacher FROM AcaClass c WHERE c.classId = :classId")
     Teacher findTeacherByClassId(@Param("classId") Long classId);
+
+    @Query("SELECT COUNT(*) FROM AcaClass a WHERE a.academy.acaId = :acaId AND a.className = :className")
+    boolean existsByAcaIdAndClassName(Long acaId, String className);
 }
