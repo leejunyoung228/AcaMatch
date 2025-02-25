@@ -3,12 +3,10 @@ package com.green.acamatch.acaClass;
 import com.green.acamatch.acaClass.model.*;
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.entity.acaClass.AcaClass;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -148,11 +146,4 @@ public class AcaClassController {
                 .resultData(result)
                 .build();
     }
-
-//
-//    @PostMapping("/create")
-//    public ResultResponse<> createAcaClass(@RequestBody AcaClass acaClass) {
-//        AcaClass savedAcaClass = acaClassService.createAcaClass(acaClass);
-//        return ResponseEntity.ok(savedAcaClass);
-//    }
     }

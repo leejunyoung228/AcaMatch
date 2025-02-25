@@ -10,10 +10,8 @@ import com.green.acamatch.entity.acaClass.Weekdays;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academyCost.Product;
 import com.green.acamatch.entity.manager.Teacher;
-import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.model.JoinClassRepository;
-import com.green.acamatch.user.repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -35,7 +32,6 @@ public class AcaClassService {
     private final ProductRepository productRepository;
     private final WeekDaysRepository weekDaysRepository;
     private final ClassWeekDaysRepository classWeekDaysRepository;
-    private final TeacherRepository teacherRepository;
 
     // 특정 학원의 특정 수업을 듣는 학생(또는 학부모) 목록 조회
     public List<User> findStudentsByClassId(Long classId) {
@@ -231,36 +227,4 @@ public class AcaClassService {
             throw new CustomException(ManagerErrorCode.PERMISSION_DENIED);
         }
     }
-
-    @Transactional
-    public AcaClass createAcaClass(AcaClass acaClass) {
-        Academy academy = acaClass.getAcademy();
-        User adminUser = academy.getUser(); // 학원의 관리자 가져오기
-
-        if (adminUser != null) {
-            TeacherIds teacherIds = new TeacherIds();
-
-            // DB에서 기존 Teacher 조회
-            Optional<Teacher> existingTeacher = teacherRepository.findById(teacherIds);
-
-            if (existingTeacher.isPresent()) {
-                // `Teacher`가 있으면 로그 남기고 설정
-                System.out.println("기존 Teacher 사용: " + existingTeacher.get().getUser().getUserId());
-                acaClass.setUser(existingTeacher.get().getUser()); // `Teacher`의 `User`를 설정
-            } else {
-                // 새 Teacher 생성 후 저장
-                Teacher newTeacher = new Teacher();
-                newTeacher.setTeacherIds(teacherIds);
-                newTeacher.setUser(adminUser);
-                newTeacher.setAcademy(academy);
-                newTeacher.setTeacher_comment("자동 설정된 관리자 교사");
-                newTeacher.setTeacherAgree(1);
-
-                teacherRepository.save(newTeacher);
-                acaClass.setUser(newTeacher.getUser()); // `Teacher`의 `User`를 설정
-            }
-        }
-        return classRepository.save(acaClass);
-    }
-
 }
