@@ -1,10 +1,8 @@
 package com.green.acamatch.sms;
 
+import com.green.acamatch.acaClass.AcaClassService;
 import com.green.acamatch.config.exception.CustomException;
-import com.green.acamatch.config.exception.ManagerErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
-import com.green.acamatch.user.UserUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
@@ -19,17 +17,17 @@ public class SmsService {
     private final DefaultMessageService messageService;
     private final String sender;
     private final UserMessage userMessage;
-    private final UserUtils userUtils; // ✅ 선생님 권한 검증을 위해 UserUtils 주입
+    private final AcaClassService  acaClassService;
 
     public SmsService(@Value("${solapi.api-key}") String apiKey,
                       @Value("${solapi.api-secret}") String apiSecret,
                       @Value("${solapi.sender}") String sender,
                       UserMessage userMessage,
-                      UserUtils userUtils) {
+                      AcaClassService acaClassService) {
         this.messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.solapi.com");
         this.sender = sender;
         this.userMessage = userMessage;
-        this.userUtils = userUtils;
+        this.acaClassService = acaClassService;
     }
 
     /**
@@ -38,7 +36,7 @@ public class SmsService {
     public int sendSms(String to, String text, long requestUserId, long classId) {
         try {
             // ✅ 특정 수업의 담당 선생님인지 검증
-            userUtils.validateTeacherPermission(requestUserId, classId);
+            acaClassService.validateTeacherPermission(requestUserId, classId);
 
             Message message = new Message();
             message.setFrom(sender);

@@ -1,7 +1,10 @@
 package com.green.acamatch.acaClass;
 
 import com.green.acamatch.acaClass.model.*;
+import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.ManagerErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.model.JoinClassRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ public class AcaClassService {
     private final AcaClassMapper mapper;
     private final UserMessage userMessage;
     private final JoinClassRepository joinClassRepository;
+    private final ClassRepository classRepository;
 
     // 특정 학원의 특정 수업을 듣는 학생(또는 학부모) 목록 조회
     public List<User> findStudentsByClassId(Long classId) {
@@ -155,6 +159,23 @@ public class AcaClassService {
         } else {
             userMessage.setMessage("개강날 삭제에 실패하였습니다.");
             return 0;
+        }
+    }
+
+    /**
+     * 특정 수업의 담당 선생님인지 확인
+     */
+    public boolean isTeacherOfClass(long userId, long classId) {
+        Teacher teacher = classRepository.findTeacherByClassId(classId);
+        return teacher != null && teacher.getTeacherIds().getUserId().equals(userId);
+    }
+
+    /**
+     * 특정 수업의 담당 선생님인지 검증 (권한 없을 경우 예외 발생)
+     */
+    public void validateTeacherPermission(long userId, long classId) {
+        if (!isTeacherOfClass(userId, classId)) {
+            throw new CustomException(ManagerErrorCode.PERMISSION_DENIED);
         }
     }
 }
