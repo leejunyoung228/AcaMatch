@@ -2,8 +2,10 @@ package com.green.acamatch;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 
@@ -12,8 +14,9 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableWebSocketMessageBroker
+@EntityScan(basePackages = "com.green.acamatch")
+@EnableJpaRepositories(basePackages = "com.green.acamatch")
 public class AcaMatchApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(AcaMatchApplication.class, args);
     }

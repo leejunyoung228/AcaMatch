@@ -8,4 +8,5 @@ import lombok.Setter;
 public class SmsRequest {
     private String to;
     private String text;
+    private Long classId; // classId 추가
 }
