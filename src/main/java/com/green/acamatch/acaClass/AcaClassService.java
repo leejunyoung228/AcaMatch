@@ -56,7 +56,7 @@ public class AcaClassService {
             classRepository.save(acaClass);
 
             Product product = new Product();
-            product.setAcaClass(product.getAcaClass());
+            product.setClassId(product.getClassId());
             product.setProductName(product.getProductName());
             product.setProductPrice(product.getProductPrice());
             productRepository.save(product);
