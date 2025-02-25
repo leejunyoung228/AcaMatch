@@ -16,13 +16,13 @@ public class AcademyTag {
 
     @ManyToOne
     @MapsId("acaId")
-    @JoinColumn(name = "aca_id")
+    @JoinColumn(name = "aca_id", updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Academy academy;
 
     @ManyToOne
     @MapsId("tagId")
-    @JoinColumn(name = "tag_id")
+    @JoinColumn(name = "tag_id", updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Tag Tag;
 }

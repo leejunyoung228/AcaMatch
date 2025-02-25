@@ -11,6 +11,7 @@ import com.green.acamatch.academy.model.JW.KakaoMapAddress;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
+//
 
 @Component
 public class KakaoApiExample {

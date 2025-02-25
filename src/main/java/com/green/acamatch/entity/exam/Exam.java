@@ -1,6 +1,6 @@
 package com.green.acamatch.entity.exam;
 
-import com.green.acamatch.entity.acaClass.Class;
+import com.green.acamatch.entity.acaClass.AcaClass;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +16,7 @@ public class Exam {
 
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
-    private Class classId;
+    private AcaClass classId;
 
     @Column(length = 30, nullable = false)
     private String examName;

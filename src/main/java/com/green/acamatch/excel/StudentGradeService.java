@@ -33,7 +33,7 @@ import java.sql.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class StudentGradeService {
+public class  StudentGradeService {
     private final EmailConst emailConst;
     private final MyFileUtils myFileUtils;
 

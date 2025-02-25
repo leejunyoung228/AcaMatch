@@ -79,6 +79,7 @@ public class MyFileUtils {
         mf.transferTo(file);
     }
 
+
     public boolean deleteFile(String path) {
         File file = new File(uploadPath, path);  // 경로와 파일명으로 File 객체 생성
         if (file.exists() && file.isFile()) {  // 파일이 존재하고 파일인지 확인
@@ -95,3 +96,4 @@ public class MyFileUtils {
         }
     }
 }
+

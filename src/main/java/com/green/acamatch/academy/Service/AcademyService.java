@@ -8,6 +8,7 @@ import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
 
 import com.green.acamatch.academy.tag.SearchRepository;
+import com.green.acamatch.academy.tag.TagRepository;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AddressConst;
 import com.green.acamatch.config.exception.AcademyException;
@@ -48,6 +49,8 @@ public class AcademyService {
     private final AuthenticationFacade authenticationFacade;
     private final AcademyPicRepository academyPicRepository;
     private final SearchRepository searchRepository;
+    private final BusinessNumberValidation businessNumberValidation;
+    private final TagRepository tagRepository;
 
 
     //학원정보등록
@@ -89,6 +92,14 @@ public class AcademyService {
         KakaoMapAddress kakaoMapAddressXY = kakaoApiExample.addressXY(req.getAddress());
             req.setLon(kakaoMapAddressXY.getLongitude());
             req.setLat(kakaoMapAddressXY.getLatitude());
+
+        //사업자등록번호 존재여부 api 메소드 호출
+        BusinessApiNumber businessApiNumber = businessNumberValidation.isBusinessNumberValid(req.getBusinessNumber());
+
+            if(businessApiNumber == null || !businessApiNumber.isvalid()) {
+               throw new CustomException(AcademyException.NOT_FOUND_BUSINESSNUMBER);
+            }
+
 
 
 
@@ -164,22 +175,21 @@ public class AcademyService {
 
             // 학원 사진들
             List<String> picNameList = new ArrayList<>();
+        List<AcademyPic> picList = new ArrayList<>(pics.size());
             for (MultipartFile pic : pics) {
                 String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
                 picNameList.add(savedPicName);
                 String filePath = String.format("%s/%s", middlePath, savedPicName);
 
+                AcademyPicIds academyPicIds = new AcademyPicIds();
+                academyPicIds.setAcaId(acaId);
+                academyPicIds.setAcaPic(savedPicName);
+
+                AcademyPic academyPic = new AcademyPic();
+                academyPic.setAcademyPicIds(academyPicIds);
+                academyPic.setAcademy(academy);
+                picList.add(academyPic);
                 try {
-                    AcademyPicIds academyPicIds = new AcademyPicIds();
-                    academyPicIds.setAcaId(acaId);
-                    academyPicIds.setAcaPic(savedPicName);
-
-                    AcademyPic academyPic = new AcademyPic();
-                    academyPic.setAcademyPicIds(academyPicIds);
-                    academyPic.setAcademy(academy);
-
-                    academyPicRepository.save(academyPic);
-
                     myFileUtils.transferTo(pic, filePath);
                 } catch (IOException e) {
                     String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
@@ -187,6 +197,7 @@ public class AcademyService {
                     throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
                 }
             }
+            academyPicRepository.saveAll(picList);
 
 
 
@@ -196,9 +207,8 @@ public class AcademyService {
         academyPicDto.setPics(picNameList);*/ //2차때 사용함
 
         ////academyPicsMapper.insAcademyPics(academyPicDto); 2차때 사용함.
-        tagService.insTag(req.getTagNameList());
-
-        tagService.insAcaTag(req.getAcaId(), req.getTagIdList());
+        List<Tag> tagList = tagService.insTag(req.getTagNameList());
+        tagService.insAcaTag(academy, tagList);
 
         academyMessage.setMessage("학원정보등록이 완료되었습니다.");
         return 1;
@@ -385,7 +395,7 @@ public class AcademyService {
                 //academyMapper.delAcaTag(req.getAcaId());
                 tagService.delAcaTag(req.getAcaId());
                 //academyMapper.insAcaTag(req.getAcaId(), req.getTagIdList());
-                tagService.insAcaTag(req.getAcaId(), req.getTagIdList());
+                tagService.insAcaTag(academyRepository.findById(req.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY)), tagRepository.findAllById(req.getTagIdList()));
 
             } catch (DataIntegrityViolationException e) {
                 throw new CustomException(AcademyException.DUPLICATE_TAG);

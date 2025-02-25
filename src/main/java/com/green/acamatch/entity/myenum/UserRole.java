@@ -6,5 +6,22 @@ public enum UserRole {
     PARENT,
     ACADEMY,
     TEACHER,
-    NOT_SELECTED
+    NOT_SELECTED;
+
+    public boolean isAdmin() {
+        return this == ADMIN;
+    }
+
+    public boolean isTeacher() {
+        return this == TEACHER;
+    }
+
+    public boolean isAcademy() {
+        return this == ACADEMY;
+    }
+
+    // 관리자(ADMIN), 선생(TEACHER), 학원(Academy)만 가능
+    public boolean isAdminOrTeacherOrAcademy() {
+        return isAdmin() || isTeacher() || isAcademy();
+    }
 }

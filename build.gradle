@@ -67,6 +67,10 @@ dependencies {
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+    implementation 'net.nurigo:sdk:4.2.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'  // OkHttp
 }
 
 tasks.named('test') {

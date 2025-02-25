@@ -1,6 +1,6 @@
 package com.green.acamatch.entity.joinClass;
 
-import com.green.acamatch.entity.acaClass.Class;
+import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,7 +19,7 @@ public class JoinClass {
 
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
-    private Class classId;
+    private AcaClass classId;
 
     @ManyToOne
     @JoinColumn(name= "user_id", nullable = false)

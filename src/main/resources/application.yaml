@@ -9,9 +9,11 @@ global:
     authorized-redirect-uris: # 리다이렉트용 uri
       - http://localhost:8080/fe/redirect
       - http://192.168.0.144:5233/fe/redirect
-      - http://112.222.157.156:5233/fe/redirect
+      - http://112.222.157.157:5233/fe/redirect
       - http://www.acamatch.site:5233/fe/redirect
       - http://acamatch.site:5233/fe/redirect
+      - http://localhost:5173/fe/redirect
+      - http://localhost:4173/fe/redirect
 
 
 constant:
@@ -81,15 +83,15 @@ spring:
       client:
         registration:
           google:
-            client-id: 219121392500-vb17c3gq3to6uj79lflq184fgnb6ifnj.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 234430762638-2ts5p4hdsdk4ih509atrc0vf322nlgue.apps.googleusercontent.com
+            client-secret: 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
             scope: # 소셜로그인 했을때 받고 싶은 데이터
               - email # -(대쉬)이거는 리스트란 뜻
               - profile
           kakao:
             client-name: Kakao
-            client-id: 4f5352387e41bbc1faa5a04d9972142c
-            client-secret: xDvx5BLFh4LBc7EcVNa3GWkQZdsvM162
+            client-id: ccd750bb2f2b905d8894df3057e3bc64
+            client-secret: w2P4mrApZAzIfeK0G4g2HWO4ElfOuUy9
             client-authentication-method: client_secret_post # client-id, client-secret 쿼리스트링으로 날아가야 한다.
             authorization-grant-type: authorization_code #권한부여 유형(인기코드 -> access-token 받는 방식 선택)
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
@@ -104,8 +106,8 @@ spring:
 
           naver:
             client-name: Naver
-            client-id: q7Qm0LJNe56HRVfZtoTw
-            client-secret: 05t1i689nl
+            client-id: D5qrmc46UEI8U3w66t87
+            client-secret: QbVIlUQGg9
             client-authentication-method: client_secret_post # client-id, client-secret 쿼리스트링으로 날아가야 한다.
             authorization-grant-type: authorization_code #권한부여 유형(인기코드 -> access-token 받는 방식 선택)
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
@@ -135,6 +137,7 @@ spring:
     multipart:
       max-file-size: 30MB
       max-request-size: 150MB
+      enabled: true
   sql:
     init:
       mode: always
@@ -147,10 +150,13 @@ spring:
     show-sql: true
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
+        globally_quoted_identifiers: true
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   mail:
     host: smtp.gmail.com
     port: 587
@@ -176,3 +182,8 @@ springdoc:
     tags-sorter: alpha
   cache:
     disabled: true
+
+solapi:
+  api-key: NCSEUEYMFBLPYBNV
+  api-secret: 8AFKLPRTY7RTJIEFCUOLNVMF4GVIJ8RF
+  sender: "01022880426"

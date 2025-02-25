@@ -88,8 +88,9 @@ public class MyOauth2UserService extends DefaultOAuth2UserService {
         } else {
             user = userRepository.findById(snsUser.getUser().getUserId()).orElseThrow(() -> new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR));
         }
-
-
+        if (user.getUserRole().equals(UserRole.NOT_SELECTED)) {
+            needMoreData = true;
+        }
         return new OAuth2JwtUser(user.getEmail(), user.getNickName()
                 , user.getUserPic()
                 , user.getUserId()
