@@ -8,6 +8,9 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -26,7 +29,7 @@ public class AcademyUpdateReq {
     @Schema(title = "학원내용")
     private String comment;
     @Schema(title = "강사 수")
-    private int teacherNum;
+    private Integer teacherNum;
 
     /*@Schema(title = "학원주소")
     private AddressDto addressDto;*/
@@ -38,11 +41,11 @@ public class AcademyUpdateReq {
 
     @Schema(title = "오픈시간", example = "10:00")
     @JsonFormat(pattern = "HH:mm")
-    private String openTime;
+    private LocalTime openTime;
 
     @Schema(title = "마감시간", example = "20:00")
     @JsonFormat(pattern = "HH:mm")
-    private String closeTime;
+    private LocalTime closeTime;
 
     @Schema(title = "학원주소", example = "대구 중구 중앙대로395")
     private String address;
@@ -54,31 +57,25 @@ public class AcademyUpdateReq {
     private String postNum;
 
     @Schema(title = "학원정보등록승인여부", example = "1: 승인, 0: 미승인")
-    private int acaAgree;
+    private Integer acaAgree;
 
     @Schema(title = "태그Id 리스트")
-    private List<Long> tagIdList;
+    private List<String> tagNameList;
 
     @Schema(title = "프리미엄 학원 여부")
-    private int premium;
+    private Integer premium;
 
     @Schema(title = "위도")
-    private double lat;
+    private Double lat;
 
     @Schema(title = "경도")
-    private double lon;
+    private Double lon;
 
     @Schema(title = "사업자명")
     private String businessName;
 
     @Schema(title = "사업자번호")
     private String businessNumber;
-
-    @Schema(title = "사업자번호")
-    private String businessPic;
-
-    @Schema(title = "학원운영증")
-    private String operationLicencePic;
 
     @Schema(title = "법인번호")
     private String corporateNumber;

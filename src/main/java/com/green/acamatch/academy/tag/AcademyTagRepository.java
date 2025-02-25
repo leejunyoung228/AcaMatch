@@ -14,4 +14,6 @@ public interface AcademyTagRepository extends JpaRepository<AcademyTag, AcademyT
     @Modifying
     @Query(value = "delete from AcademyTag a where a.academy.acaId=:acaId")
     int deleteAcademytag(Long acaId);
+
+    void deleteAllByAcademy_AcaId(long acaId);
 }
