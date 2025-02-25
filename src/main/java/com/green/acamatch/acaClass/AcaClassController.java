@@ -54,7 +54,7 @@ public class AcaClassController {
 
     @PostMapping("dayRelation")
     @Operation(summary = "요일 관계 등록하기")
-    public ResultResponse<Integer> insAcaClassClassWeekDays(@RequestBody ClassWeekDays p) {
+    public ResultResponse<Integer> insAcaClassClassWeekDays(@RequestBody ClassWeekDaysReq p) {
         try {
             Integer result = service.insAcaClassClassWeekDays(p);
             return ResultResponse.<Integer>builder()
@@ -139,7 +139,7 @@ public class AcaClassController {
 
     @DeleteMapping("day")
     @Operation(summary = "강좌 요일 삭제하기/ 강좌가 열렸던 날 삭제")
-    public ResultResponse<Integer> delAcaClassDay(@ModelAttribute @ParameterObject ClassWeekDays p) {
+    public ResultResponse<Integer> delAcaClassDay(@ModelAttribute @ParameterObject ClassWeekDaysReq p) {
         Integer result = service.delAcaClassDay(p);
         return ResultResponse.<Integer>builder()
                 .resultMessage(userMessage.getMessage())
