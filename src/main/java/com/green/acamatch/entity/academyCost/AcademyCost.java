@@ -46,6 +46,9 @@ public class AcademyCost extends UpdatedAt {
     @ManyToOne
     private Product productId;
 
+    @Column(nullable = false)
+    private double fee;
+
     public void setProductId(Long productId) {
         this.productId = new Product();
         this.productId.setProductId(productId);
