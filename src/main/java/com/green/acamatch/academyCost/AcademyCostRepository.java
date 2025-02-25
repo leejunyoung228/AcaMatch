@@ -15,15 +15,6 @@ import java.util.List;
 
 @Repository
 public interface AcademyCostRepository extends JpaRepository<AcademyCost, Integer> {
-        @Query("SELECT a.tId FROM AcademyCost a WHERE a.tId = :TId")
-        String findTidByTid(@Param("TId") String TId);
-
-        @Query("SELECT a.userId FROM AcademyCost a WHERE a.tId = :TId")
-        String findUserIdByTid(@Param("TId") String TId);
-
-        @Query("SELECT a.productId FROM AcademyCost a WHERE a.tId = :TId")
-        Product findProductIdByTid(@Param("TId") String TId);
-
         @Modifying
         @Transactional
         @Query("UPDATE AcademyCost a SET a.cost_status = :status WHERE a.tId = :tid")
