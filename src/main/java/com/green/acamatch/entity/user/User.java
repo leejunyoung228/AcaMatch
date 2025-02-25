@@ -13,8 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @DynamicUpdate
-public class
-User extends UpdatedAt {
+public class User extends UpdatedAt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
