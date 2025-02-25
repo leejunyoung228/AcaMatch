@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "likes")
+@Table(name = "likes") // 'Like'는 예약어이므로 테이블명을 변경
 @Getter
 @Setter
 public class Like {
@@ -16,10 +16,12 @@ public class Like {
     private LikeIds likeIds;
 
     @ManyToOne
-    @MapsId("userId")  // userId는 복합키의 일부로 사용
+    @MapsId("userId")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @MapsId("acaId")  // acaId도 복합키의 일부로 사용
+    @MapsId("acaId")
+    @JoinColumn(name = "aca_id", nullable = false)
     private Academy academy;
 }
