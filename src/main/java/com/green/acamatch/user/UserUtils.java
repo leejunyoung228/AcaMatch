@@ -1,6 +1,5 @@
 package com.green.acamatch.user;
 
-import com.green.acamatch.acaClass.ClassRepository;
 import com.green.acamatch.config.CookieUtils;
 import com.green.acamatch.config.constant.JwtConst;
 import com.green.acamatch.config.exception.CustomException;
@@ -8,7 +7,6 @@ import com.green.acamatch.config.exception.ManagerErrorCode;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
 import com.green.acamatch.config.jwt.JwtUser;
-import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.UserSignInRes;
 import com.green.acamatch.user.model.UserSignUpReq;
@@ -29,7 +27,6 @@ public class UserUtils {
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtils cookieUtils;
     private final JwtConst jwtConst;
-    private final ClassRepository classRepository;
 
     public int checkDuplicate(String text, String type) {
         switch (type) {
@@ -99,23 +96,6 @@ public class UserUtils {
 
     public void validateUserPermission(long userId) {
         if (!isAllowedUser(userId)) {
-            throw new CustomException(ManagerErrorCode.PERMISSION_DENIED);
-        }
-    }
-
-    /**
-     * 특정 수업의 담당 선생님인지 확인
-     */
-    public boolean isTeacherOfClass(long userId, long classId) {
-        Teacher teacher = classRepository.findTeacherByClassId(classId);
-        return teacher != null && teacher.getTeacherIds().getUserId().equals(userId);
-    }
-
-    /**
-     * 특정 수업의 담당 선생님인지 검증 (권한 없을 경우 예외 발생)
-     */
-    public void validateTeacherPermission(long userId, long classId) {
-        if (!isTeacherOfClass(userId, classId)) {
             throw new CustomException(ManagerErrorCode.PERMISSION_DENIED);
         }
     }
