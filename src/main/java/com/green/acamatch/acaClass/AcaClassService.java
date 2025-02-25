@@ -3,11 +3,9 @@ package com.green.acamatch.acaClass;
 import com.green.acamatch.acaClass.model.*;
 import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academyCost.ProductRepository;
-import com.green.acamatch.config.exception.AcademyException;
-import com.green.acamatch.config.exception.CustomException;
-import com.green.acamatch.config.exception.ManagerErrorCode;
-import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.config.exception.*;
 import com.green.acamatch.entity.acaClass.AcaClass;
+import com.green.acamatch.entity.acaClass.ClassWeekdays;
 import com.green.acamatch.entity.acaClass.Weekdays;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academyCost.Product;
@@ -96,11 +94,11 @@ public class AcaClassService {
 
     //개강날 등록
     @Transactional
-    public int insAcaClassClassWeekDays(ClassWeekDays p) {
+    public int insAcaClassClassWeekDays(ClassWeekDaysReq p) {
         try {
-            ClassWeekDays classWeekDays = new ClassWeekDays();
-            classWeekDays.setClassId(p.getClassId());
-            classWeekDays.setDayId(p.getDayId());
+            ClassWeekdays classWeekDays = new ClassWeekdays();
+            classWeekDays.setClassId(classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER)));
+            classWeekDays.setDay(weekDaysRepository.findById(p.getDayId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER)));
             classWeekDaysRepository.save(classWeekDays);
 
             if (classWeekDaysRepository.existsClassWeekDays(p.getClassId(), p.getDayId())) {
@@ -201,7 +199,7 @@ public class AcaClassService {
     }
 
     // 수업이 열리는 요일 삭제하기
-    public int delAcaClassDay(ClassWeekDays p) {
+    public int delAcaClassDay(ClassWeekDaysReq p) {
         int result = mapper.delAcaClassDay(p);
 
         if (result == 1) {
