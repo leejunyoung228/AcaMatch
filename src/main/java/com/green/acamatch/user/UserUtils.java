@@ -1,5 +1,6 @@
 package com.green.acamatch.user;
 
+import com.green.acamatch.acaClass.ClassRepository;
 import com.green.acamatch.config.CookieUtils;
 import com.green.acamatch.config.constant.JwtConst;
 import com.green.acamatch.config.exception.CustomException;
@@ -7,6 +8,7 @@ import com.green.acamatch.config.exception.ManagerErrorCode;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
 import com.green.acamatch.config.jwt.JwtUser;
+import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.UserSignInRes;
 import com.green.acamatch.user.model.UserSignUpReq;
@@ -27,6 +29,7 @@ public class UserUtils {
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtils cookieUtils;
     private final JwtConst jwtConst;
+    private final ClassRepository classRepository;
 
     public int checkDuplicate(String text, String type) {
         switch (type) {
@@ -47,7 +50,6 @@ public class UserUtils {
     }
 
     public User generateUserByUserSignUpReq(UserSignUpReq req) {
-        // 새로운 일반 로그인 계정 생성
         User user = new User();
         user.setName(req.getName());
         user.setEmail(req.getEmail());
@@ -56,10 +58,8 @@ public class UserUtils {
         user.setPhone(req.getPhone());
         user.setNickName(req.getNickName());
         user.setUserRole(req.getUserRole());
-
         return user;
     }
-
 
     public UserSignInRes generateUserSignInResByUser(User user, HttpServletResponse response) {
         List<String > roles = new ArrayList<>();

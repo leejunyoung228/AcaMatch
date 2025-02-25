@@ -10,6 +10,3 @@ spring:
       url: jdbc:log4jdbc:mariadb://192.168.0.144/db_even_last_3
       username: even_last_3
       password: exynos
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
