@@ -1,6 +1,7 @@
 package com.green.acamatch.entity.academyCost;
 
-import com.green.acamatch.entity.acaClass.Class;
+
+import com.green.acamatch.entity.acaClass.AcaClass;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,7 @@ public class Product {
 
     @JoinColumn(name = "class_id")
     @ManyToOne
-    private AcaClass acaClass;
+    private AcaClass classId;
 
     @JoinColumn(name = "book_id")
     @ManyToOne
