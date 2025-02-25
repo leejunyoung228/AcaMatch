@@ -15,6 +15,12 @@ public interface PremiumRepository extends JpaRepository<PremiumAcademy, Long> {
 
     @Transactional
     @Modifying
+    @Query(" delete from PremiumAcademy a where a.acaId = :acaId")
+    int deleteByAcaId(@Param("acaId") Long acaId);
+
+
+    @Transactional
+    @Modifying
     @Query(" delete from PremiumAcademy a where a.endDate <= :now")
     int deletePremiumAcademyByEndDate(@Param("now") LocalDate now);
 }
