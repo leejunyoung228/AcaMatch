@@ -3,7 +3,6 @@ package com.green.acamatch.entity.review;
 import com.green.acamatch.entity.datetime.UpdatedAt;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.entity.myenum.UserRole;
-import com.green.acamatch.entity.reports.Reports;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,19 +27,20 @@ public class Review extends UpdatedAt {
     @Column(nullable = false)
     private double star;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Column
     private String comment;
 
     // 'role_id' 컬럼과 'role' 객체 연결
     @Enumerated(EnumType.STRING) // 문자열로 저장
-    @Column(nullable = false, columnDefinition = "VARCHAR(10) DEFAULT 'STUDENT'")
+    @Column(nullable = false)
     private UserRole roleType;
 
     @ManyToOne
     @JoinColumn(name = "join_class_id", nullable = false)
     private JoinClass joinClass;
 
-    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    @Column(nullable = false)
     private int banReview = 0; // 기본값 0 (정상 상태)
 
 

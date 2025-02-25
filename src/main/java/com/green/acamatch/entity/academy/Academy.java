@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -18,6 +19,7 @@ import java.util.List;
 @Setter
 @Entity
 @EqualsAndHashCode(callSuper = false)
+@DynamicUpdate
 public class Academy extends CreatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +28,6 @@ public class Academy extends CreatedAt {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @Column(name = "user_id", nullable = false, insertable=false, updatable=false)
-    private Long userId;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "academy")
     @JsonIgnore
@@ -59,10 +58,10 @@ public class Academy extends CreatedAt {
     @Column
     private int teacherNum;
 
-    @Column(nullable = false, columnDefinition = "TIME(0)")
+    @Column(nullable = false)
     private LocalTime openTime;
 
-    @Column(nullable = false, columnDefinition = "TIME(0)")
+    @Column(nullable = false)
     private LocalTime closeTime;
 
     @Column(length = 100, nullable = false)

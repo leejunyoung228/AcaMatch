@@ -15,7 +15,7 @@ public class Product {
 
     @JoinColumn(name = "class_id")
     @ManyToOne
-    private AcaClass classId;
+    private AcaClass acaClass;
 
     @JoinColumn(name = "book_id")
     @ManyToOne
