@@ -41,10 +41,10 @@ public class AcademyController {
     @PutMapping
     @Operation(summary = "학원정보수정", description = "acaId, userId는 필수로 받고, 수정하기 원하는 항목 값을 입력합니다.")
     public ResultResponse<Integer> putAcademy(@RequestPart(required = false) List<MultipartFile> pics
-                                            , @RequestPart(required = false) MultipartFile businessPic
-                                            , @RequestPart(required = false) MultipartFile operationLicencePic
+                                            , @RequestPart(required = false) MultipartFile businessLicensePic
+                                            , @RequestPart(required = false) MultipartFile operationLicensePic
                                             , @RequestPart AcademyUpdateReq req) {
-        int result = academyService.updAcademy(pics, businessPic, operationLicencePic, req);
+        int result = academyService.updAcademy(pics, businessLicensePic, operationLicensePic, req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(result)
