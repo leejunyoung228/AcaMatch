@@ -1,14 +1,15 @@
 package com.green.acamatch.refund;
 
 import com.green.acamatch.config.model.ResultResponse;
+import com.green.acamatch.refund.model.GetRefundRes;
 import com.green.acamatch.refund.model.PostRefundReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/refund")
 @RestController
@@ -24,6 +25,26 @@ public class RefundController {
         return ResultResponse.<Integer>builder()
                 .resultMessage("환불 등록 성공")
                 .resultData(result)
+                .build();
+    }
+
+    @GetMapping("getRefundList")
+    @Operation(summary = "환불 내역 가져오기")
+    public ResultResponse<List<GetRefundRes>> getRefundList(){
+        List<GetRefundRes> res = refundService.getRefundRes();
+        return ResultResponse.<List<GetRefundRes>>builder()
+                .resultMessage("출력 성공")
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("getRefundListByUserId/{userId}")
+    @Operation(summary = "유저 PK를 받아 환불 내역 가져오기")
+    public ResultResponse<List<GetRefundRes>> getRefundListByUserId(@PathVariable long userId){
+        List<GetRefundRes> res = refundService.getRefundResList(userId);
+        return ResultResponse.<List<GetRefundRes>>builder()
+                .resultMessage("출력 성공")
+                .resultData(res)
                 .build();
     }
 }
