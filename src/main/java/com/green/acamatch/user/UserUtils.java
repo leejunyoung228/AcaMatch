@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -51,21 +50,6 @@ public class UserUtils {
     }
 
     public User generateUserByUserSignUpReq(UserSignUpReq req) {
-        // 이메일 중복 검사
-        Optional<User> existingUser = userRepository.findByEmail(req.getEmail());
-
-        if (existingUser.isPresent()) {
-            User user = existingUser.get();
-
-            // 기존 계정이 SNS 로그인 계정이라면, 일반 가입 불가능
-            if (user.isSocialLogin()) {
-                throw new CustomException(UserErrorCode.USE_SOCIAL_LOGIN);
-            }
-
-            // 기존에 일반 계정이 있으면 회원가입 불가능
-            throw new CustomException(UserErrorCode.DUPLICATE_USER_EMAIL);
-        }
-
         // 새로운 일반 로그인 계정 생성
         User user = new User();
         user.setName(req.getName());
