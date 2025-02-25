@@ -46,4 +46,21 @@ public class User extends UpdatedAt {
 
     @Column()
     private String userPic;
+
+    // SNS 로그인 정보 추가
+    @Column(length = 20)
+    private String provider; // "GOOGLE", "NAVER", "KAKAO" 등의 SNS 로그인 제공자
+
+    @Column(length = 50)
+    private String providerId; // SNS 로그인 사용자의 고유 ID
+
+    // 일반 로그인 계정인지 확인
+    public boolean isNormalLogin() {
+        return provider == null;
+    }
+
+    // SNS 로그인 계정인지 확인
+    public boolean isSocialLogin() {
+        return provider != null;
+    }
 }

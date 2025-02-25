@@ -1,6 +1,6 @@
 package com.green.acamatch.entity.academyCost;
 
-import com.green.acamatch.entity.acaClass.Class;
+import com.green.acamatch.entity.acaClass.AcaClass;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +15,7 @@ public class Book {
 
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
-    private Class classId;
+    private AcaClass classId;
 
     @Column(nullable = false)
     private String bookPic;
@@ -34,7 +34,7 @@ public class Book {
 
 
     public void setClassId(Long classId) {
-        this.classId = new Class();
+        this.classId = new AcaClass();
         this.classId.setClassId(classId);
     }
 }

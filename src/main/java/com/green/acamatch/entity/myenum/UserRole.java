@@ -19,4 +19,9 @@ public enum UserRole {
     public boolean isAcademy() {
         return this == ACADEMY;
     }
+
+    // 관리자(ADMIN), 선생(TEACHER), 학원(Academy)만 가능
+    public boolean isAdminOrTeacherOrAcademy() {
+        return isAdmin() || isTeacher() || isAcademy();
+    }
 }

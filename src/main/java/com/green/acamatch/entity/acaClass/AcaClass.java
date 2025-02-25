@@ -1,6 +1,7 @@
 package com.green.acamatch.entity.acaClass;
 
 import com.green.acamatch.entity.academy.Academy;
+import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,8 +13,8 @@ import java.time.LocalTime;
 @Setter
 @Getter
 @Entity
-@Table(name = "class")
-public class Class {
+@Table(name = "aca_class")
+public class AcaClass {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long classId;
@@ -46,4 +47,12 @@ public class Class {
 
     @Column(length = 11, nullable = false)
     private int price;
+
+    // 복합키 기반으로 Teacher와 연결
+    @ManyToOne
+    @JoinColumns({
+            @JoinColumn(name = "teacher_user_id", referencedColumnName = "user_id"),
+            @JoinColumn(name = "teacher_aca_id", referencedColumnName = "aca_id")
+    })
+    private Teacher teacher;  // 담당 선생님
 }
