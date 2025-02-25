@@ -17,11 +17,17 @@ global:
 
 
 constant:
+  academy-const:
+    academy-pic-file-path: academy/%d
+    business-license-file-path: businessLicense/%d
+    operation-license-file-path: operationLicense/%d
+
   address-const:
     start-sep: "@"
     end-sep: "#"
     detail-address-sep: detail
     post-num-sep: post
+
   api-const:
     api-key: sk-svcacct-cypWCFbSA26kot7wBIEeiYgB_z1JKWr-UgnLrzROTJ-DJAt9ng5LCLFCi7K8HN9qYoNzIcT3BlbkFJmAfc2cveEr_hfhnfSSdZbbUyDSU-ZXN1tVdYDiU8junu5C90Y9-gz11upsLEmpF7qfIboA
 
@@ -150,7 +156,7 @@ spring:
     show-sql: true
     open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
