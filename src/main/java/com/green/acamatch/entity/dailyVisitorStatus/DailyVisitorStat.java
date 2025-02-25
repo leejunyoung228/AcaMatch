@@ -29,18 +29,19 @@ public class DailyVisitorStat {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_id"))
     private User user;
 
-    @Column(length = 100, nullable = false)
+    @Column(name = "visit_date", nullable = false) // 예약어 충돌 방지
+    private LocalDate date;
+
+    @Column(name = "session_id", length = 100, nullable = false) // 카멜케이스 문제 방지
     private String sessionId;
 
-    @Column(length = 45, nullable = false)
+    @Column(name = "ip_address", length = 45, nullable = false) // 카멜케이스 문제 방지
     private String ipAddress;
 
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime lastVisit;
 
-    @Column(nullable = false)
-    private LocalDate date;
 
     @Column(nullable = false)
     private Integer visitCount = 1;
