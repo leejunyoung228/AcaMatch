@@ -2,6 +2,7 @@ package com.green.acamatch.user.model;
 
 import com.green.acamatch.entity.myenum.UserRole;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,15 +11,15 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class SimpleUserDataUpdateReq {
-    @NotEmpty
+    @NotNull
     private Long userId;
-    @NotEmpty
+    @NotNull
     private UserRole userRole;
     @NotEmpty
     private String name;
     @NotEmpty
     private String phone;
-    @NotEmpty
+    @NotNull
     private LocalDate birth;
     @NotEmpty
     private String nickName;
