@@ -6,6 +6,7 @@ import com.green.acamatch.academyCost.ProductRepository;
 import com.green.acamatch.config.exception.*;
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.acaClass.ClassWeekdays;
+import com.green.acamatch.entity.acaClass.ClassWeekdaysIds;
 import com.green.acamatch.entity.acaClass.Weekdays;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academyCost.Product;
@@ -83,14 +84,14 @@ public class AcaClassService {
     @Transactional
     public int insWeekDay(WeekDays p) {
         try {
-            Weekdays weekdays = new Weekdays();
-            weekdays.setDay(p.getDay());
-            weekDaysRepository.save(weekdays);
-
+            // 이미 존재하는 요일인지 확인
             if (weekDaysRepository.existsDay(p.getDay()) > 0) {
                 throw new IllegalArgumentException("이미 존재하는 요일입니다.");
             }
 
+            // 존재하지 않으면 새로 등록
+            Weekdays weekdays = new Weekdays();
+            weekdays.setDay(p.getDay());
             weekDaysRepository.save(weekdays);
             return 1;
         } catch (CustomException e) {
@@ -103,16 +104,32 @@ public class AcaClassService {
     @Transactional
     public int insAcaClassClassWeekDays(ClassWeekDaysReq p) {
         try {
-            ClassWeekdays classWeekDays = new ClassWeekdays();
-            classWeekDays.setClassId(classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER)));
-            classWeekDays.setDay(weekDaysRepository.findById(p.getDayId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER)));
-            classWeekDaysRepository.save(classWeekDays);
+            // 강좌가 존재하는지 확인
+            AcaClass acaClass = classRepository.findById(p.getClassId())
+                    .orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
 
-            if (classWeekDaysRepository.existsClassWeekDays(p.getClassId(), p.getDayId()) > 0) {
+            // 요일이 존재하는지 확인
+            Weekdays weekdays = weekDaysRepository.findById(p.getDayId())
+                    .orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_DAY));
+
+            // 중복된 강좌 요일이 있는지 확인
+            if (classWeekDaysRepository.existsClassWeekDays(p.getDayId(), p.getClassId()) > 0) {
                 throw new IllegalArgumentException("중복된 강좌 요일입니다.");
             }
 
+            // ClassWeekdaysIds 생성 및 classId, dayId 설정
+            ClassWeekdaysIds classWeekdaysIds = new ClassWeekdaysIds();
+            classWeekdaysIds.setClassId(acaClass.getClassId());  // AcaClass의 ID 값을 설정
+            classWeekdaysIds.setDayId(weekdays.getDayId());    // Weekdays의 ID 값을 설정
+
+            // 새 ClassWeekdays 객체 생성 및 저장
+            ClassWeekdays classWeekDays = new ClassWeekdays();
+
+            classWeekDays.setClassWeekdaysIds(classWeekdaysIds);
+            classWeekDays.setClassId(acaClass);
+            classWeekDays.setDay(weekdays);
             classWeekDaysRepository.save(classWeekDays);
+
             return 1;
         } catch (CustomException e) {
             e.getMessage();
@@ -128,13 +145,20 @@ public class AcaClassService {
             classCategory.setClassId(classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS)));
             Category category = categoryRepository.findById(p.getCategoryId())
                     .orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CATEGORY));
-            classCategory.setCategoryId(category);
-            classCategoryRepository.save(classCategory);
 
             if (classCategoryRepository.existsCategory(p.getClassId(), p.getCategoryId()) > 0) {
                 throw new IllegalArgumentException("중복된 카테고리입니다.");
             }
+
+            AcaClass acaClass = new AcaClass();
+            ClassCategoryIds classCategoryIds = new ClassCategoryIds();
+            classCategoryIds.setCategoryId(category.getCategoryId());
+            classCategoryIds.setClassId(acaClass.getClassId());
+
+            classCategory.setClassCategoryIds(classCategoryIds);
+            classCategory.setCategoryId(category);
             classCategoryRepository.save(classCategory);
+
             return 1;
         } catch (CustomException e) {
             e.getMessage();
@@ -197,21 +221,24 @@ public class AcaClassService {
             Academy academy = academyRepository.findById(p.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
             AcaClass acaClass = classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
             acaClass.setAcademy(academy);
-            acaClass.setClassId(p.getClassId());
-            if (!StringUtils.hasText(p.getClassName())) {
+            acaClass.setClassId(acaClass.getClassId());
+            if (p.getClassName() != null && p.getClassName().isEmpty()) {
                 throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
             }
-            if (!StringUtils.hasText(p.getClassComment())) {
+            if (p.getClassComment() != null && p.getClassComment().isEmpty()) {
                 throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
             }
-
-            if (p.getPrice() <= 0) {
+            if (p.getPrice() < 0) {
                 throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
             }
 
             acaClass.setClassName(p.getClassName());
             acaClass.setClassComment(p.getClassComment());
             acaClass.setPrice(p.getPrice());
+            acaClass.setStartDate(p.getStartDate());
+            acaClass.setEndDate(p.getEndDate());
+            acaClass.setStartTime(p.getStartTime());
+            acaClass.setEndTime(p.getEndTime());
 
             classRepository.save(acaClass);
             return 1;
@@ -233,10 +260,16 @@ public class AcaClassService {
     //class 삭제
     public int delAcaClass(AcaClassDelReq p) {
         try {
+            Academy academy = academyRepository.findById(p.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
             AcaClass acaClass = classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
-            classRepository.delete(acaClass);
-            return 1;
-        }catch (CustomException e) {
+
+            if (academy.getAcaId().equals(acaClass.getAcademy().getAcaId())) {
+                classRepository.delete(acaClass);
+                return 1;
+            } else {
+                throw new CustomException(AcaClassErrorCode.INVALID_DAY_FOR_CLASS);
+            }
+        } catch (CustomException e) {
             e.getMessage();
             return 0;
         }
@@ -263,7 +296,7 @@ public class AcaClassService {
             } else {
                 throw new CustomException(AcaClassErrorCode.INVALID_DAY_FOR_CLASS);
             }
-        }catch (CustomException e) {
+        } catch (CustomException e) {
             e.getMessage();
             return 0;
         }

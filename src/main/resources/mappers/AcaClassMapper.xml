@@ -88,14 +88,14 @@
     <select id="selAcaClassDetail" resultMap="ClassResultMap">
         SELECT B.aca_name, A.class_id, A.class_name, A.class_comment, A.start_date, A.end_date, A.start_time, A.end_time, A.price,
         D.`day`, F.category_name
-        FROM class A
+        FROM aca_class A
         INNER JOIN academy B
         ON A.aca_id = B.aca_id
-        LEFT JOIN classweekdays C
+        LEFT JOIN class_weekdays C
         ON C.class_id = A.class_id
         LEFT JOIN weekdays D
         ON C.day_id = D.day_id
-        LEFT JOIN classcategory E
+        LEFT JOIN class_category E
         ON A.class_id = E.class_id
         LEFT JOIN category F
         ON E.category_id = F.category_id
@@ -107,10 +107,10 @@
     <!-- 특정 수업에 등록한 user 가져오기 -->
     <select id="selAcaClassToUser">
         SELECT B.aca_name, A.class_name, A.start_date, A.end_date, B.aca_pic
-        FROM class A
+        FROM aca_class A
         INNER JOIN academy B
         ON A.aca_id = B.aca_id
-        INNER JOIN joinclass C
+        INNER JOIN join_class C
         ON A.class_id = C.class_id
         INNER JOIN user D
         ON C.user_id = D.user_id
@@ -121,8 +121,8 @@
     <!-- 특정 user가 등록한 수업 가져오기 -->
     <select id="selAcaClassUser">
         SELECT C.user_id, C.user_pic, C.name, C.phone, C.birth
-        FROM joinclass A
-        INNER JOIN class B
+        FROM join_class A
+        INNER JOIN aca_class B
         ON A.class_id = B.class_id
         INNER JOIN user C
         ON A.user_id = C.user_id
@@ -132,10 +132,12 @@
 
     <!-- 학원당 강좌 가져오기 -->
     <select id = "selAcaClass">
-        SELECT A.aca_pic, B.class_id, B.class_name, B.start_date, B.end_date
+        SELECT C.aca_pic, B.class_id, B.class_name, B.start_date, B.end_date
         FROM academy A
-        INNER JOIN class B
+        INNER JOIN aca_class B
         ON A.aca_id = B.aca_id
+        INNER JOIN academy_pic C
+        ON A.aca_id = C.aca_id
         WHERE A.aca_id = #{acaId}
         LIMIT #{startIdx}, #{size}
     </select>
