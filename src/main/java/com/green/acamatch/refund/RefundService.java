@@ -3,8 +3,10 @@ package com.green.acamatch.refund;
 import com.green.acamatch.entity.academyCost.Refund;
 import com.green.acamatch.refund.model.GetRefundRes;
 import com.green.acamatch.refund.model.PostRefundReq;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +38,11 @@ public class RefundService {
         return res;
     }
 
-    public int updateRefund(Long refundId){
-        int result = refundRepository.updateRefundStatusToApproved(refundId);
-        return 1;
+    @Transactional  // Service 레이어에서 트랜잭션 관리
+    public void updateRefund(Long refundId) {
+        int updatedRows = refundRepository.updateRefundStatusToApproved(refundId);
+        if (updatedRows == 0) {
+            throw new EntityNotFoundException("해당 refundId에 대한 환불 정보가 없습니다: " + refundId);
+        }
     }
 }

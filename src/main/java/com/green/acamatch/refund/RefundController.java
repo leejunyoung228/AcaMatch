@@ -47,4 +47,14 @@ public class RefundController {
                 .resultData(res)
                 .build();
     }
+
+    @PutMapping("updateRefund")
+    @Operation(summary = "환불 상태를 환불 전 -> 환불 완료로 교체")
+    public ResultResponse<Integer> updateRefund(@ParameterObject long refundId){
+        refundService.updateRefund(refundId);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("수정 완료")
+                .resultData(1)
+                .build();
+    }
 }
