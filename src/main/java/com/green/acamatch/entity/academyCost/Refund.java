@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class refund extends UpdatedAt {
+public class Refund extends UpdatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long refundId;
@@ -17,9 +17,14 @@ public class refund extends UpdatedAt {
     @JoinColumn(name = "cost_id", nullable = false)
     private AcademyCost academyCost;
 
-    @Column
+    @Column(length = 300)
     private String refundComment;
 
     @Column(nullable = false)
     private int refundStatus;
+
+    public void setAcademyCost(long costId) {
+        this.academyCost = new AcademyCost();
+        this.academyCost.setCostId(costId);
+    }
 }
