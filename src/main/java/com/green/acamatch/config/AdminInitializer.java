@@ -20,7 +20,7 @@ public class AdminInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        String adminEmail = "acamatch@google.com";
+        String adminEmail = "acamatch@gmail.com";
 
         // 관리자 계정이 없을 때만 생성
         if (!userRepository.existsByEmail(adminEmail)) {
