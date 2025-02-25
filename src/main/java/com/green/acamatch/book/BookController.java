@@ -45,8 +45,10 @@ public class BookController {
 
     @PutMapping("updateBook")
     @Operation(summary = "책 정보 수정")
-    public ResultResponse<Integer> updateBook(@ParameterObject BookUpdateReq req){
-        int result = bookService.updateBook(req);
+    public ResultResponse<Integer> updateBook(@RequestPart BookUpdateReq req,
+                                              @RequestPart(required = false) MultipartFile file){
+
+        int result = bookService.updateBook(req, file);
         return ResultResponse.<Integer>builder()
                 .resultMessage(bookMessage.getMessage())
                 .resultData(result)
