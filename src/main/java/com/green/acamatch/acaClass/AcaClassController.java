@@ -38,35 +38,21 @@ public class AcaClassController {
     @PostMapping("weekdays")
     @Operation(summary = "요일 등록하기/순서 맞게 월,화,수,목,금,토,일 등록")
     public ResultResponse<Integer> insWeekDay(@RequestBody WeekDays p) {
-        try {
             Integer result = service.insWeekDay(p);
             return ResultResponse.<Integer>builder()
                     .resultMessage("요일 등록에 성공하였습니다.")
                     .resultData(result)
                     .build();
-        } catch (IllegalArgumentException e) {
-            return ResultResponse.<Integer>builder()
-                    .resultMessage(e.getMessage())
-                    .resultData(0)
-                    .build();
-        }
     }
 
     @PostMapping("dayRelation")
     @Operation(summary = "요일 관계 등록하기")
     public ResultResponse<Integer> insAcaClassClassWeekDays(@RequestBody ClassWeekDaysReq p) {
-        try {
             Integer result = service.insAcaClassClassWeekDays(p);
             return ResultResponse.<Integer>builder()
                     .resultMessage("요일 관계 등록에 성공하였습니다.")
                     .resultData(result)
                     .build();
-        } catch (IllegalArgumentException e) {
-            return ResultResponse.<Integer>builder()
-                    .resultMessage(e.getMessage())
-                    .resultData(0)
-                    .build();
-        }
     }
 
     @PostMapping("classCategory")
@@ -122,7 +108,7 @@ public class AcaClassController {
     public ResultResponse<Integer> putAcaClass(@RequestBody AcaClassPutReq p) {
         Integer result = service.updAcaClass(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage())
+                .resultMessage(result == 1 ? "강좌 수정 성공" : "강좌 수정 실패")
                 .resultData(result)
                 .build();
     }
@@ -132,7 +118,7 @@ public class AcaClassController {
     public ResultResponse<Integer> delAcaClass(@ModelAttribute @ParameterObject AcaClassDelReq p) {
         Integer result = service.delAcaClass(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage())
+                .resultMessage(result == 1 ? "강좌 삭제 성공" : "강좌 삭제 실패")
                 .resultData(result)
                 .build();
     }
@@ -142,7 +128,7 @@ public class AcaClassController {
     public ResultResponse<Integer> delAcaClassDay(@ModelAttribute @ParameterObject ClassWeekDaysReq p) {
         Integer result = service.delAcaClassDay(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage())
+                .resultMessage(result == 1 ? "강좌 요일 삭제 성공" : "강좌 요일 삭제 실패")
                 .resultData(result)
                 .build();
     }

@@ -23,10 +23,6 @@ public class AcaClass {
     @JoinColumn(name = "aca_id", nullable = false)
     private Academy academy;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
     @Column(length = 50, nullable = false)
     private String className;
 

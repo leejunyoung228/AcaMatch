@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface WeekDaysRepository extends JpaRepository<Weekdays, Long> {
 
     @Query("SELECT COUNT(*) FROM Weekdays a WHERE a.day = :day")
-    boolean existsDay(String day);
+    Long existsDay(String day);
 }
