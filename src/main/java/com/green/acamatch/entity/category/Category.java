@@ -14,7 +14,6 @@ public class Category {
     private Long categoryId;
 
     @ManyToOne
-    @MapsId("categoryTypeId")
     @JoinColumn(name = "category_type_id", nullable = false)
     private CategoryType categoryType;
 
