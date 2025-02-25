@@ -1,23 +1,16 @@
 package com.green.acamatch.acaClass;
 
 import com.green.acamatch.acaClass.model.*;
-import com.green.acamatch.config.exception.CustomException;
-import com.green.acamatch.config.exception.ErrorCode;
-import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
-import com.green.acamatch.config.jwt.JwtUser;
+import com.green.acamatch.entity.user.User;
+import com.green.acamatch.joinClass.model.JoinClassRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
-
-import static com.green.acamatch.config.exception.UserErrorCode.USER_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -25,47 +18,11 @@ import static com.green.acamatch.config.exception.UserErrorCode.USER_NOT_FOUND;
 public class AcaClassService {
     private final AcaClassMapper mapper;
     private final UserMessage userMessage;
+    private final JoinClassRepository joinClassRepository;
 
-    /**  JWT에서 userId 가져오기 */
-    private JwtUser getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()|
-                authentication.getPrincipal().equals("anonymousUser")) {
-            userMessage.setMessage("로그인이 필요합니다.");
-            throw new CustomException(UserErrorCode.UNAUTHENTICATED);
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof JwtUser) {
-            return (JwtUser) principal;
-        } else if (principal instanceof String) {
-            try {
-                return new JwtUser(Long.parseLong((String) principal), Collections.emptyList());
-            } catch (NumberFormatException e) {
-                userMessage.setMessage("잘못된 인증 정보입니다.");
-                throw new CustomException(UserErrorCode.UNAUTHENTICATED);
-            }
-        } else {
-            userMessage.setMessage("알 수 없는 사용자 타입입니다.");
-            throw new CustomException(UserErrorCode.UNAUTHENTICATED);
-        }
-    }
-
-    /**  로그인된 사용자 검증 */
-    private void validateAuthenticatedUser(long requestUserId) {
-        long jwtUserId = getAuthenticatedUser().getSignedUserId();
-
-        //  사용자 존재 여부 체크 추가
-        validateUserExists(jwtUserId);
-
-        if (jwtUserId != requestUserId) {
-            throw new CustomException(USER_NOT_FOUND.UNAUTHENTICATED);
-        }
-    }
-
-    private void validateUserExists(long jwtUserId) {
+    // 특정 학원의 특정 수업을 듣는 학생(또는 학부모) 목록 조회
+    public List<User> findStudentsByClassId(Long classId) {
+        return joinClassRepository.findStudentsByClassId(classId);
     }
 
     //수업 등록
@@ -77,8 +34,7 @@ public class AcaClassService {
             throw new IllegalArgumentException("이미 존재하는 강좌입니다.");
         }
 
-        int result = mapper.insAcaClass(p);
-        return result;
+        return mapper.insAcaClass(p);
     }
 
     //요일 등록
