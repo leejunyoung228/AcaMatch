@@ -91,6 +91,7 @@ public class KakaoPayService {
         }
         String tid = kakaoReady.getTid();
         academyCost.setTId(tid);
+        academyCost.setFee(academyCost.getPrice() * 0.01);
         academyCostRepository.save(academyCost);
 
         return kakaoReady;
