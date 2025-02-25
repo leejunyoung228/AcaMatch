@@ -22,5 +22,5 @@ public interface ClassRepository extends JpaRepository<AcaClass, Long> {  // ✅
     Teacher findTeacherByClassId(@Param("classId") Long classId);
 
     @Query("SELECT COUNT(*) FROM AcaClass a WHERE a.academy.acaId = :acaId AND a.className = :className")
-    boolean existsByAcaIdAndClassName(Long acaId, String className);
+    Long existsByAcaIdAndClassName(Long acaId, String className);
 }

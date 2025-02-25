@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface ClassWeekDaysRepository extends JpaRepository<ClassWeekdays, ClassWeekdaysIds> {
 
     @Query("SELECT COUNT(*) FROM ClassWeekdays a WHERE a.classWeekdaysIds.dayId = :dayId AND a.classId = :classId")
-    boolean existsClassWeekDays(Long dayId, Long classId);
+    Long existsClassWeekDays(Long dayId, Long classId);
 }

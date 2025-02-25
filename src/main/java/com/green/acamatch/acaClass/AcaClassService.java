@@ -9,6 +9,9 @@ import com.green.acamatch.entity.acaClass.ClassWeekdays;
 import com.green.acamatch.entity.acaClass.Weekdays;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academyCost.Product;
+import com.green.acamatch.entity.category.Category;
+import com.green.acamatch.entity.category.ClassCategory;
+import com.green.acamatch.entity.category.ClassCategoryIds;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.model.JoinClassRepository;
@@ -32,6 +35,8 @@ public class AcaClassService {
     private final ProductRepository productRepository;
     private final WeekDaysRepository weekDaysRepository;
     private final ClassWeekDaysRepository classWeekDaysRepository;
+    private final ClassCategoryRepository classCategoryRepository;
+    private final CategoryRepository categoryRepository;
 
     // 특정 학원의 특정 수업을 듣는 학생(또는 학부모) 목록 조회
     public List<User> findStudentsByClassId(Long classId) {
@@ -61,7 +66,7 @@ public class AcaClassService {
             product.setProductPrice(product.getProductPrice());
             productRepository.save(product);
 
-            if (classRepository.existsByAcaIdAndClassName(p.getAcaId(), p.getClassName())) {
+            if (classRepository.existsByAcaIdAndClassName(p.getAcaId(), p.getClassName()) > 0) {
                 throw new IllegalArgumentException("이미 존재하는 강좌입니다.");
             }
             classRepository.save(acaClass);
@@ -80,7 +85,7 @@ public class AcaClassService {
             weekdays.setDay(p.getDay());
             weekDaysRepository.save(weekdays);
 
-            if (weekDaysRepository.existsDay(p.getDay())) {
+            if (weekDaysRepository.existsDay(p.getDay()) > 0) {
                 throw new IllegalArgumentException("이미 존재하는 요일입니다.");
             }
 
@@ -101,7 +106,7 @@ public class AcaClassService {
             classWeekDays.setDay(weekDaysRepository.findById(p.getDayId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER)));
             classWeekDaysRepository.save(classWeekDays);
 
-            if (classWeekDaysRepository.existsClassWeekDays(p.getClassId(), p.getDayId())) {
+            if (classWeekDaysRepository.existsClassWeekDays(p.getClassId(), p.getDayId()) > 0) {
                 throw new IllegalArgumentException("중복된 강좌 요일입니다.");
             }
 
@@ -116,12 +121,23 @@ public class AcaClassService {
     //카테고리 등록
     @Transactional
     public int insAcaClassCategory(AcaClassCategoryReq p) {
+        try {
+            ClassCategory classCategory = new ClassCategory();
+            classCategory.setClassId(classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS)));
+            Category category = categoryRepository.findById(p.getCategoryId())
+                    .orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CATEGORY));
+            classCategory.setCategoryId(category);
+            classCategoryRepository.save(classCategory);
 
-        int exists = mapper.existsCategory(p.getClassId(), p.getCategoryId());
-        if (exists > 0) {
-            throw new IllegalArgumentException("중복된 카테고리입니다.");
+            if (classCategoryRepository.existsCategory(p.getClassId(), p.getCategoryId()) > 0) {
+                throw new IllegalArgumentException("중복된 카테고리입니다.");
+            }
+            classCategoryRepository.save(classCategory);
+            return 1;
+        }catch (CustomException e) {
+            e.getMessage();
+            return 0;
         }
-        return mapper.insAcaClassCategory(p);
     }
 
     //수업 상세정보 불러오기
@@ -174,6 +190,7 @@ public class AcaClassService {
 
     //강좌 수정
     public int updAcaClass(AcaClassPutReq p) {
+
 
         try {
             int result = mapper.updAcaClass(p);

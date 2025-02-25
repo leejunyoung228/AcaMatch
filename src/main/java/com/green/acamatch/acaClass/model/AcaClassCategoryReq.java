@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 public class AcaClassCategoryReq {
     @Schema(title = "강좌 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long classId;
+    private Long classId;
     @Schema(title = "카테고리 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long categoryId;
+    private Long categoryId;
 }

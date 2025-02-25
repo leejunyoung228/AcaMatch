@@ -1,7 +1,6 @@
 package com.green.acamatch.entity.category;
 
 import com.green.acamatch.entity.acaClass.AcaClass;
-import com.green.acamatch.entity.acaClass.Weekdays;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,5 +21,5 @@ public class ClassCategory {
     @ManyToOne
     @MapsId("categoryId")
     @JoinColumn(name = "category_id", nullable = false)
-    private Weekdays day;
+    private Category categoryId;
 }

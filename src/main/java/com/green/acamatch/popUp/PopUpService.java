@@ -98,21 +98,30 @@ public class PopUpService {
                 throw new CustomException(popUpErrorCode.FAIL_TO_UPD);
             }
 
-            popUp.setPopUpPic(null);
+            boolean hasComment = p.getComment() != null && !p.getComment().isEmpty();
+            boolean hasPic = pic != null && !pic.isEmpty();
+
+            if (hasComment == hasPic) {
+                throw new CustomException(popUpErrorCode.COMMENT_OR_PHOTO_REQUIRED);
+            }
+
             popUp.setTitle(p.getTitle());
-            popUp.setComment(p.getComment());
             popUp.setPopUpShow(p.getPopUpShow());
             popUp.setPopUpType(p.getPopUpType());
 
-            popUpRepository.save(popUp);
+            if (hasComment) {
+                popUp.setComment(p.getComment());
+            } else {
+                popUp.setComment(null);
+            }
 
-            if (p.getComment() == null && pic == null) {
-                throw new CustomException(popUpErrorCode.COMMENT_OR_PHOTO_REQUIRED);
-            } else if (p.getComment() != null && pic != null) {
-                throw new CustomException(popUpErrorCode.COMMENT_OR_PHOTO_REQUIRED);
-            } else if (pic != null && !pic.isEmpty()) {
+            if (hasPic) {
                 // 파일 경로 설정
-                String middlePath = String.format("popUp/%d", p.getPopUpId());
+                long popUpId = popUp.getPopUpId();
+                String middlePath = String.format("popUp/%d", popUpId);
+
+                myFileUtils.deleteFolder(middlePath, true);
+
                 myFileUtils.makeFolders(middlePath);
 
                 // 새로운 파일 저장
@@ -122,13 +131,14 @@ public class PopUpService {
                 try {
                     myFileUtils.transferTo(pic, filePath);
                     popUp.setPopUpPic(savedPicName); // 파일 저장 후 popUp에 반영
-                    popUpRepository.save(popUp);
                 } catch (IOException e) {
-                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                    myFileUtils.deleteFolder(delFolderPath, true);
+                    myFileUtils.deleteFolder(middlePath, true);
                     throw new CustomException(popUpErrorCode.FAIL_TO_UPD);
                 }
+            } else {
+                popUp.setPopUpPic(null);
             }
+            popUpRepository.save(popUp);
             return 1;
         } catch (CustomException e) {
             e.getMessage();
