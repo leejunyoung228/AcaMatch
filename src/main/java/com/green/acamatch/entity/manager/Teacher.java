@@ -24,7 +24,8 @@ public class Teacher{
     private Academy academy;
 
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Lob
+    @Column(nullable = false)
     private String teacher_comment;
 
     @Column(nullable = false)

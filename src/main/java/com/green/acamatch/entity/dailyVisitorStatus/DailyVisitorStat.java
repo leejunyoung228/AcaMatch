@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ public class DailyVisitorStat {
     private Long dailyVisitorId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = true, foreignKey = @ForeignKey(name = "fk_user_id"))
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_id"))
     private User user;
 
     @Column(length = 100, nullable = false)
@@ -34,12 +35,13 @@ public class DailyVisitorStat {
     @Column(length = 45, nullable = false)
     private String ipAddress;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @CreationTimestamp
+    @Column(nullable = false)
     private LocalDateTime lastVisit;
 
     @Column(nullable = false)
     private LocalDate date;
 
-    @Column(nullable = false, columnDefinition = "INT DEFAULT 1")
+    @Column(nullable = false)
     private Integer visitCount = 1;
 }
