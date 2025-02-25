@@ -43,7 +43,7 @@ public class AcaClass {
     private LocalTime startTime;
 
     @Column(nullable = false)
-    private String endTime;
+    private LocalTime endTime;
 
     @Column(length = 11, nullable = false)
     private int price;

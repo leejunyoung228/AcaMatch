@@ -1,5 +1,7 @@
 package com.green.acamatch.popUp;
 
+import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.popUp.model.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +31,7 @@ public class PopUpController {
         log.info("p, pic: {}, {}", p, pic);
         int result = popUpService.PostPopUp(pic,p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("팝업 등록 성공")
+                .resultMessage(result == 1 ? "팝업 등록 성공" : "팝업 등록 실패")
                 .resultData(result)
                 .build();
     }
@@ -39,7 +41,17 @@ public class PopUpController {
     public ResultResponse<List<PopUpGetDto>> getPopUpList(@ParameterObject @ModelAttribute PopUpGetReq p) {
         List<PopUpGetDto> result = popUpService.getPopUpList(p);
         return ResultResponse.<List<PopUpGetDto>>builder()
-                .resultMessage("팝업 리스트 상세보기 완료")
+                .resultMessage("팝업 리스트 보기 완료")
+                .resultData(result)
+                .build();
+    }
+
+    @GetMapping("detail")
+    @Operation(summary = "팝업 상세정보 가져오기")
+    public ResultResponse<List<PopUpGetDetailRes>> getPopUpDetail(@ParameterObject @ModelAttribute PopUpGetDetailReq p) {
+        List<PopUpGetDetailRes> result = popUpService.getPopUpDetail(p);
+        return ResultResponse.<List<PopUpGetDetailRes>>builder()
+                .resultMessage("팝업 상세정보 보기 완료")
                 .resultData(result)
                 .build();
     }
@@ -49,7 +61,7 @@ public class PopUpController {
     public ResultResponse<Integer> updPopUp(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart PopUpPutReq p) {
         int result = popUpService.UpdPopUp(pic, p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("팝업 수정 성공")
+                .resultMessage(result == 1 ? "팝업 수정 성공" : "팝업 수정 실패")
                 .resultData(result)
                 .build();
     }
@@ -59,7 +71,7 @@ public class PopUpController {
     public ResultResponse<Integer> delPopUp(@PathVariable @ModelAttribute Long popUpId) {
         int result = popUpService.delPopUp(popUpId);
         return ResultResponse.<Integer>builder()
-                .resultMessage("팝업 삭제 성공")
+                .resultMessage(result == 1 ? "팝업 삭제 성공" : "팝업 삭제 실패")
                 .resultData(result)
                 .build();
     }
