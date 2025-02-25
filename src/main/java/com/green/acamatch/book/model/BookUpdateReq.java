@@ -13,9 +13,6 @@ public class BookUpdateReq {
     @Schema(title = "책 이름")
     private String bookName;
 
-    @Schema(title = "책 사진")
-    private String bookPic;
-
     @Schema(title = "책 가격")
     private int bookPrice;
 

@@ -3,6 +3,7 @@ package com.green.acamatch.user;
 import com.green.acamatch.config.CookieUtils;
 import com.green.acamatch.config.constant.JwtConst;
 import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.ManagerErrorCode;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
 import com.green.acamatch.config.jwt.JwtUser;
@@ -46,6 +47,7 @@ public class UserUtils {
     }
 
     public User generateUserByUserSignUpReq(UserSignUpReq req) {
+        // 새로운 일반 로그인 계정 생성
         User user = new User();
         user.setName(req.getName());
         user.setEmail(req.getEmail());
@@ -54,8 +56,10 @@ public class UserUtils {
         user.setPhone(req.getPhone());
         user.setNickName(req.getNickName());
         user.setUserRole(req.getUserRole());
+
         return user;
     }
+
 
     public UserSignInRes generateUserSignInResByUser(User user, HttpServletResponse response) {
         List<String > roles = new ArrayList<>();
@@ -83,5 +87,16 @@ public class UserUtils {
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    public boolean isAllowedUser(long userId) {
+        User user = findUserById(userId);
+        return user.getUserRole().isAdminOrTeacherOrAcademy();
+    }
+
+    public void validateUserPermission(long userId) {
+        if (!isAllowedUser(userId)) {
+            throw new CustomException(ManagerErrorCode.PERMISSION_DENIED);
+        }
     }
 }

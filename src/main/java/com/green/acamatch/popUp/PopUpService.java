@@ -36,24 +36,29 @@ public class PopUpService {
 
         popUpRepository.save(popUp);
 
-        long popUpId = popUp.getPopUpId();
+        if (p.getComment() == null && pic == null) {
+            throw new CustomException(popUpErrorCode.COMMENT_OR_PHOTO_REQUIRED); // 예외 처리
 
-        String middlePath = String.format("popUp/%d", popUpId);
-        myFileUtils.makeFolders(middlePath);
+        } else if (pic != null) {
 
-        String savedPicName = pic != null ? myFileUtils.makeRandomFileName(pic) : null;
-        String filePath = String.format("%s/%s", middlePath, savedPicName);
+            long popUpId = popUp.getPopUpId();
 
-        try {
-            if (pic != null) {
-                myFileUtils.transferTo(pic, filePath);
-                popUp.setPopUpPic(savedPicName);
+            String middlePath = String.format("popUp/%d", popUpId);
+            myFileUtils.makeFolders(middlePath);
+
+            String savedPicName = pic != null ? myFileUtils.makeRandomFileName(pic) : null;
+            String filePath = String.format("%s/%s", middlePath, savedPicName);
+
+            try {
+                    myFileUtils.transferTo(pic, filePath);
+                    popUp.setPopUpPic(savedPicName);
+                    popUpRepository.save(popUp);
+
+            } catch (IOException e) {
+                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                myFileUtils.deleteFolder(delFolderPath, true);
+                throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
             }
-            popUpRepository.save(popUp);
-        } catch (IOException e) {
-            String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-            myFileUtils.deleteFolder(delFolderPath, true);
-            throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
         }
         return 1;
     }

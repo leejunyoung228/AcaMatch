@@ -1,6 +1,7 @@
 package com.green.acamatch.config;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+@Slf4j
 @Getter
 @Component
 public class MyFileUtils {
@@ -76,4 +78,22 @@ public class MyFileUtils {
         File file = new File(uploadPath, path);
         mf.transferTo(file);
     }
+
+
+    public boolean deleteFile(String path) {
+        File file = new File(uploadPath, path);  // 경로와 파일명으로 File 객체 생성
+        if (file.exists() && file.isFile()) {  // 파일이 존재하고 파일인지 확인
+            boolean isDeleted = file.delete();  // 파일 삭제
+            if (isDeleted) {
+                log.info("File successfully deleted: {}", file.getAbsolutePath());
+            } else {
+                log.error("Failed to delete file: {}", file.getAbsolutePath());
+            }
+            return isDeleted;  // 삭제 성공 여부 반환
+        } else {
+            log.error("File does not exist or is not a file: {}", file.getAbsolutePath());
+            return false;  // 파일이 존재하지 않거나 파일이 아니면 false 반환
+        }
+    }
 }
+

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 //공지사항 상세보기
@@ -20,4 +21,8 @@ public class BoardGetDetailRes {
     private String boardName;
     @Schema(title = "공지사항 내용", example = "글을 적어주세요.", requiredMode = Schema.RequiredMode.REQUIRED)
     private String boardComment;
+    @Schema(title = "등록 날짜", example = "2025-02-24", requiredMode = Schema.RequiredMode.REQUIRED)
+    private LocalDate createdAt;
+    @Schema(title = "이름", example = "홍길동", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String name;
 }
