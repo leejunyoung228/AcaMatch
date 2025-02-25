@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.acamatch.refund.RefundMapper">
+    <select id="getRefundList">
+        select refund_id, cost_id, refund_comment, refund_status, created_at, updated_at
+        from refund
+        where created_at >= now() - interval 1 month
+    </select>
+    <select id="getRefundListByUserId">
+        select A.refund_id, A.cost_id, A.refund_comment, A.refund_status, A.created_at, A.updated_at
+        from refund A
+        join academyCost B
+        on A.user_id = B.user_id
+        where B.user_id = #{userId}
+        AND A.created_at >= NOW() - INTERVAL 1 MONTH
+    </select>
+    <select id="getInfoByRefundId">
+        select refund_id, cost_id, refund_comment, refund_status, created_at, updated_at
+        from refund
+        where refund_id = #{refundId}
+    </select>
+</mapper>
