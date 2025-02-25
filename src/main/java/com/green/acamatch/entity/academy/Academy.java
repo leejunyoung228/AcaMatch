@@ -58,10 +58,10 @@ public class Academy extends CreatedAt {
     @Column
     private int teacherNum;
 
-    @Column(nullable = false, columnDefinition = "TIME(0)")
+    @Column(nullable = false)
     private LocalTime openTime;
 
-    @Column(nullable = false, columnDefinition = "TIME(0)")
+    @Column(nullable = false)
     private LocalTime closeTime;
 
     @Column(length = 100, nullable = false)
