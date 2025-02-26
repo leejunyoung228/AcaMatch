@@ -54,21 +54,49 @@ public class AcaClassService {
     public int postAcaClass(AcaClassPostReq p) {
         try {
             AcaClass acaClass = new AcaClass();
+            Teacher teacher;
 
+            // teacherUserId가 없을 경우 학원 관리자로 설정
+            if (p.getTeacherUserId() == null || p.getTeacherUserId() == 0) {
+                Academy academy = academyRepository.findById(p.getAcaId())
+                        .orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
 
-            TeacherIds teacherIds = new TeacherIds();
-            teacherIds.setUserId(p.getTeacherUserId());
-            teacherIds.setAcaId(p.getAcaId());  // acaId 자동 매핑
+                Long ownerId = academy.getUser().getUserId(); // 학원 owner 가져오기
 
-            // teacherIds 기반으로 Teacher 조회
-            Teacher teacher = teacherRepository.findByTeacherIds(teacherIds)
-                    .orElseThrow(() -> new CustomException(ManagerErrorCode.TEACHER_NOT_FOUND));
+                // ownerId를 기반으로 Teacher 객체 생성 또는 조회
+                TeacherIds ownerTeacherIds = new TeacherIds();
+                ownerTeacherIds.setUserId(ownerId);
+                ownerTeacherIds.setAcaId(p.getAcaId());
 
+                teacher = teacherRepository.findByTeacherIds(ownerTeacherIds)
+                        .orElseGet(() -> {
+                            Teacher newTeacher = new Teacher();
+                            newTeacher.setTeacherIds(ownerTeacherIds);
+                            newTeacher.setUser(academy.getUser());
+                            newTeacher.setAcademy(academy);
+                            newTeacher.setTeacherComment("학원 관리자로 자동 설정됨");
+                            newTeacher.setTeacherAgree(1);
+                            return teacherRepository.save(newTeacher);
+                        });
+            } else {
+                // teacherUserId가 있을 경우 기존 로직 유지
+                TeacherIds teacherIds = new TeacherIds();
+                teacherIds.setUserId(p.getTeacherUserId());
+                teacherIds.setAcaId(p.getAcaId());
 
-            if (classRepository.existsByAcaIdAndClassName(p.getAcaId(), p.getClassName()) > 0) {
-                throw new IllegalArgumentException("이미 존재하는 강좌입니다.");
+                teacher = teacherRepository.findByTeacherIds(teacherIds)
+                        .orElseThrow(() -> new CustomException(ManagerErrorCode.TEACHER_NOT_FOUND));
             }
-            Academy academy = academyRepository.findById(p.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
+
+            // 동일한 강좌가 존재하는지 체크
+            if (classRepository.countByAcaIdAndClassNameAndStartDateAndEndDateAndStartTimeAndEndTime(
+                    p.getAcaId(), p.getClassName(), p.getStartDate(), p.getEndDate(), p.getStartTime(), p.getEndTime()) > 0) {
+                throw new CustomException(ManagerErrorCode.CLASS_ALREADY_EXISTS);
+            }
+
+            // 학원 정보 설정
+            Academy academy = academyRepository.findById(p.getAcaId())
+                    .orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
             acaClass.setAcademy(academy);
             acaClass.setClassName(p.getClassName());
             acaClass.setClassComment(p.getClassComment());
@@ -77,18 +105,17 @@ public class AcaClassService {
             acaClass.setStartTime(p.getStartTime());
             acaClass.setEndTime(p.getEndTime());
             acaClass.setPrice(p.getPrice());
-            acaClass.setTeacher(teacher);
+            acaClass.setTeacher(teacher); //Teacher 설정
 
             classRepository.save(acaClass);
 
-            //Product 객체 생성 시 AcaClass 설정
+            // Product 객체 생성 시 AcaClass 설정
             Product product = new Product();
-            product.setClassId(acaClass);  //AcaClass 타입으로 설정
-            product.setProductName(p.getClassName()); //강좌 이름을 상품명으로 설정
+            product.setClassId(acaClass);
+            product.setProductName(p.getClassName()); // 강좌 이름을 상품명으로 설정
             product.setProductPrice(p.getPrice());
 
-            productRepository.save(product); // 저장
-
+            productRepository.save(product);
 
             return 1;
         } catch (CustomException e) {
@@ -96,6 +123,8 @@ public class AcaClassService {
             return 0;
         }
     }
+
+
 
     //요일 등록
     @Transactional
