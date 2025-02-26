@@ -17,7 +17,6 @@ public class Book {
     @JoinColumn(name = "class_id", nullable = false)
     private AcaClass classId;
 
-    @Column(nullable = false)
     private String bookPic;
 
     @Column(nullable = false)
@@ -32,6 +31,8 @@ public class Book {
     @Column(nullable = false)
     private String manager;
 
+    @Column(nullable = false)
+    private int bookAmount;
 
     public void setClassId(Long classId) {
         this.classId = new AcaClass();
