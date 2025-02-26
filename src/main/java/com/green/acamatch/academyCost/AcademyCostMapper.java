@@ -13,4 +13,5 @@ public interface AcademyCostMapper {
     long getProductIdByBookId(long bookId);
 
     GetAcademyCostInfoByMonth getAcademyCostInfo();
+
 }

@@ -2,7 +2,7 @@ package com.green.acamatch.manager;
 
 import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.config.exception.*;
-import com.green.acamatch.config.jwt.JwtUser;
+import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.manager.TeacherIds;
@@ -10,12 +10,8 @@ import com.green.acamatch.entity.user.User;
 import com.green.acamatch.manager.model.TeacherRegisterReq;
 import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -27,39 +23,10 @@ public class TeacherService {
     private final UserMessage userMessage;
 
     /**
-     * JWT에서 userId 가져오기
-     */
-    private JwtUser getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal().equals("anonymousUser")) {
-            userMessage.setMessage("로그인이 필요합니다.");
-            throw new CustomException(UserErrorCode.UNAUTHENTICATED);
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof JwtUser) {
-            return (JwtUser) principal;
-        } else if (principal instanceof String) {
-            try {
-                return new JwtUser(Long.parseLong((String) principal), Collections.emptyList());
-            } catch (NumberFormatException e) {
-                userMessage.setMessage("잘못된 인증 정보입니다.");
-                throw new CustomException(ReviewErrorCode.UNAUTHENTICATED_USER);
-            }
-        } else {
-            userMessage.setMessage("알 수 없는 사용자 타입입니다.");
-            throw new CustomException(ReviewErrorCode.UNAUTHENTICATED_USER);
-        }
-    }
-
-    /**
      * 선생님 서비스에서 로그인된 사용자 검증
      */
     private long validateAuthenticatedUser(long requestUserId) {
-        long jwtUserId = getAuthenticatedUser().getSignedUserId();
+        long jwtUserId = AuthenticationFacade.getSignedUserId(); // 로그인된 사용자 아이디 조회
 
         // 사용자 존재 여부 체크 추가
         validateUserExists(jwtUserId);
@@ -75,7 +42,7 @@ public class TeacherService {
      * JWT userId와 요청 userId 비교
      */
     private boolean isAuthorizedUser(long requestUserId) {
-        long jwtUserId = getAuthenticatedUser().getSignedUserId();
+        long jwtUserId = AuthenticationFacade.getSignedUserId(); // 로그인된 사용자 아이디 조회
 
         if (jwtUserId != requestUserId) {
             String errorMessage = String.format("리뷰 서비스: 로그인한 유저의 아이디(%d)와 요청한 유저의 아이디(%d)가 일치하지 않습니다.", jwtUserId, requestUserId);
@@ -89,7 +56,7 @@ public class TeacherService {
      * 사용자 ID가 DB에 존재하는지 확인
      */
     private void validateUserExists ( long userId){
-        if (userRepository.checkUserExists(userId) == 0) {
+        if (!userRepository.existsByUserId(userId)) {
             userMessage.setMessage("유효하지 않은 유저 ID입니다.");
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
@@ -119,7 +86,7 @@ public class TeacherService {
             userMessage.setMessage("유효하지 않은 학원 ID입니다.");
         }
 
-        if (userRepository.checkUserExists(req.getUserId()) == 0) {
+        if (!userRepository.existsByUserId(req.getUserId())) {
             userMessage.setMessage("유효하지 않은 유저 ID입니다.");
         }
 

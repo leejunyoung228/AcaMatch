@@ -88,6 +88,7 @@ public class KakaoPayService {
                 KakaoReadyResponse.class);
 
         AcademyCost academyCost = new AcademyCost();
+
         if(product.get().getBookId() != null){
             long productId = academyCostMapper.getBookIdByProductId(req.getProductId());
             Book book = bookRepository.findById(productId).orElse(null);
