@@ -14,24 +14,27 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("premium")
+@RequestMapping("academy/premium")
 public class PremiumController {
     private final PremiumService premiumService;
     private final AcademyMessage academyMessage;
 
     //프리미엄학원신청
     @PostMapping
+    @Operation(summary = "프리미엄 신청")
     public ResultResponse<Integer> postPremiumAcademy(@RequestBody PremiumPostReq req) {
         int result = premiumService.insPremium(req);
-        return null;
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(result)
+                .build();
     }
 
     //프리미엄승인
     @PutMapping
     @Operation(summary = "프리미엄 승인", description = "프리미엄 승인은 preCheck = 1 보내주세요.")
-    public ResultResponse<Integer> updPremiumCheck(@RequestBody PremiumUpdateReq req) {
+    public ResultResponse<Integer> putPremiumCheck(@RequestBody PremiumUpdateReq req) {
         int result = premiumService.updPremium(req);
-
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(result)
@@ -42,6 +45,9 @@ public class PremiumController {
     @DeleteMapping
     public ResultResponse<Integer> deletePremiumAcademy(@RequestBody PremiumDeleteReq req) {
         int result = premiumService.delPremium(req);
-        return null;
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(result)
+                .build();
     }
 }

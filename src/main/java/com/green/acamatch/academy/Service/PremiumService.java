@@ -58,14 +58,15 @@ public class PremiumService {
     //프리미엄학원 수정(승인)
     public int updPremium(PremiumUpdateReq req) {
         int result = premiumRepository.updateByAcaId(req.getAcaId(), req.getPreCheck());
-        academyMessage.setMessage("프리미엄 승인이 되었습니다.");
+        academyMessage.setMessage("프리미엄 학원이 승인되었습니다.");
         if(result == 1) {
             updateAcademyPremiumIfNeeded(req.getAcaId());
+            premiumRepository.updateDateByAcaId(req.getAcaId(), LocalDate.now(), LocalDate.now().plusMonths(1));
         }
         return 1;
     }
 
-    //프리미엄학원 수정(승인)했을때 academy테이블 프리미엄 수정
+    //프리미엄학원 수정(승인)했을때 academy테이블 프리미엄 수정 메소드.
     @Transactional
     public void updateAcademyPremiumIfNeeded(Long acaId) {
         // PremiumAcademy의 preCheck 값을 확인
@@ -91,7 +92,7 @@ public class PremiumService {
 
     //프리미엄 종료일이 지나면 삭제
     // 매일 자정에 실행되도록 설정 (주기적으로 실행)
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 0 0 * * *")
     public void deleteExpiredPremiumAcademies() {
         LocalDate now = LocalDate.now();
         premiumRepository.deletePremiumAcademyByEndDate(now);

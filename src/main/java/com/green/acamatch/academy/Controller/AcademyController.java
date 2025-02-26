@@ -77,7 +77,7 @@ public class AcademyController {
 
     @PutMapping("agree")
     @Operation(summary = "학원정보등록 승인", description = "acaId를 보내주시면 승인이 완료(1) 됩니다.")
-    public ResultResponse<Integer> updAcademyAgree(@RequestBody AcademyAgreeUpdReq req) {
+    public ResultResponse<Integer> putAcademyAgree(@RequestBody AcademyAgreeUpdReq req) {
         int result = academyService.updAcademyAgree(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
