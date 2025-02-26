@@ -1,17 +1,12 @@
 package com.green.acamatch.review;
 
 import com.green.acamatch.config.exception.*;
-import com.green.acamatch.config.jwt.JwtUser;
-import com.green.acamatch.like.model.AcaLikeRes;
+import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.model.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,39 +27,10 @@ public class ReviewService {
     private static final Logger log = LoggerFactory.getLogger(ReviewService.class);
 
     /**
-     * JWT에서 userId 가져오기
-     */
-    private JwtUser getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal().equals("anonymousUser")) {
-            userMessage.setMessage("로그인이 필요합니다.");
-            throw new CustomException(UserErrorCode.UNAUTHENTICATED);
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof JwtUser) {
-            return (JwtUser) principal;
-        } else if (principal instanceof String) {
-            try {
-                return new JwtUser(Long.parseLong((String) principal), Collections.emptyList());
-            } catch (NumberFormatException e) {
-                userMessage.setMessage("잘못된 인증 정보입니다.");
-                throw new CustomException(ReviewErrorCode.UNAUTHENTICATED_USER);
-            }
-        } else {
-            userMessage.setMessage("알 수 없는 사용자 타입입니다.");
-            throw new CustomException(ReviewErrorCode.UNAUTHENTICATED_USER);
-        }
-    }
-
-    /**
      * 리뷰 서비스에서 로그인된 사용자 검증
      */
     private long validateAuthenticatedUser(long requestUserId) {
-        long jwtUserId = getAuthenticatedUser().getSignedUserId();
+        long jwtUserId = AuthenticationFacade.getSignedUserId();
 
         // 사용자 존재 여부 체크 추가
         validateUserExists(jwtUserId);
@@ -80,7 +46,7 @@ public class ReviewService {
      * JWT userId와 요청 userId 비교
      */
     private boolean isAuthorizedUser(long requestUserId) {
-        long jwtUserId = getAuthenticatedUser().getSignedUserId();
+        long jwtUserId = AuthenticationFacade.getSignedUserId();
 
         if (jwtUserId != requestUserId) {
             String errorMessage = String.format("리뷰 서비스: 로그인한 유저의 아이디(%d)와 요청한 유저의 아이디(%d)가 일치하지 않습니다.", jwtUserId, requestUserId);
@@ -590,7 +556,7 @@ public class ReviewService {
          * 로그인된 사용자 검증 (로그인 안 했으면 예외 발생)
          */
         private long validateAuthenticatedUser () {
-            long jwtUserId = getAuthenticatedUser().getSignedUserId();
+            long jwtUserId = AuthenticationFacade.getSignedUserId();
 
             //  유저 ID가 0이면 예외 처리 (잘못된 토큰이거나 요청)
             if (jwtUserId == 0) {
