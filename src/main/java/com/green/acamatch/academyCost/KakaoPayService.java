@@ -67,8 +67,8 @@ public class KakaoPayService {
         parameters.put("partner_user_id", req.getUserId());   // 실제 사용자 ID로 교체
         parameters.put("item_name", product.get().getProductName());       // 실제 상품명으로 교체
         parameters.put("quantity", req.getQuantity());                 // 수량, 숫자는 문자열로 전달
-        parameters.put("total_amount", product.get().getProductPrice() + (product.get().getProductPrice()/10));          // 총 금액, 숫자는 문자열로 전달
-        parameters.put("vat_amount", (product.get().getProductPrice()/10));             // 부가세, 숫자는 문자열로 전달
+        parameters.put("total_amount", (product.get().getProductPrice() + (product.get().getProductPrice()/10)) * req.getQuantity());          // 총 금액, 숫자는 문자열로 전달
+        parameters.put("vat_amount", ((product.get().getProductPrice()/10)) * req.getQuantity());             // 부가세, 숫자는 문자열로 전달
         parameters.put("tax_free_amount", "0");          // 비과세 금액, 숫자는 문자열로 전달
         parameters.put("approval_url", "http://localhost:8080/success");
         parameters.put("fail_url", "http://localhost:8080/fail");
@@ -88,10 +88,12 @@ public class KakaoPayService {
         AcademyCost academyCost = new AcademyCost();
         academyCost.setAmount(req.getQuantity());
         academyCost.setUserId(req.getUserId());
-        academyCost.setPrice(product.get().getProductPrice() + (product.get().getProductPrice()/10));
+        academyCost.setPrice((product.get().getProductPrice() + (product.get().getProductPrice()/10)) * req.getQuantity());
         academyCost.setStatus(0);
-        academyCost.setOrderType(0);
-        academyCost.setSettlementPrice(0);
+        if(academyCost.getAcademyId() != null){
+            academyCost.setOrderType(0);
+        }
+        academyCost.setOrderType(1);
         academyCost.setCost_status(0);
         academyCost.setProductId(req.getProductId());
         if (req.getJoinClassId() != 0) {
@@ -153,16 +155,22 @@ public class KakaoPayService {
         AcademyCost acaResult = academyCostRepository.findById(result.getCostId()).orElse(null);
         acaResult.setCost_status(1);
         academyCostRepository.save(acaResult);
-        PremiumAcademy premiumAcademy = new PremiumAcademy();
-        premiumAcademy.setAcademy(acaResult.getAcademyId());
-        premiumAcademy.setPreCheck(0);
-        premiumAcademy.setPrice(acaResult.getPrice());
-        premiumRepository.save(premiumAcademy);
+        if(acaResult.getAcademyId() != null){
+            PremiumAcademy premiumAcademy = new PremiumAcademy();
+            premiumAcademy.setAcademy(acaResult.getAcademyId());
+            premiumAcademy.setPreCheck(0);
+            premiumAcademy.setPrice(acaResult.getPrice());
+            premiumRepository.save(premiumAcademy);
+        }
 
-       /* Product product = productRepository.findById(productId).orElse(null);
+        Product product = productRepository.findById(productId).orElse(null);
+
         if(product.getBookId() != null){
-            Book book = bookRepository.findById(product.getBookId()).orElse(null);
-        }*/ //일단 주석 나중에 풀지말지
+            Book book = bookRepository.findById(academyCostMapper.getBookIdByProductId(productId)).orElse(null);
+            book.setBookAmount(book.getBookAmount() - acaResult.getAmount());
+            bookRepository.save(book);
+        }
+
 
         return approveResponse;
     }
