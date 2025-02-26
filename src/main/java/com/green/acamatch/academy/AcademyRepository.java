@@ -59,4 +59,8 @@ public interface AcademyRepository extends JpaRepository<Academy, Long> {
     @Query(" delete from Academy a where a.acaId=:acaId and a.user.userId=:userId")
     int deleteAcademyByAcaIdAndUserId(Long acaId, Long userId);
 
+    @Transactional
+    @Query(" SELECT COUNT(a) FROM Academy a WHERE a.acaId = :acaId")
+    int checkAcaExists(Long acaId);
+
 }
