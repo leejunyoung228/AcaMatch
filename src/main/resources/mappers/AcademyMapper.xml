@@ -262,8 +262,10 @@
 
     <!-- 학원 관리자가 본인이 등록한 학원 리스트 보기-->
     <select id="getAcademyListByUserId">
-        SELECT A.aca_id, A.aca_name, A.created_at, A.aca_agree, A.aca_pic
+        SELECT A.aca_id, A.aca_name, A.created_at, A.aca_agree, AP.aca_pic
         FROM academy A
+        JOIN academy_pic AP
+        ON A.aca_id = AP.aca_id
         WHERE user_id = #{signedUserId}
     </select>
 
