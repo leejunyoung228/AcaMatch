@@ -20,8 +20,8 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     Integer countByChatRoom_Academy_User_UserIdAndSenderTypeAndIsRead(Long chatRoomAcademyUserUserId, SenderType senderType, boolean read);
 
+    @Modifying
     @Transactional
-    @Modifying(flushAutomatically = true)
     @Query(value = "DELETE FROM chat WHERE created_at < :sixMonthsAgo LIMIT :batchSize", nativeQuery = true)
     int bulkDeleteOldChatsWithLimit(@Param("sixMonthsAgo") LocalDateTime sixMonthsAgo, @Param("batchSize") int batchSize);
 
