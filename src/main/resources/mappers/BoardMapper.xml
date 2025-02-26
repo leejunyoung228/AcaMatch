@@ -3,9 +3,9 @@
 
 <mapper namespace="com.green.acamatch.board.BoardMapper">
     <!-- 상세보기 -->
-    <select id="getBoardList" resultType="BoardGetDetailDto">
+    <select id="getBoardDetail" resultType="com.green.acamatch.board.model.BoardGetDetailDto">
         SELECT
-        B.aca_id, A.user_id, C.board_name, C.board_comment, C.created_at,
+        C.board_id, B.aca_id, A.user_id, C.board_name, C.board_comment, C.created_at,
         CASE WHEN C.user_id IS NULL THEN B.aca_name
         WHEN C.aca_id IS NULL THEN A.name
         ELSE 'UNKNOWN'
@@ -17,10 +17,10 @@
         ON C.user_id = A.user_id
         WHERE
         <if test="acaId != null">
-            AND C.aca_id = #{acaId} AND C.user_id IS NULL
+            C.aca_id = #{acaId} AND C.user_id IS NULL
         </if>
         <if test="userId != null">
-            AND C.user_id = #{userId} AND C.aca_id IS NULL
+            C.user_id = #{userId} AND C.aca_id IS NULL
         </if>
     </select>
 </mapper>

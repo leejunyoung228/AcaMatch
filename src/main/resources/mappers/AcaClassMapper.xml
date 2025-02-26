@@ -3,64 +3,64 @@
 
 <mapper namespace="com.green.acamatch.acaClass.AcaClassMapper">
 
-    <!-- class 등록하기 -->
-    <insert id="insAcaClass" useGeneratedKeys="true" keyProperty="classId">
-        INSERT INTO class
-        SET aca_id = #{acaId},
-            class_name = #{className},
-            class_comment = #{classComment},
-            start_date = #{startDate},
-            end_date = #{endDate},
-            start_time = #{startTime},
-            end_time = #{endTime},
-            price = #{price}
-    </insert>
+<!--    &lt;!&ndash; class 등록하기 &ndash;&gt;-->
+<!--    <insert id="insAcaClass" useGeneratedKeys="true" keyProperty="classId">-->
+<!--        INSERT INTO class-->
+<!--        SET aca_id = #{acaId},-->
+<!--            class_name = #{className},-->
+<!--            class_comment = #{classComment},-->
+<!--            start_date = #{startDate},-->
+<!--            end_date = #{endDate},-->
+<!--            start_time = #{startTime},-->
+<!--            end_time = #{endTime},-->
+<!--            price = #{price}-->
+<!--    </insert>-->
 
-    <!-- 존재하는 class인지 중복체크-->
-    <select id ="existsClass" parameterType="map" resultType="int">
-        SELECT COUNT(*)
-        FROM class
-        WHERE aca_id = #{acaId} AND class_name = #{className}
-    </select>
+<!--    &lt;!&ndash; 존재하는 class인지 중복체크&ndash;&gt;-->
+<!--    <select id ="existsClass" parameterType="map" resultType="int">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM class-->
+<!--        WHERE aca_id = #{acaId} AND class_name = #{className}-->
+<!--    </select>-->
 
-    <!-- 존재하는 요일인지 중복체크-->
-    <select id="existsDay" parameterType="map" resultType="int">
-        SELECT COUNT(*)
-        FROM weekdays
-        WHERE day = #{day}
-    </select>
+<!--    &lt;!&ndash; 존재하는 요일인지 중복체크&ndash;&gt;-->
+<!--    <select id="existsDay" parameterType="map" resultType="int">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM weekdays-->
+<!--        WHERE day = #{day}-->
+<!--    </select>-->
 
-    <!-- 요일 등록하기 -->
-    <insert id="insWeekDay" useGeneratedKeys="true" keyProperty="dayId">
-        INSERT weekdays
-        SET day = #{day}
-    </insert>
+<!--    &lt;!&ndash; 요일 등록하기 &ndash;&gt;-->
+<!--    <insert id="insWeekDay" useGeneratedKeys="true" keyProperty="dayId">-->
+<!--        INSERT weekdays-->
+<!--        SET day = #{day}-->
+<!--    </insert>-->
 
-    <!-- 수업과 요일을 잇는 관계 테이블 등록하기 -->
-    <insert id = "insAcaClassClassWeekDays">
-        INSERT classweekdays
-        SET class_id = #{classId},
-        day_id = #{dayId}
-    </insert>
+<!--    &lt;!&ndash; 수업과 요일을 잇는 관계 테이블 등록하기 &ndash;&gt;-->
+<!--    <insert id = "insAcaClassClassWeekDays">-->
+<!--        INSERT classweekdays-->
+<!--        SET class_id = #{classId},-->
+<!--        day_id = #{dayId}-->
+<!--    </insert>-->
 
-    <!-- 수업 개강 요일이 존재하는지 중복체크-->
-    <select id ="existsClassWeekDays" parameterType="map" resultType="int">
-        SELECT COUNT(*)
-        FROM classweekdays
-        WHERE day_id = #{dayId} AND class_id = #{classId}
-    </select>
+<!--    &lt;!&ndash; 수업 개강 요일이 존재하는지 중복체크&ndash;&gt;-->
+<!--    <select id ="existsClassWeekDays" parameterType="map" resultType="int">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM classweekdays-->
+<!--        WHERE day_id = #{dayId} AND class_id = #{classId}-->
+<!--    </select>-->
 
-    <insert id = "insAcaClassCategory">
-        INSERT classcategory
-        SET class_id = #{classId},
-        category_id = #{categoryId}
-    </insert>
+<!--    <insert id = "insAcaClassCategory">-->
+<!--        INSERT classcategory-->
+<!--        SET class_id = #{classId},-->
+<!--        category_id = #{categoryId}-->
+<!--    </insert>-->
 
-    <select id = "existsCategory" parameterType="map" resultType="int">
-        SELECT COUNT(*)
-        FROM classcategory
-        WHERE class_id = #{classId} AND category_id = #{categoryId}
-    </select>
+<!--    <select id = "existsCategory" parameterType="map" resultType="int">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM classcategory-->
+<!--        WHERE class_id = #{classId} AND category_id = #{categoryId}-->
+<!--    </select>-->
 
     <!-- class 상세 정보 가져오기
     중복된 내용은 나오지 않게 하기위해 resultmap 사용 -->
@@ -142,47 +142,47 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
-    <!-- 수업 수정하기 -->
-    <update id="updAcaClass">
-        UPDATE class
-        <set>
-            <if test =" classId != null and classId != '' ">
-                class_id = #{classId},
-            </if>
-            <if test =" className != null and className != '' ">
-                class_name = #{className},
-            </if>
-            <if test =" classComment != null and classComment != '' ">
-                class_comment = #{classComment},
-            </if>
-            <if test =" startDate != null and startDate != '' ">
-                start_date = #{startDate},
-            </if>
-            <if test =" endDate != null and endDate != '' ">
-                end_date = #{endDate},
-            </if>
-            <if test =" startTime != null and startTime != '' ">
-                start_time = #{startTime},
-            </if>
-            <if test =" endTime != null and endTime != '' ">
-                end_time = #{endTime},
-             </if>
-            <if test =" price != null ">
-                price = #{price}
-            </if>
-        </set>
-        WHERE aca_id = #{acaId} AND class_id = #{classId}
-    </update>
+<!--    &lt;!&ndash; 수업 수정하기 &ndash;&gt;-->
+<!--    <update id="updAcaClass">-->
+<!--        UPDATE class-->
+<!--        <set>-->
+<!--            <if test =" classId != null and classId != '' ">-->
+<!--                class_id = #{classId},-->
+<!--            </if>-->
+<!--            <if test =" className != null and className != '' ">-->
+<!--                class_name = #{className},-->
+<!--            </if>-->
+<!--            <if test =" classComment != null and classComment != '' ">-->
+<!--                class_comment = #{classComment},-->
+<!--            </if>-->
+<!--            <if test =" startDate != null and startDate != '' ">-->
+<!--                start_date = #{startDate},-->
+<!--            </if>-->
+<!--            <if test =" endDate != null and endDate != '' ">-->
+<!--                end_date = #{endDate},-->
+<!--            </if>-->
+<!--            <if test =" startTime != null and startTime != '' ">-->
+<!--                start_time = #{startTime},-->
+<!--            </if>-->
+<!--            <if test =" endTime != null and endTime != '' ">-->
+<!--                end_time = #{endTime},-->
+<!--             </if>-->
+<!--            <if test =" price != null ">-->
+<!--                price = #{price}-->
+<!--            </if>-->
+<!--        </set>-->
+<!--        WHERE aca_id = #{acaId} AND class_id = #{classId}-->
+<!--    </update>-->
 
-    <!-- 학원 수업 삭제하기 -->
-    <delete id="delAcaClass">
-        DELETE FROM class
-        WHERE class_id = #{classId} AND aca_id = #{acaId}
-    </delete>
+<!--    &lt;!&ndash; 학원 수업 삭제하기 &ndash;&gt;-->
+<!--    <delete id="delAcaClass">-->
+<!--        DELETE FROM class-->
+<!--        WHERE class_id = #{classId} AND aca_id = #{acaId}-->
+<!--    </delete>-->
 
-    <!-- 수업에 개강한 요일 삭제하기 -->
-    <delete id ="delAcaClassDay">
-        DELETE FROM classweekdays
-        WHERE class_id = #{classId} AND day_id = #{dayId}
-    </delete>
+<!--    &lt;!&ndash; 수업에 개강한 요일 삭제하기 &ndash;&gt;-->
+<!--    <delete id ="delAcaClassDay">-->
+<!--        DELETE FROM classweekdays-->
+<!--        WHERE class_id = #{classId} AND day_id = #{dayId}-->
+<!--    </delete>-->
 </mapper>
