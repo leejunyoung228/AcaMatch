@@ -181,11 +181,13 @@ public class KakaoPayService {
 
         Product product = productRepository.findById(productId).orElse(null);
 
+
         if(product.getBookId() != null){
             Book book = bookRepository.findById(academyCostMapper.getBookIdByProductId(productId)).orElse(null);
             book.setBookAmount(book.getBookAmount() - acaResult.getAmount());
             bookRepository.save(book);
         }
+
 
 
         return approveResponse;
