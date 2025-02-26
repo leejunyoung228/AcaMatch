@@ -10,4 +10,5 @@ public class GetAcademyCostInfoRes {
     private long userId;
     private long productId;
     private Integer costId;
+    private int amount;
 }
