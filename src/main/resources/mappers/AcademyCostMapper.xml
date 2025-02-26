@@ -16,4 +16,9 @@
         from product
         where product_id = #{productId}
     </select>
+    <select id="getProductIdByBookId">
+        select product_id
+        from book
+        where book_id = #{bookId}
+    </select>
 </mapper>

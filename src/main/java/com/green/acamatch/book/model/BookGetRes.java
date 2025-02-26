@@ -27,4 +27,7 @@ public class BookGetRes {
 
     @Schema(title = "책이 등록된 수업")
     private Long classId;
+
+    @Schema(title = "책 재고 수량")
+    private int bookAmount;
 }
