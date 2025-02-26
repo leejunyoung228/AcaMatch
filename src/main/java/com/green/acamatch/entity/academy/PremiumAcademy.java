@@ -28,7 +28,7 @@ public class PremiumAcademy extends CreatedAt {
     @Column
     private LocalDate endDate;
 
-    @Column
+    @Column(nullable = false)
     private int preCheck;
 
     @Column(nullable = false)
