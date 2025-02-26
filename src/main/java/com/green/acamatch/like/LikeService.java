@@ -2,17 +2,13 @@ package com.green.acamatch.like;
 
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.ReviewErrorCode;
-import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
-import com.green.acamatch.config.jwt.JwtUser;
+import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.like.dto.AcademyLikedUsersDto;
 import com.green.acamatch.like.dto.LikedAcademyDto;
-import com.green.acamatch.like.dto.LikedUserDto;
 import com.green.acamatch.like.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
@@ -25,44 +21,12 @@ public class LikeService {
     private final LikeMapper mapper;
     private final UserMessage userMessage;
 
-    /**
-     * JWT에서 userId 가져오기
-     */
-    private JwtUser getAuthenticatedUser() {
-        log.debug("getAuthenticatedUser() 호출됨");
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() ||
-                "anonymousUser".equals(authentication.getPrincipal())) {
-            log.warn("인증 실패: 인증 정보 없음 또는 익명 사용자");
-            throw new CustomException(UserErrorCode.UNAUTHENTICATED);
-        }
-
-        Object principal = authentication.getPrincipal();
-        log.debug("인증된 사용자 정보: {}", principal);
-
-        if (principal instanceof JwtUser) {
-            return (JwtUser) principal;
-        } else if (principal instanceof String) {
-            try {
-                Long userId = Long.parseLong((String) principal);
-                return new JwtUser(userId, Collections.emptyList());
-            } catch (NumberFormatException e) {
-                log.error("JWT userId 파싱 실패: {}", principal);
-                throw new CustomException(UserErrorCode.UNAUTHENTICATED);
-            }
-        } else {
-            log.warn("인증된 사용자 타입이 올바르지 않음: {}", principal.getClass().getName());
-            throw new CustomException(UserErrorCode.UNAUTHENTICATED);
-        }
-    }
 
     /**
      * 좋아요 등록
      */
     public AcaLikeRes addLike(AcaLikeReq req) {
-        JwtUser jwtUser = getAuthenticatedUser();
-        long jwtUserId = jwtUser.getSignedUserId();
+        long jwtUserId = AuthenticationFacade.getSignedUserId();
         long requestUserId = req.getUserId();
         long acaId = req.getAcaId();
 
@@ -112,8 +76,7 @@ public class LikeService {
      * 좋아요 삭제
      */
     public AcaLikeRes removeLike(AcaDelLikeReq req) {
-        JwtUser jwtUser = getAuthenticatedUser();
-        long jwtUserId = jwtUser.getSignedUserId();
+        long jwtUserId = AuthenticationFacade.getSignedUserId();
         long requestUserId = req.getUserId();
         long acaId = req.getAcaId();
 
@@ -152,7 +115,7 @@ public class LikeService {
         return new AcaLikeRes(true);
     }
 
-    /**
+    /*
      * 특정 학원에 좋아요한 유저 목록 조회
      */
     /**
@@ -166,8 +129,7 @@ public class LikeService {
      *  학원 관계자가 소유한 모든 학원의 좋아요 유저 목록 조회
      */
     public List<AcademyLikedUsersDto> getAllOwnedAcademyLikes(AcaLikedUserGetReq req) {
-        JwtUser jwtUser = getAuthenticatedUser();
-        long userId = jwtUser.getSignedUserId();
+        long userId = AuthenticationFacade.getSignedUserId();
         log.debug("현재 로그인한 유저 ID: {}", userId);
 
         //  학원 관계자인지 확인
@@ -198,7 +160,7 @@ public class LikeService {
         // 🔥 userId가 null이면 JWT에서 가져오기
         if (req.getUserId() == null) {
             log.warn("userId가 null이므로 JWT에서 가져옵니다.");
-            req.setUserId(getAuthenticatedUser().getSignedUserId());
+            req.setUserId(AuthenticationFacade.getSignedUserId());
         }
 
         try {
@@ -231,8 +193,8 @@ public class LikeService {
         return acaId > 0 ? mapper.checkAcaExists(acaId) : 0;
     }
 
-    /**  학원 관계자 권한 검증 */
-    /**  학원 관계자 권한 검증 */
+    /*  학원 관계자 권한 검증 */
+    /*  학원 관계자 권한 검증 */
     private void checkUserAcademyOwnership(Long acaId, Long userId) {
         if (acaId == null || userId == null) {
             log.error("checkUserAcademyOwnership() - acaId 또는 userId가 null입니다: acaId={}, userId={}", acaId, userId);
