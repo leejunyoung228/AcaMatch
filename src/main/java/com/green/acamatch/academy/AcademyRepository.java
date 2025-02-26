@@ -35,6 +35,12 @@ public interface AcademyRepository extends JpaRepository<Academy, Long> {
     )
     int updateAcademyByAcaIdAndUserId(Long acaId, Long userId);*/
 
+
+    @Transactional
+    @Modifying
+    @Query(" update Academy a set a.premium = 1 where a.acaId =:acaId ")
+    int updateAcademyPremiumByAcaId(Long acaId);
+
     @Transactional
     @Modifying
     @Query(" delete from Academy a where a.acaId=:acaId and a.user.userId=:userId")

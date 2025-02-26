@@ -3,14 +3,12 @@ package com.green.acamatch.academy.Service;
 import com.green.acamatch.academy.AcademyPicRepository;
 import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.mapper.AcademyMapper;
-import com.green.acamatch.academy.mapper.AcademyPicsMapper;
 import com.green.acamatch.academy.model.*;
 import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
 
 import com.green.acamatch.academy.tag.AcademyTagRepository;
 import com.green.acamatch.academy.tag.SearchRepository;
-import com.green.acamatch.academy.tag.TagRepository;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AcademyConst;
 import com.green.acamatch.config.constant.AddressConst;
@@ -42,13 +40,9 @@ public class AcademyService {
     private final AcademyMessage academyMessage;
     private final TagService tagService;
     private final AddressConst addressConst;
-    private final KakaoApiExample kakaoApiExample;
     private final AcademyRepository academyRepository;
-    private final AuthenticationFacade authenticationFacade;
     private final AcademyPicRepository academyPicRepository;
     private final SearchRepository searchRepository;
-    private final BusinessNumberValidation businessNumberValidation;
-    private final TagRepository tagRepository;
     private final AcademyTagRepository academyTagRepository;
 
 
@@ -63,7 +57,7 @@ public class AcademyService {
         academyPicRepository.saveAll(academyPics);*/
 
         User signedUser = new User();
-        signedUser.setUserId(authenticationFacade.getSignedUserId());
+        signedUser.setUserId(AuthenticationFacade.getSignedUserId());
 
 
         if (req.getTagNameList().isEmpty()) {
@@ -73,7 +67,7 @@ public class AcademyService {
 
 
         //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
-        KakaoMapAddress kakaoMapAddressImp = kakaoApiExample.addressSearchMain(req.getAddress());
+        KakaoMapAddress kakaoMapAddressImp = KakaoApiExample.addressSearchMain(req.getAddress());
 
         // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
         Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
@@ -88,12 +82,12 @@ public class AcademyService {
 
 
         //기본주소를 통해 위도, 경도 가져오는 api 메소드 호출
-        KakaoMapAddress kakaoMapAddressXY = kakaoApiExample.addressXY(req.getAddress());
+        KakaoMapAddress kakaoMapAddressXY = KakaoApiExample.addressXY(req.getAddress());
         req.setLon(kakaoMapAddressXY.getLongitude());
         req.setLat(kakaoMapAddressXY.getLatitude());
 
         //사업자등록번호 존재여부 api 메소드 호출
-        BusinessApiNumber businessApiNumber = businessNumberValidation.isBusinessNumberValid(req.getBusinessNumber());
+        BusinessApiNumber businessApiNumber = BusinessNumberValidation.isBusinessNumberValid(req.getBusinessNumber());
 
         if (businessApiNumber == null || !businessApiNumber.isvalid()) {
             throw new CustomException(AcademyException.NOT_FOUND_BUSINESSNUMBER);
@@ -139,6 +133,7 @@ public class AcademyService {
         myFileUtils.makeFolders(middlePath3);
 
         // 사업자등록증
+        //TODO 중복 코드 메소드 분리
         String filePath2 = String.format("%s/%s", middlePath2, businessPicName);
 
         try {
