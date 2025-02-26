@@ -65,6 +65,9 @@ public class AcaClassService {
                     .orElseThrow(() -> new CustomException(ManagerErrorCode.TEACHER_NOT_FOUND));
 
 
+            if (classRepository.existsByAcaIdAndClassName(p.getAcaId(), p.getClassName()) > 0) {
+                throw new IllegalArgumentException("이미 존재하는 강좌입니다.");
+            }
             Academy academy = academyRepository.findById(p.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
             acaClass.setAcademy(academy);
             acaClass.setClassName(p.getClassName());
@@ -78,19 +81,18 @@ public class AcaClassService {
 
             classRepository.save(acaClass);
 
+            //Product 객체 생성 시 AcaClass 설정
             Product product = new Product();
-            product.setClassId(product.getClassId());
-            product.setProductName(product.getProductName());
-            product.setProductPrice(product.getProductPrice());
-            productRepository.save(product);
+            product.setClassId(acaClass);  //AcaClass 타입으로 설정
+            product.setProductName(p.getClassName()); //강좌 이름을 상품명으로 설정
+            product.setProductPrice(p.getPrice());
 
-            if (classRepository.existsByAcaIdAndClassName(p.getAcaId(), p.getClassName()) > 0) {
-                throw new IllegalArgumentException("이미 존재하는 강좌입니다.");
-            }
-            classRepository.save(acaClass);
+            productRepository.save(product); // 저장
+
+
             return 1;
         } catch (CustomException e) {
-            e.getMessage();
+            e.printStackTrace();
             return 0;
         }
     }
