@@ -13,4 +13,5 @@ public class AcademyConst {
     private final String academyPicFilePath;
     private final String businessLicenseFilePath;
     private final String operationLicenseFilePath;
+    private final String bannerPicFilePath;
 }

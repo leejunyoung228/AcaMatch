@@ -16,13 +16,13 @@ import java.time.LocalDate;
 public class Banner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long bannerIds;
+    private Long bannerId;
 
     @ManyToOne
     @JoinColumn(name = "aca_id", nullable = false)
     private PremiumAcademy premiumAcademy;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 50, nullable = false)
     private String bannerPic;
 
     @Column
@@ -32,15 +32,15 @@ public class Banner {
     private int bannerShow = 1;
 
     @Column
-    private LocalDate startDate;
+    private LocalDate startDate=null;
 
     @Column
-    private LocalDate endDate;
+    private LocalDate endDate=null;
 
     @Column(length = 20, nullable = false)
     private String acaName;
 
     @Column
-    private BannerPosition bannerPosition;
+    private String bannerPosition;
 
 }
