@@ -14,7 +14,7 @@
         join academyCost B
         on A.user_id = B.user_id
         where B.user_id = #{userId}
-        AND A.created_at >= NOW() - INTERVAL 1 MONTH
+        AND A.created_at >=
     </select>
     <select id="getInfoByRefundId">
         select refund_id, cost_id, refund_comment, refund_status, created_at, updated_at

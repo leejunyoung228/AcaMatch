@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "daily_visitor_stats", uniqueConstraints = {
-        @UniqueConstraint(name = "unique_visit", columnNames = {"date", "sessionId", "ipAddress"})
+        @UniqueConstraint(name = "unique_visit", columnNames = {"visit_date", "session_id", "ip_address"})
 })
 @Getter
 @Setter

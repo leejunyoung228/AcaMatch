@@ -1,10 +1,16 @@
 package com.green.acamatch.academyCost;
 
+import com.green.acamatch.academy.PremiumRepository;
+import com.green.acamatch.academy.Service.PremiumService;
+import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academyCost.model.GetAcademyCostInfoRes;
 import com.green.acamatch.academyCost.model.KakaoApproveResponse;
 import com.green.acamatch.academyCost.model.KakaoPayPostReq;
 import com.green.acamatch.academyCost.model.KakaoReadyResponse;
+import com.green.acamatch.book.BookRepository;
+import com.green.acamatch.entity.academy.PremiumAcademy;
 import com.green.acamatch.entity.academyCost.AcademyCost;
+import com.green.acamatch.entity.academyCost.Book;
 import com.green.acamatch.entity.academyCost.Product;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.joinClass.JoinClassRepository;
@@ -31,8 +37,11 @@ public class KakaoPayService {
     private final JoinClassRepository joinClassRepository;
     private final KakaoPayProperties payProperties;
     private final ProductRepository productRepository;
+    private final PremiumRepository premiumRepository;
+    private final BookRepository bookRepository;
     private RestTemplate restTemplate = new RestTemplate();
     private final AcademyCostMapper academyCostMapper;
+    private final PremiumService premiumService;
 
 
     private HttpHeaders getHeaders() {
@@ -58,8 +67,8 @@ public class KakaoPayService {
         parameters.put("partner_user_id", req.getUserId());   // 실제 사용자 ID로 교체
         parameters.put("item_name", product.get().getProductName());       // 실제 상품명으로 교체
         parameters.put("quantity", req.getQuantity());                 // 수량, 숫자는 문자열로 전달
-        parameters.put("total_amount", product.get().getProductPrice() + (product.get().getProductPrice()/10));          // 총 금액, 숫자는 문자열로 전달
-        parameters.put("vat_amount", (product.get().getProductPrice()/10));             // 부가세, 숫자는 문자열로 전달
+        parameters.put("total_amount", (product.get().getProductPrice() + (product.get().getProductPrice()/10)) * req.getQuantity());          // 총 금액, 숫자는 문자열로 전달
+        parameters.put("vat_amount", ((product.get().getProductPrice()/10)) * req.getQuantity());             // 부가세, 숫자는 문자열로 전달
         parameters.put("tax_free_amount", "0");          // 비과세 금액, 숫자는 문자열로 전달
         parameters.put("approval_url", "http://localhost:8080/success");
         parameters.put("fail_url", "http://localhost:8080/fail");
@@ -79,15 +88,20 @@ public class KakaoPayService {
         AcademyCost academyCost = new AcademyCost();
         academyCost.setAmount(req.getQuantity());
         academyCost.setUserId(req.getUserId());
-        academyCost.setPrice(product.get().getProductPrice() + (product.get().getProductPrice()/10));
+        academyCost.setPrice((product.get().getProductPrice() + (product.get().getProductPrice()/10)) * req.getQuantity());
         academyCost.setStatus(0);
-        academyCost.setOrderType(0);
-        academyCost.setSettlementPrice(0);
+        if(academyCost.getAcademyId() != null){
+            academyCost.setOrderType(0);
+        }
+        academyCost.setOrderType(1);
         academyCost.setCost_status(0);
         academyCost.setProductId(req.getProductId());
         if (req.getJoinClassId() != 0) {
             JoinClass joinClass = joinClassRepository.findById(req.getJoinClassId()).orElse(null);
             academyCost.setJoinClass(joinClass);
+        }
+        if(req.getProductId() == 1){
+            academyCost.setAcademyId(req.getAcaId());
         }
         String tid = kakaoReady.getTid();
         academyCost.setTId(tid);
@@ -137,7 +151,26 @@ public class KakaoPayService {
         System.out.println();
         System.out.println();
 
-        academyCostRepository.updateCostStatus(1, TId);
+        //academyCostRepository.updateCostStatus(1, TId);
+        AcademyCost acaResult = academyCostRepository.findById(result.getCostId()).orElse(null);
+        acaResult.setCost_status(1);
+        academyCostRepository.save(acaResult);
+        if(acaResult.getAcademyId() != null){
+            PremiumAcademy premiumAcademy = new PremiumAcademy();
+            premiumAcademy.setAcademy(acaResult.getAcademyId());
+            premiumAcademy.setPreCheck(0);
+            premiumAcademy.setPrice(acaResult.getPrice());
+            premiumRepository.save(premiumAcademy);
+        }
+
+        Product product = productRepository.findById(productId).orElse(null);
+
+        if(product.getBookId() != null){
+            Book book = bookRepository.findById(academyCostMapper.getBookIdByProductId(productId)).orElse(null);
+            book.setBookAmount(book.getBookAmount() - acaResult.getAmount());
+            bookRepository.save(book);
+        }
+
 
         return approveResponse;
     }

@@ -4,15 +4,15 @@ import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
-import lombok.Getter;
+        import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Setter
-@Getter
 @Entity
+@Getter
+@Setter
 @Table(name = "aca_class")
 public class AcaClass {
     @Id
@@ -21,7 +21,7 @@ public class AcaClass {
 
     @ManyToOne
     @JoinColumn(name = "aca_id", nullable = false)
-    private Academy academy;
+    private Academy academy;  // 학원 참조
 
     @Column(length = 50, nullable = false)
     private String className;
@@ -41,14 +41,14 @@ public class AcaClass {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    @Column(length = 11, nullable = false)
+    @Column(nullable = false)
     private int price;
 
-    // 복합키 기반으로 Teacher와 연결
+    // 복합키 기반으로 Teacher와 연결 (TeacherIds 직접 사용)
     @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "teacher_user_id", referencedColumnName = "user_id"),
             @JoinColumn(name = "teacher_aca_id", referencedColumnName = "aca_id")
     })
-    private Teacher teacher;  // 담당 선생님
+    private Teacher teacher;
 }

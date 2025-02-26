@@ -14,12 +14,16 @@ import com.green.acamatch.entity.category.Category;
 import com.green.acamatch.entity.category.ClassCategory;
 import com.green.acamatch.entity.category.ClassCategoryIds;
 import com.green.acamatch.entity.manager.Teacher;
+import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.formula.functions.Days;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -37,6 +41,7 @@ public class AcaClassService {
     private final ClassWeekDaysRepository classWeekDaysRepository;
     private final ClassCategoryRepository classCategoryRepository;
     private final CategoryRepository categoryRepository;
+    private final TeacherRepository teacherRepository;
 
     // 특정 학원의 특정 수업을 듣는 학생(또는 학부모) 목록 조회
     public List<User> findStudentsByClassId(Long classId) {
@@ -48,6 +53,20 @@ public class AcaClassService {
     public int postAcaClass(AcaClassPostReq p) {
         try {
             AcaClass acaClass = new AcaClass();
+
+
+            TeacherIds teacherIds = new TeacherIds();
+            teacherIds.setUserId(p.getTeacherUserId());
+            teacherIds.setAcaId(p.getAcaId());  // acaId 자동 매핑
+
+            // teacherIds 기반으로 Teacher 조회
+            Teacher teacher = teacherRepository.findByTeacherIds(teacherIds)
+                    .orElseThrow(() -> new CustomException(ManagerErrorCode.TEACHER_NOT_FOUND));
+
+
+            if (classRepository.existsByAcaIdAndClassName(p.getAcaId(), p.getClassName()) > 0) {
+                throw new IllegalArgumentException("이미 존재하는 강좌입니다.");
+            }
             Academy academy = academyRepository.findById(p.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
             acaClass.setAcademy(academy);
             acaClass.setClassName(p.getClassName());
@@ -57,22 +76,22 @@ public class AcaClassService {
             acaClass.setStartTime(p.getStartTime());
             acaClass.setEndTime(p.getEndTime());
             acaClass.setPrice(p.getPrice());
+            acaClass.setTeacher(teacher);
 
             classRepository.save(acaClass);
 
+            //Product 객체 생성 시 AcaClass 설정
             Product product = new Product();
-            product.setClassId(product.getClassId());
-            product.setProductName(product.getProductName());
-            product.setProductPrice(product.getProductPrice());
-            productRepository.save(product);
+            product.setClassId(acaClass);  //AcaClass 타입으로 설정
+            product.setProductName(p.getClassName()); //강좌 이름을 상품명으로 설정
+            product.setProductPrice(p.getPrice());
 
-            if (classRepository.existsByAcaIdAndClassName(p.getAcaId(), p.getClassName()) > 0) {
-                throw new IllegalArgumentException("이미 존재하는 강좌입니다.");
-            }
-            classRepository.save(acaClass);
+            productRepository.save(product); // 저장
+
+
             return 1;
         } catch (CustomException e) {
-            e.getMessage();
+            e.printStackTrace();
             return 0;
         }
     }

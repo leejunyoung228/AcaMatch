@@ -1,6 +1,7 @@
 package com.green.acamatch.academy.premium.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.green.acamatch.entity.academy.Academy;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -35,4 +36,8 @@ public class PremiumPostReq {
 
     @Schema(title = "프리미엄 가격")
     private int price;
+
+    public void setAcaId(Academy academyId) {
+        this.acaId = academyId.getAcaId();
+    }
 }

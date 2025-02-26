@@ -1,6 +1,7 @@
 package com.green.acamatch.acaClass.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.green.acamatch.entity.manager.TeacherIds;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,5 +31,8 @@ public class AcaClassPostReq {
     private LocalTime endTime;
     @Schema(title = "수강료", example = "100000")
     private int price;
+
+    private Long teacherUserId;
+
 
 }

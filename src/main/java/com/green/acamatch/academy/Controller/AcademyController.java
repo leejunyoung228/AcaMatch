@@ -1,12 +1,15 @@
 package com.green.acamatch.academy.Controller;
 
 import com.green.acamatch.academy.Service.AcademyService;
+import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academy.Service.TagService;
 import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
+import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,7 @@ import java.util.List;
 public class AcademyController {
     private final AcademyService academyService;
     private final AcademyMessage academyMessage;
+    private final PremiumService premiumService;
 
     @PostMapping
     @Operation(summary = "학원정보등록", description = "필수: 유저 PK, 동 PK, 학원 이름, 학원 번호, 학원 상세 주소 || 옵션: 학원 설명, 강사 수, 오픈 시간, 마감 시간, 학원 사진, 태그")
@@ -70,6 +74,17 @@ public class AcademyController {
                 .resultData(list)
                 .build();
     }
+
+    @PutMapping("agree")
+    @Operation(summary = "학원정보등록 승인", description = "acaId를 보내주시면 승인이 완료(1) 됩니다.")
+    public ResultResponse<Integer> putAcademyAgree(@RequestBody AcademyAgreeUpdReq req) {
+        int result = academyService.updAcademyAgree(req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(result)
+                .build();
+    }
+
 
 // -------------------------------------------------------------
 
