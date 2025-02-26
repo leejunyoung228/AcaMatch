@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "시험 관리", description = "시험 등록")
 @RestController
-@RequestMapping("subject")
+@RequestMapping("exam")
 @RequiredArgsConstructor
 public class ExamController {
     private final ExamService service;
@@ -17,17 +17,10 @@ public class ExamController {
     @PostMapping
     @Operation(summary = "시험 등록 하기")
     public ResultResponse<Integer> postSubject(@RequestBody ExamPostReq p) {
-        try {
             Integer result = service.postExam(p);
             return ResultResponse.<Integer>builder()
-                    .resultMessage("시험 등록에 성공하였습니다.")
+                    .resultMessage(result == 1 ? "시험 등록 성공" : "시험 등록 실패")
                     .resultData(result)
                     .build();
-        } catch (IllegalArgumentException e) {
-            return ResultResponse.<Integer>builder()
-                    .resultMessage(e.getMessage())
-                    .resultData(0)
-                    .build();
-        }
     }
 }

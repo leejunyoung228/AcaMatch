@@ -15,14 +15,11 @@ import com.green.acamatch.entity.category.ClassCategory;
 import com.green.acamatch.entity.category.ClassCategoryIds;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.joinClass.model.JoinClassRepository;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.formula.functions.Days;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
