@@ -27,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -55,7 +56,7 @@ public class PremiumService {
         return 1;
     }
 
-    //프리미엄학원 수정(승인)
+    //프리미엄학원 수정(관리자 승인)
     public int updPremium(PremiumUpdateReq req) {
         int result = premiumRepository.updateByAcaId(req.getAcaId(), req.getPreCheck());
         academyMessage.setMessage("프리미엄 학원이 승인되었습니다.");
@@ -87,6 +88,8 @@ public class PremiumService {
 
     premiumRepository.deleteByAcaId(req.getAcaId());
     academyMessage.setMessage("프리미엄학원을 삭제하였습니다.");
+    academyRepository.updateAcademyPremiumEndByAcaId(req.getAcaId());
+
     return 1;
     }
 
@@ -95,6 +98,11 @@ public class PremiumService {
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteExpiredPremiumAcademies() {
         LocalDate now = LocalDate.now();
+        List<Long> acaIds = premiumRepository.findAcaIdsByEndDateBefore(now);
         premiumRepository.deletePremiumAcademyByEndDate(now);
+
+        for(Long acaId : acaIds) {
+            academyRepository.updateAcademyPremiumEndByAcaId(acaId);
+        }
     }
 }
