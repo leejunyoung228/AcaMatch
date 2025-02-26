@@ -42,6 +42,7 @@ public class KakaoPayService {
     private RestTemplate restTemplate = new RestTemplate();
     private final AcademyCostMapper academyCostMapper;
     private final PremiumService premiumService;
+    private final AcademyCostMessage academyCostMessage;
 
 
     private HttpHeaders getHeaders() {
@@ -55,6 +56,7 @@ public class KakaoPayService {
     /**
      * 결제 완료 요청
      */
+    @Transactional
     public KakaoReadyResponse kakaoPayReady(KakaoPayPostReq req) {
 
 
@@ -86,7 +88,22 @@ public class KakaoPayService {
                 KakaoReadyResponse.class);
 
         AcademyCost academyCost = new AcademyCost();
-        academyCost.setAmount(req.getQuantity());
+
+        if(product.get().getBookId() != null){
+            long productId = academyCostMapper.getBookIdByProductId(req.getProductId());
+            Book book = bookRepository.findById(productId).orElse(null);
+            book.getBookAmount();
+            Optional<Product> product2 = productRepository.findById(productId);
+            academyCost.setAmount(req.getQuantity());
+            if(product2.get().getBookId() != null) {
+                if((book.getBookAmount()-academyCost.getAmount()) < 0){
+                    academyCostMessage.setMessage("남은 수량보다 많이 구매하였습니다. 구매가 불가능합니다.");
+                    return null;
+                }
+            }
+        }
+
+        academyCost.setProductId(req.getProductId());
         academyCost.setUserId(req.getUserId());
         academyCost.setPrice((product.get().getProductPrice() + (product.get().getProductPrice()/10)) * req.getQuantity());
         academyCost.setStatus(0);
@@ -108,6 +125,7 @@ public class KakaoPayService {
         academyCost.setFee(academyCost.getPrice() * 0.01);
         academyCostRepository.save(academyCost);
 
+        academyCostMessage.setMessage("결제 시작~");
         return kakaoReady;
     }
 
@@ -165,11 +183,13 @@ public class KakaoPayService {
 
         Product product = productRepository.findById(productId).orElse(null);
 
+
         if(product.getBookId() != null){
             Book book = bookRepository.findById(academyCostMapper.getBookIdByProductId(productId)).orElse(null);
             book.setBookAmount(book.getBookAmount() - acaResult.getAmount());
             bookRepository.save(book);
         }
+
 
 
         return approveResponse;

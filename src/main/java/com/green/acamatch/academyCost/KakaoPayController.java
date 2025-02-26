@@ -26,14 +26,17 @@ public class KakaoPayController {
 
     private final KakaoPayService kakaoPayService;
     private final PremiumService premiumService;
+    private final AcademyCostMessage academyCostMessage;
 
     /**
      * 결제요청
      */
     @PostMapping("/ready")
-    public KakaoReadyResponse readyToKakaoPay(@ParameterObject KakaoPayPostReq req) {
-
-        return kakaoPayService.kakaoPayReady(req);
+    public ResultResponse<KakaoReadyResponse> readyToKakaoPay(@ParameterObject KakaoPayPostReq req) {
+        return ResultResponse.<KakaoReadyResponse>builder()
+                .resultData(kakaoPayService.kakaoPayReady(req))
+                .resultMessage(academyCostMessage.getMessage())
+                .build();
     }
 
     /**
