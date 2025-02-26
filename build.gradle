@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
 
+
     implementation 'io.hypersistence:hypersistence-utils-hibernate-60:3.9.1'
 
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
