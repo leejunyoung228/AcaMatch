@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.transform.Result;
 import java.util.List;
 
 @Tag(name = "공지사항 관리", description = "공지사항 등록, 가져오기, 수정, 삭제")
@@ -30,21 +29,11 @@ public class BoardController {
     }
 
     @GetMapping
-    @Operation(summary = "공지사항 리스트 불러오기", description = "acaId / userId 하나만 입력하면 됩니다. , null 값은 안떠요.")
-    public ResultResponse<List<BoardGetDto>> getBoardList(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
-        List<BoardGetDto> res = boardService.getBoardList(p);
-        return ResultResponse.<List<BoardGetDto>>builder()
-                .resultMessage("공지사항 리스트 불러오기 완료")
-                .resultData(res)
-                .build();
-    }
-
-    @GetMapping("/detail")
     @Operation(summary = "공지사항 상세보기", description = "acaId / userId 하나만 입력하면 됩니다.")
-    public ResultResponse<List<BoardGetDetailRes>> getBoardDetail(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
-        List<BoardGetDetailRes> res = boardService.getBoardDetail(p);
-        return ResultResponse.<List<BoardGetDetailRes>>builder()
-                .resultMessage("공지사항 상세보기 완료")
+    public ResultResponse<List<BoardGetDetailDto>> getBoardDetail(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
+        List<BoardGetDetailDto> res = boardService.getBoardDetail(p);
+        return ResultResponse.<List<BoardGetDetailDto>>builder()
+                .resultMessage("공지사항 리스트 불러오기 완료")
                 .resultData(res)
                 .build();
     }

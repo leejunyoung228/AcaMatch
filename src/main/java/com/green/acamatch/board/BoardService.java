@@ -48,13 +48,8 @@ public class BoardService {
         }
     }
 
-    public List<BoardGetDto> getBoardList(BoardGetDetailReq p) {
-        List<BoardGetDto> result = boardMapper.getBoardList(p);
-        return result;
-    }
-
-    public List<BoardGetDetailRes> getBoardDetail(BoardGetDetailReq p) {
-        List<BoardGetDetailRes> result = boardMapper.getBoardDetail(p);
+    public List<BoardGetDetailDto> getBoardDetail(BoardGetDetailReq p) {
+        List<BoardGetDetailDto> result = boardMapper.getBoardDetail(p);
         return result;
     }
 

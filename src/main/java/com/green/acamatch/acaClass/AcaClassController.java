@@ -22,54 +22,41 @@ public class AcaClassController {
     @PostMapping
     @Operation(summary = "강좌 등록하기")
     public ResultResponse<Integer> postAcaClass(@RequestBody AcaClassPostReq p) {
-        try {
-            Integer result = service.postAcaClass(p);
-            return ResultResponse.<Integer>builder()
-                    .resultMessage("강좌 등록에 성공하였습니다.")
-                    .resultData(result)
-                    .build();
-        } catch (IllegalArgumentException e) {
-            return ResultResponse.<Integer>builder()
-                    .resultMessage(e.getMessage())
-                    .build();
-        }
+        Integer result = service.postAcaClass(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(result == 1 ? "강좌 등록 성공" : "강좌 등록 실패")
+                .resultData(result)
+                .build();
     }
 
     @PostMapping("weekdays")
     @Operation(summary = "요일 등록하기/순서 맞게 월,화,수,목,금,토,일 등록")
     public ResultResponse<Integer> insWeekDay(@RequestBody WeekDays p) {
-            Integer result = service.insWeekDay(p);
-            return ResultResponse.<Integer>builder()
-                    .resultMessage("요일 등록에 성공하였습니다.")
-                    .resultData(result)
-                    .build();
+        Integer result = service.insWeekDay(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(result == 1 ? "요일 등록 성공" : "요일 등록 실패")
+                .resultData(result)
+                .build();
     }
 
     @PostMapping("dayRelation")
     @Operation(summary = "요일 관계 등록하기")
     public ResultResponse<Integer> insAcaClassClassWeekDays(@RequestBody ClassWeekDaysReq p) {
-            Integer result = service.insAcaClassClassWeekDays(p);
-            return ResultResponse.<Integer>builder()
-                    .resultMessage("요일 관계 등록에 성공하였습니다.")
-                    .resultData(result)
-                    .build();
+        Integer result = service.insAcaClassClassWeekDays(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(result == 1 ? "요일 관계 등록 성공" : "요일 관계 등록 실패")
+                .resultData(result)
+                .build();
     }
 
     @PostMapping("classCategory")
     @Operation(summary = "카테고리 관계 등록하기")
     public ResultResponse<Integer> insAcaClassCategory(@RequestBody AcaClassCategoryReq p) {
-        try {
-            Integer result = service.insAcaClassCategory(p);
-            return ResultResponse.<Integer>builder()
-                    .resultMessage("카테고리 등록에 성공하였습니다.")
-                    .resultData(result)
-                    .build();
-        } catch (IllegalArgumentException e) {
-            return ResultResponse.<Integer>builder()
-                    .resultMessage(e.getMessage())
-                    .resultData(0)
-                    .build();
-        }
+        Integer result = service.insAcaClassCategory(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(result == 1 ? "카테고리 등록 성공" : "카테고리 등록 실패")
+                .resultData(result)
+                .build();
     }
 
     @GetMapping("detail")
@@ -132,4 +119,4 @@ public class AcaClassController {
                 .resultData(result)
                 .build();
     }
-    }
+}
