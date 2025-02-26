@@ -15,7 +15,7 @@ public class PremiumAcademy extends CreatedAt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long preAcaId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "aca_id")
     private Academy academy;
 
