@@ -47,7 +47,7 @@ public class Academy extends CreatedAt {
     @Column(nullable = false)
     private int premium;
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 50, nullable = false, unique = true)
     private String acaName;
 
     @Column(length = 15, nullable = false)

@@ -159,10 +159,10 @@ public class KakaoPayService {
         premiumAcademy.setPrice(acaResult.getPrice());
         premiumRepository.save(premiumAcademy);
 
-        Product product = productRepository.findById(productId).orElse(null);
+       /* Product product = productRepository.findById(productId).orElse(null);
         if(product.getBookId() != null){
             Book book = bookRepository.findById(product.getBookId()).orElse(null);
-        }
+        }*/ //일단 주석 나중에 풀지말지
 
         return approveResponse;
     }
