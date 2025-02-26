@@ -4,8 +4,16 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.green.acamatch.academyCost.AcademyCostMapper">
     <select id="getInfoByTid">
-        select t_id, user_id, product_id
+        select t_id, user_id, product_id, cost_id
         from academy_cost
         where t_id = #{tid}
+    </select>
+    <select id="getAcademyCostInfo">
+
+    </select>
+    <select id="getBookIdByProductId">
+        select bookId
+        from product
+        where product_id = #{productId}
     </select>
 </mapper>

@@ -31,6 +31,7 @@ public class BookService {
         Long classId = req.getClassId();
         book.setClassId(classId);
         book.setManager(req.getManager());
+        book.setBookAmount(req.getBookAmount());
 
         bookRepository.save(book);
 
@@ -47,9 +48,9 @@ public class BookService {
 
 
         String filePath = String.format("%s/%s", middlePath, savedPicName);
+        book.setBookPic(savedPicName);
 
         try{
-            book.setBookPic(savedPicName);
             myFileUtils.transferTo(mf, filePath);
         }
         catch (IOException e){

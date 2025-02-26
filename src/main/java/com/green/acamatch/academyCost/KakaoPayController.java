@@ -1,5 +1,6 @@
 package com.green.acamatch.academyCost;
 
+import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academyCost.model.KakaoApproveResponse;
 import com.green.acamatch.academyCost.model.KakaoPayPostReq;
 import com.green.acamatch.academyCost.model.KakaoReadyResponse;
@@ -24,6 +25,7 @@ import java.util.List;
 public class KakaoPayController {
 
     private final KakaoPayService kakaoPayService;
+    private final PremiumService premiumService;
 
     /**
      * 결제요청

@@ -1,10 +1,16 @@
 package com.green.acamatch.academyCost;
 
+import com.green.acamatch.academy.PremiumRepository;
+import com.green.acamatch.academy.Service.PremiumService;
+import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academyCost.model.GetAcademyCostInfoRes;
 import com.green.acamatch.academyCost.model.KakaoApproveResponse;
 import com.green.acamatch.academyCost.model.KakaoPayPostReq;
 import com.green.acamatch.academyCost.model.KakaoReadyResponse;
+import com.green.acamatch.book.BookRepository;
+import com.green.acamatch.entity.academy.PremiumAcademy;
 import com.green.acamatch.entity.academyCost.AcademyCost;
+import com.green.acamatch.entity.academyCost.Book;
 import com.green.acamatch.entity.academyCost.Product;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.joinClass.model.JoinClassRepository;
@@ -31,8 +37,11 @@ public class KakaoPayService {
     private final JoinClassRepository joinClassRepository;
     private final KakaoPayProperties payProperties;
     private final ProductRepository productRepository;
+    private final PremiumRepository premiumRepository;
+    private final BookRepository bookRepository;
     private RestTemplate restTemplate = new RestTemplate();
     private final AcademyCostMapper academyCostMapper;
+    private final PremiumService premiumService;
 
 
     private HttpHeaders getHeaders() {
@@ -89,6 +98,9 @@ public class KakaoPayService {
             JoinClass joinClass = joinClassRepository.findById(req.getJoinClassId()).orElse(null);
             academyCost.setJoinClass(joinClass);
         }
+        if(req.getProductId() == 1){
+            academyCost.setAcademyId(req.getAcaId());
+        }
         String tid = kakaoReady.getTid();
         academyCost.setTId(tid);
         academyCost.setFee(academyCost.getPrice() * 0.01);
@@ -137,7 +149,20 @@ public class KakaoPayService {
         System.out.println();
         System.out.println();
 
-        academyCostRepository.updateCostStatus(1, TId);
+        //academyCostRepository.updateCostStatus(1, TId);
+        AcademyCost acaResult = academyCostRepository.findById(result.getCostId()).orElse(null);
+        acaResult.setCost_status(1);
+        academyCostRepository.save(acaResult);
+        PremiumAcademy premiumAcademy = new PremiumAcademy();
+        premiumAcademy.setAcademy(acaResult.getAcademyId());
+        premiumAcademy.setPreCheck(0);
+        premiumAcademy.setPrice(acaResult.getPrice());
+        premiumRepository.save(premiumAcademy);
+
+        Product product = productRepository.findById(productId).orElse(null);
+        if(product.getBookId() != null){
+            Book book = bookRepository.findById(product.getBookId()).orElse(null);
+        }
 
         return approveResponse;
     }

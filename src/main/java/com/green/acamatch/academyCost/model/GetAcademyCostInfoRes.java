@@ -9,4 +9,5 @@ public class GetAcademyCostInfoRes {
     private String tId;
     private long userId;
     private long productId;
+    private Integer costId;
 }

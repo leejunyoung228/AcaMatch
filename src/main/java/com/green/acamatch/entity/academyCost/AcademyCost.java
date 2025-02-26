@@ -1,5 +1,6 @@
 package com.green.acamatch.entity.academyCost;
 
+import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.datetime.UpdatedAt;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import jakarta.persistence.*;
@@ -49,8 +50,17 @@ public class AcademyCost extends UpdatedAt {
     @Column(nullable = false)
     private double fee;
 
+    @JoinColumn(name = "aca_id")
+    @ManyToOne
+    private Academy academyId;
+
     public void setProductId(Long productId) {
         this.productId = new Product();
         this.productId.setProductId(productId);
+    }
+
+    public void setAcademyId(Long acaId) {
+        this.academyId = new Academy();
+        this.academyId.setAcaId(acaId);
     }
 }

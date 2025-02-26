@@ -19,4 +19,7 @@ public class KakaoPayPostReq {
 
     @Schema(title = "어떤 수업 듣고 있는 학생인지", example = "0")
     private long joinClassId;
+
+    @Schema(title = "학원 PK", example = "1")
+    private Long acaId;
 }
