@@ -12,6 +12,7 @@ import com.green.acamatch.entity.myenum.SenderType;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.entity.myenum.UserRole;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ChatService {
+    private final EntityManager em;
     private final ChatRepository chatRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final AcademyRepository academyRepository;
@@ -142,7 +144,18 @@ public class ChatService {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteChatLogs() {
-        chatRepository.deleteChatByCreatedAtBefore(LocalDateTime.now().minusMonths(6));
+        LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
+
+        int batchSize = 1000; // 한 번에 삭제할 개수
+        int deletedRows;
+
+        do {
+            deletedRows = chatRepository.bulkDeleteOldChatsWithLimit(sixMonthsAgo, batchSize);
+            log.info("Deleted {} old chat records", deletedRows);
+            em.flush();
+            em.clear();
+        } while (deletedRows > 0); // 더 이상 삭제할 데이터가 없을 때까지 반복
+
         chatRoomRepository.deleteAllByChatsIsEmpty();
     }
 }

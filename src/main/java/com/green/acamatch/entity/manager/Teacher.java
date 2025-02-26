@@ -9,26 +9,27 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Teacher{
+@Table(name = "teacher")
+public class Teacher {
     @EmbeddedId
     private TeacherIds teacherIds;
 
+    // user_id 먼저 매핑
     @ManyToOne
-    @MapsId("userId")
+    @MapsId("userId") // userId를 먼저 매핑
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // aca_id 나중에 매핑
     @ManyToOne
-    @MapsId("acaId")
+    @MapsId("acaId") // acaId를 나중에 매핑
     @JoinColumn(name = "aca_id", nullable = false)
     private Academy academy;
 
-
     @Lob
-    @Column(nullable = false)
-    private String teacher_comment;
+    @Column(nullable = false, length = 300)
+    private String teacherComment;
 
     @Column(nullable = false)
     private int teacherAgree;
-
 }

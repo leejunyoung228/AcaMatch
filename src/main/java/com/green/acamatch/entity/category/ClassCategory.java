@@ -1,10 +1,11 @@
 package com.green.acamatch.entity.category;
 
 import com.green.acamatch.entity.acaClass.AcaClass;
-import com.green.acamatch.entity.acaClass.Weekdays;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Setter
 @Getter
@@ -16,11 +17,12 @@ public class ClassCategory {
 
     @ManyToOne
     @MapsId("classId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "class_id", nullable = false)
     private AcaClass classId;
 
     @ManyToOne
     @MapsId("categoryId")
     @JoinColumn(name = "category_id", nullable = false)
-    private Weekdays day;
+    private Category categoryId;
 }

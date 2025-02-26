@@ -6,17 +6,25 @@ import com.green.acamatch.academyCost.ProductRepository;
 import com.green.acamatch.config.exception.*;
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.acaClass.ClassWeekdays;
+import com.green.acamatch.entity.acaClass.ClassWeekdaysIds;
 import com.green.acamatch.entity.acaClass.Weekdays;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academyCost.Product;
+import com.green.acamatch.entity.category.Category;
+import com.green.acamatch.entity.category.ClassCategory;
+import com.green.acamatch.entity.category.ClassCategoryIds;
 import com.green.acamatch.entity.manager.Teacher;
+import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.model.JoinClassRepository;
+import com.green.acamatch.manager.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.formula.functions.Days;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -32,6 +40,9 @@ public class AcaClassService {
     private final ProductRepository productRepository;
     private final WeekDaysRepository weekDaysRepository;
     private final ClassWeekDaysRepository classWeekDaysRepository;
+    private final ClassCategoryRepository classCategoryRepository;
+    private final CategoryRepository categoryRepository;
+    private final TeacherRepository teacherRepository;
 
     // 특정 학원의 특정 수업을 듣는 학생(또는 학부모) 목록 조회
     public List<User> findStudentsByClassId(Long classId) {
@@ -43,6 +54,17 @@ public class AcaClassService {
     public int postAcaClass(AcaClassPostReq p) {
         try {
             AcaClass acaClass = new AcaClass();
+
+
+            TeacherIds teacherIds = new TeacherIds();
+            teacherIds.setUserId(p.getTeacherUserId());
+            teacherIds.setAcaId(p.getAcaId());  // acaId 자동 매핑
+
+            // teacherIds 기반으로 Teacher 조회
+            Teacher teacher = teacherRepository.findByTeacherIds(teacherIds)
+                    .orElseThrow(() -> new CustomException(ManagerErrorCode.TEACHER_NOT_FOUND));
+
+
             Academy academy = academyRepository.findById(p.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
             acaClass.setAcademy(academy);
             acaClass.setClassName(p.getClassName());
@@ -52,16 +74,17 @@ public class AcaClassService {
             acaClass.setStartTime(p.getStartTime());
             acaClass.setEndTime(p.getEndTime());
             acaClass.setPrice(p.getPrice());
+            acaClass.setTeacher(teacher);
 
             classRepository.save(acaClass);
 
             Product product = new Product();
-            product.setAcaClass(product.getAcaClass());
+            product.setClassId(product.getClassId());
             product.setProductName(product.getProductName());
             product.setProductPrice(product.getProductPrice());
             productRepository.save(product);
 
-            if (classRepository.existsByAcaIdAndClassName(p.getAcaId(), p.getClassName())) {
+            if (classRepository.existsByAcaIdAndClassName(p.getAcaId(), p.getClassName()) > 0) {
                 throw new IllegalArgumentException("이미 존재하는 강좌입니다.");
             }
             classRepository.save(acaClass);
@@ -76,14 +99,14 @@ public class AcaClassService {
     @Transactional
     public int insWeekDay(WeekDays p) {
         try {
-            Weekdays weekdays = new Weekdays();
-            weekdays.setDay(p.getDay());
-            weekDaysRepository.save(weekdays);
-
-            if (weekDaysRepository.existsDay(p.getDay())) {
+            // 이미 존재하는 요일인지 확인
+            if (weekDaysRepository.existsDay(p.getDay()) > 0) {
                 throw new IllegalArgumentException("이미 존재하는 요일입니다.");
             }
 
+            // 존재하지 않으면 새로 등록
+            Weekdays weekdays = new Weekdays();
+            weekdays.setDay(p.getDay());
             weekDaysRepository.save(weekdays);
             return 1;
         } catch (CustomException e) {
@@ -96,16 +119,32 @@ public class AcaClassService {
     @Transactional
     public int insAcaClassClassWeekDays(ClassWeekDaysReq p) {
         try {
-            ClassWeekdays classWeekDays = new ClassWeekdays();
-            classWeekDays.setClassId(classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER)));
-            classWeekDays.setDay(weekDaysRepository.findById(p.getDayId()).orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_PARAMETER)));
-            classWeekDaysRepository.save(classWeekDays);
+            // 강좌가 존재하는지 확인
+            AcaClass acaClass = classRepository.findById(p.getClassId())
+                    .orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
 
-            if (classWeekDaysRepository.existsClassWeekDays(p.getClassId(), p.getDayId())) {
+            // 요일이 존재하는지 확인
+            Weekdays weekdays = weekDaysRepository.findById(p.getDayId())
+                    .orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_DAY));
+
+            // 중복된 강좌 요일이 있는지 확인
+            if (classWeekDaysRepository.existsClassWeekDays(p.getDayId(), p.getClassId()) > 0) {
                 throw new IllegalArgumentException("중복된 강좌 요일입니다.");
             }
 
+            // ClassWeekdaysIds 생성 및 classId, dayId 설정
+            ClassWeekdaysIds classWeekdaysIds = new ClassWeekdaysIds();
+            classWeekdaysIds.setClassId(acaClass.getClassId());  // AcaClass의 ID 값을 설정
+            classWeekdaysIds.setDayId(weekdays.getDayId());    // Weekdays의 ID 값을 설정
+
+            // 새 ClassWeekdays 객체 생성 및 저장
+            ClassWeekdays classWeekDays = new ClassWeekdays();
+
+            classWeekDays.setClassWeekdaysIds(classWeekdaysIds);
+            classWeekDays.setClassId(acaClass);
+            classWeekDays.setDay(weekdays);
             classWeekDaysRepository.save(classWeekDays);
+
             return 1;
         } catch (CustomException e) {
             e.getMessage();
@@ -116,12 +155,30 @@ public class AcaClassService {
     //카테고리 등록
     @Transactional
     public int insAcaClassCategory(AcaClassCategoryReq p) {
+        try {
+            ClassCategory classCategory = new ClassCategory();
+            classCategory.setClassId(classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS)));
+            Category category = categoryRepository.findById(p.getCategoryId())
+                    .orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CATEGORY));
 
-        int exists = mapper.existsCategory(p.getClassId(), p.getCategoryId());
-        if (exists > 0) {
-            throw new IllegalArgumentException("중복된 카테고리입니다.");
+            if (classCategoryRepository.existsCategory(p.getClassId(), p.getCategoryId()) > 0) {
+                throw new IllegalArgumentException("중복된 카테고리입니다.");
+            }
+
+            AcaClass acaClass = new AcaClass();
+            ClassCategoryIds classCategoryIds = new ClassCategoryIds();
+            classCategoryIds.setCategoryId(category.getCategoryId());
+            classCategoryIds.setClassId(acaClass.getClassId());
+
+            classCategory.setClassCategoryIds(classCategoryIds);
+            classCategory.setCategoryId(category);
+            classCategoryRepository.save(classCategory);
+
+            return 1;
+        } catch (CustomException e) {
+            e.getMessage();
+            return 0;
         }
-        return mapper.insAcaClassCategory(p);
     }
 
     //수업 상세정보 불러오기
@@ -173,42 +230,100 @@ public class AcaClassService {
     }
 
     //강좌 수정
+    @Transactional
     public int updAcaClass(AcaClassPutReq p) {
-
         try {
-            int result = mapper.updAcaClass(p);
-            userMessage.setMessage("강좌 정보 수정에 성공하였습니다.");
-            return result;
-        } catch (BadSqlGrammarException e) {
-            userMessage.setMessage("잘못된 형식을 입력하였습니다.");
+            Academy academy = academyRepository.findById(p.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
+            AcaClass acaClass = classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
+            acaClass.setAcademy(academy);
+            acaClass.setClassId(acaClass.getClassId());
+            if (p.getClassName() != null && p.getClassName().isEmpty()) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+            }
+            if (p.getClassComment() != null && p.getClassComment().isEmpty()) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+            }
+            if (p.getPrice() < 0) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+            }
+
+            acaClass.setClassName(p.getClassName());
+            acaClass.setClassComment(p.getClassComment());
+            acaClass.setPrice(p.getPrice());
+            acaClass.setStartDate(p.getStartDate());
+            acaClass.setEndDate(p.getEndDate());
+            acaClass.setStartTime(p.getStartTime());
+            acaClass.setEndTime(p.getEndTime());
+
+            classRepository.save(acaClass);
+            return 1;
+        } catch (CustomException e) {
+            e.getMessage();
             return 0;
         }
+
+//        try {
+//            int result = mapper.updAcaClass(p);
+//            userMessage.setMessage("강좌 정보 수정에 성공하였습니다.");
+//            return result;
+//        } catch (BadSqlGrammarException e) {
+//            userMessage.setMessage("잘못된 형식을 입력하였습니다.");
+//            return 0;
+//        }
     }
 
     //class 삭제
     public int delAcaClass(AcaClassDelReq p) {
-        int result = mapper.delAcaClass(p);
+        try {
+            Academy academy = academyRepository.findById(p.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
+            AcaClass acaClass = classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
 
-        if (result == 1) {
-            userMessage.setMessage("강좌 삭제에 성공하였습니다.");
-            return result;
-        } else {
-            userMessage.setMessage("강좌 삭제에 실패하였습니다.");
+            if (academy.getAcaId().equals(acaClass.getAcademy().getAcaId())) {
+                classRepository.delete(acaClass);
+                return 1;
+            } else {
+                throw new CustomException(AcaClassErrorCode.INVALID_DAY_FOR_CLASS);
+            }
+        } catch (CustomException e) {
+            e.getMessage();
             return 0;
         }
+//        int result = mapper.delAcaClass(p);
+//
+//        if (result == 1) {
+//            userMessage.setMessage("강좌 삭제에 성공하였습니다.");
+//            return result;
+//        } else {
+//            userMessage.setMessage("강좌 삭제에 실패하였습니다.");
+//            return 0;
+//        }
     }
 
     // 수업이 열리는 요일 삭제하기
     public int delAcaClassDay(ClassWeekDaysReq p) {
-        int result = mapper.delAcaClassDay(p);
-
-        if (result == 1) {
-            userMessage.setMessage("개강날 삭제에 성공하였습니다.");
-            return result;
-        } else {
-            userMessage.setMessage("개강날 삭제에 실패하였습니다.");
+        try {
+            AcaClass acaClass = classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
+            Weekdays weekdays = weekDaysRepository.findById(p.getDayId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_DAY));
+            // 특정 강좌에 속한 요일만 삭제
+            if (weekdays.getClass().equals(acaClass)) {
+                weekDaysRepository.delete(weekdays);
+                return 1;
+            } else {
+                throw new CustomException(AcaClassErrorCode.INVALID_DAY_FOR_CLASS);
+            }
+        } catch (CustomException e) {
+            e.getMessage();
             return 0;
         }
+//        int result = mapper.delAcaClassDay(p);
+//
+//        if (result == 1) {
+//            userMessage.setMessage("개강날 삭제에 성공하였습니다.");
+//            return result;
+//        } else {
+//            userMessage.setMessage("개강날 삭제에 실패하였습니다.");
+//            return 0;
+//        }
     }
 
     /**
