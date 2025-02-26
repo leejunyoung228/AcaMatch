@@ -45,12 +45,12 @@ public class Academy extends CreatedAt {
 
 
     @Column(nullable = false)
-    private int premium;
+    private int premium = 0;
 
     @Column(length = 50, nullable = false, unique = true)
     private String acaName;
 
-    @Column(length = 15, nullable = false)
+    @Column(length = 15, nullable = false, unique = true)
     @Pattern(regexp = "^(0(10|2|3[1-3]|4[1-3]|5[1-5]|6[1-4]))-\\d{3,4}-\\d{4}$", message = "전화번호 형식이 맞지 않습니다.")
     private String acaPhone;
 
