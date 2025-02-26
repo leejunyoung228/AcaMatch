@@ -522,6 +522,13 @@ public class AcademyService {
         }
     }
 
+    //학원정보등록 승인(관리자)
+    public int updAcademyAgree(AcademyAgreeUpdReq req) {
+        int result = academyRepository.updateAcademyAcaAgreeByAcaId(req.getAcaId());
+        academyMessage.setMessage("학원정보등록이 승인되었습니다.");
+        return result;
+    }
+
     //학원좋아요순
     public List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req) {
         List<AcademyBestLikeGetRes> list = academyMapper.getAcademyBest(req);
