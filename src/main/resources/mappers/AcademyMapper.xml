@@ -271,7 +271,8 @@
         A.aca_name,
         A.created_at,
         A.aca_agree,
-        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pic
+        AP.aca_pic,
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics
         FROM academy A
         JOIN academy_pic AP ON A.aca_id = AP.aca_id
         WHERE A.user_id = #{signedUserId}
