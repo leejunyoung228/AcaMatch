@@ -102,7 +102,7 @@ public class AcademyService {
         Academy academy = new Academy();
         academy.setUser(signedUser);
         academy.setDongId(req.getDongId());
-        academy.setPremium(req.getPremium());
+        //academy.setPremium(req.getPremium());
         academy.setAcaName(req.getAcaName());
         academy.setAcaPhone(req.getAcaPhone());
         academy.setComment(req.getComment());
@@ -112,7 +112,7 @@ public class AcademyService {
         academy.setAddress(req.getAddress());
         academy.setDetailAddress(req.getDetailAddress());
         academy.setPostNum(req.getPostNum());
-        academy.setAcaAgree(req.getAcaAgree());
+        //academy.setAcaAgree(req.getAcaAgree());
         academy.setLat(req.getLat());
         academy.setLon(req.getLon());
         academy.setBusinessName(req.getBusinessName());

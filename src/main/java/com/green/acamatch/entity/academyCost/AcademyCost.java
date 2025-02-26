@@ -35,9 +35,6 @@ public class AcademyCost extends UpdatedAt {
     private int status;
 
     @Column(nullable = false)
-    private int settlementPrice;
-
-    @Column(nullable = false)
     private int cost_status;
 
     @Column(nullable = false)

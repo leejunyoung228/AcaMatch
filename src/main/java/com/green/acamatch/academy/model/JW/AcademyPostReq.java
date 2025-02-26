@@ -65,8 +65,8 @@ public class AcademyPostReq {
     @Schema(title = "우편번호", example = "456-78", requiredMode = Schema.RequiredMode.REQUIRED)
     private String postNum;
 
-    @Schema(title = "학원정보등록승인여부", example = "1: 승인, 0: 미승인")
-    private int acaAgree;
+    /*@Schema(title = "학원정보등록승인여부", example = "1: 승인, 0: 미승인")
+    private int acaAgree;*/
 
     /*@Valid
     private AddressDto addressDto;*/
@@ -78,8 +78,9 @@ public class AcademyPostReq {
     @Schema(title = "태그이름 리스트")
     private List<String> tagNameList;
 
+    /*@JsonIgnore
     @Schema(title = "프리미엄학원 여부")
-    private int premium;
+    private int premium;*/
 
     @JsonIgnore
     @Schema(title = "위도", requiredMode = Schema.RequiredMode.REQUIRED)

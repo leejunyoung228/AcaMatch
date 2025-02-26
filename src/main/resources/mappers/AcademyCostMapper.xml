@@ -12,7 +12,7 @@
 
     </select>
     <select id="getBookIdByProductId">
-        select bookId
+        select book_id
         from product
         where product_id = #{productId}
     </select>
