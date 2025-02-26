@@ -20,7 +20,7 @@ public class UserSignUpReq {
     private LocalDate birth;
     private String nickName;
     @Email
-    @NotNull
+    @NotEmpty
     private String email;
     @Schema(description = "대소문자 특수문자 숫자 포함 8자 이상 20자 미만")
     @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters.")

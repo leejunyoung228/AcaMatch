@@ -14,8 +14,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableWebSocketMessageBroker
-@EntityScan(basePackages = "com.green.acamatch")
-@EnableJpaRepositories(basePackages = "com.green.acamatch")
 public class AcaMatchApplication {
     public static void main(String[] args) {
         SpringApplication.run(AcaMatchApplication.class, args);

@@ -5,8 +5,13 @@
     <link rel="icon" href="favicon.png" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AcaMatch</title>
-    <script type="module" crossorigin src="/assets/index-D6eh0H_x.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BzDwKpSE.css">
+    <script>
+      if (typeof global === "undefined") {
+        var global = window; // global을 window로 설정
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-BZSEZ0OH.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BTitrssE.css">
   </head>
   <body>
     <div id="root"></div>

@@ -35,6 +35,25 @@ public interface AcademyRepository extends JpaRepository<Academy, Long> {
     )
     int updateAcademyByAcaIdAndUserId(Long acaId, Long userId);*/
 
+    //학원정보등록 승인 업데이트
+    @Transactional
+    @Modifying
+    @Query(" update Academy a set a.acaAgree = 1 where a.acaId =:acaId")
+    int updateAcademyAcaAgreeByAcaId(Long acaId);
+
+    //프리미엄학원 승인 업데이트
+    @Transactional
+    @Modifying
+    @Query(" update Academy a set a.premium = 1 where a.acaId =:acaId ")
+    int updateAcademyPremiumByAcaId(Long acaId);
+
+    //프리미엄 종료 후 아카데미 프리미엄 수정
+    @Transactional
+    @Modifying
+    @Query(" update Academy a set a.premium = 0 where a.acaId =:acaId ")
+    int updateAcademyPremiumEndByAcaId(Long acaId);
+
+    //학원정도삭제
     @Transactional
     @Modifying
     @Query(" delete from Academy a where a.acaId=:acaId and a.user.userId=:userId")
