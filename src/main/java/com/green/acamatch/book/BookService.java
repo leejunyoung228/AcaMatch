@@ -1,5 +1,6 @@
 package com.green.acamatch.book;
 
+import com.green.acamatch.academyCost.AcademyCostMapper;
 import com.green.acamatch.academyCost.ProductRepository;
 import com.green.acamatch.book.model.BookGetRes;
 import com.green.acamatch.book.model.BookPostReq;
@@ -22,6 +23,7 @@ public class BookService {
     private final MyFileUtils myFileUtils;
     private final BookMessage bookMessage;
     private final ProductRepository productRepository;
+    private final AcademyCostMapper academyCostMapper;
 
     public int postBook(MultipartFile mf, BookPostReq req) {
         Book book = new Book();
@@ -69,7 +71,13 @@ public class BookService {
     }
 
     public List<BookGetRes> getBookListByClassId(Long classId){
-        return bookMapper.getBookListByClassId(classId);
+        List<BookGetRes> res = bookMapper.getBookListByClassId(classId);
+        bookMessage.setMessage("출력 완료");
+        if(res == null){
+            bookMessage.setMessage("등록된 책이 없습니다.");
+            return null;
+        }
+        return res;
     }
 
     public int updateBook(BookUpdateReq req, MultipartFile file) {

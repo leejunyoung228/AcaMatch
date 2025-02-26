@@ -7,4 +7,5 @@ import org.apache.ibatis.annotations.Mapper;
 public interface AcademyCostMapper {
     GetAcademyCostInfoRes getInfoByTid (String tid);
     long getBookIdByProductId(long productId);
+    long getProductIdByBookId(long bookId);
 }
