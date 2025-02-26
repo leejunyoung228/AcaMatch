@@ -160,9 +160,9 @@ public class KakaoPayService {
         premiumRepository.save(premiumAcademy);
 
         Product product = productRepository.findById(productId).orElse(null);
-        if(product.getBookId() != null){
-            Book book = bookRepository.findById(product.getBookId()).orElse(null);
-        }
+//        if(product.getBookId() != null){
+//            Book book = bookRepository.findById(product.getBookId()).orElse(null);
+//        }
 
         return approveResponse;
     }
