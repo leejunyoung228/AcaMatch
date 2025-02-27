@@ -26,6 +26,6 @@ public class Board extends CreatedAt {
     @Column(length = 30, nullable = false)
     private String boardName;
 
-    @Column(length = 1000, nullable = false)
+    @Column(length = 5000, nullable = false)
     private String boardComment;
 }

@@ -16,7 +16,7 @@ import com.green.acamatch.entity.category.ClassCategoryIds;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.joinClass.model.JoinClassRepository;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import com.green.acamatch.manager.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

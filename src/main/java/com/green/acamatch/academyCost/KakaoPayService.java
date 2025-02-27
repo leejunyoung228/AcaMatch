@@ -13,7 +13,7 @@ import com.green.acamatch.entity.academyCost.AcademyCost;
 import com.green.acamatch.entity.academyCost.Book;
 import com.green.acamatch.entity.academyCost.Product;
 import com.green.acamatch.entity.joinClass.JoinClass;
-import com.green.acamatch.joinClass.model.JoinClassRepository;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;

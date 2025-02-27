@@ -1,6 +1,7 @@
 package com.green.acamatch.board;
 
 import com.green.acamatch.board.model.*;
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "공지사항 관리", description = "공지사항 등록, 가져오기, 수정, 삭제")
@@ -28,17 +30,34 @@ public class BoardController {
                 .build();
     }
 
-    @GetMapping
-    @Operation(summary = "공지사항 상세보기", description = "acaId / userId 하나만 입력하면 됩니다. / null값은 안 떠요.")
-    public ResultResponse<List<BoardGetDetailDto>> getBoardDetail(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
+    @GetMapping("list")
+    @Operation(summary = "공지사항 리스트 보기")
+    public ResultResponse<List<BoardGetListDto>> getBoardList(@ModelAttribute @ParameterObject BoardGetListReq p) {
         try {
-            List<BoardGetDetailDto> res = boardService.getBoardDetail(p);
-            return ResultResponse.<List<BoardGetDetailDto>>builder()
-                    .resultMessage("공지사항 상세보기 완료")
+            List<BoardGetListDto> res = boardService.getBoardList(p);
+            return ResultResponse.<List<BoardGetListDto>>builder()
+                    .resultMessage("공지사항 리스트 보기 완료")
                     .resultData(res)
                     .build();
         }catch (IllegalArgumentException e) {
-            return ResultResponse.<List<BoardGetDetailDto>>builder()
+            return ResultResponse.<List<BoardGetListDto>>builder()
+                    .resultMessage(e.getMessage())
+                    .resultData(new ArrayList<>())
+                    .build();
+        }
+    }
+
+    @GetMapping
+    @Operation(summary = "공지사항 상세보기")
+    public ResultResponse<BoardGetDetailRes> getBoardDetail(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
+        try {
+            BoardGetDetailRes res = boardService.getBoardDetail(p);
+            return ResultResponse.<BoardGetDetailRes>builder()
+                    .resultMessage(res != null ? "공지사항 상세보기 완료" : "공지사항 상세보기 실패")
+                    .resultData(res)
+                    .build();
+        }catch (IllegalArgumentException e) {
+            return ResultResponse.<BoardGetDetailRes>builder()
                     .resultMessage(e.getMessage())
                     .resultData(null)
                     .build();

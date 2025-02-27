@@ -25,18 +25,11 @@ public class JoinClassController {
     @PostMapping
     @Operation(summary = "수강 신청 하기")
     public ResultResponse<Integer> postJoinClass(@RequestBody JoinClassPostReq p) {
-        try {
         Integer result = service.postJoinClass(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("사용자가 수강 신청하였습니다.")
+                .resultMessage(result == 1 ? "수강신청 성공" : "수강신청 실패")
                 .resultData(result)
                 .build();
-        } catch (IllegalArgumentException e) {
-            return ResultResponse.<Integer>builder()
-                    .resultMessage(e.getMessage())
-                    .resultData(0)
-                    .build();
-        }
     }
 
     @GetMapping
@@ -50,11 +43,11 @@ public class JoinClassController {
     }
 
     @PutMapping
-    @Operation(summary = "할인, 등록인가 수정하기 / true = 1 , false = 0")
+    @Operation(summary = "등록 인가 수정하기")
     public ResultResponse<Integer> putJoinClass(@RequestBody JoinClassPutReq p) {
         Integer result = service.putJoinClass(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage())
+                .resultMessage(result == 1 ? "수정 완료" : "수정 실패")
                 .resultData(result)
                 .build();
     }
@@ -64,7 +57,7 @@ public class JoinClassController {
     public ResultResponse<Integer> deleteJoinClass(@ModelAttribute @ParameterObject JoinClassDel p) {
         Integer result = service.delJoinClass(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage())
+                .resultMessage(result == 1 ? "신청 취소 완료" : "신청 취소 실패")
                 .resultData(result)
                 .build();
     }
