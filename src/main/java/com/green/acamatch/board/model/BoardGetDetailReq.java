@@ -8,15 +8,11 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class BoardGetDetailReq extends Paging {
+public class BoardGetDetailReq {
     @Schema(title = "공지사항 PK", requiredMode = Schema.RequiredMode.REQUIRED)
     private long boardId;
     @JsonIgnore
     private Long userId; //null 허용
     @JsonIgnore
     private Long acaId; //null 허용
-
-    public BoardGetDetailReq(Integer page, Integer size) {
-        super(page, size);
-    }
 }

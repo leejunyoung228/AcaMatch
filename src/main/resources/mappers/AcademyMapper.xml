@@ -574,6 +574,16 @@
             <result property="roleType" column="roleType"/>
             <result property="joinClassId" column="joinClassId"/>
         </collection>
+        <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
+            <result property="bookId" column="bookId"/>
+            <result property="bookName" column="bookName"/>
+            <result property="bookAmount" column="bookAmount"/>
+            <result property="bookComment" column="bookComment"/>
+            <result property="bookPic" column="bookPic"/>
+            <result property="bookPrice" column="bookPrice"/>
+            <result property="manager" column="manager"/>
+            <result property="classId" column="classId"/>
+        </collection>
     </resultMap>
     <select id="getAcademyWithClasses" resultMap="AcademyResultMap">
         WITH LatestReviews AS (
@@ -667,6 +677,19 @@
         JOIN tag AS T
         ON AT.tag_id = T.tag_id
         GROUP BY AT.aca_id
+        ),
+        BookByClass AS (
+        SELECT B.book_id AS bookId,
+        B.book_name AS bookName,
+        B.book_amount AS bookAmount,
+        B.book_comment AS bookComment,
+        B.book_pic AS bookPic,
+        B.book_price AS bookPrice,
+        B.manager,
+        B.class_id AS classId
+        FROM Book B
+        JOIN aca_class AC
+        ON B.class_id = AC.class_id
         )
         SELECT
         A.aca_id,
@@ -691,6 +714,15 @@
         COALESCE(AC.classPrice, 0) AS classPrice,
         COALESCE(AC.classDay, '') AS classDay,
         COALESCE(AC.classCategoryName, '') AS classCategoryName,
+
+        BC.bookId,
+        BC.bookName,
+        BC.bookAmount,
+        BC.bookComment,
+        BC.bookPic,
+        BC.bookPrice,
+        BC.manager,
+        BC.classId,
 
         -- 학원별 총 좋아요 수
         COALESCE(LC.likeCount, 0) AS likeCount,
@@ -723,6 +755,7 @@
         ON A.aca_id = AP.aca_id
         LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
         LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택
+        JOIN BookByClass BC ON AC.classId = BC.classId
         LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId  -- 클래스별 별점 평균 및 리뷰 개수
         LEFT JOIN UserCertification UC ON UC.class_id = AC.classId  -- 유저의 클래스별 수강 여부
         LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id
@@ -752,6 +785,8 @@
         COALESCE(G.reviewCount, 0) AS reviewCount,
         AP.aca_pic AS acaPic,
         A.address AS address,
+        A.detail_address,
+        A.post_num,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagNames
         FROM academy A
         JOIN academy_pic AP
@@ -850,5 +885,34 @@
         select tag_id
         from tag
         where tag_name = #{tagName}
+    </select>
+    <select id="getAcademyInfoByAcaNameClassNameExamNameAcaAgree">
+        SELECT A.aca_name, AP.aca_pic,
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
+        A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id
+        FROM academy A
+        JOIN academy_pic AP
+        ON A.aca_id = AP.aca_id
+        JOIN user U
+        ON A.user_id = U.user_id
+        JOIN aca_class AC
+        ON A.aca_id = AC.aca_id
+        JOIN exam E
+        ON AC.class_id = E.class_id
+        <where>
+            <if test=" acaName != null and acaName != '' ">
+                AND A.aca_name like CONCAT('%', #{acaName}, '%')
+            </if>
+            <if test=" className != null and className != '' ">
+                AND AC.class_name like CONCAT('%', #{className}, '%')
+            </if>
+            <if test=" examName != null and examName != '' ">
+                AND E.exam_name like CONCAT('%', #{examName}, '%')
+            </if>
+            <if test=" acaAgree != null ">
+                AND A.aca_agree = #{acaAgree}
+            </if>
+        </where>
+        GROUP BY A.aca_id;
     </select>
 </mapper>

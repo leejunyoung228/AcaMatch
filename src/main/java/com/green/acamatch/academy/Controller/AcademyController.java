@@ -209,4 +209,14 @@ public class AcademyController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("GetAcademyInfoByAcaNameClassNameExamNameAcaAgree")
+    @Operation(summary = "관리지 페이지에서 학원 검색")
+    public ResultResponse<List<GetAcademyInfoRes>> getAcademyInfoByAcaNameClassNameExamNameAcaAgree(@ParameterObject GetAcademyInfoReq req){
+        List<GetAcademyInfoRes> res = academyService.getAcademyInfoByAcaNameClassNameExamNameAcaAgree(req);
+        return ResultResponse.<List<GetAcademyInfoRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
 }
