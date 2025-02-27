@@ -38,7 +38,7 @@ public class BookController {
     public ResultResponse<List<BookGetRes>> getBookListByClassId(@PathVariable Long classId){
         List<BookGetRes> bookList = bookService.getBookListByClassId(classId);
         return ResultResponse.<List<BookGetRes>>builder()
-                .resultMessage("출력 완료")
+                .resultMessage(bookMessage.getMessage())
                 .resultData(bookList)
                 .build();
     }

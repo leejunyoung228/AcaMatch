@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -21,4 +23,19 @@ public interface ClassRepository extends JpaRepository<AcaClass, Long> {
 
     @Query("SELECT COUNT(*) FROM AcaClass a WHERE a.academy.acaId = :acaId AND a.className = :className")
     Long existsByAcaIdAndClassName(Long acaId, String className);
+
+
+    @Query("SELECT COUNT(a) FROM AcaClass a WHERE a.academy.acaId = :acaId " +
+            "AND a.className = :className " +
+            "AND a.startDate = :startDate " +
+            "AND a.endDate = :endDate " +
+            "AND a.startTime = :startTime " +
+            "AND a.endTime = :endTime")
+    Long countByAcaIdAndClassNameAndStartDateAndEndDateAndStartTimeAndEndTime(
+            @Param("acaId") Long acaId,
+            @Param("className") String className,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime);
 }
