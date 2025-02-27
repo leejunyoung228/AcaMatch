@@ -23,4 +23,6 @@ public class BoardGetListDto {
     private LocalDate createdAt;
     @Schema(title = "이름", example = "홍길동", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
+
+    private String keyword;
 }

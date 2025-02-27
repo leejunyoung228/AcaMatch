@@ -51,10 +51,11 @@ public class BoardService {
 
     public List<BoardGetListDto> getBoardList(BoardGetListReq p) {
         try {
-            if (List.of().isEmpty()) {
+            List<BoardGetListDto> result = boardMapper.getBoardList(p);
+
+            if (result == null && result.isEmpty()) {
                 throw new IllegalArgumentException("공지사항을 찾을 수 없습니다.");
             }
-            List<BoardGetListDto> result = boardMapper.getBoardList(p);
             return result;
         }catch (CustomException e) {
             e.getMessage();

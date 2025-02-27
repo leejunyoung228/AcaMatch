@@ -31,7 +31,8 @@ public class BoardController {
     }
 
     @GetMapping("list")
-    @Operation(summary = "공지사항 리스트 보기")
+    @Operation(summary = "공지사항 리스트 보기",
+            description = "aca_id만 입력 : 학원관계자 , user_id만 입력 : 사이트관리자만, 둘 다 입력 : 둘 다 볼 수 있는, 검색어만으로도 조회 가능")
     public ResultResponse<List<BoardGetListDto>> getBoardList(@ModelAttribute @ParameterObject BoardGetListReq p) {
         try {
             List<BoardGetListDto> res = boardService.getBoardList(p);
