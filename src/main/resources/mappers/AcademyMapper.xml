@@ -752,6 +752,8 @@
         COALESCE(G.reviewCount, 0) AS reviewCount,
         AP.aca_pic AS acaPic,
         A.address AS address,
+        A.detail_address,
+        A.post_num,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagNames
         FROM academy A
         JOIN academy_pic AP

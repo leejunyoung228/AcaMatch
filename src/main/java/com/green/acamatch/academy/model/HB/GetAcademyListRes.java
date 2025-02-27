@@ -15,7 +15,7 @@ public class GetAcademyListRes {
     private String acaName;
     private String address;
     private String detailAddress;
-    private int postNum;
+    private String postNum;
     private double star;
     private AddressDto addressDto;
     private List<GetAcademyTagDto> tagName;

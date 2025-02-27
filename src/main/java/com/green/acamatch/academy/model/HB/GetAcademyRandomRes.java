@@ -24,6 +24,12 @@ public class GetAcademyRandomRes {
     @Schema(title = "학원 주소", example = "동성로1길 15 5층")
     private String address;
 
+    @Schema(title = "학원 상세 주소", example = "5층")
+    private String detailAddress;
+
+    @Schema(title = "우편 번호", example = "12345")
+    private String postNum;
+
     @Schema(title = "학원 별점", example = "4.5")
     private double starAvg;
 
