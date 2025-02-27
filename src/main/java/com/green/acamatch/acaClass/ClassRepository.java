@@ -29,13 +29,11 @@ public interface ClassRepository extends JpaRepository<AcaClass, Long> {
             "AND a.className = :className " +
             "AND a.startDate = :startDate " +
             "AND a.endDate = :endDate " +
-            "AND a.startTime = :startTime " +
-            "AND a.endTime = :endTime")
-    Long countByAcaIdAndClassNameAndStartDateAndEndDateAndStartTimeAndEndTime(
+            "AND (:teacherUserId = 0 OR a.teacher.user.userId = :teacherUserId)")
+    Long countByAcaIdAndClassNameAndStartDateAndEndDateAndTeacherUserId(
             @Param("acaId") Long acaId,
             @Param("className") String className,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("startTime") LocalTime startTime,
-            @Param("endTime") LocalTime endTime);
+            @Param("teacherUserId") Long teacherUserId);
 }

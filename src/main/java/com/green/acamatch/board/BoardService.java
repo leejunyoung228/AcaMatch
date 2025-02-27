@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,12 +49,31 @@ public class BoardService {
         }
     }
 
-    public List<BoardGetDetailDto> getBoardDetail(BoardGetDetailReq p) {
-        if(p.getAcaId() != null && p.getUserId() != null) {
-            throw new IllegalArgumentException("AcaId와 UserId 둘 중 하나만 입력하셔야 합니다.");
-        }
-            List<BoardGetDetailDto> result = boardMapper.getBoardDetail(p);
+    public List<BoardGetListDto> getBoardList(BoardGetListReq p) {
+        try {
+            List<BoardGetListDto> result = boardMapper.getBoardList(p);
+
+            if (result == null && result.isEmpty()) {
+                throw new IllegalArgumentException("공지사항을 찾을 수 없습니다.");
+            }
             return result;
+        }catch (CustomException e) {
+            e.getMessage();
+            return null;
+        }
+    }
+
+    public BoardGetDetailRes getBoardDetail(BoardGetDetailReq p) {
+        try {
+            BoardGetDetailRes result = boardMapper.getBoardDetail(p);
+            if(result == null) {
+                throw new CustomException(BoardErrorCode.BOARD_NOT_FOUND);
+            }
+            return result;
+        }catch (CustomException e) {
+            e.getMessage();
+            return null;
+        }
     }
 
     public int updBoard(BoardPutReq p) {
@@ -61,15 +81,15 @@ public class BoardService {
             Board board = boardRepository.findById(p.getBoardId()) // 기존 데이터 조회
                     .orElseThrow(() -> new CustomException(BoardErrorCode.BOARD_NOT_FOUND));
 
-            if (p.getUserId() != null && p.getAcaId() == null) {
-                User user = userRepository.findById(p.getUserId())
-                        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-                board.setUser(user);
-            } else if (p.getAcaId() != null && p.getUserId() == null) {
-                Academy academy = academyRepository.findById(p.getAcaId())
-                        .orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
-                board.setAcademy(academy);
-            }
+//            if (p.getUserId() != null && p.getAcaId() == null) {
+//                User user = userRepository.findById(p.getUserId())
+//                        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+//                board.setUser(user);
+//            } else if (p.getAcaId() != null && p.getUserId() == null) {
+//                Academy academy = academyRepository.findById(p.getAcaId())
+//                        .orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
+//                board.setAcademy(academy);
+//            }
 
             if (!StringUtils.hasText(p.getBoardName())) {
                 throw new CustomException(BoardErrorCode.FAIL_TO_UPD);
@@ -95,15 +115,15 @@ public class BoardService {
             Board board = boardRepository.findById(p.getBoardId()) // 기존 데이터 조회
                     .orElseThrow(() -> new CustomException(BoardErrorCode.BOARD_NOT_FOUND));
 
-            if (p.getUserId() != null && p.getAcaId() == null) {
-                User user = userRepository.findById(p.getUserId())
-                        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-                board.setUser(user);
-            } else if (p.getAcaId() != null && p.getUserId() == null) {
-                Academy academy = academyRepository.findById(p.getAcaId())
-                        .orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
-                board.setAcademy(academy);
-            } else throw new CustomException(BoardErrorCode.FAIL_TO_DEL);
+//            if (p.getUserId() != null && p.getAcaId() == null) {
+//                User user = userRepository.findById(p.getUserId())
+//                        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+//                board.setUser(user);
+//            } else if (p.getAcaId() != null && p.getUserId() == null) {
+//                Academy academy = academyRepository.findById(p.getAcaId())
+//                        .orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
+//                board.setAcademy(academy);
+//            } else throw new CustomException(BoardErrorCode.FAIL_TO_DEL);
 
             boardRepository.delete(board);
             return 1;

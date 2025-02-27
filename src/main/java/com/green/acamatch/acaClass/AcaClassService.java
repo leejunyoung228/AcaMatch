@@ -16,8 +16,9 @@ import com.green.acamatch.entity.category.ClassCategoryIds;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.joinClass.model.JoinClassRepository;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import com.green.acamatch.manager.TeacherRepository;
+import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.formula.functions.Days;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -43,10 +45,22 @@ public class AcaClassService {
     private final ClassCategoryRepository classCategoryRepository;
     private final CategoryRepository categoryRepository;
     private final TeacherRepository teacherRepository;
+    private final UserRepository userRepository;
 
     // 특정 학원의 특정 수업을 듣는 학생(또는 학부모) 목록 조회
-    public List<User> findStudentsByClassId(Long classId) {
-        return joinClassRepository.findStudentsByClassId(classId);
+//    public List<User> findStudentsByClassId(Long classId) {
+//        return joinClassRepository.findStudentsByClassId(classId);
+//    }
+
+    // 개선된 메서드 (AcaClass 객체를 직접 조회 후 사용)
+    public List<User> findStudentsByClass(AcaClass acaClass) {
+        return userRepository.findStudentsByClass(acaClass);
+    }
+
+    // AcaClass 객체를 가져오는 메서드 추가
+    public AcaClass findClassById(Long classId) {
+        return classRepository.findById(classId)
+                .orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
     }
 
     //수업 등록
@@ -88,9 +102,14 @@ public class AcaClassService {
                         .orElseThrow(() -> new CustomException(ManagerErrorCode.TEACHER_NOT_FOUND));
             }
 
-            // 동일한 강좌가 존재하는지 체크
-            if (classRepository.countByAcaIdAndClassNameAndStartDateAndEndDateAndStartTimeAndEndTime(
-                    p.getAcaId(), p.getClassName(), p.getStartDate(), p.getEndDate(), p.getStartTime(), p.getEndTime()) > 0) {
+            // teacherUserId 값 보정
+            Long teacherUserId = Optional.ofNullable(p.getTeacherUserId()).orElse(0L);
+
+            // 중복 강좌 검사 (운영 시간(start_time, end_time) 제외)
+            Long duplicateCount = classRepository.countByAcaIdAndClassNameAndStartDateAndEndDateAndTeacherUserId(
+                    p.getAcaId(), p.getClassName(), p.getStartDate(), p.getEndDate(), teacherUserId);
+
+            if (duplicateCount > 0) {
                 throw new CustomException(ManagerErrorCode.CLASS_ALREADY_EXISTS);
             }
 
@@ -105,17 +124,21 @@ public class AcaClassService {
             acaClass.setStartTime(p.getStartTime());
             acaClass.setEndTime(p.getEndTime());
             acaClass.setPrice(p.getPrice());
-            acaClass.setTeacher(teacher); //Teacher 설정
+            acaClass.setTeacher(teacher); // Teacher 설정
 
-            classRepository.save(acaClass);
+            // 강좌 저장
+            AcaClass savedClass = classRepository.save(acaClass);
 
-            // Product 객체 생성 시 AcaClass 설정
-            Product product = new Product();
-            product.setClassId(acaClass);
-            product.setProductName(p.getClassName()); // 강좌 이름을 상품명으로 설정
-            product.setProductPrice(p.getPrice());
+            // 중복된 Product 생성 방지
+            boolean productExists = productRepository.existsByClassId(savedClass);
 
-            productRepository.save(product);
+            if (!productExists) {
+                Product product = new Product();
+                product.setClassId(savedClass);
+                product.setProductName(p.getClassName()); // 강좌 이름을 상품명으로 설정
+                product.setProductPrice(p.getPrice());
+                productRepository.save(product);
+            }
 
             return 1;
         } catch (CustomException e) {
@@ -123,6 +146,7 @@ public class AcaClassService {
             return 0;
         }
     }
+
 
 
 
@@ -373,4 +397,5 @@ public class AcaClassService {
             throw new CustomException(ManagerErrorCode.PERMISSION_DENIED);
         }
     }
+
 }

@@ -45,7 +45,7 @@ public class TeacherService {
         long jwtUserId = AuthenticationFacade.getSignedUserId(); // 로그인된 사용자 아이디 조회
 
         if (jwtUserId != requestUserId) {
-            String errorMessage = String.format("리뷰 서비스: 로그인한 유저의 아이디(%d)와 요청한 유저의 아이디(%d)가 일치하지 않습니다.", jwtUserId, requestUserId);
+            String errorMessage = String.format("로그인한 유저의 아이디(%d)와 요청한 유저의 아이디(%d)가 일치하지 않습니다.", jwtUserId, requestUserId);
             userMessage.setMessage(errorMessage);
             return false;
         }
@@ -72,7 +72,7 @@ public class TeacherService {
 
         // 본인 계정 검증
         if (jwtUserId != requestUserId) {
-            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
+            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 선생님으로 등록할 수 있습니다.");
         }
 
         // 유저 존재 여부 확인

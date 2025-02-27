@@ -89,7 +89,6 @@ public class AcaClassController {
                 .build();
     }
 
-
     @PutMapping
     @Operation(summary = "강좌 수정하기")
     public ResultResponse<Integer> putAcaClass(@RequestBody AcaClassPutReq p) {
