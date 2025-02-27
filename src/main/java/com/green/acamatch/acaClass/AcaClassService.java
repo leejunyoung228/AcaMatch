@@ -92,9 +92,9 @@ public class AcaClassService {
             // teacherUserId 값 보정
             Long teacherUserId = Optional.ofNullable(p.getTeacherUserId()).orElse(0L);
 
-            // 동일한 강좌가 존재하는지 체크 (EmbeddedId 사용)
-            Long duplicateCount = classRepository.countByAcaIdAndClassNameAndStartDateAndEndDateAndStartTimeAndEndTimeAndTeacherUserId(
-                    p.getAcaId(), p.getClassName(), p.getStartDate(), p.getEndDate(), p.getStartTime(), p.getEndTime(), teacherUserId);
+            // 중복 강좌 검사 (운영 시간(start_time, end_time) 제외)
+            Long duplicateCount = classRepository.countByAcaIdAndClassNameAndStartDateAndEndDateAndTeacherUserId(
+                    p.getAcaId(), p.getClassName(), p.getStartDate(), p.getEndDate(), teacherUserId);
 
             if (duplicateCount > 0) {
                 throw new CustomException(ManagerErrorCode.CLASS_ALREADY_EXISTS);
@@ -113,15 +113,19 @@ public class AcaClassService {
             acaClass.setPrice(p.getPrice());
             acaClass.setTeacher(teacher); // Teacher 설정
 
-            classRepository.save(acaClass);
+            // 강좌 저장
+            AcaClass savedClass = classRepository.save(acaClass);
 
-            // Product 객체 생성 시 AcaClass 설정
-            Product product = new Product();
-            product.setClassId(acaClass);
-            product.setProductName(p.getClassName()); // 강좌 이름을 상품명으로 설정
-            product.setProductPrice(p.getPrice());
+            // 중복된 Product 생성 방지
+            boolean productExists = productRepository.existsByClassId(savedClass);
 
-            productRepository.save(product);
+            if (!productExists) {
+                Product product = new Product();
+                product.setClassId(savedClass);
+                product.setProductName(p.getClassName()); // 강좌 이름을 상품명으로 설정
+                product.setProductPrice(p.getPrice());
+                productRepository.save(product);
+            }
 
             return 1;
         } catch (CustomException e) {
