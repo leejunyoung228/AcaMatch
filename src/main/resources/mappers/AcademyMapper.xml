@@ -853,4 +853,33 @@
         from tag
         where tag_name = #{tagName}
     </select>
+    <select id="getAcademyInfoByAcaNameClassNameExamNameAcaAgree">
+        SELECT A.aca_name, AP.aca_pic,
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
+        A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id
+        FROM academy A
+        JOIN academy_pic AP
+        ON A.aca_id = AP.aca_id
+        JOIN user U
+        ON A.user_id = U.user_id
+        JOIN aca_class AC
+        ON A.aca_id = AC.aca_id
+        JOIN exam E
+        ON AC.class_id = E.class_id
+        <where>
+            <if test=" acaName != null and acaName != '' ">
+                AND A.aca_name like CONCAT('%', #{acaName}, '%')
+            </if>
+            <if test=" className != null and className != '' ">
+                AND AC.class_name like CONCAT('%', #{className}, '%')
+            </if>
+            <if test=" examName != null and examName != '' ">
+                AND E.exam_name like CONCAT('%', #{examName}, '%')
+            </if>
+            <if test=" acaAgree != null ">
+                AND A.aca_agree = #{acaAgree}
+            </if>
+        </where>
+        GROUP BY A.aca_id;
+    </select>
 </mapper>
