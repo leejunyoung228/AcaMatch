@@ -13,6 +13,8 @@ public class BoardGetListDto {
     private long boardId;
     @Schema(title = "학원 PK")
     private Long acaId; //null 허용
+    @Schema(title = "학원 이름")
+    private String acaName;
     @Schema(title = "유저 PK")
     private Long userId; //null 허용
     @Schema(title = "공지사항 제목", example = "2월 공지사항입니다.", requiredMode = Schema.RequiredMode.REQUIRED)

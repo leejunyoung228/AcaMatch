@@ -4,7 +4,7 @@
 <mapper namespace="com.green.acamatch.board.BoardMapper">
     <!-- list 불러오기 -->
     <select id="getBoardList">
-        SELECT A.board_id, B.aca_id, C.user_id, A.board_name, A.created_at,
+        SELECT A.board_id, B.aca_id, B.aca_name, C.user_id, A.board_name, A.created_at,
         CASE WHEN C.user_id IS NULL THEN D.name
         WHEN B.aca_id IS NULL THEN C.name
         ELSE 'UNKNOWN'
@@ -24,16 +24,19 @@
 
     <!-- 상세보기 -->
     <select id="getBoardDetail">
-        SELECT C.board_id, B.aca_id, A.user_id, C.board_name, C.board_comment, C.created_at,
+        SELECT A.board_id, A.aca_id, B.aca_name, A.user_id, A.board_name, A.board_comment, A.created_at,
         CASE
-        WHEN C.user_id IS NULL THEN D.name
-        WHEN C.aca_id IS NULL THEN A.name
+        WHEN A.user_id IS NULL THEN D.name
+        WHEN A.aca_id IS NULL THEN C.name
         ELSE 'UNKNOWN'
         END AS name
-        FROM board C
-        LEFT JOIN academy B ON C.aca_id = B.aca_id
-        LEFT JOIN `user` A ON C.user_id = A.user_id
-        WHERE C.board_id = #{boardId}
+        FROM board A
+        LEFT JOIN academy B
+        ON A.aca_id = B.aca_id
+        LEFT JOIN `user` C
+        ON C.user_id = A.user_id
+        LEFT JOIN `user` D
+        ON B.user_id = D.user_id
+        WHERE A.board_id = #{boardId}
     </select>
-
 </mapper>
