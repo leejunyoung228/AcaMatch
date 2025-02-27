@@ -12,6 +12,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @DynamicUpdate
+@NoArgsConstructor
+@AllArgsConstructor
 public class User extends UpdatedAt {
 
     @Id

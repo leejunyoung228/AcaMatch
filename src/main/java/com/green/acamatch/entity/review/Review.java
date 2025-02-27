@@ -11,14 +11,16 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"join_class_id", "user_id"}) // 같은 JoinClass 내에서도 학부모와 학생이 각자 작성 가능
+})
 public class Review extends UpdatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
-
 
     @Column(nullable = false)
     private double star;
@@ -26,20 +28,14 @@ public class Review extends UpdatedAt {
     @Column(length = 5000)
     private String comment;
 
-    // 'role_id' 컬럼과 'role' 객체 연결
-    @Enumerated(EnumType.STRING) // 문자열로 저장
-    @Column(nullable = false)
-    private UserRole roleType;
-
     @ManyToOne
     @JoinColumn(name = "join_class_id", nullable = false)
     private JoinClass joinClass;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false) // 보호자 또는 학생 계정
+    private User user;
+
     @Column(nullable = false)
-    private int banReview = 0; // 기본값 0 (정상 상태)
-
-
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewPic> reviewPics = new ArrayList<>();
-
+    private int banReview = 0;
 }

@@ -16,13 +16,13 @@ public class Relationship extends UpdatedAt {
 
     @ManyToOne
     @MapsId("parentsId")
-    @JoinColumn(name = "parents_id")
+    @JoinColumn(name = "parent_id", referencedColumnName = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User parent;
 
     @ManyToOne
     @MapsId("studentId")
-    @JoinColumn(name = "student_id")
+    @JoinColumn(name = "student_id", referencedColumnName = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User student;
 
