@@ -1,6 +1,7 @@
 package com.green.acamatch.academy.Controller;
 
 import com.green.acamatch.academy.Service.BannerService;
+import com.green.acamatch.academy.banner.model.BannerPicShowUpdateReq;
 import com.green.acamatch.academy.banner.model.BannerTypeUpdateReq;
 import com.green.acamatch.academy.banner.model.BannerPostReq;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
@@ -33,10 +34,20 @@ public class BannerController {
                 .build();
     }
 
-    @PostMapping("agree")
+    @PutMapping("agree")
     @Operation(summary = "배너승인")
-    public ResultResponse<Integer> putBannerAgree(@RequestBody BannerTypeUpdateReq req) {
+    public ResultResponse<Integer> putBannerType(@RequestBody BannerTypeUpdateReq req) {
         bannerService.updateBannerType(req.getAcaId(), req.getBannerType());
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(1)
+                .build();
+    }
+
+    @PutMapping
+    @Operation(summary = "배너 각각 활성화/비활성화", description = "position은 상: 1, 하: 2, 좌: 3, 우:4, show는 활성화: 1, 비활성화: 2")
+    public ResultResponse<Integer> putBannerShow(@RequestBody BannerPicShowUpdateReq req) {
+        bannerService.updateBannerShow(req.getAcaId(), req.getBannerPosition(), req.getBannerShow());
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(1)

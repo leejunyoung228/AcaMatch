@@ -150,4 +150,15 @@ public class BannerService {
         academyMessage.setMessage("배너 승인이 완료되었습니다.");
         return 1;
     }
+
+    @Transactional
+    public int updateBannerShow(Long acaId, int bannerPosition, int bannerShow) {
+        bannerPicRepository.updateBannerPicShowByAcaIdAndBannerPosition(acaId, bannerPosition, bannerShow);
+        if(bannerShow == 1) {
+            academyMessage.setMessage("배너가 활성화 되었습니다.");
+        }else {
+            academyMessage.setMessage("배너가 비활성화 되었습니다.");
+        }
+        return 1;
+    }
 }
