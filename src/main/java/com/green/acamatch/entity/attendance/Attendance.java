@@ -22,4 +22,8 @@ public class Attendance extends CreatedAt{
 
     @Column(nullable = false)
     private LocalDate attendanceDate;
+
+    @Column(nullable = false)
+    @Convert(converter = AttendanceStatusConverter.class) // 변환기 적용
+    private AttendanceStatus status;
 }
