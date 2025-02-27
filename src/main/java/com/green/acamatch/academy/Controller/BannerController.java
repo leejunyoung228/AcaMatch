@@ -45,7 +45,7 @@ public class BannerController {
     }
 
     @PutMapping
-    @Operation(summary = "배너 각각 활성화/비활성화", description = "position은 상: 1, 하: 2, 좌: 3, 우:4, show는 활성화: 1, 비활성화: 2")
+    @Operation(summary = "배너 각각 활성화/비활성화", description = "position은 상: 1, 하: 2, 좌: 3, 우:4, show는 활성화: 1, 비활성화: 0")
     public ResultResponse<Integer> putBannerShow(@RequestBody BannerPicShowUpdateReq req) {
         bannerService.updateBannerShow(req.getAcaId(), req.getBannerPosition(), req.getBannerShow());
         return ResultResponse.<Integer>builder()
