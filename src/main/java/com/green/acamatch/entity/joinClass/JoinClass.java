@@ -10,22 +10,21 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 
-@Setter
-@Getter
 @Entity
-@Table(name = "joinClass")
+@Getter
+@Setter
+@Table(name = "join_class")
 public class JoinClass {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long joinClassId;
 
     @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "class_id", nullable = false)
-    private AcaClass classId;
+    private AcaClass acaClass;
 
     @ManyToOne
-    @JoinColumn(name= "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false) // 학생 또는 보호자 정보
     private User user;
 
     @Column(nullable = false)

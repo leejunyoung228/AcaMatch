@@ -2,9 +2,17 @@ package com.green.acamatch.review;
 
 import com.green.acamatch.config.exception.*;
 import com.green.acamatch.config.security.AuthenticationFacade;
+import com.green.acamatch.entity.joinClass.JoinClass;
+import com.green.acamatch.entity.myenum.UserRole;
+import com.green.acamatch.entity.review.Review;
+import com.green.acamatch.entity.user.Relationship;
+import com.green.acamatch.entity.user.User;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.model.*;
+import com.green.acamatch.user.repository.RelationshipRepository;
+import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,6 +33,11 @@ public class ReviewService {
     private final ReviewMapper mapper;
     private final UserMessage userMessage;
     private static final Logger log = LoggerFactory.getLogger(ReviewService.class);
+    private final RelationshipRepository relationshipRepository;
+    private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
+    private final JoinClassRepository joinClassRepository;
+
 
     /**
      * 리뷰 서비스에서 로그인된 사용자 검증
@@ -56,7 +69,72 @@ public class ReviewService {
         return true;
     }
 
-    // 리뷰 등록
+
+    @Transactional
+    public void createReview(ReviewPostReqForParent req) {
+
+        // JWT 인증된 사용자 검증
+        long jwtUserId = validateAuthenticatedUser();
+        long requestUserId = req.getParentId(); // 요청한 보호자 ID 또는 학생 ID
+
+        if (jwtUserId != requestUserId) {
+            throw new CustomException(ReviewErrorCode.UNAUTHENTICATED_USER);
+        }
+
+        //유저 존재 여부 확인
+        validateUserExists(requestUserId);
+
+        // 사용자가 리뷰 작성 권한이 있는지 확인
+        if (!isAuthorizedUser(requestUserId)) {
+            throw new CustomException(ReviewErrorCode.FORBIDDEN);
+        }
+
+        // 유효한 학원인지 확인
+        if (mapper.checkAcaExists(req.getJoinClassId()) == 0) {
+            throw new CustomException(ReviewErrorCode.INVALID_ACADEMY);
+        }
+
+        // 유효한 유저인지 확인
+        if (mapper.checkUserExists(requestUserId) == 0) {
+            throw new CustomException(ReviewErrorCode.INVALID_USER);
+        }
+
+        // 부모가 해당 학생의 보호자인지 검증 (인증 코드 포함)
+        Relationship relationship = relationshipRepository.findByParentUserIdAndStudentUserIdAndCertification(
+                        req.getParentId(), req.getStudentId(), req.getCertification())
+                .orElseThrow(() -> new CustomException(ReviewErrorCode.NOT_STUDENT_PARENT));
+
+        // 부모 정보 가져오기
+        User parent = relationship.getParent();
+
+        // 학생이 해당 `JoinClass`에 등록되어 있는지 확인
+        JoinClass joinClass = joinClassRepository.findById(req.getJoinClassId())
+                .orElseThrow(() -> new CustomException(ReviewErrorCode.JOIN_CLASS_NOT_FOUND));
+
+        if (!joinClass.getUser().getUserId().equals(req.getStudentId())) {
+            throw new CustomException(ReviewErrorCode.STUDENT_NOT_IN_CLASS);
+        }
+
+        // 리뷰 존재 여부 확인
+        Optional<Review> existingReview = reviewRepository.findByJoinClass_JoinClassIdAndUser_UserId(
+                req.getJoinClassId(), req.getParentId());
+        if (existingReview.isPresent()) {
+            throw new CustomException(ReviewErrorCode.CONFLICT_REVIEW_ALREADY_EXISTS);
+        }
+
+// 리뷰 생성 및 저장
+        Review newReview = new Review();
+        newReview.setUser(parent);
+        newReview.setJoinClass(joinClass);
+        newReview.setComment(req.getComment());
+        newReview.setStar(req.getStar());
+
+        reviewRepository.save(newReview);
+    }
+
+
+
+        // 리뷰 등록
     @Transactional
     public int addReview(ReviewPostReq req) {
         long jwtUserId = validateAuthenticatedUser();
@@ -85,15 +163,15 @@ public class ReviewService {
             return 0;
         }
 
-        // 🚨 본인 학원인지 먼저 검증 (가장 먼저 실행!)
-        if (isUserLinkedToAcademy(req.getAcaId(), req.getUserId())) {
-            userMessage.setMessage("해당 학원은 본인의 학원이므로 리뷰를 남길 수 없습니다.");
-            return 0;
-        }
+//        // 본인 학원인지 먼저 검증 (가장 먼저 실행!)
+//        if (isUserLinkedToAcademy(req.getAcaId(), req.getUserId())) {
+//            userMessage.setMessage("해당 학원은 본인의 학원이므로 리뷰를 남길 수 없습니다.");
+//            return 0;
+//        }
 
         // 학원에 등록된 수업 조회
         List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId());
-        log.info("📌 클래스 ID 리스트: {}", classIds);
+        log.info("클래스 ID 리스트: {}", classIds);
 
         if (classIds.isEmpty()) {
             userMessage.setMessage("해당 학원에 등록된 수업이 없습니다.");
@@ -102,7 +180,7 @@ public class ReviewService {
 
         // 유저가 해당 학원의 수업을 수강했는지 확인
         List<Long> joinClassIds = mapper.findJoinClassIdByAcademyAndUser(req.getAcaId(), requestUserId);
-        log.info("📌 joinClassId 리스트: {}", joinClassIds);
+        log.info("joinClassId 리스트: {}", joinClassIds);
 
         if (joinClassIds.isEmpty()) {
             userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다. 수강한 후 리뷰를 작성할 수 있습니다.");
@@ -110,7 +188,7 @@ public class ReviewService {
         }
 
         Long joinClassId = joinClassIds.get(0);
-        log.info("📌 최종 joinClassId 값: {}", joinClassId);
+        log.info(" 최종 joinClassId 값: {}", joinClassId);
 
         // 이미 리뷰를 작성했는지 체크
         int existingReviewCount = mapper.checkExistingReview(req.getAcaId(), requestUserId);
@@ -188,38 +266,38 @@ public class ReviewService {
         }
 
         List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId());
-        log.info("📌 클래스 ID 리스트: {}", classIds);
+        log.info("클래스 ID 리스트: {}", classIds);
 
         //  학원에 수업이 하나라도 있는지 확인
         if (classIds.isEmpty()) {
             userMessage.setMessage("해당 학원에 등록된 수업이 없습니다.");
-            log.warn("⚠️ No classes found for acaId: {}", req.getAcaId());
+            log.warn("No classes found for acaId: {}", req.getAcaId());
             return 0;
         }
 
         //  첫 번째 수업 ID 선택 (NULL 방지)
         Optional<Long> classIdOptional = classIds.stream().findFirst();
         if (!classIdOptional.isPresent()) {
-            log.error("❌ classId가 NULL입니다!");
+            log.error("classId가 NULL입니다!");
             return 0;
         }
         Long classId = classIdOptional.get();
-        log.info("📌 최종 classId 값: {}", classId);
+        log.info("최종 classId 값: {}", classId);
 
 
         List<Long> joinClassIds = mapper.findJoinClassIdByAcademyAndUser(req.getAcaId(), requestUserId);
-        log.info("📌 joinClassId 리스트: {}", joinClassIds);
+        log.info("joinClassId 리스트: {}", joinClassIds);
 
         Optional<Long> joinClassIdOptional = joinClassIds.stream().findFirst();
         if (!joinClassIdOptional.isPresent()) {
             userMessage.setMessage("해당 학원에 등록된 기록이 없습니다.");
-            log.error("❌ joinClassId가 NULL입니다!");
+            log.error("joinClassId가 NULL입니다!");
             return 0;
         }
 
         Long joinClassId = joinClassIdOptional.get();
-        log.info("📌 최종 joinClassId 값: {}", joinClassId);
-        log.info("📌 최종 classId 값: {}", classId);
+        log.info("최종 joinClassId 값: {}", joinClassId);
+        log.info("최종 classId 값: {}", classId);
 
 
         if (req.getStar() < 1 || req.getStar() > 5) {
