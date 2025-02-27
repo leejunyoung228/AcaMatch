@@ -13,11 +13,11 @@ import java.time.LocalDate;
 public class PremiumAcademy extends CreatedAt {
     // acaId를 PK로 사용
     @Id
-    @Column(name = "aca_id")
     private Long acaId;
 
     @OneToOne
-    @JoinColumn(name = "aca_id", insertable = false)
+    @MapsId
+    @JoinColumn(name = "aca_id")
     private Academy academy;
 
     @Column
