@@ -23,7 +23,7 @@ public class BannerPic extends CreatedAt {
     private Banner banner;
 
     @Column(nullable = false)
-    private Integer bannerShow;
+    private Integer bannerShow = 0;
 
     @Column(nullable = false)
     private Integer bannerPosition;

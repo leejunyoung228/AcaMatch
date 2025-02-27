@@ -17,14 +17,14 @@ public class PremiumAcademy extends CreatedAt {
     private Long acaId;
 
     @OneToOne
-    @JoinColumn(name = "aca_id", insertable = false, updatable = false)
+    @JoinColumn(name = "aca_id", insertable = false)
     private Academy academy;
 
     @Column
-    private LocalDate startDate;
+    private LocalDate startDate = null;
 
     @Column
-    private LocalDate endDate;
+    private LocalDate endDate = null;
 
     @Column(nullable = false)
     private int preCheck;

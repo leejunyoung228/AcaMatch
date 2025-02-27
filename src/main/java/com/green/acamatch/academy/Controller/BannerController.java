@@ -22,8 +22,10 @@ public class BannerController {
 
     @PostMapping
     @Operation(summary = "배너신청")
-    public int postBanner(@RequestPart MultipartFile bannerPic, @RequestPart BannerPostReq req) {
-        bannerService.postBanner(bannerPic, req);
+    public int postBanner(@RequestPart MultipartFile topBannerPics, @RequestPart MultipartFile bottomBannerPics
+                        , @RequestPart MultipartFile leftBannerPics, @RequestPart MultipartFile rightBannerPics
+                        , @RequestPart BannerPostReq req) {
+        bannerService.postBanner(topBannerPics, bottomBannerPics, leftBannerPics, rightBannerPics, req);
         return 1;
     }
 }
