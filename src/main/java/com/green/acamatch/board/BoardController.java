@@ -31,7 +31,8 @@ public class BoardController {
     }
 
     @GetMapping("list")
-    @Operation(summary = "공지사항 리스트 보기")
+    @Operation(summary = "공지사항 리스트 보기",
+            description = "aca_id만 입력 : 학원관계자 , user_id만 입력 : 사이트관리자만, 둘 다 입력 : 둘 다 볼 수 있는, 검색어만으로도 조회 가능")
     public ResultResponse<List<BoardGetListDto>> getBoardList(@ModelAttribute @ParameterObject BoardGetListReq p) {
         try {
             List<BoardGetListDto> res = boardService.getBoardList(p);
@@ -65,7 +66,7 @@ public class BoardController {
     }
 
     @PutMapping
-    @Operation(summary = "공지사항 수정", description = "acaId / userId 하나만 입력하면 됩니다.")
+    @Operation(summary = "공지사항 수정")
     public ResultResponse<Integer> updBoard(@Valid @ParameterObject @ModelAttribute BoardPutReq p) {
         Integer res = boardService.updBoard(p);
         return ResultResponse.<Integer>builder()
@@ -75,7 +76,7 @@ public class BoardController {
     }
 
     @DeleteMapping
-    @Operation(summary = "공지사항 삭제", description = "acaId / userId 하나만 입력하면 됩니다.")
+    @Operation(summary = "공지사항 삭제")
     public ResultResponse<Integer> delBoard(@Valid @ModelAttribute @ParameterObject BoardDelReq p){
         Integer res = boardService.delBoard(p);
         return ResultResponse.<Integer>builder()

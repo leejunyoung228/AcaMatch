@@ -51,10 +51,11 @@ public class BoardService {
 
     public List<BoardGetListDto> getBoardList(BoardGetListReq p) {
         try {
-            if (List.of().isEmpty()) {
+            List<BoardGetListDto> result = boardMapper.getBoardList(p);
+
+            if (result == null && result.isEmpty()) {
                 throw new IllegalArgumentException("공지사항을 찾을 수 없습니다.");
             }
-            List<BoardGetListDto> result = boardMapper.getBoardList(p);
             return result;
         }catch (CustomException e) {
             e.getMessage();
@@ -80,15 +81,15 @@ public class BoardService {
             Board board = boardRepository.findById(p.getBoardId()) // 기존 데이터 조회
                     .orElseThrow(() -> new CustomException(BoardErrorCode.BOARD_NOT_FOUND));
 
-            if (p.getUserId() != null && p.getAcaId() == null) {
-                User user = userRepository.findById(p.getUserId())
-                        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-                board.setUser(user);
-            } else if (p.getAcaId() != null && p.getUserId() == null) {
-                Academy academy = academyRepository.findById(p.getAcaId())
-                        .orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
-                board.setAcademy(academy);
-            }
+//            if (p.getUserId() != null && p.getAcaId() == null) {
+//                User user = userRepository.findById(p.getUserId())
+//                        .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+//                board.setUser(user);
+//            } else if (p.getAcaId() != null && p.getUserId() == null) {
+//                Academy academy = academyRepository.findById(p.getAcaId())
+//                        .orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
+//                board.setAcademy(academy);
+//            }
 
             if (!StringUtils.hasText(p.getBoardName())) {
                 throw new CustomException(BoardErrorCode.FAIL_TO_UPD);
