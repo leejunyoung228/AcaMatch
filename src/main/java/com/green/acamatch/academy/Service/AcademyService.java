@@ -9,6 +9,7 @@ import com.green.acamatch.academy.model.JW.*;
 
 import com.green.acamatch.academy.tag.AcademyTagRepository;
 import com.green.acamatch.academy.tag.SearchRepository;
+import com.green.acamatch.academy.tag.TagRepository;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AcademyConst;
 import com.green.acamatch.config.constant.AddressConst;
@@ -18,6 +19,7 @@ import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.AcademyPic;
 import com.green.acamatch.entity.academy.AcademyPicIds;
+import com.green.acamatch.entity.tag.Search;
 import com.green.acamatch.entity.tag.Tag;
 import com.green.acamatch.entity.user.User;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,7 @@ public class AcademyService {
     private final AcademyPicRepository academyPicRepository;
     private final SearchRepository searchRepository;
     private final AcademyTagRepository academyTagRepository;
+    private final TagRepository tagRepository;
 
 
     //학원정보등록
@@ -650,9 +653,12 @@ public class AcademyService {
 
     //모든 입력을 받아 학원 리스트 출력하기
     public List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p) {
-        Tag tag = new Tag();
-        tag.setTagId(p.getTagId());
-        searchRepository.save(tag);
+        if(p.getTagName() != null){
+            Tag tagId = academyMapper.getTagListByTagName(p.getTagName());
+            Search search = new Search();
+            search.setTag(tagId);
+            searchRepository.save(search);
+        }
         //int post = academyMapper.postToSearch(p.getTagId());
         List<GetAcademyListRes> list = academyMapper.getAcademyListByAll(p);
 
