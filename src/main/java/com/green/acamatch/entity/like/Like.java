@@ -16,10 +16,12 @@ public class Like {
     private LikeIds likeIds;
 
     @ManyToOne
-    @MapsId("userId")  // userId는 복합키의 일부로 사용
+    @MapsId("userId") // userId를 EmbeddedId와 매핑
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
     private User user;
 
     @ManyToOne
-    @MapsId("acaId")  // acaId도 복합키의 일부로 사용
+    @MapsId("acaId") // acaId도 EmbeddedId와 매핑
+    @JoinColumn(name = "aca_id", nullable = false, insertable = false, updatable = false)
     private Academy academy;
 }

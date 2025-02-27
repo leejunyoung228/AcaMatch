@@ -1,6 +1,7 @@
 package com.green.acamatch.manager;
 
 import com.green.acamatch.acaClass.AcaClassService;
+import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.sms.SmsService;
 import com.green.acamatch.sms.model.SmsRequest;
@@ -28,7 +29,10 @@ public class ManagerService {
             throw new AccessDeniedException("학원 관리자 또는 선생님만 수업 학생들에게 문자를 보낼 수 있습니다.");
         }
 
-        List<User> students = acaClassService.findStudentsByClassId(classId);
+        // ✅ classId를 AcaClass 객체로 변환 후 사용
+        AcaClass acaClass = acaClassService.findClassById(classId);
+        List<User> students = acaClassService.findStudentsByClass(acaClass);
+
         if (students.isEmpty()) {
             throw new IllegalArgumentException("해당 수업에 등록된 학생이 없습니다.");
         }
@@ -42,6 +46,5 @@ public class ManagerService {
 
             smsService.sendSms(smsRequest, senderId);  // 올바른 인자 전달
         }
-
     }
 }
