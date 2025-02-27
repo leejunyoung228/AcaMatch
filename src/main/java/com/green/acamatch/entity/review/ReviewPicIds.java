@@ -13,8 +13,10 @@ import java.io.Serializable;
 @Embeddable
 @EqualsAndHashCode
 public class ReviewPicIds implements Serializable {
+    @Column(name = "review_id")
+    private Long reviewId;
 
-    @Column(name = "review_pic", nullable = false, length = 255)
+    @Column(name = "review_pic", nullable = false)
     private String reviewPic; // 사진 URL 저장
 
 }

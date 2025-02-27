@@ -18,6 +18,7 @@ public class ReviewPic extends CreatedAt {
 
     @ManyToOne
     @JoinColumn(name = "review_id", nullable = false)
+    @MapsId("reviewId")
     @OnDelete(action = OnDeleteAction.CASCADE) // Review 삭제 시, 사진도 삭제됨
     private Review review;
 
