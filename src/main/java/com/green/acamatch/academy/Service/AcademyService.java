@@ -720,8 +720,8 @@ public class AcademyService {
         return list;
     }
 
-    public List<GetDefaultRes> getDefault() {
-        List<GetDefaultRes> list = academyMapper.getDefault();
+    public List<GetDefaultRes> getDefault(Integer size) {
+        List<GetDefaultRes> list = academyMapper.getDefault(size);
 
         if (list.size() == 0) {
             academyMessage.setMessage("디폴트 학원 리스트 출력 실패");
