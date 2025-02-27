@@ -6,4 +6,35 @@
         from book
         where class_id = #{classId}
     </select>
+    <select id="getBookListByAcaNameBookName">
+        SELECT B.book_id, B.book_name, B.book_comment, B.book_pic,
+        B.book_amount, B.book_price, B.manager, B.created_at, CB.bookCount
+        FROM book B
+        JOIN aca_class AC
+        ON B.class_id = AC.class_id
+        JOIN academy A
+        ON AC.aca_id = A.aca_id
+        JOIN (
+        SELECT COUNT(B.book_id) AS bookCount, B.class_id
+        FROM book B
+        JOIN aca_class AC
+        ON B.class_id = AC.class_id
+        ) CB
+        ON B.class_id = CB.class_id
+        <where>
+            <if test=" acaName != null and acaName != '' ">
+                AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
+            </if>
+            <if test=" bookName != null and bookName != '' ">
+                AND B.book_name LIKE CONCAT('%', #{bookName}, '%')
+            </if>
+        </where>
+        ORDER BY B.created_at DESC
+        LIMIT #{startIdx}, #{size}
+    </select>
+    <select id="getBookInfo">
+        SELECT *
+        FROM book
+        WHERE book_id = #{bookId}
+    </select>
 </mapper>

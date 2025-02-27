@@ -6,7 +6,6 @@
         INSERT INTO joinclass
         SET class_id = #{classId},
         user_id = #{userId},
-        discount = #{discount},
         certification = #{certification},
         registration_date = #{registrationDate}
     </insert>
@@ -32,12 +31,14 @@
     </resultMap>
 
     <select id= "selJoinClass" resultMap="JoinClassResultMap">
-        SELECT C.aca_id, C.aca_pic, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
-        FROM joinclass A
-        INNER JOIN class B
+        SELECT C.aca_id, D.aca_pic, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
+        FROM join_class A
+        INNER JOIN aca_class B
         ON A.class_id = B.class_id
         INNER JOIN academy C
         ON B.aca_id = C.aca_id
+        INNER JOIN academy_pic D
+        ON C.aca_id = D.aca_id
         WHERE A.user_id = #{userId}
         LIMIT #{startIdx}, #{size}
     </select>

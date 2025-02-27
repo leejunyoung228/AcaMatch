@@ -9,8 +9,6 @@ import lombok.Setter;
 public class JoinClassPutReq {
     @Schema(title = "joinClass PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private long joinClassId;
-    @Schema(title = "할인 금액", example = "1000")
-    private int discount;
-    @Schema(title = "인가 여부", example = "true")
-    private boolean certification;
+    @Schema(title = "인가 여부", example = "1")
+    private int certification;
 }

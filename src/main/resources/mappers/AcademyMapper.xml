@@ -20,7 +20,7 @@
 
     <!--태그 학원등록-->
     <insert id="insAcaTag">
-        INSERT INTO academytag (aca_id, tag_id)
+        INSERT INTO academy_tag (aca_id, tag_id)
         VALUES
         <foreach collection="tagIdList" item="tagId" separator=",">
             (#{acaId}, #{tagId})
@@ -124,7 +124,7 @@
 
     <!--학원정보수정에서 태그수정을 위한 삭제처리-->
     <delete id="delAcaTag">
-        DELETE FROM academytag
+        DELETE FROM academy_tag
         WHERE aca_id = #{acaId}
     </delete>
 
@@ -145,10 +145,10 @@
         GROUP_CONCAT(DISTINCT g.tag_name ORDER BY c.tag_id ASC) AS tag_names,
         ifnull(AVG(f.star), 0) AS star_avg,
         COUNT(DISTINCT f.`comment`) AS review_count
-        FROM `like` a
+        FROM `likes` a
         LEFT JOIN `academy` b
         ON a.aca_id = b.aca_id
-        LEFT JOIN `academytag` c
+        LEFT JOIN `academy_tag` c
         ON a.aca_id = c.aca_id
         LEFT JOIN `aca_class` d
         ON b.aca_id = d.aca_id
@@ -170,9 +170,11 @@
 
     <select id="selAcademyLikeCount">
         SELECT COUNT(DISTINCT a.aca_id) AS academy_like_count
-        FROM `like` a
+        FROM `likes` a
     </select>
-
+    <!-- ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ-->
+    <!-- ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ-->
+    <!-- ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ-->
     <!-- 학원 검색 -->
 
     <resultMap id="searchResultMap" type = "com.green.acamatch.academy.model.HB.GetAcademyListRes">
@@ -196,7 +198,7 @@
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
-        LEFT JOIN academytag E
+        LEFT JOIN academy_tag E
         ON A.aca_id = E.aca_id
         LEFT JOIN tag F
         ON E.tag_id = F.tag_id
@@ -213,7 +215,7 @@
         WHERE A.dong_id = #{dongId}
         AND A.aca_id IN (
         SELECT DISTINCT E.aca_id
-        FROM academytag E
+        FROM academy_tag E
         JOIN tag F
         ON E.tag_id = F.tag_id
         WHERE F.tag_name LIKE CONCAT('%', #{tagName}, '%')
@@ -225,18 +227,20 @@
 
     <!-- 학원 상세 정보 보기 -->
     <select id="getAcademyDetail">
-        SELECT A.aca_id, A.aca_phone, A.aca_name, AP.aca_pic, A.COMMENT, A.teacher_num, A.open_time, A.close_time, address
+        SELECT A.aca_id, A.aca_phone, A.aca_name,
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pic,
+        A.COMMENT, A.teacher_num, A.open_time, A.close_time, address
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
-        WHERE aca_id = #{acaId}
+        WHERE A.aca_id = #{acaId};
     </select>
 
     <!-- 학원 태그 리스트 불러오기 -->
     <select id="getTagList">
         SELECT A.tag_id, A.tag_name
         FROM tag A
-        JOIN academytag B
+        JOIN academy_tag B
         ON A.tag_id = B.tag_id
         JOIN academy C
         ON B.aca_id = C.aca_id
@@ -281,18 +285,29 @@
 
     <!-- 모든 입력을 받고 학원 리스트 불러오기-->
     <select id="getAcademyListByAll" resultMap="searchResultMap">
+
+        WITH premium_academies AS (
+        -- ✅ 프리미엄 학원 3개 랜덤 선택 (개수 동적 설정 가능)
+        SELECT A.aca_id
+        FROM academy A
+        WHERE A.premium = 1
+        ORDER BY RAND()
+        LIMIT #{premiumLimit}
+        ), filtered_academies AS (
+        -- ✅ 기존 필터링된 학원 목록 (동, 검색어, 태그, 카테고리 적용)
         SELECT
         A.aca_id AS acaId,
         A.aca_name AS acaName,
         AP.aca_pic AS acaPic,
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         A.address AS address,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
         COALESCE(G.star, 0) AS star,
-        COUNT(*) OVER() AS totalCount
+        (CASE WHEN A.aca_id IN (SELECT aca_id FROM premium_academies) THEN 0 ELSE 1 END) AS premium_order,
+        RAND() AS rand_order
         FROM academy A
-        JOIN academy_pic AP
-        ON A.aca_id = AP.aca_id
-        LEFT JOIN academytag E ON A.aca_id = E.aca_id
+        JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy_tag E ON A.aca_id = E.aca_id
         LEFT JOIN tag F ON E.tag_id = F.tag_id
         LEFT JOIN (
         SELECT
@@ -301,13 +316,14 @@
         FROM review R
         JOIN join_class JC ON R.join_class_id = JC.join_class_id
         JOIN aca_class C ON JC.class_id = C.class_id
-        GROUP BY C.aca_id ) G ON G.aca_id = A.aca_id
+        GROUP BY C.aca_id
+        ) G ON G.aca_id = A.aca_id
         WHERE 1 = 1
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
         AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
         <if test="tagName != null and tagName != ''">
             AND EXISTS (
-            SELECT 1 FROM academytag E2
+            SELECT 1 FROM academy_tag E2
             JOIN tag F2 ON E2.tag_id = F2.tag_id
             WHERE E2.aca_id = A.aca_id
             <foreach collection="tagName.split(',')" item="tag" open="AND (" separator="OR" close=")">
@@ -315,20 +331,25 @@
             </foreach>
             )
         </if>
-
         <if test=" categoryIds != null and categoryIds != '' ">
             AND ( A.aca_id IN
             (SELECT CL.aca_id FROM aca_class CL
-            JOIN classcategory CC ON CL.class_id = CC.class_id
+            JOIN class_category CC ON CL.class_id = CC.class_id
             WHERE CC.category_id IN
             <foreach collection="categoryIds" item="CId" open="(" close=")" separator=",">
-                #{CId}
+                1
             </foreach>
             ))
         </if>
         GROUP BY A.aca_id
-        ORDER BY G.star DESC
-        LIMIT #{startIdx}, #{size}
+        )
+
+        -- ✅ 프리미엄 학원 랜덤 → 일반 학원 별점순 정렬
+        SELECT *, (SELECT COUNT(*) FROM filtered_academies) AS totalCount
+        FROM filtered_academies
+        ORDER BY premium_order, rand_order, star DESC
+        LIMIT 0, 10;
+
     </select>
 
     <insert id="postToSearch">
@@ -431,7 +452,7 @@
     <!--        GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,-->
     <!--        C.aca_id-->
     <!--        FROM aca_class C-->
-    <!--        LEFT JOIN classweekdays CW ON C.class_id = CW.class_id-->
+    <!--        LEFT JOIN class_weekdays CW ON C.class_id = CW.class_id-->
     <!--        LEFT JOIN weekdays W ON CW.day_id = W.day_id-->
     <!--        LEFT JOIN classcategory CC ON C.class_id = CC.class_id-->
     <!--        LEFT JOIN category CAT ON CC.category_id = CAT.category_id-->
@@ -452,17 +473,17 @@
     <!--        SELECT-->
     <!--        L.aca_id,-->
     <!--        1 AS isLiked-->
-    <!--        FROM `like` L-->
+    <!--        FROM `likes` L-->
     <!--        WHERE L.user_id = #{signedUserId}-->
     <!--        ),-->
     <!--        LikeCount AS (-->
     <!--        SELECT-->
     <!--        aca_id,-->
     <!--        COUNT(*) AS likeCount-->
-    <!--        FROM `like`-->
+    <!--        FROM `likes`-->
     <!--        GROUP BY aca_id-->
     <!--        ),-->
-    <!--        AcademyTag AS (-->
+    <!--        academy_tag AS (-->
     <!--        SELECT-->
     <!--        AT.aca_id,-->
     <!--        GROUP_CONCAT(DISTINCT T.tag_name ORDER BY T.tag_name ASC SEPARATOR ', ') AS tagName-->
@@ -563,9 +584,23 @@
             <result property="star" column="reviewStar"/>
             <result property="reviewId" column="reviewId"/>
             <result property="createdAt" column="reviewCreatedAt"/>
+            <result property="updatedAt" column="reviewUpdatedAt"/>
             <result property="userId" column="reviewUserId"/>
             <result property="nickName" column="reviewUserNickName"/>
             <result property="className" column="reviewClassName"/>
+            <result property="banReview" column="banReview"/>
+            <result property="roleType" column="roleType"/>
+            <result property="joinClassId" column="joinClassId"/>
+        </collection>
+        <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
+            <result property="bookId" column="bookId"/>
+            <result property="bookName" column="bookName"/>
+            <result property="bookAmount" column="bookAmount"/>
+            <result property="bookComment" column="bookComment"/>
+            <result property="bookPic" column="bookPic"/>
+            <result property="bookPrice" column="bookPrice"/>
+            <result property="manager" column="manager"/>
+            <result property="classId" column="classId"/>
         </collection>
     </resultMap>
     <select id="getAcademyWithClasses" resultMap="AcademyResultMap">
@@ -574,7 +609,11 @@
         A.comment AS reviewComment,
         A.star AS reviewStar,
         A.created_at AS reviewCreatedAt,
+        A.updated_at AS reviewUpdatedAt,
         A.review_id AS reviewId,
+        A.ban_review AS banReview,
+        A.role_type AS roleType,
+        A.join_class_id AS joinClassId,
         B.user_id AS reviewUserId,
         D.nick_name AS reviewUserNickName,
         C.class_name AS reviewClassName,
@@ -617,9 +656,9 @@
         GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
         C.aca_id
         FROM aca_class C
-        LEFT JOIN classweekdays CW ON C.class_id = CW.class_id
+        LEFT JOIN class_weekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
-        LEFT JOIN classcategory CC ON C.class_id = CC.class_id
+        LEFT JOIN class_category CC ON C.class_id = CC.class_id
         LEFT JOIN category CAT ON CC.category_id = CAT.category_id
         GROUP BY C.class_id
         ),
@@ -638,29 +677,44 @@
         SELECT
         L.aca_id,
         1 AS isLiked
-        FROM `like` L
+        FROM `likes` L
         WHERE L.user_id = #{signedUserId}
         ),
         LikeCount AS (
         SELECT
         aca_id,
         COUNT(*) AS likeCount
-        FROM `like`
+        FROM `likes`
         GROUP BY aca_id
         ),
         AcademyTag AS (
         SELECT
         AT.aca_id,
         GROUP_CONCAT(DISTINCT T.tag_name ORDER BY T.tag_name ASC SEPARATOR ', ') AS tagName
-        FROM academytag AS AT
+        FROM academy_tag AS AT
         JOIN tag AS T
         ON AT.tag_id = T.tag_id
         GROUP BY AT.aca_id
+        ),
+        BookByClass AS (
+        SELECT B.book_id AS bookId,
+        B.book_name AS bookName,
+        B.book_amount AS bookAmount,
+        B.book_comment AS bookComment,
+        B.book_pic AS bookPic,
+        B.book_price AS bookPrice,
+        B.manager,
+        B.class_id AS classId
+        FROM Book B
+        JOIN aca_class AC
+        ON B.class_id = AC.class_id
         )
         SELECT
         A.aca_id,
         A.aca_name,
         A.address,
+        A.detail_address,
+        A.post_num,
         A.aca_phone,
         A.teacher_num,
         A.comment,
@@ -679,6 +733,15 @@
         COALESCE(AC.classDay, '') AS classDay,
         COALESCE(AC.classCategoryName, '') AS classCategoryName,
 
+        BC.bookId,
+        BC.bookName,
+        BC.bookAmount,
+        BC.bookComment,
+        BC.bookPic,
+        BC.bookPrice,
+        BC.manager,
+        BC.classId,
+
         -- 학원별 총 좋아요 수
         COALESCE(LC.likeCount, 0) AS likeCount,
 
@@ -696,17 +759,21 @@
         COALESCE(R.reviewComment, '') AS reviewComment,
         COALESCE(R.reviewStar, 0) AS reviewStar,
         COALESCE(R.reviewCreatedAt, '') AS reviewCreatedAt,
+        COALESCE(R.reviewUpdatedAt, '') AS reviewUpdatedAt,
         R.reviewId AS reviewId,   -- reviewId가 NULL이면 0으로 설정
         COALESCE(R.reviewUserId, 0) AS reviewUserId,
         COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
-        COALESCE(R.reviewClassName, '') AS reviewClassName
-
+        COALESCE(R.reviewClassName, '') AS reviewClassName,
+        COALESCE(R.banReview, '') AS banReview,
+        COALESCE(R.roleType, '') AS roleType,
+        COALESCE(R.joinClassId, '') AS joinClassId
 
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
         LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
         LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택
+        JOIN BookByClass BC ON AC.classId = BC.classId
         LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId  -- 클래스별 별점 평균 및 리뷰 개수
         LEFT JOIN UserCertification UC ON UC.class_id = AC.classId  -- 유저의 클래스별 수강 여부
         LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id
@@ -736,13 +803,15 @@
         COALESCE(G.reviewCount, 0) AS reviewCount,
         AP.aca_pic AS acaPic,
         A.address AS address,
+        A.detail_address,
+        A.post_num,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagNames
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
-        LEFT JOIN `like` L
+        LEFT JOIN `likes` L
         ON A.aca_id = L.aca_id
-        LEFT JOIN academytag E
+        LEFT JOIN academy_tag E
         ON A.aca_id = E.aca_id
         LEFT JOIN tag F
         ON E.tag_id = F.tag_id
@@ -800,6 +869,15 @@
     </resultMap>
 
     <select id="getDefault" resultMap="Default">
+        WITH premium_academies AS (
+        -- 랜덤으로 프리미엄 학원 3개 선택
+        SELECT A.aca_id
+        FROM academy A
+        WHERE A.premium = 1
+        ORDER BY RAND()
+        LIMIT #{size}
+        ), all_academies AS (
+        -- 프리미엄 학원 데이터
         SELECT
         A.aca_id AS acaId,
         A.aca_name AS acaName,
@@ -807,11 +885,11 @@
         A.address AS address,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
         COALESCE(G.star, 0) AS star,
-        COUNT(*) OVER() AS totalCount
+        0 AS premium_order,  -- 프리미엄 학원 우선
+        RAND() AS rand_order  -- 랜덤 정렬을 위해 추가
         FROM academy A
-        JOIN academy_pic AP
-        ON A.aca_id = AP.aca_id
-        LEFT JOIN academytag E ON A.aca_id = E.aca_id
+        JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy_tag E ON A.aca_id = E.aca_id
         LEFT JOIN tag F ON E.tag_id = F.tag_id
         LEFT JOIN (
         SELECT
@@ -819,10 +897,44 @@
         C.aca_id
         FROM review R
         JOIN aca_class C ON R.join_class_id = C.class_id
-        GROUP BY C.aca_id ) G ON G.aca_id = A.aca_id
+        GROUP BY C.aca_id
+        ) G ON G.aca_id = A.aca_id
+        WHERE A.aca_id IN (SELECT aca_id FROM premium_academies) -- 프리미엄 학원 필터링
         GROUP BY A.aca_id
-        ORDER BY G.star DESC
-        LIMIT 0, 10;
+
+        UNION ALL
+
+        -- 일반 학원 데이터 (별점순 정렬)
+        SELECT
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        AP.aca_pic AS acaPic,
+        A.address AS address,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
+        COALESCE(G.star, 0) AS star,
+        1 AS premium_order,  -- 일반 학원 우선순위 낮춤
+        0 AS rand_order  -- 별점 정렬을 위해 랜덤 값 0
+        FROM academy A
+        JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy_tag E ON A.aca_id = E.aca_id
+        LEFT JOIN tag F ON E.tag_id = F.tag_id
+        LEFT JOIN (
+        SELECT
+        ROUND(AVG(R.star), 2) AS star,
+        C.aca_id
+        FROM review R
+        JOIN aca_class C ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id
+        ) G ON G.aca_id = A.aca_id
+        WHERE A.premium = 0  -- 일반 학원 필터링
+        GROUP BY A.aca_id
+        )
+
+        -- ✅ 최종 정렬 (프리미엄 학원 → 랜덤 / 일반 학원 → 별점순)
+        SELECT *, (SELECT COUNT(*) FROM all_academies) AS totalCount
+        FROM all_academies
+        ORDER BY premium_order, rand_order, star DESC
+        LIMIT 10;
     </select>
     <select id="GetAcademyCount">
         SELECT COUNT(A.aca_id) AS academyCount, COUNT(U.user_id) AS userCount
@@ -834,5 +946,34 @@
         select tag_id
         from tag
         where tag_name = #{tagName}
+    </select>
+    <select id="getAcademyInfoByAcaNameClassNameExamNameAcaAgree">
+        SELECT A.aca_name, AP.aca_pic,
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
+        A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id
+        FROM academy A
+        JOIN academy_pic AP
+        ON A.aca_id = AP.aca_id
+        JOIN user U
+        ON A.user_id = U.user_id
+        JOIN aca_class AC
+        ON A.aca_id = AC.aca_id
+        JOIN exam E
+        ON AC.class_id = E.class_id
+        <where>
+            <if test=" acaName != null and acaName != '' ">
+                AND A.aca_name like CONCAT('%', #{acaName}, '%')
+            </if>
+            <if test=" className != null and className != '' ">
+                AND AC.class_name like CONCAT('%', #{className}, '%')
+            </if>
+            <if test=" examName != null and examName != '' ">
+                AND E.exam_name like CONCAT('%', #{examName}, '%')
+            </if>
+            <if test=" acaAgree != null ">
+                AND A.aca_agree = #{acaAgree}
+            </if>
+        </where>
+        GROUP BY A.aca_id;
     </select>
 </mapper>

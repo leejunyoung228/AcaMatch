@@ -11,8 +11,11 @@ import java.util.List;
 public class GetAcademyListRes {
     private long acaId;
     private String acaPic;
+    private String acaPics;
     private String acaName;
     private String address;
+    private String detailAddress;
+    private String postNum;
     private double star;
     private AddressDto addressDto;
     private List<GetAcademyTagDto> tagName;

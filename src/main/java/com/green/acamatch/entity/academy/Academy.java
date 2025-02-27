@@ -96,6 +96,6 @@ public class Academy extends CreatedAt {
     @Column(length = 50, nullable = false)
     private String operationLicencePic;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20)
     private String corporateNumber;
 }

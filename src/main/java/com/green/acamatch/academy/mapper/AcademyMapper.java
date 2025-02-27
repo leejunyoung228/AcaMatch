@@ -4,6 +4,7 @@ import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
 import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
+import com.green.acamatch.entity.tag.Tag;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -71,9 +72,11 @@ public interface AcademyMapper {
 
     List<PopularSearchRes> popularSearch();
 
-    List<GetDefaultRes> getDefault();
+    List<GetDefaultRes> getDefault(Integer size);
 
     GetAcademyCountRes GetAcademyCount();
 
-    Long getTagListByTagName(String tagName);
+    Tag getTagListByTagName(String tagName);
+
+    List<GetAcademyInfoRes> getAcademyInfoByAcaNameClassNameExamNameAcaAgree(GetAcademyInfoReq p);
 }

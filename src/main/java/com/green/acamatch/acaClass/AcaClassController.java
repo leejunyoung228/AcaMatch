@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "강좌 관리", description = "강좌 등록, 불러오기, 수정, 삭제")
@@ -82,13 +83,19 @@ public class AcaClassController {
     @GetMapping
     @Operation(summary = "학원 강좌 가져오기/ null일 경우 resultData 반환 값이 없습니다.")
     public ResultResponse<List<AcaClassDto>> selAcaClass(@ModelAttribute @ParameterObject AcaClassGetReq p) {
-        List<AcaClassDto> result = service.selAcaClass(p);
-        return ResultResponse.<List<AcaClassDto>>builder()
-                .resultMessage(userMessage.getMessage())
-                .resultData(result)
-                .build();
+        try {
+            List<AcaClassDto> result = service.selAcaClass(p);
+            return ResultResponse.<List<AcaClassDto>>builder()
+                    .resultMessage("학원 강좌 불러오기 성공")
+                    .resultData(result)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return ResultResponse.<List<AcaClassDto>>builder()
+                    .resultMessage(e.getMessage())
+                    .resultData(new ArrayList<>())
+                    .build();
+        }
     }
-
 
     @PutMapping
     @Operation(summary = "강좌 수정하기")

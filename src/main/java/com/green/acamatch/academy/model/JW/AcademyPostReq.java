@@ -107,7 +107,7 @@ public class AcademyPostReq {
     @Schema(title = "학원운영증", requiredMode = Schema.RequiredMode.REQUIRED)
     private String operationLicencePic;
 
-    @Schema(title = "법인번호", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "법인번호")
     private String corporateNumber;
 
 

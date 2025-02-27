@@ -130,15 +130,37 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
+    <resultMap id="selAcademyClass" type="com.green.acamatch.acaClass.model.AcaClassDto">
+        <id property="acaId" column="aca_id" />
+        <result property="acaPics" column="aca_pics" />
+        <result property="acaPic" column="aca_pic" />
+        <result property="className" column="class_name" />
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date" />
+        <result property="keyword" column="keyword" />
+        <result property="name" column="teacher_name"/>
+    </resultMap>
+
     <!-- 학원당 강좌 가져오기 -->
-    <select id = "selAcaClass">
-        SELECT C.aca_pic, B.class_id, B.class_name, B.start_date, B.end_date
-        FROM academy A
-        INNER JOIN aca_class B
+    <select id = "selAcaClass" resultMap="selAcademyClass">
+        SELECT
+        GROUP_CONCAT(DISTINCT C.aca_pic ORDER BY C.aca_pic SEPARATOR ',') AS aca_pics,
+        C.aca_pic, A.class_id, A.class_name, E.name AS teacher_name, A.start_date, A.end_date
+        FROM aca_class A
+        INNER JOIN academy B
         ON A.aca_id = B.aca_id
         INNER JOIN academy_pic C
-        ON A.aca_id = C.aca_id
-        WHERE A.aca_id = #{acaId}
+        ON B.aca_id = C.aca_id
+        LEFT JOIN teacher D
+        ON B.aca_id = D.aca_id
+        LEFT JOIN `user` E
+        ON D.user_id = E.user_id
+        WHERE B.aca_id = #{acaId}
+        GROUP BY A.class_id, E.name
+        <if test="keyword != null and keyword != '' ">
+            OR A.class_name LIKE '%${keyword}%'
+        </if>
+        ORDER BY A.class_id
         LIMIT #{startIdx}, #{size}
     </select>
 

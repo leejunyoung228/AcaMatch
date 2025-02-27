@@ -1,6 +1,7 @@
 package com.green.acamatch.entity.academyCost;
 
 import com.green.acamatch.entity.acaClass.AcaClass;
+import com.green.acamatch.entity.datetime.CreatedAt;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class Book {
+public class Book extends CreatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long bookId;

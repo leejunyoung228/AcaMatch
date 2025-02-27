@@ -7,6 +7,7 @@ import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("academy/premium")
+@Tag(name = "프리미엄")
 public class PremiumController {
     private final PremiumService premiumService;
     private final AcademyMessage academyMessage;

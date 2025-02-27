@@ -9,6 +9,7 @@ import com.green.acamatch.academy.model.JW.*;
 
 import com.green.acamatch.academy.tag.AcademyTagRepository;
 import com.green.acamatch.academy.tag.SearchRepository;
+import com.green.acamatch.academy.tag.TagRepository;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AcademyConst;
 import com.green.acamatch.config.constant.AddressConst;
@@ -18,6 +19,7 @@ import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.AcademyPic;
 import com.green.acamatch.entity.academy.AcademyPicIds;
+import com.green.acamatch.entity.tag.Search;
 import com.green.acamatch.entity.tag.Tag;
 import com.green.acamatch.entity.user.User;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,7 @@ public class AcademyService {
     private final AcademyPicRepository academyPicRepository;
     private final SearchRepository searchRepository;
     private final AcademyTagRepository academyTagRepository;
+    private final TagRepository tagRepository;
 
 
     //학원정보등록
@@ -597,10 +600,6 @@ public class AcademyService {
         search.setTagId(p.getTagId());
         int post = academyMapper.postSearch(search);
         List<GetAcademyRes> res = academyMapper.getAcademy(p);
-        for (GetAcademyRes re : res) {
-            re.setAddressDto(addressDecoding(re.getAddress()));
-            re.setAddress(re.getAddressDto().getAddress());
-        }
         if (res.size() == 0) {
             academyMessage.setMessage("학원 검색을 실패했습니다.");
             return null;
@@ -612,8 +611,7 @@ public class AcademyService {
     //학원 PK를 받아 학원 상세 정보 불러오기
     public GetAcademyDetail getAcademyDetail(Long acaId) {
         GetAcademyDetail res = academyMapper.getAcademyDetail(acaId);
-        res.setAddressDto(addressDecoding(res.getAddress()));
-        res.setAddress(res.getAddressDto().getAddress());
+
         if (res == null) {
             academyMessage.setMessage("학원의 상세 정보 불러오기를 실패했습니다.");
             return null;
@@ -655,15 +653,15 @@ public class AcademyService {
 
     //모든 입력을 받아 학원 리스트 출력하기
     public List<GetAcademyListRes> getAcademyListByAll(GetAcademyListReq p) {
-        Tag tag = new Tag();
-        tag.setTagId(p.getTagId());
-        searchRepository.save(tag);
+        if(p.getTagName() != null){
+            Tag tagId = academyMapper.getTagListByTagName(p.getTagName());
+            Search search = new Search();
+            search.setTag(tagId);
+            searchRepository.save(search);
+        }
         //int post = academyMapper.postToSearch(p.getTagId());
         List<GetAcademyListRes> list = academyMapper.getAcademyListByAll(p);
-        for (GetAcademyListRes re : list) {
-            re.setAddressDto(addressDecoding(re.getAddress()));
-            re.setAddress(re.getAddressDto().getAddress());
-        }
+
         if (list.size() == 0) {
             academyMessage.setMessage("학원 리스트 불러오기 실패");
             return null;
@@ -680,9 +678,6 @@ public class AcademyService {
             academyMessage.setMessage("상세 정보 불러오기 실패");
             return null;
         }
-
-        res.setAddressDto(addressDecoding(res.getAddress()));
-        res.setAddress(res.getAddressDto().getAddress());
 
         if (res.getClasses() == null || res.getClasses().isEmpty()) {
             res.setClasses(res.getClasses()); // classes 필드를 아예 제거 (필요 시 JSON 직렬화 시 무시 가능)
@@ -725,12 +720,9 @@ public class AcademyService {
         return list;
     }
 
-    public List<GetDefaultRes> getDefault() {
-        List<GetDefaultRes> list = academyMapper.getDefault();
-        for (GetDefaultRes re : list) {
-            re.setAddressDto(addressDecoding(re.getAddress()));
-            re.setAddress(re.getAddressDto().getAddress());
-        }
+    public List<GetDefaultRes> getDefault(Integer size) {
+        List<GetDefaultRes> list = academyMapper.getDefault(size);
+
         if (list.size() == 0) {
             academyMessage.setMessage("디폴트 학원 리스트 출력 실패");
             return null;
@@ -743,5 +735,12 @@ public class AcademyService {
         return academyMapper.GetAcademyCount();
     }
 
-
+    public List<GetAcademyInfoRes> getAcademyInfoByAcaNameClassNameExamNameAcaAgree(GetAcademyInfoReq req){
+        List<GetAcademyInfoRes> res = academyMapper.getAcademyInfoByAcaNameClassNameExamNameAcaAgree(req);
+        if(res == null || res.size() == 0){
+            academyMessage.setMessage("검색 조건에 맞는 학원이 없습니다.");
+        }
+        academyMessage.setMessage("학원 리스트 출력 완료");
+        return res;
+    }
 }

@@ -13,7 +13,7 @@ import com.green.acamatch.entity.academyCost.AcademyCost;
 import com.green.acamatch.entity.academyCost.Book;
 import com.green.acamatch.entity.academyCost.Product;
 import com.green.acamatch.entity.joinClass.JoinClass;
-import com.green.acamatch.joinClass.model.JoinClassRepository;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -63,6 +63,10 @@ public class KakaoPayService {
         Map<String, Object> parameters = new HashMap<>();
 
         Optional<Product> product = productRepository.findById(req.getProductId());
+
+        if (!product.isPresent()) {
+            throw new RuntimeException("상품을 찾을 수 없습니다.");  // 상품이 없을 경우 처리
+        }
 
         parameters.put("cid", payProperties.getCid());
         parameters.put("partner_order_id", req.getProductId()); // 실제 주문 번호로 교체

@@ -16,7 +16,7 @@ import com.green.acamatch.entity.category.ClassCategoryIds;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.joinClass.model.JoinClassRepository;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import com.green.acamatch.manager.TeacherRepository;
 import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -139,16 +139,12 @@ public class AcaClassService {
                 product.setProductPrice(p.getPrice());
                 productRepository.save(product);
             }
-
             return 1;
         } catch (CustomException e) {
             e.printStackTrace();
             return 0;
         }
     }
-
-
-
 
     //요일 등록
     @Transactional
@@ -272,14 +268,12 @@ public class AcaClassService {
     public List<AcaClassDto> selAcaClass(AcaClassGetReq p) {
         try {
             List<AcaClassDto> result = mapper.selAcaClass(p);
-            if (result == null || result.isEmpty()) {
-                userMessage.setMessage("학원 강좌 정보 불러오기에 실패하였습니다.");
-                return null;
+            if (result == null && result.isEmpty()) {
+                throw new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS);
             }
-            userMessage.setMessage("학원 강좌 정보 불러오기에 성공하였습니다.");
             return result;
-        } catch (Exception e) {
-            userMessage.setMessage("기타 오류 사항으로 정보를 불러오지 못했습니다.");
+        } catch (CustomException e) {
+            e.getMessage();
             return null;
         }
     }

@@ -15,10 +15,6 @@ import java.time.LocalDate;
 @ToString
 @EqualsAndHashCode
 public class PremiumPostReq {
-    @JsonIgnore
-    @Schema(title = "프리미엄학원pk")
-    private Long preAcaId;
-
     @Schema(title = "신청한학원pk")
     private Long acaId;
 
