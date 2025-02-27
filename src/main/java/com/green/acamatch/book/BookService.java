@@ -113,6 +113,11 @@ public class BookService {
             }
             book.setBookPrice(req.getBookPrice());
 
+            if(req.getBookAmount() == 0){
+                bookMessage.setMessage("책 수량을 입력하지 않았습니다.");
+                return 0;
+            }
+
             if(file == null){
                 bookMessage.setMessage("책 사진을 입력하지 않았습니다.");
                 String originalPicName = book.getBookPic();
@@ -152,5 +157,9 @@ public class BookService {
             return null;
         }
         return res;
+    }
+
+    public GetBookInfo getBookInfo(long bookId){
+        return bookMapper.getBookInfo(bookId);
     }
 }

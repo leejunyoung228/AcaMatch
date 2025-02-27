@@ -24,4 +24,7 @@ public class BookUpdateReq {
 
     @Schema(title = "책이 등록된 수업")
     private Long classId;
+
+    @Schema(title = "책 수량")
+    private int bookAmount;
 }

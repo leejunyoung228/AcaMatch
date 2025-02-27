@@ -32,4 +32,9 @@
         ORDER BY B.created_at DESC
         LIMIT #{startIdx}, #{size}
     </select>
+    <select id="getBookInfo">
+        SELECT *
+        FROM book
+        WHERE book_id = #{bookId}
+    </select>
 </mapper>

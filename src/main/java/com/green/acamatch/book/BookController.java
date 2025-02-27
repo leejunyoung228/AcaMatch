@@ -72,4 +72,14 @@ public class BookController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("GetBookInfo/{bookId}")
+    @Operation(summary = "교재 상세 정보 가져오기")
+    public ResultResponse<GetBookInfo> GetBookInfo(@PathVariable Long bookId){
+        GetBookInfo res = bookService.getBookInfo(bookId);
+        return ResultResponse.<GetBookInfo>builder()
+                .resultMessage("정보 가져오기 성공")
+                .resultData(res)
+                .build();
+    }
 }
