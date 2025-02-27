@@ -227,11 +227,13 @@
 
     <!-- 학원 상세 정보 보기 -->
     <select id="getAcademyDetail">
-        SELECT A.aca_id, A.aca_phone, A.aca_name, AP.aca_pic, A.COMMENT, A.teacher_num, A.open_time, A.close_time, address
+        SELECT A.aca_id, A.aca_phone, A.aca_name,
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pic,
+        A.COMMENT, A.teacher_num, A.open_time, A.close_time, address
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
-        WHERE aca_id = #{acaId}
+        WHERE A.aca_id = #{acaId};
     </select>
 
     <!-- 학원 태그 리스트 불러오기 -->
