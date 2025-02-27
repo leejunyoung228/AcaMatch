@@ -13,8 +13,12 @@ public class ReviewDto {
     private double star;
     private long reviewId;
     private String createdAt;
+    private String updatedAt;
     private long userId;
     private String nickName;
     private String className;
+    private int banReview;
+    private String roleType;
+    private long joinClassId;
 }
 
