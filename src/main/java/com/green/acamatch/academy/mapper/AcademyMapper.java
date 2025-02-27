@@ -77,4 +77,6 @@ public interface AcademyMapper {
     GetAcademyCountRes GetAcademyCount();
 
     Tag getTagListByTagName(String tagName);
+
+    List<GetAcademyInfoRes> getAcademyInfoByAcaNameClassNameExamNameAcaAgree(GetAcademyInfoReq p);
 }

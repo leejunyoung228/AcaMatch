@@ -735,5 +735,12 @@ public class AcademyService {
         return academyMapper.GetAcademyCount();
     }
 
-
+    public List<GetAcademyInfoRes> getAcademyInfoByAcaNameClassNameExamNameAcaAgree(GetAcademyInfoReq req){
+        List<GetAcademyInfoRes> res = academyMapper.getAcademyInfoByAcaNameClassNameExamNameAcaAgree(req);
+        if(res == null || res.size() == 0){
+            academyMessage.setMessage("검색 조건에 맞는 학원이 없습니다.");
+        }
+        academyMessage.setMessage("학원 리스트 출력 완료");
+        return res;
+    }
 }
