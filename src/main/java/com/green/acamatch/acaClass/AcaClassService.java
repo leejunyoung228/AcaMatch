@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -88,9 +89,14 @@ public class AcaClassService {
                         .orElseThrow(() -> new CustomException(ManagerErrorCode.TEACHER_NOT_FOUND));
             }
 
-            // 동일한 강좌가 존재하는지 체크
-            if (classRepository.countByAcaIdAndClassNameAndStartDateAndEndDateAndStartTimeAndEndTime(
-                    p.getAcaId(), p.getClassName(), p.getStartDate(), p.getEndDate(), p.getStartTime(), p.getEndTime()) > 0) {
+            // teacherUserId 값 보정
+            Long teacherUserId = Optional.ofNullable(p.getTeacherUserId()).orElse(0L);
+
+            // 동일한 강좌가 존재하는지 체크 (EmbeddedId 사용)
+            Long duplicateCount = classRepository.countByAcaIdAndClassNameAndStartDateAndEndDateAndStartTimeAndEndTimeAndTeacherUserId(
+                    p.getAcaId(), p.getClassName(), p.getStartDate(), p.getEndDate(), p.getStartTime(), p.getEndTime(), teacherUserId);
+
+            if (duplicateCount > 0) {
                 throw new CustomException(ManagerErrorCode.CLASS_ALREADY_EXISTS);
             }
 
@@ -105,7 +111,7 @@ public class AcaClassService {
             acaClass.setStartTime(p.getStartTime());
             acaClass.setEndTime(p.getEndTime());
             acaClass.setPrice(p.getPrice());
-            acaClass.setTeacher(teacher); //Teacher 설정
+            acaClass.setTeacher(teacher); // Teacher 설정
 
             classRepository.save(acaClass);
 
@@ -123,6 +129,7 @@ public class AcaClassService {
             return 0;
         }
     }
+
 
 
 
