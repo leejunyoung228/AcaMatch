@@ -283,6 +283,16 @@
 
     <!-- 모든 입력을 받고 학원 리스트 불러오기-->
     <select id="getAcademyListByAll" resultMap="searchResultMap">
+
+        WITH premium_academies AS (
+        -- ✅ 프리미엄 학원 3개 랜덤 선택 (개수 동적 설정 가능)
+        SELECT A.aca_id
+        FROM academy A
+        WHERE A.premium = 1
+        ORDER BY RAND()
+        LIMIT #{premiumLimit}
+        ), filtered_academies AS (
+        -- ✅ 기존 필터링된 학원 목록 (동, 검색어, 태그, 카테고리 적용)
         SELECT
         A.aca_id AS acaId,
         A.aca_name AS acaName,
@@ -291,10 +301,10 @@
         A.address AS address,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
         COALESCE(G.star, 0) AS star,
-        COUNT(*) OVER() AS totalCount
+        (CASE WHEN A.aca_id IN (SELECT aca_id FROM premium_academies) THEN 0 ELSE 1 END) AS premium_order,
+        RAND() AS rand_order
         FROM academy A
-        JOIN academy_pic AP
-        ON A.aca_id = AP.aca_id
+        JOIN academy_pic AP ON A.aca_id = AP.aca_id
         LEFT JOIN academy_tag E ON A.aca_id = E.aca_id
         LEFT JOIN tag F ON E.tag_id = F.tag_id
         LEFT JOIN (
@@ -304,7 +314,8 @@
         FROM review R
         JOIN join_class JC ON R.join_class_id = JC.join_class_id
         JOIN aca_class C ON JC.class_id = C.class_id
-        GROUP BY C.aca_id ) G ON G.aca_id = A.aca_id
+        GROUP BY C.aca_id
+        ) G ON G.aca_id = A.aca_id
         WHERE 1 = 1
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
         AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
@@ -318,20 +329,25 @@
             </foreach>
             )
         </if>
-
         <if test=" categoryIds != null and categoryIds != '' ">
             AND ( A.aca_id IN
             (SELECT CL.aca_id FROM aca_class CL
             JOIN class_category CC ON CL.class_id = CC.class_id
             WHERE CC.category_id IN
             <foreach collection="categoryIds" item="CId" open="(" close=")" separator=",">
-                #{CId}
+                1
             </foreach>
             ))
         </if>
         GROUP BY A.aca_id
-        ORDER BY G.star DESC
-        LIMIT #{startIdx}, #{size}
+        )
+
+        -- ✅ 프리미엄 학원 랜덤 → 일반 학원 별점순 정렬
+        SELECT *, (SELECT COUNT(*) FROM filtered_academies) AS totalCount
+        FROM filtered_academies
+        ORDER BY premium_order, rand_order, star DESC
+        LIMIT 0, 10;
+
     </select>
 
     <insert id="postToSearch">

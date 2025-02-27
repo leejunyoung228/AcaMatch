@@ -26,12 +26,16 @@ public class GetAcademyListReq extends Paging {
     @Schema(title = "카테고리 PK", example = "")
     private List<Integer> categoryIds;
 
-    public GetAcademyListReq(Integer page, Integer size, Integer dongId, String searchName, String tagName, List<Integer> categoryIds) {
+    @Schema(title = "프리미엄 학원 LIMIT", example = "3")
+    private Integer premiumLimit;
+
+    public GetAcademyListReq(Integer page, Integer size, Integer dongId, String searchName, String tagName, List<Integer> categoryIds, Integer premiumLimit) {
         super(page, size);
         this.dongId = dongId;
         this.searchName = searchName;
         this.tagName = tagName;
         this.categoryIds = categoryIds;
+        this.premiumLimit = premiumLimit;
     }
 
 }
