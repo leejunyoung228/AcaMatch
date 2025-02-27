@@ -42,4 +42,6 @@ public class GetAcademyDetailRes {
     private List<GetAcademyDetailClassDto> classes;
     @Schema(title = "리뷰 정보")
     private List<ReviewDto> reviews;
+
+    private List<BookDto> books;
 }
