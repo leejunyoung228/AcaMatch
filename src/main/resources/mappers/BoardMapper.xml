@@ -4,7 +4,7 @@
 <mapper namespace="com.green.acamatch.board.BoardMapper">
     <!-- list 불러오기 -->
     <select id="getBoardList" resultType="com.green.acamatch.board.model.BoardGetListDto">
-        SELECT A.board_id, B.aca_id, B.aca_name, C.user_id, A.board_name, A.created_at,
+        SELECT COUNT(A.board_id) OVER() AS total_count, A.board_id, B.aca_id, B.aca_name, C.user_id, A.board_name, A.created_at,
         CASE WHEN C.user_id IS NULL THEN D.name
         WHEN B.aca_id IS NULL THEN C.name
         ELSE 'UNKNOWN'

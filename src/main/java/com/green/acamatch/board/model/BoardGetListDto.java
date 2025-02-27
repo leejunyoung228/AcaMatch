@@ -23,6 +23,8 @@ public class BoardGetListDto {
     private LocalDate createdAt;
     @Schema(title = "이름", example = "홍길동", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
-
+    @Schema(title = "검색어")
     private String keyword;
+    @Schema(title = "갯수")
+    private int totalCount;
 }
