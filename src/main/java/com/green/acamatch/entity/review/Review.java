@@ -17,7 +17,6 @@ import java.util.List;
 public class Review extends UpdatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "review_id")
     private Long reviewId;
 
 
