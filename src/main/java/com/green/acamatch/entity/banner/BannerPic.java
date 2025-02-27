@@ -1,6 +1,7 @@
 package com.green.acamatch.entity.banner;
 
 import com.green.acamatch.entity.datetime.CreatedAt;
+import com.green.acamatch.entity.myenum.BannerPosition;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +26,7 @@ public class BannerPic extends CreatedAt {
     @Column(nullable = false)
     private Integer bannerShow = 0;
 
-    @Column(nullable = false)
-    private Integer bannerPosition;
+    @Column
+    private int bannerPosition;
 
 }

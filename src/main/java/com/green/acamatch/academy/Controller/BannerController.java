@@ -1,31 +1,45 @@
 package com.green.acamatch.academy.Controller;
 
 import com.green.acamatch.academy.Service.BannerService;
+import com.green.acamatch.academy.banner.model.BannerTypeUpdateReq;
 import com.green.acamatch.academy.banner.model.BannerPostReq;
+import com.green.acamatch.academy.model.JW.AcademyMessage;
+import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("banner")
+@Tag(name = "배너")
 public class BannerController {
     private final BannerService bannerService;
+    private final AcademyMessage academyMessage;
 
     @PostMapping
     @Operation(summary = "배너신청")
-    public int postBanner(@RequestPart MultipartFile topBannerPics, @RequestPart MultipartFile bottomBannerPics
-                        , @RequestPart MultipartFile leftBannerPics, @RequestPart MultipartFile rightBannerPics
+    public ResultResponse<Integer> postBanner(@RequestPart MultipartFile topBannerPic, @RequestPart MultipartFile bottomBannerPic
+                        , @RequestPart MultipartFile leftBannerPic, @RequestPart MultipartFile rightBannerPic
                         , @RequestPart BannerPostReq req) {
-        bannerService.postBanner(topBannerPics, bottomBannerPics, leftBannerPics, rightBannerPics, req);
-        return 1;
+        bannerService.postBanner(topBannerPic, bottomBannerPic, leftBannerPic, rightBannerPic, req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(1)
+                .build();
+    }
+
+    @PostMapping("agree")
+    @Operation(summary = "배너승인")
+    public ResultResponse<Integer> putBannerAgree(@RequestBody BannerTypeUpdateReq req) {
+        bannerService.updateBannerType(req.getAcaId(), req.getBannerType());
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(1)
+                .build();
     }
 }
