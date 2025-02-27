@@ -190,10 +190,10 @@ public class AcademyController {
                 .build();
     }
 
-    @GetMapping("GetDefault")
+    @GetMapping("GetDefault/{size}")
     @Operation(summary = "디폴트 학원 리스트 출력")
-    public ResultResponse<List<GetDefaultRes>> getDefault(){
-        List<GetDefaultRes> res = academyService.getDefault();
+    public ResultResponse<List<GetDefaultRes>> getDefault(@PathVariable Integer size){
+        List<GetDefaultRes> res = academyService.getDefault(size);
         return ResultResponse.<List<GetDefaultRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(res)

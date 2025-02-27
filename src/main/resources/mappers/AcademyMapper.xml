@@ -851,6 +851,15 @@
     </resultMap>
 
     <select id="getDefault" resultMap="Default">
+        WITH premium_academies AS (
+        -- 랜덤으로 프리미엄 학원 3개 선택
+        SELECT A.aca_id
+        FROM academy A
+        WHERE A.premium = 1
+        ORDER BY RAND()
+        LIMIT #{size}
+        ), all_academies AS (
+        -- 프리미엄 학원 데이터
         SELECT
         A.aca_id AS acaId,
         A.aca_name AS acaName,
@@ -858,10 +867,10 @@
         A.address AS address,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
         COALESCE(G.star, 0) AS star,
-        COUNT(*) OVER() AS totalCount
+        0 AS premium_order,  -- 프리미엄 학원 우선
+        RAND() AS rand_order  -- 랜덤 정렬을 위해 추가
         FROM academy A
-        JOIN academy_pic AP
-        ON A.aca_id = AP.aca_id
+        JOIN academy_pic AP ON A.aca_id = AP.aca_id
         LEFT JOIN academy_tag E ON A.aca_id = E.aca_id
         LEFT JOIN tag F ON E.tag_id = F.tag_id
         LEFT JOIN (
@@ -870,10 +879,44 @@
         C.aca_id
         FROM review R
         JOIN aca_class C ON R.join_class_id = C.class_id
-        GROUP BY C.aca_id ) G ON G.aca_id = A.aca_id
+        GROUP BY C.aca_id
+        ) G ON G.aca_id = A.aca_id
+        WHERE A.aca_id IN (SELECT aca_id FROM premium_academies) -- 프리미엄 학원 필터링
         GROUP BY A.aca_id
-        ORDER BY G.star DESC
-        LIMIT 0, 10;
+
+        UNION ALL
+
+        -- 일반 학원 데이터 (별점순 정렬)
+        SELECT
+        A.aca_id AS acaId,
+        A.aca_name AS acaName,
+        AP.aca_pic AS acaPic,
+        A.address AS address,
+        IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
+        COALESCE(G.star, 0) AS star,
+        1 AS premium_order,  -- 일반 학원 우선순위 낮춤
+        0 AS rand_order  -- 별점 정렬을 위해 랜덤 값 0
+        FROM academy A
+        JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy_tag E ON A.aca_id = E.aca_id
+        LEFT JOIN tag F ON E.tag_id = F.tag_id
+        LEFT JOIN (
+        SELECT
+        ROUND(AVG(R.star), 2) AS star,
+        C.aca_id
+        FROM review R
+        JOIN aca_class C ON R.join_class_id = C.class_id
+        GROUP BY C.aca_id
+        ) G ON G.aca_id = A.aca_id
+        WHERE A.premium = 0  -- 일반 학원 필터링
+        GROUP BY A.aca_id
+        )
+
+        -- ✅ 최종 정렬 (프리미엄 학원 → 랜덤 / 일반 학원 → 별점순)
+        SELECT *, (SELECT COUNT(*) FROM all_academies) AS totalCount
+        FROM all_academies
+        ORDER BY premium_order, rand_order, star DESC
+        LIMIT 10;
     </select>
     <select id="GetAcademyCount">
         SELECT COUNT(A.aca_id) AS academyCount, COUNT(U.user_id) AS userCount
