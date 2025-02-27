@@ -36,7 +36,7 @@ public class JoinClassService {
             JoinClass joinClass = new JoinClass();
             AcaClass acaClass = classRepository.findById(p.getClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
             User user = userRepository.findById(p.getUserId()).orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-            joinClass.setClassId(acaClass);
+            joinClass.setAcaClass(acaClass);
             joinClass.setUser(user);
             joinClass.setCertification(p.getCertification());
             joinClass.setRegistrationDate(p.getRegistrationDate());

@@ -7,7 +7,7 @@ import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.user.Relationship;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.joinClass.model.JoinClassRepository;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.model.*;
