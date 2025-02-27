@@ -17,18 +17,14 @@ import java.util.List;
 public class Review extends UpdatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "review_id")
     private Long reviewId;
-
-    @ManyToOne
-    @JoinColumn(name = "requested_by", referencedColumnName = "user_id", nullable = false)
-    private User requestedBy;
 
 
     @Column(nullable = false)
     private double star;
 
-    @Lob
-    @Column
+    @Column(length = 5000)
     private String comment;
 
     // 'role_id' 컬럼과 'role' 객체 연결

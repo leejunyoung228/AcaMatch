@@ -18,6 +18,7 @@ import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
 import com.green.acamatch.manager.TeacherRepository;
+import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.formula.functions.Days;
@@ -44,10 +45,22 @@ public class AcaClassService {
     private final ClassCategoryRepository classCategoryRepository;
     private final CategoryRepository categoryRepository;
     private final TeacherRepository teacherRepository;
+    private final UserRepository userRepository;
 
     // 특정 학원의 특정 수업을 듣는 학생(또는 학부모) 목록 조회
-    public List<User> findStudentsByClassId(Long classId) {
-        return joinClassRepository.findStudentsByClassId(classId);
+//    public List<User> findStudentsByClassId(Long classId) {
+//        return joinClassRepository.findStudentsByClassId(classId);
+//    }
+
+    // 개선된 메서드 (AcaClass 객체를 직접 조회 후 사용)
+    public List<User> findStudentsByClass(AcaClass acaClass) {
+        return userRepository.findStudentsByClass(acaClass);
+    }
+
+    // AcaClass 객체를 가져오는 메서드 추가
+    public AcaClass findClassById(Long classId) {
+        return classRepository.findById(classId)
+                .orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_CLASS));
     }
 
     //수업 등록
@@ -384,4 +397,5 @@ public class AcaClassService {
             throw new CustomException(ManagerErrorCode.PERMISSION_DENIED);
         }
     }
+
 }
