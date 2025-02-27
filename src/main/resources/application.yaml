@@ -21,6 +21,7 @@ constant:
     academy-pic-file-path: academy/%d
     business-license-file-path: businessLicense/%d
     operation-license-file-path: operationLicense/%d
+    banner-pic-file-path:  banner/%d
 
   address-const:
     start-sep: "@"

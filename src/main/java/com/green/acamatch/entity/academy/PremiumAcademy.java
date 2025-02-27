@@ -11,22 +11,20 @@ import java.time.LocalDate;
 @Setter
 @Entity
 public class PremiumAcademy extends CreatedAt {
+    // acaId를 PK로 사용
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long preAcaId;
-
-    @ManyToOne
-    @JoinColumn(name = "aca_id")
-    private Academy academy;
-
-    @Column(name = "aca_id", nullable = false, insertable=false, updatable=false)
+    @Column(name = "aca_id")
     private Long acaId;
 
-    @Column
-    private LocalDate startDate;
+    @OneToOne
+    @JoinColumn(name = "aca_id", insertable = false)
+    private Academy academy;
 
     @Column
-    private LocalDate endDate;
+    private LocalDate startDate = null;
+
+    @Column
+    private LocalDate endDate = null;
 
     @Column(nullable = false)
     private int preCheck;

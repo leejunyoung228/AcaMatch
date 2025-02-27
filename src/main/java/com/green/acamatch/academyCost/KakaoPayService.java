@@ -64,6 +64,10 @@ public class KakaoPayService {
 
         Optional<Product> product = productRepository.findById(req.getProductId());
 
+        if (!product.isPresent()) {
+            throw new RuntimeException("상품을 찾을 수 없습니다.");  // 상품이 없을 경우 처리
+        }
+
         parameters.put("cid", payProperties.getCid());
         parameters.put("partner_order_id", req.getProductId()); // 실제 주문 번호로 교체
         parameters.put("partner_user_id", req.getUserId());   // 실제 사용자 ID로 교체
