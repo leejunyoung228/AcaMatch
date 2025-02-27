@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,21 +27,22 @@ public class BannerService {
     private final AcademyRepository academyRepository;
     private final AcademyConst academyConst;
 
-    public int postBanner(MultipartFile bannerPic, BannerPostReq req) {
+    public int postBanner(List<MultipartFile> bannerPics, BannerPostReq req) {
         log.info("req: {}", req);
         Banner banner = new Banner();
 
-        String bannerPicName = (bannerPic != null ? myFileUtils.makeRandomFileName(bannerPic) : null);
+        for(MultipartFile bannerPic : bannerPics) {
+            String bannerPicName = (bannerPic != null ? myFileUtils.makeRandomFileName(bannerPic) : null);
+        }
 
-        PremiumAcademy premiumAcademy = premiumRepository.findByAcademy_AcaId(req.getAcaId()).orElseThrow();
+        PremiumAcademy premiumAcademy = premiumRepository.findById(req.getAcaId()).orElseThrow();
         Academy academy = academyRepository.findById(req.getAcaId()).orElseThrow();
 
+
         banner.setPremiumAcademy(premiumAcademy);
-        banner.setBannerPic(bannerPicName);
         banner.setStartDate(null);
         banner.setEndDate(null);
         banner.setAcaName(academy.getAcaName());
-        banner.setBannerPosition(null);
 
         bannerRepository.save(banner);
 

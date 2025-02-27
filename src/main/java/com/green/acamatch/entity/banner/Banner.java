@@ -14,33 +14,26 @@ import java.time.LocalDate;
 @Setter
 @ToString
 public class Banner {
+    // aca_id를 기본 키로 사용
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long bannerId;
+    @Column(name = "aca_id")
+    private Long acaId;
 
     @ManyToOne
-    @JoinColumn(name = "aca_id", nullable = false)
+    @JoinColumn(name = "aca_id", nullable = false, insertable = false, updatable = false)
     private PremiumAcademy premiumAcademy;
-
-    @Column(length = 50, nullable = false)
-    private String bannerPic;
 
     @Column
     private int bannerType = 0;
 
     @Column
-    private int bannerShow = 1;
+    private LocalDate startDate = null;
 
     @Column
-    private LocalDate startDate=null;
-
-    @Column
-    private LocalDate endDate=null;
+    private LocalDate endDate = null;
 
     @Column(length = 20, nullable = false)
     private String acaName;
 
-    @Column
-    private String bannerPosition;
 
 }
