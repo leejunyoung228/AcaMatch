@@ -1,8 +1,6 @@
 package com.green.acamatch.book;
 
-import com.green.acamatch.book.model.BookGetRes;
-import com.green.acamatch.book.model.BookPostReq;
-import com.green.acamatch.book.model.BookUpdateReq;
+import com.green.acamatch.book.model.*;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.entity.academyCost.Book;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,6 +60,16 @@ public class BookController {
         return ResultResponse.<Integer>builder()
                 .resultMessage("삭제 완료")
                 .resultData(result)
+                .build();
+    }
+
+    @GetMapping("GetBookListByAcaNameBookName")
+    @Operation(summary = "관리자가 책 검색")
+    public ResultResponse<List<GetBookListByAcaNameBookNameRes>> getBookListByAcaNameBookName(@ParameterObject GetBookListByAcaNameBookNameReq req){
+        List<GetBookListByAcaNameBookNameRes> res = bookService.getBookListByAcaNameBookName(req);
+        return ResultResponse.<List<GetBookListByAcaNameBookNameRes>>builder()
+                .resultMessage(bookMessage.getMessage())
+                .resultData(res)
                 .build();
     }
 }

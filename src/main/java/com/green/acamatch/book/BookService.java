@@ -2,9 +2,7 @@ package com.green.acamatch.book;
 
 import com.green.acamatch.academyCost.AcademyCostMapper;
 import com.green.acamatch.academyCost.ProductRepository;
-import com.green.acamatch.book.model.BookGetRes;
-import com.green.acamatch.book.model.BookPostReq;
-import com.green.acamatch.book.model.BookUpdateReq;
+import com.green.acamatch.book.model.*;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.entity.academyCost.Book;
 import com.green.acamatch.entity.academyCost.Product;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -144,5 +143,14 @@ public class BookService {
         myFileUtils.deleteFolder(filePath, true);
         bookRepository.deleteById(id);
         return 1;
+    }
+
+    public List<GetBookListByAcaNameBookNameRes> getBookListByAcaNameBookName(GetBookListByAcaNameBookNameReq req){
+        List<GetBookListByAcaNameBookNameRes> res = bookMapper.getBookListByAcaNameBookName(req);
+        if(res == null){
+            bookMessage.setMessage("검색된 조건에 맞는 교재가 없습니다.");
+            return null;
+        }
+        return res;
     }
 }
