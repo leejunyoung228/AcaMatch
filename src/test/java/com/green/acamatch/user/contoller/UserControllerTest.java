@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.acamatch.config.constant.JwtConst;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
 import com.green.acamatch.config.model.ResultResponse;
+import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.user.model.*;
 import com.green.acamatch.user.service.AuthService;
@@ -66,6 +67,7 @@ class UserControllerTest {
     final String EMAIL_1 = "user1@gmail.com";
     final String PHONE_1 = "010-1111-1111";
     final LocalDate BIRTH_1 = LocalDate.of(1990, 1, 1);
+//    final UserRole = "ADMIN";
     final String NICK_NAME_1 = "userNickName1";
     final String USER_PIC_1 = "userPic1.jpg";
     final String PASSWORD_1 = "Test1234@";
@@ -79,7 +81,7 @@ class UserControllerTest {
         UserSignInReq givenParam = new UserSignInReq(EMAIL_1, PASSWORD_1);
         UserSignInRes expectedResult = UserSignInRes.builder()
                 .userId(USER_ID_1)
-                .roleId(ROLE_ID_1)
+//                .userRole("user1")
                 .name(USER_NAME_1)
                 .accessToken(ACCESS_TOKEN_1)
                 .build();

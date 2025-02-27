@@ -21,6 +21,16 @@ public class ReviewController {
     private final UserMessage userMessage;
 
 
+    @PostMapping("/user/create")
+    @Operation(summary = "리뷰 등록", description = "학생 유저가 리뷰를 등록합니다.")
+    public ResultResponse<Integer> createReview(@RequestBody ReviewPostReqForParent req) {
+        service.createReview(req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(userMessage.getMessage()) // 서비스에서 설정된 메시지 사용
+                .resultData(1)
+                .build();
+    }
+
     // 학생 유저 리뷰 등록
     @PostMapping("/user")
     @Operation(summary = "리뷰 등록", description = "학생 유저가 리뷰를 등록합니다.")

@@ -10,20 +10,28 @@ public enum ReviewErrorCode implements ErrorCode {
     INVALID_USER(HttpStatus.BAD_REQUEST, "유효하지 않은 유저 ID입니다."),
     UNRIGHT_USER(HttpStatus.UNAUTHORIZED, "해당 리뷰의 작성자가 아닙니다. 삭제할 권한이 없습니다."),
     UNAUTHORIZED_ACADEMY_ACCESS(HttpStatus.FORBIDDEN, "해당 학원을 관리할 권한이 없습니다."),
+    ONLY_PARENT_CAN_WRITE(HttpStatus.FORBIDDEN, "보호자만 학생 대신 리뷰를 남길 수 있습니다."),
     UNAUTHENTICATED_USER(HttpStatus.UNAUTHORIZED, "로그인한 사용자 정보가 일치하지 않습니다."),
     CONFLICT_REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 리뷰입니다."),
-    NOT_ACADEMY_MANAGER(HttpStatus.FORBIDDEN, "학원 관계자가 아닙니다. 권한이 없습니다.")
-
+    NOT_ACADEMY_MANAGER(HttpStatus.FORBIDDEN, "학원 관계자가 아닙니다. 권한이 없습니다."),
+    STUDENT_NOT_IN_CLASS(HttpStatus.BAD_REQUEST, "해당 학생은 수업에 등록되어 있지 않습니다."),
+    NOT_STUDENT_PARENT(HttpStatus.FORBIDDEN, "해당 보호자와 학생의 관계가 존재하지 않습니다."),
+    INVALID_REVIEW_DATA(HttpStatus.BAD_REQUEST, "리뷰 데이터가 유효하지 않습니다."),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 리뷰를 찾을 수 없습니다."),
+    JOIN_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 수업을 찾을 수 없습니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "리뷰를 쓸 권한이 없습니다.")
     ;
 
-    private final HttpStatus httpStatus;
+    private final HttpStatus status;
     private final String message;
 
-    // 생성자 명시적 선언
-    ReviewErrorCode(HttpStatus httpStatus, String message) {
-        this.httpStatus = httpStatus;
+    ReviewErrorCode(HttpStatus status, String message) {
+        this.status = status;
         this.message = message;
     }
+
+    @Override
+    public HttpStatus getHttpStatus() {
+        return null;
+    }
 }
-
-

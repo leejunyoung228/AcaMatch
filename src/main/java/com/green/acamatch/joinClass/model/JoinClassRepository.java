@@ -11,6 +11,6 @@ import java.util.List;
 
 @Repository
 public interface JoinClassRepository extends JpaRepository<JoinClass, Long> {
-    @Query("SELECT j.user FROM JoinClass j WHERE j.classId = :classId")
+    @Query("SELECT j.user FROM JoinClass j WHERE j.acaClass = :classId")
     List<User> findStudentsByClassId(@Param("classId") Long classId);
 }

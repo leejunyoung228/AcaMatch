@@ -24,6 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUserId(long userId);
 
-    @Query("SELECT u FROM User u JOIN JoinClass jc ON u.userId = jc.user.userId WHERE jc.classId = :acaClass" )
-    List<User> findStudentsByClass(@Param("class") AcaClass acaClass);
+    @Query("SELECT u FROM User u JOIN JoinClass jc ON u.userId = jc.user.userId WHERE jc.acaClass = :acaClass")
+    List<User> findStudentsByClass(@Param("acaClass") AcaClass acaClass);
 }
