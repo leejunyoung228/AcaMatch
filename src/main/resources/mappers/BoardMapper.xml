@@ -2,25 +2,38 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.green.acamatch.board.BoardMapper">
+    <!-- list 불러오기 -->
+    <select id="getBoardList">
+        SELECT A.board_id, B.aca_id, C.user_id, A.board_name, A.created_at,
+        CASE WHEN C.user_id IS NULL THEN D.name
+        WHEN B.aca_id IS NULL THEN C.name
+        ELSE 'UNKNOWN'
+        END AS `name`
+        FROM board A
+        LEFT JOIN academy B
+        ON A.aca_id = B.aca_id
+        LEFT JOIN `user` C
+        ON A.user_id = C.user_id
+        LEFT JOIN `user` D
+        ON B.user_id = D.user_id
+        WHERE
+        (B.aca_id IS NULL OR B.aca_id = #{acaId})
+        AND
+        (C.user_id IS NULL OR C.user_id = #{userId});
+    </select>
+
     <!-- 상세보기 -->
-    <select id="getBoardDetail" resultType="com.green.acamatch.board.model.BoardGetDetailDto">
-        SELECT
-        C.board_id, B.aca_id, A.user_id, C.board_name, C.board_comment, C.created_at,
-        CASE WHEN C.user_id IS NULL THEN B.aca_name
+    <select id="getBoardDetail">
+        SELECT C.board_id, B.aca_id, A.user_id, C.board_name, C.board_comment, C.created_at,
+        CASE
+        WHEN C.user_id IS NULL THEN D.name
         WHEN C.aca_id IS NULL THEN A.name
         ELSE 'UNKNOWN'
         END AS name
         FROM board C
-        LEFT JOIN academy B
-        ON C.aca_id = B.aca_id
-        LEFT JOIN `user` A
-        ON C.user_id = A.user_id
-        WHERE
-        <if test="acaId != null">
-            C.aca_id = #{acaId} AND C.user_id IS NULL
-        </if>
-        <if test="userId != null">
-            C.user_id = #{userId} AND C.aca_id IS NULL
-        </if>
+        LEFT JOIN academy B ON C.aca_id = B.aca_id
+        LEFT JOIN `user` A ON C.user_id = A.user_id
+        WHERE C.board_id = #{boardId}
     </select>
+
 </mapper>

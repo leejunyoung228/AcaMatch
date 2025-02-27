@@ -48,18 +48,14 @@ public class BoardService {
         }
     }
 
-    public List<BoardGetDetailDto> getBoardDetail(BoardGetDetailReq p) {
-            if(p.getUserId() == null || p.getAcaId() == null) {
-                throw new IllegalArgumentException("값을 찾을 수 없습니다.");
-            }
-            if (p.getAcaId() != null && p.getUserId() != null) {
-                throw new IllegalArgumentException("AcaId와 UserId 둘 중 하나만 입력하셔야 합니다.");
-            }
-            List<BoardGetDetailDto> result = boardMapper.getBoardDetail(p);
-            if(result == null && result.isEmpty()) {
-                throw new CustomException(BoardErrorCode.BOARD_NOT_FOUND);
-            }
-            return result;
+    public List<BoardGetListDto> getBoardList(BoardGetListReq p) {
+        List<BoardGetListDto> result = boardMapper.getBoardList(p);
+        return result;
+    }
+
+    public BoardGetDetailRes getBoardDetail(BoardGetDetailReq p) {
+        BoardGetDetailRes result = boardMapper.getBoardDetail(p);
+        return result;
     }
 
     public int updBoard(BoardPutReq p) {

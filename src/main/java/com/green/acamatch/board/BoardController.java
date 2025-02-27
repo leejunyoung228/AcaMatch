@@ -28,21 +28,24 @@ public class BoardController {
                 .build();
     }
 
+    @GetMapping("list")
+    @Operation(summary = "공지사항 리스트 보기")
+    public ResultResponse<List<BoardGetListDto>> getBoardList(@ModelAttribute @ParameterObject BoardGetListReq p) {
+        List<BoardGetListDto> res = boardService.getBoardList(p);
+        return ResultResponse.<List<BoardGetListDto>>builder()
+                .resultMessage("공지사항 리스트 보기 완료")
+                .resultData(res)
+                .build();
+    }
+
     @GetMapping
     @Operation(summary = "공지사항 상세보기", description = "acaId / userId 하나만 입력하면 됩니다. / null값은 안 떠요.")
-    public ResultResponse<List<BoardGetDetailDto>> getBoardDetail(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
-        try {
-            List<BoardGetDetailDto> res = boardService.getBoardDetail(p);
-            return ResultResponse.<List<BoardGetDetailDto>>builder()
+    public ResultResponse<BoardGetDetailRes> getBoardDetail(@ModelAttribute @ParameterObject BoardGetDetailReq p) {
+            BoardGetDetailRes res = boardService.getBoardDetail(p);
+            return ResultResponse.<BoardGetDetailRes>builder()
                     .resultMessage("공지사항 상세보기 완료")
                     .resultData(res)
                     .build();
-        }catch (IllegalArgumentException e) {
-            return ResultResponse.<List<BoardGetDetailDto>>builder()
-                    .resultMessage(e.getMessage())
-                    .resultData(null)
-                    .build();
-        }
     }
 
     @PutMapping

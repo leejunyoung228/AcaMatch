@@ -17,6 +17,7 @@ import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
+import com.green.acamatch.manager.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.formula.functions.Days;
@@ -54,10 +55,9 @@ public class AcaClassService {
         try {
             AcaClass acaClass = new AcaClass();
 
-
             TeacherIds teacherIds = new TeacherIds();
             teacherIds.setUserId(p.getTeacherUserId());
-            teacherIds.setAcaId(p.getAcaId());  // acaId 자동 매핑
+            teacherIds.setAcaId(p.getAcaId()); // acaId 자동 매핑
 
             // teacherIds 기반으로 Teacher 조회
             Teacher teacher = teacherRepository.findByTeacherIds(teacherIds)

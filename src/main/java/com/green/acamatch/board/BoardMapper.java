@@ -8,7 +8,8 @@ import java.util.List;
 @Mapper
 public interface BoardMapper {
 //    int insBoard(BoardPostReq p);
-    List<BoardGetDetailDto> getBoardDetail(BoardGetDetailReq p); //상세보기
+    List<BoardGetListDto> getBoardList(BoardGetListReq p);
+    BoardGetDetailRes getBoardDetail(BoardGetDetailReq p); //상세보기
 //    int updBoard(BoardPutReq p);
 //    int delBoard(BoardDelReq p);
 }

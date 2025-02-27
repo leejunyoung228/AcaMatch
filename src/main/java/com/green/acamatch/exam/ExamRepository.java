@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, Long> {
 
-    @Query("SELECT COUNT(*) FROM Exam a WHERE a.classId.classId = :classId AND a.examName = :examName")
+    @Query("SELECT COUNT(*) FROM Exam a WHERE a.examId = :examId AND a.examName = :examName")
     Long existsExam(@Param("examId") Long examId, @Param("examName") String examName);
 }

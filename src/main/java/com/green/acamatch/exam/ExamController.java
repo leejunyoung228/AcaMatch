@@ -16,7 +16,7 @@ public class ExamController {
 
     @PostMapping
     @Operation(summary = "시험 등록 하기")
-    public ResultResponse<Integer> postSubject(@RequestBody ExamPostReq p) {
+    public ResultResponse<Integer> postExam(@RequestBody ExamPostReq p) {
             Integer result = service.postExam(p);
             return ResultResponse.<Integer>builder()
                     .resultMessage(result == 1 ? "시험 등록 성공" : "시험 등록 실패")
