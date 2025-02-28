@@ -44,13 +44,14 @@ public class PremiumService {
     }
 
     //프리미엄학원 수정(관리자 승인)
+    @Transactional
     public int updPremium(PremiumUpdateReq req) {
         int result = premiumRepository.updateByAcaId(req.getAcaId(), req.getPreCheck());
-        academyMessage.setMessage("프리미엄 학원이 승인되었습니다.");
         if(result == 1) {
             updateAcademyPremiumIfNeeded(req.getAcaId());
             premiumRepository.updateDateByAcaId(req.getAcaId(), LocalDate.now(), LocalDate.now().plusMonths(1));
         }
+        academyMessage.setMessage("프리미엄 학원이 승인되었습니다.");
         return 1;
     }
 

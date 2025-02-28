@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface BannerRepository extends JpaRepository<Banner, Long> {
@@ -19,6 +20,12 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
     @Modifying
     @Query(" update Banner a set a.bannerType =:bannerType where a.acaId =:acaId")
     int updateBannerTypeByAcaId(Long acaId, int bannerType);
+
+    //배너 시작일, 종료일
+    @Transactional
+    @Modifying
+    @Query(" update Banner a set a.startDate =:startDate, a.endDate =:endDate where a.acaId =:acaId")
+    int updateBannerDateByAcaId(@Param("acaId") Long acaId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     //배너 포지션에 따라 조회
     @Query("SELECT new com.green.acamatch.academy.banner.model.BannerByPositionGetRes( a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow )FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId WHERE b.bannerPosition = :bannerPosition")
