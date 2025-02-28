@@ -78,8 +78,9 @@ public class ChatService {
         }else {
             userId = chatRoom.getUser().getUserId();
         }
-        messagingTemplate.convertAndSend("/user-alert/" + userId, "메세지가 도착했습니다");
+        AlertMessage alertMessage = new AlertMessage(userId, "메세지가 도착했습니다");
         messagingTemplate.convertAndSend("/queue/" + chatRoom.getChatRoomId(), req);
+        messagingTemplate.convertAndSend("/user-alert/" + userId, alertMessage);
     }
 
     public long getChatRoomId(GetChatRoomIdReq req) {
