@@ -33,8 +33,8 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
     List<BannerByPositionGetRes> findBannerByPosition( Long acaId, int bannerPosition);
 
     //학원 하나에 전체 배너 조회
-    @Query("select new com.green.acamatch.academy.banner.model.BannerGetRes(a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow )FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId WHERE a.acaId= :acaId")
-    List<BannerGetRes> findBanner( Long acaId);
+    @Query("select new com.green.acamatch.academy.banner.model.BannerGetRes(a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow )FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId WHERE a.acaId= :acaId ORDER BY b.bannerPosition ASC")
+    List<BannerGetRes> findBanner(Long acaId);
 
 
 }
