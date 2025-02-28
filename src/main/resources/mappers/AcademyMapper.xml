@@ -226,10 +226,29 @@
     </select>
 
     <!-- 학원 상세 정보 보기 -->
-    <select id="getAcademyDetail">
+    <resultMap id="AcademyDetail" type="com.green.acamatch.academy.model.HB.GetAcademyDetail">
+    <id property="acaId" column="aca_id"/>
+        <result property="acaPhone" column="aca_phone"/>
+        <result property="acaName" column="aca_name"/>
+        <result property="acaPic" column="aca_pic"/>
+        <result property="comment" column="comment"/>
+        <result property="teacherNum" column="teacher_num"/>
+        <result property="address" column="address"/>
+        <result property="detailAddress" column="detail_address"/>
+        <result property="postNum" column="post_num"/>
+        <result property="openTime" column="open_time"/>
+        <result property="closeTime" column="close_time"/>
+            <association property="addressDto" javaType="com.green.acamatch.academy.model.AddressDto">
+                <result property="address" column="address"/>
+                <result property="detailAddress" column="detail_address"/>
+                <result property="postNum" column="post_num"/>
+            </association>
+    </resultMap>
+    <select id="getAcademyDetail" resultMap="AcademyDetail">
         SELECT A.aca_id, A.aca_phone, A.aca_name,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pic,
-        A.COMMENT, A.teacher_num, A.open_time, A.close_time, address
+        A.comment, A.teacher_num, A.open_time, A.close_time,
+        A.address, A.detail_address, A.post_num
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
