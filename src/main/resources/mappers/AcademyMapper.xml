@@ -1008,42 +1008,34 @@
         A.address,
         A.detail_address,
         A.post_num,
-        `AS`.starAvg,
+        IFNULL(`AS`.starAvg, 0) AS starAvg,
         IFNULL(GROUP_CONCAT(DISTINCT T.tag_name ORDER BY T.tag_id SEPARATOR ', '), '') AS tagNames,
-        LC.likeCount,
-        `AS`.reviewCount,
+        IFNULL(LC.likeCount, 0) AS likeCount,
+        IFNULL(`AS`.reviewCount, 0) AS reviewCount,
         (6371 * ACOS(COS(RADIANS(#{lat}))
         * COS(RADIANS(A.lat))
         * COS(RADIANS(A.lon) - RADIANS(#{lon}))
         + SIN(RADIANS(#{lat}))
         * SIN(RADIANS(A.lat)))) AS distance
         FROM academy A
-        JOIN academy_pic AP
-        ON A.aca_id = AP.aca_id
-        JOIN academy_tag AT
-        ON A.aca_id = AT.aca_id
-        JOIN tag T
-        ON AT.tag_id = T.tag_id
-        JOIN
-        (
-        SELECT AVG(ROUND(R.star, 0)) AS starAvg, A.aca_id, COUNT(review_id) AS reviewCount
+        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy_tag AT ON A.aca_id = AT.aca_id
+        LEFT JOIN tag T ON AT.tag_id = T.tag_id
+        LEFT JOIN (
+        SELECT AVG(ROUND(R.star, 0)) AS starAvg, A.aca_id, COUNT(R.review_id) AS reviewCount
         FROM review R
-        LEFT JOIN join_class JC
-        ON R.join_class_id = JC.join_class_id
-        LEFT JOIN aca_class AC
-        ON JC.class_id = AC.class_id
-        LEFT JOIN academy A
-        ON AC.aca_id = A.aca_id
-        ) `AS`
-        ON A.aca_id = `AS`.aca_id
-        JOIN
-        (
+        JOIN join_class JC ON R.join_class_id = JC.join_class_id
+        JOIN aca_class AC ON JC.class_id = AC.class_id
+        JOIN academy A ON AC.aca_id = A.aca_id
+        GROUP BY A.aca_id
+        ) `AS` ON A.aca_id = `AS`.aca_id
+        LEFT JOIN (
         SELECT COUNT(L.aca_id) AS likeCount, A.aca_id
         FROM academy A
-        LEFT JOIN likes L
-        ON A.aca_id = L.aca_id
-        ) LC
-        ON A.aca_id = LC.aca_id
+        LEFT JOIN likes L ON A.aca_id = L.aca_id
+        GROUP BY A.aca_id
+        ) LC ON A.aca_id = LC.aca_id
+        GROUP BY A.aca_id
         ORDER BY distance ASC
         LIMIT 5
     </select>
