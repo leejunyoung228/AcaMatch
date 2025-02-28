@@ -4,6 +4,7 @@ import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.PremiumRepository;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.academy.premium.model.PremiumDeleteReq;
+import com.green.acamatch.academy.premium.model.PremiumGetRes;
 import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
 import com.green.acamatch.entity.academy.PremiumAcademy;
@@ -70,8 +71,8 @@ public class PremiumService {
     }
 
     //프리미엄학원 조회(관리자)
-    public List<PremiumAcademy> getPremium() {
-        List<PremiumAcademy> resList = premiumRepository.findAll();
+    public List<PremiumGetRes> getPremium() {
+        List<PremiumGetRes> resList = premiumRepository.findAllByPremium();
         academyMessage.setMessage("프리미엄학원을 조회하였습니다.");
         return resList;
     }
