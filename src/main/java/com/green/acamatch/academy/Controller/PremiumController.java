@@ -3,6 +3,7 @@ package com.green.acamatch.academy.Controller;
 import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.academy.premium.model.PremiumDeleteReq;
+import com.green.acamatch.academy.premium.model.PremiumGetRes;
 import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
 import com.green.acamatch.config.model.ResultResponse;
@@ -49,9 +50,9 @@ public class PremiumController {
     //프리미엄학원조회
     @GetMapping
     @Operation(summary = "프리미엄학원 조회")
-    public ResultResponse<List<PremiumAcademy>> getPremiumAcademy() {
-        List<PremiumAcademy> resList = premiumService.getPremium();
-        return ResultResponse.<List<PremiumAcademy>>builder()
+    public ResultResponse<List<PremiumGetRes>> getPremiumAcademy() {
+        List<PremiumGetRes> resList = premiumService.getPremium();
+        return ResultResponse.<List<PremiumGetRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(resList)
                 .build();

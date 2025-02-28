@@ -55,7 +55,7 @@ public class BannerController {
     }
 
     @GetMapping
-    @Operation(summary = "포지션 별 배너 조회")
+    @Operation(summary = "포지션 별 배너 조회", description = "position 1: TOP, 2: BOTTOM, 3: LEFT, 4: RIGHT")
     public ResultResponse<List<BannerByPositionGetRes>> getBannerByPosition(BannerByPositionGetReq req) {
 
         List<BannerByPositionGetRes> res = bannerService.getBannerByPosition(req.getAcaId(), req.getBannerPosition());

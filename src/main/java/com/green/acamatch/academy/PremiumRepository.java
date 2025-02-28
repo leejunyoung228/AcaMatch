@@ -1,5 +1,6 @@
 package com.green.acamatch.academy;
 
+import com.green.acamatch.academy.premium.model.PremiumGetRes;
 import com.green.acamatch.entity.academy.PremiumAcademy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -30,9 +31,9 @@ public interface PremiumRepository extends JpaRepository<PremiumAcademy, Long> {
     @Query(" update PremiumAcademy a set a.startDate =:startDate, a.endDate =:endDate where a.acaId =:acaId")
     int updateDateByAcaId(@Param("acaId") Long acaId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    /*//프리미엄 학원 조회
-    @Query("select from premiumAcademy ")
-    List<PremiumGetRes> findAllByPremium();*/
+    //프리미엄 학원 조회
+    @Query("SELECT new com.green.acamatch.academy.premium.model.PremiumGetRes(a.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, a.createdAt) from PremiumAcademy a join Academy b on a.acaId = b.acaId")
+    List<PremiumGetRes> findAllByPremium();
 
     //프리미엄 학원 삭제
     @Transactional
