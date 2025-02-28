@@ -72,6 +72,13 @@ public class ChatService {
         chat.setMessage(req.getMessage());
         chatRepository.save(chat);
         readMessage(req.getChatRoomId(),  req.getSenderType());
+        long userId;
+        if(req.getSenderType().equals(SenderType.USER_TO_ACADEMY)) {
+            userId = chatRoom.getAcademy().getUser().getUserId();
+        }else {
+            userId = chatRoom.getUser().getUserId();
+        }
+        messagingTemplate.convertAndSend("/user-alert/" + userId, "메세지가 도착했습니다");
         messagingTemplate.convertAndSend("/queue/" + chatRoom.getChatRoomId(), req);
     }
 
