@@ -733,14 +733,14 @@
         COALESCE(AC.classDay, '') AS classDay,
         COALESCE(AC.classCategoryName, '') AS classCategoryName,
 
-        BC.bookId,
-        BC.bookName,
-        BC.bookAmount,
-        BC.bookComment,
-        BC.bookPic,
-        BC.bookPrice,
-        BC.manager,
-        BC.classId,
+        COALESCE(BC.bookId, 0) AS bookId,
+        COALESCE(BC.bookName, '') AS bookName,
+        COALESCE(BC.bookAmount, 0), AS bookAmount,
+        COALESCE(BC.bookComment, '') AS bookComment,
+        COALESCE(BC.bookPic, '') AS bookPic,
+        COALESCE(BC.bookPrice, 0), AS bookPrice,
+        COALESCE(BC.manager, ''), AS manager,
+        COALESCE(BC.classId, 0), AS classId,
 
         -- 학원별 총 좋아요 수
         COALESCE(LC.likeCount, 0) AS likeCount,
