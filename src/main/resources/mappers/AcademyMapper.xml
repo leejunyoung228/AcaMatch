@@ -556,6 +556,8 @@
         <result property="acaName" column="aca_name"/>
         <result property="acaPic" column="aca_pic"/>
         <result property="address" column="address"/>
+        <result property="detailAddress" column="detail_address"/>
+        <result property="postNum" column="post_num"/>
         <result property="acaPhone" column="aca_phone"/>
         <result property="teacherNum" column="teacher_num"/>
         <result property="comments" column="comment"/>
@@ -564,6 +566,11 @@
         <result property="likeCount" column="likeCount"/>
         <result property="isLiked" column="isLiked"/>
         <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
+        <association property="addressDto" javaType="com.green.acamatch.academy.model.AddressDto">
+            <result property="address" column="address"/>
+            <result property="detailAddress" column="detail_address"/>
+            <result property="postNum" column="post_num"/>
+        </association>
         <!-- 클래스 정보 매핑 (하위 리스트) -->
         <collection property="classes" ofType="com.green.acamatch.academy.model.HB.GetAcademyDetailClassDto" javaType="ArrayList" notNullColumn="classId">
             <id property="classId" column="classId"/>
@@ -733,14 +740,14 @@
         COALESCE(AC.classDay, '') AS classDay,
         COALESCE(AC.classCategoryName, '') AS classCategoryName,
 
-        BC.bookId,
-        BC.bookName,
-        BC.bookAmount,
-        BC.bookComment,
-        BC.bookPic,
-        BC.bookPrice,
-        BC.manager,
-        BC.classId,
+        COALESCE(BC.bookId, 0) AS bookId,
+        COALESCE(BC.bookName, '') AS bookName,
+        COALESCE(BC.bookAmount, 0) AS bookAmount,
+        COALESCE(BC.bookComment, '') AS bookComment,
+        COALESCE(BC.bookPic, '') AS bookPic,
+        COALESCE(BC.bookPrice, 0) AS bookPrice,
+        COALESCE(BC.manager, '') AS manager,
+        COALESCE(BC.classId, 0) AS classId,
 
         -- 학원별 총 좋아요 수
         COALESCE(LC.likeCount, 0) AS likeCount,
@@ -760,20 +767,20 @@
         COALESCE(R.reviewStar, 0) AS reviewStar,
         COALESCE(R.reviewCreatedAt, '') AS reviewCreatedAt,
         COALESCE(R.reviewUpdatedAt, '') AS reviewUpdatedAt,
-        R.reviewId AS reviewId,   -- reviewId가 NULL이면 0으로 설정
+        COALESCE(R.reviewId, 0) AS reviewId,
         COALESCE(R.reviewUserId, 0) AS reviewUserId,
         COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
         COALESCE(R.reviewClassName, '') AS reviewClassName,
-        COALESCE(R.banReview, '') AS banReview,
+        COALESCE(R.banReview, 0) AS banReview,
         COALESCE(R.roleType, '') AS roleType,
-        COALESCE(R.joinClassId, '') AS joinClassId
+        COALESCE(R.joinClassId, 0) AS joinClassId
 
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
         LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
-        LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택
-        JOIN BookByClass BC ON AC.classId = BC.classId
+        LEFT JOIN LatestReviews R ON R.aca_id = AC.aca_id  -- 클래스별 최신 리뷰 1개만 선택
+        LEFT JOIN BookByClass BC ON AC.classId = BC.classId
         LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId  -- 클래스별 별점 평균 및 리뷰 개수
         LEFT JOIN UserCertification UC ON UC.class_id = AC.classId  -- 유저의 클래스별 수강 여부
         LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id

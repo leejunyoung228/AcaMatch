@@ -21,6 +21,10 @@ public class GetAcademyDetailRes {
     private String acaPic;
     @Schema(title = "학원 주소")
     private String address;
+    @Schema(title = "상세 주소")
+    private String detailAddress;
+    @Schema(title = "우편 번호")
+    private String postNum;
     @Schema(title = "학원 전화번호")
     private String acaPhone;
     @Schema(title = "강사 수")

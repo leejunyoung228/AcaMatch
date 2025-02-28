@@ -33,8 +33,17 @@
         LIMIT #{startIdx}, #{size}
     </select>
     <select id="getBookInfo">
-        SELECT *
-        FROM book
-        WHERE book_id = #{bookId}
+        SELECT B.*, P.product_id
+        FROM book B
+        JOIN product P
+        ON B.book_id = P.book_id
+        WHERE B.book_id = #{bookId}
+    </select>
+    <select id="getProductIdByBookId">
+        select product_id
+        from book B
+        join product P
+        on B.book_id = P.book_id
+        where B.book_id = #{bookId}
     </select>
 </mapper>
