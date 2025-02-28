@@ -566,6 +566,11 @@
         <result property="likeCount" column="likeCount"/>
         <result property="isLiked" column="isLiked"/>
         <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
+        <association property="addressDto" javaType="com.green.acamatch.academy.model.AddressDto">
+            <result property="address" column="address"/>
+            <result property="detailAddress" column="detail_address"/>
+            <result property="postNum" column="post_num"/>
+        </association>
         <!-- 클래스 정보 매핑 (하위 리스트) -->
         <collection property="classes" ofType="com.green.acamatch.academy.model.HB.GetAcademyDetailClassDto" javaType="ArrayList" notNullColumn="classId">
             <id property="classId" column="classId"/>
