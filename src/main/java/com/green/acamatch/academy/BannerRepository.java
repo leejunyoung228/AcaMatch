@@ -21,7 +21,7 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
     int updateBannerTypeByAcaId(Long acaId, int bannerType);
 
     //배너 포지션에 따라 조회
-    @Query("SELECT a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate, b.bannerPosition, b.bannerShow FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId WHERE b.bannerPosition = :bannerPosition")
+    @Query("SELECT new com.green.acamatch.academy.banner.model.BannerByPositionGetRes( a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow )FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId WHERE b.bannerPosition = :bannerPosition")
     List<BannerByPositionGetRes> findBannerByPosition( Long acaId, int bannerPosition);
 
 

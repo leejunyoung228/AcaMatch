@@ -1,9 +1,7 @@
 package com.green.acamatch.academy.Controller;
 
 import com.green.acamatch.academy.Service.BannerService;
-import com.green.acamatch.academy.banner.model.BannerPicShowUpdateReq;
-import com.green.acamatch.academy.banner.model.BannerTypeUpdateReq;
-import com.green.acamatch.academy.banner.model.BannerPostReq;
+import com.green.acamatch.academy.banner.model.*;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -51,6 +51,17 @@ public class BannerController {
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(1)
+                .build();
+    }
+
+    @GetMapping
+    @Operation(summary = "포지션 별 배너 조회")
+    public ResultResponse<List<BannerByPositionGetRes>> getBannerByPosition(BannerByPositionGetReq req) {
+
+        List<BannerByPositionGetRes> res = bannerService.getBannerByPosition(req.getAcaId(), req.getBannerPosition());
+        return ResultResponse.<List<BannerByPositionGetRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
                 .build();
     }
 }

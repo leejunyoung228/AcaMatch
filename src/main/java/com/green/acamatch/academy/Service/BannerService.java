@@ -5,6 +5,7 @@ import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.BannerPicRepository;
 import com.green.acamatch.academy.BannerRepository;
 import com.green.acamatch.academy.PremiumRepository;
+import com.green.acamatch.academy.banner.model.BannerByPositionGetRes;
 import com.green.acamatch.academy.banner.model.BannerPostReq;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.config.MyFileUtils;
@@ -160,5 +161,12 @@ public class BannerService {
             academyMessage.setMessage("배너가 비활성화 되었습니다.");
         }
         return 1;
+    }
+
+    @Transactional
+    public List<BannerByPositionGetRes> getBannerByPosition(Long acaId, int position) {
+        List<BannerByPositionGetRes> res = bannerRepository.findBannerByPosition(acaId, position);
+        academyMessage.setMessage("배너가 조회되었습니다.");
+        return res;
     }
 }
