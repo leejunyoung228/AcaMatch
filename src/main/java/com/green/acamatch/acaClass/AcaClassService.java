@@ -17,15 +17,12 @@ import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
-import com.green.acamatch.manager.TeacherRepository;
+import com.green.acamatch.manager.SnsTeacherRepository;
 import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.formula.functions.Days;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +41,7 @@ public class AcaClassService {
     private final ClassWeekDaysRepository classWeekDaysRepository;
     private final ClassCategoryRepository classCategoryRepository;
     private final CategoryRepository categoryRepository;
-    private final TeacherRepository teacherRepository;
+    private final SnsTeacherRepository snsTeacherRepository;
     private final UserRepository userRepository;
 
     // 특정 학원의 특정 수업을 듣는 학생(또는 학부모) 목록 조회
@@ -82,7 +79,7 @@ public class AcaClassService {
                 ownerTeacherIds.setUserId(ownerId);
                 ownerTeacherIds.setAcaId(p.getAcaId());
 
-                teacher = teacherRepository.findByTeacherIds(ownerTeacherIds)
+                teacher = snsTeacherRepository.findByTeacherIds(ownerTeacherIds)
                         .orElseGet(() -> {
                             Teacher newTeacher = new Teacher();
                             newTeacher.setTeacherIds(ownerTeacherIds);
@@ -90,7 +87,7 @@ public class AcaClassService {
                             newTeacher.setAcademy(academy);
                             newTeacher.setTeacherComment("학원 관리자로 자동 설정됨");
                             newTeacher.setTeacherAgree(1);
-                            return teacherRepository.save(newTeacher);
+                            return snsTeacherRepository.save(newTeacher);
                         });
             } else {
                 // teacherUserId가 있을 경우 기존 로직 유지
@@ -98,7 +95,7 @@ public class AcaClassService {
                 teacherIds.setUserId(p.getTeacherUserId());
                 teacherIds.setAcaId(p.getAcaId());
 
-                teacher = teacherRepository.findByTeacherIds(teacherIds)
+                teacher = snsTeacherRepository.findByTeacherIds(teacherIds)
                         .orElseThrow(() -> new CustomException(ManagerErrorCode.TEACHER_NOT_FOUND));
             }
 
