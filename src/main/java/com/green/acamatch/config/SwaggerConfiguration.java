@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -51,6 +52,22 @@ public class SwaggerConfiguration {
                                             .description(infoConst.getDescription())
                                             .version(infoConst.getVersion())
                );
+    }
+
+    @Bean
+    public GroupedOpenApi groupAcademyApi() {
+        return GroupedOpenApi.builder()
+                .group("Academy")
+                .pathsToMatch("/api/academy/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi groupAcademyCostApi() {
+        return GroupedOpenApi.builder()
+                .group("결제")
+                .pathsToMatch("/api/academyCost/**", "/api/book/**", "/api/refund/**")
+                .build();
     }
 
 

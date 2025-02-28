@@ -15,4 +15,5 @@ public class GetBookInfo {
     private String manager;
     private long classId;
     private String createdAt;
+    private long productId;
 }
