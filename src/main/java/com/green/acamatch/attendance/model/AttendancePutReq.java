@@ -16,6 +16,6 @@ public class AttendancePutReq {
     private long joinClassId;
     @Schema(title = "출석 날짜",example = "2025-02-27", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDate attendanceDate;
-    @Schema(title = "출석 상태")
+    @Schema(title = "출석 상태",requiredMode = Schema.RequiredMode.REQUIRED)
     private AttendanceStatus status;
 }
