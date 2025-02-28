@@ -1,6 +1,7 @@
 package com.green.acamatch.academy;
 
 import com.green.acamatch.academy.banner.model.BannerByPositionGetRes;
+import com.green.acamatch.academy.banner.model.BannerGetRes;
 import com.green.acamatch.entity.academy.AcademyPic;
 import com.green.acamatch.entity.academy.AcademyPicIds;
 import com.green.acamatch.entity.banner.Banner;
@@ -30,6 +31,10 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
     //배너 포지션에 따라 조회
     @Query("SELECT new com.green.acamatch.academy.banner.model.BannerByPositionGetRes( a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow )FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId WHERE a.acaId= :acaId and b.bannerPosition = :bannerPosition")
     List<BannerByPositionGetRes> findBannerByPosition( Long acaId, int bannerPosition);
+
+    //학원 하나에 전체 배너 조회
+    @Query("select new com.green.acamatch.academy.banner.model.BannerGetRes(a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow )FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId WHERE a.acaId= :acaId")
+    List<BannerGetRes> findBanner( Long acaId);
 
 
 }

@@ -54,12 +54,23 @@ public class BannerController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping("position")
     @Operation(summary = "포지션 별 배너 조회", description = "position 1: TOP, 2: BOTTOM, 3: LEFT, 4: RIGHT")
     public ResultResponse<List<BannerByPositionGetRes>> getBannerByPosition(BannerByPositionGetReq req) {
 
         List<BannerByPositionGetRes> res = bannerService.getBannerByPosition(req.getAcaId(), req.getBannerPosition());
         return ResultResponse.<List<BannerByPositionGetRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping
+    @Operation(summary = "프리미엄학원의 배너 조회")
+    public ResultResponse<List<BannerGetRes>> getBanner(BannerGetReq req) {
+
+        List<BannerGetRes> res = bannerService.getBanner(req.getAcaId());
+        return ResultResponse.<List<BannerGetRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(res)
                 .build();
