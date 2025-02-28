@@ -1,5 +1,6 @@
 package com.green.acamatch.joinClass;
 
+import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface JoinClassRepository extends JpaRepository<JoinClass, Long> {
@@ -16,4 +18,7 @@ public interface JoinClassRepository extends JpaRepository<JoinClass, Long> {
 
     @Query("SELECT COUNT(*) FROM JoinClass a WHERE a.acaClass.classId = :classId AND a.user.userId = :userId")
     Long existsJoinClass(@Param("classId")Long classId, @Param("userId")Long userId);
+
+    Optional<JoinClass> findByAcaClassAndUser(AcaClass acaClass, User user);
+
 }
