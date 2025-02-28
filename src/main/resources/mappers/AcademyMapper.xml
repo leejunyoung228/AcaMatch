@@ -638,7 +638,6 @@
         A.updated_at AS reviewUpdatedAt,
         A.review_id AS reviewId,
         A.ban_review AS banReview,
-        A.role_type AS roleType,
         A.join_class_id AS joinClassId,
         B.user_id AS reviewUserId,
         D.nick_name AS reviewUserNickName,
@@ -791,7 +790,6 @@
         COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
         COALESCE(R.reviewClassName, '') AS reviewClassName,
         COALESCE(R.banReview, 0) AS banReview,
-        COALESCE(R.roleType, '') AS roleType,
         COALESCE(R.joinClassId, 0) AS joinClassId
 
         FROM academy A
@@ -1001,5 +999,52 @@
             </if>
         </where>
         GROUP BY A.aca_id;
+    </select>
+    <select id="getAcademyListByDistance">
+        SELECT
+        A.aca_id,
+        A.aca_name,
+        AP.aca_pic,
+        A.address,
+        A.detail_address,
+        A.post_num,
+        `AS`.starAvg,
+        IFNULL(GROUP_CONCAT(DISTINCT T.tag_name ORDER BY T.tag_id SEPARATOR ', '), '') AS tagNames,
+        LC.likeCount,
+        `AS`.reviewCount,
+        (6371 * ACOS(COS(RADIANS(#{lat}))
+        * COS(RADIANS(A.lat))
+        * COS(RADIANS(A.lon) - RADIANS(#{lon}))
+        + SIN(RADIANS(#{lat}))
+        * SIN(RADIANS(A.lat)))) AS distance
+        FROM academy A
+        JOIN academy_pic AP
+        ON A.aca_id = AP.aca_id
+        JOIN academy_tag AT
+        ON A.aca_id = AT.aca_id
+        JOIN tag T
+        ON AT.tag_id = T.tag_id
+        JOIN
+        (
+        SELECT AVG(ROUND(R.star, 0)) AS starAvg, A.aca_id, COUNT(review_id) AS reviewCount
+        FROM review R
+        LEFT JOIN join_class JC
+        ON R.join_class_id = JC.join_class_id
+        LEFT JOIN aca_class AC
+        ON JC.class_id = AC.class_id
+        LEFT JOIN academy A
+        ON AC.aca_id = A.aca_id
+        ) `AS`
+        ON A.aca_id = `AS`.aca_id
+        JOIN
+        (
+        SELECT COUNT(L.aca_id) AS likeCount, A.aca_id
+        FROM academy A
+        LEFT JOIN likes L
+        ON A.aca_id = L.aca_id
+        ) LC
+        ON A.aca_id = LC.aca_id
+        ORDER BY distance ASC
+        LIMIT 5
     </select>
 </mapper>
