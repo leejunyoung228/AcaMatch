@@ -556,6 +556,8 @@
         <result property="acaName" column="aca_name"/>
         <result property="acaPic" column="aca_pic"/>
         <result property="address" column="address"/>
+        <result property="detailAddress" column="detail_address"/>
+        <result property="postNum" column="post_num"/>
         <result property="acaPhone" column="aca_phone"/>
         <result property="teacherNum" column="teacher_num"/>
         <result property="comments" column="comment"/>
