@@ -1,4 +1,4 @@
-package com.green.acamatch.manager;
+package com.green.acamatch.teacher;
 
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.manager.TeacherIds;
@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface TeacherRepository extends JpaRepository<Teacher, TeacherIds> {
-    Optional<Teacher> findByTeacherIds(TeacherIds teacherIds);
+    Optional<Teacher> findById(TeacherIds teacherIds);
 }

@@ -743,4 +743,14 @@ public class AcademyService {
         academyMessage.setMessage("학원 리스트 출력 완료");
         return res;
     }
+
+    public List<GetAcademyListByDistanceRes> getAcademyListByDistance(GetAcademyListByDistanceReq p) {
+        List<GetAcademyListByDistanceRes> res = academyMapper.getAcademyListByDistance(p);
+        if (res.size() == 0) {
+            academyMessage.setMessage("학원 출력 실패");
+            return null;
+        }
+        academyMessage.setMessage("학원 출력 성공");
+        return res;
+    }
 }
