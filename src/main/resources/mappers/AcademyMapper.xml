@@ -760,13 +760,13 @@
         COALESCE(R.reviewStar, 0) AS reviewStar,
         COALESCE(R.reviewCreatedAt, '') AS reviewCreatedAt,
         COALESCE(R.reviewUpdatedAt, '') AS reviewUpdatedAt,
-        R.reviewId AS reviewId,   -- reviewId가 NULL이면 0으로 설정
+        COALESCE(R.reviewId, 0)  AS reviewId,   -- reviewId가 NULL이면 0으로 설정
         COALESCE(R.reviewUserId, 0) AS reviewUserId,
         COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
         COALESCE(R.reviewClassName, '') AS reviewClassName,
         COALESCE(R.banReview, 0) AS banReview,
         COALESCE(R.roleType, '') AS roleType,
-        COALESCE(R.joinClassId, '') AS joinClassId
+        COALESCE(R.joinClassId, 0) AS joinClassId
 
         FROM academy A
         JOIN academy_pic AP
