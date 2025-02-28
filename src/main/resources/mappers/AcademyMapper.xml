@@ -976,13 +976,13 @@
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id
         FROM academy A
-        JOIN academy_pic AP
+        LEFT JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
         JOIN user U
         ON A.user_id = U.user_id
-        JOIN aca_class AC
+        LEFT JOIN aca_class AC
         ON A.aca_id = AC.aca_id
-        JOIN exam E
+        LEFT JOIN exam E
         ON AC.class_id = E.class_id
         <where>
             <if test=" acaName != null and acaName != '' ">
