@@ -14,8 +14,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"join_class_id", "user_id"}) // 같은 JoinClass 내에서도 학부모와 학생이 각자 작성 가능
+@Table(name = "review", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"join_class_id", "user_id"})
 })
 public class Review extends UpdatedAt {
     @Id
@@ -36,6 +36,6 @@ public class Review extends UpdatedAt {
     @JoinColumn(name = "user_id", nullable = false) // 보호자 또는 학생 계정
     private User user;
 
-    @Column(nullable = false)
-    private int banReview = 0;
+    @Column(name = "ban_review", nullable = false)
+    private int banReview = 0; // 기본값 0으로 설정
 }

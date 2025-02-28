@@ -57,7 +57,7 @@ public interface ReviewMapper {
     List<ReviewDto> getAcademyReviewsForPublic(ReviewListGetReq req);
 
     // 학원 ID 존재 여부 확인
-    Long checkAcaExists(long acaId);
+    Long checkClassIdExists(long classId);
 
     int checkUserAcademyOwnership(Long userId, Long acaId);
 
@@ -65,6 +65,8 @@ public interface ReviewMapper {
 
 
     int checkExistingReview(Long acaId, Long userId);
+
+    int checkAcaExists(Long acaId);
 
    List<Long>  findReviewIdByJoinClassId(Long joinClassId);
 
