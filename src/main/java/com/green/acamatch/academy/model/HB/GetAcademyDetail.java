@@ -32,8 +32,14 @@ public class GetAcademyDetail {
     @Schema(title = "학원 마감 시간", example = "18:00")
     private String closeTime;
 
-    @Schema(title = "학원 상세 주소", example = "대구광역시 중구 109-2")
+    @Schema(title = "학원 주소", example = "대구광역시 중구 109-2")
     private String address;
+
+    @Schema(title = "상세 주소")
+    private String detailAddress;
+
+    @Schema(title = "우편 번호")
+    private String postNum;
 
     private AddressDto addressDto;
 }
