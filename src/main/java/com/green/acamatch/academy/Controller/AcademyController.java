@@ -219,4 +219,14 @@ public class AcademyController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("GetAcademyListByDistance")
+    @Operation(summary = "나와 가까운 순서로 학원 정렬")
+    public ResultResponse<List<GetAcademyListByDistanceRes>> getAcademyListByDistance(@ParameterObject GetAcademyListByDistanceReq req){
+        List<GetAcademyListByDistanceRes> res = academyService.getAcademyListByDistance(req);
+        return ResultResponse.<List<GetAcademyListByDistanceRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
 }
