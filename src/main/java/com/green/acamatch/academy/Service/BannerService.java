@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -147,10 +148,15 @@ public class BannerService {
 
     @Transactional
     public int updateBannerType(Long acaId, int bannerType) {
-        bannerRepository.updateBannerTypeByAcaId(acaId, bannerType);
+        int result = bannerRepository.updateBannerTypeByAcaId(acaId, bannerType);
+        if(result == 1) {
+            bannerRepository.updateBannerDateByAcaId(acaId, LocalDate.now(), LocalDate.now().plusMonths(1));
+        }
         academyMessage.setMessage("배너 승인이 완료되었습니다.");
         return 1;
     }
+
+
 
     @Transactional
     public int updateBannerShow(Long acaId, int bannerPosition, int bannerShow) {
