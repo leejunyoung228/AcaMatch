@@ -735,12 +735,12 @@
 
         COALESCE(BC.bookId, 0) AS bookId,
         COALESCE(BC.bookName, '') AS bookName,
-        COALESCE(BC.bookAmount, 0), AS bookAmount,
+        COALESCE(BC.bookAmount, 0) AS bookAmount,
         COALESCE(BC.bookComment, '') AS bookComment,
         COALESCE(BC.bookPic, '') AS bookPic,
-        COALESCE(BC.bookPrice, 0), AS bookPrice,
-        COALESCE(BC.manager, ''), AS manager,
-        COALESCE(BC.classId, 0), AS classId,
+        COALESCE(BC.bookPrice, 0) AS bookPrice,
+        COALESCE(BC.manager, '') AS manager,
+        COALESCE(BC.classId, 0) AS classId,
 
         -- 학원별 총 좋아요 수
         COALESCE(LC.likeCount, 0) AS likeCount,
@@ -760,7 +760,7 @@
         COALESCE(R.reviewStar, 0) AS reviewStar,
         COALESCE(R.reviewCreatedAt, '') AS reviewCreatedAt,
         COALESCE(R.reviewUpdatedAt, '') AS reviewUpdatedAt,
-        COALESCE(R.reviewId, 0)  AS reviewId,   -- reviewId가 NULL이면 0으로 설정
+        COALESCE(R.reviewId, 0) AS reviewId,
         COALESCE(R.reviewUserId, 0) AS reviewUserId,
         COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
         COALESCE(R.reviewClassName, '') AS reviewClassName,
@@ -773,7 +773,7 @@
         ON A.aca_id = AP.aca_id
         LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
         LEFT JOIN LatestReviews R ON R.aca_id = AC.aca_id  -- 클래스별 최신 리뷰 1개만 선택
-        JOIN BookByClass BC ON AC.classId = BC.classId
+        LEFT JOIN BookByClass BC ON AC.classId = BC.classId
         LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId  -- 클래스별 별점 평균 및 리뷰 개수
         LEFT JOIN UserCertification UC ON UC.class_id = AC.classId  -- 유저의 클래스별 수강 여부
         LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id
