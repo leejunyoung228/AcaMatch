@@ -54,21 +54,21 @@ public class SwaggerConfiguration {
                );
     }
 
-    @Bean
-    public GroupedOpenApi groupAcademyApi() {
-        return GroupedOpenApi.builder()
-                .group("Academy")
-                .pathsToMatch("/api/academy/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi groupAcademyCostApi() {
-        return GroupedOpenApi.builder()
-                .group("결제")
-                .pathsToMatch("/api/academyCost/**", "/api/book/**", "/api/refund/**")
-                .build();
-    }
+//    @Bean
+//    public GroupedOpenApi groupAcademyApi() {
+//        return GroupedOpenApi.builder()
+//                .group("Academy")
+//                .pathsToMatch("/api/academy/**")
+//                .build();
+//    }
+//
+//    @Bean
+//    public GroupedOpenApi groupAcademyCostApi() {
+//        return GroupedOpenApi.builder()
+//                .group("결제")
+//                .pathsToMatch("/api/academyCost/**", "/api/book/**", "/api/refund/**")
+//                .build();
+//    }
 
 
 }
