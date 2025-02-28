@@ -1,7 +1,5 @@
 package com.green.acamatch.popUp;
 
-import com.green.acamatch.config.exception.CustomException;
-import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.popUp.model.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static io.jsonwebtoken.Jwts.builder;
 
 @Tag(name = "팝업 관리", description = "팝업 등록, 가져오기, 수정, 삭제")
 @RestController
@@ -26,7 +23,9 @@ public class PopUpController {
     private final PopUpService popUpService;
 
     @PostMapping
-    @Operation(summary = "팝업 등록", description = "postMan으로 테스트")
+    @Operation(summary = "팝업 등록",
+            description = "postMan으로 테스트/ pic을 넣을 때는 comment 부분 완전히 지우셔야합니다." +
+                    "/ 0 : 일반 사용자 대상, 1: 사이트 관리자가 학원 관리자들에게 메세지보내는 것")
     public ResultResponse<Integer> postPopUp(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart PopUpPostReq p) {
         log.info("p, pic: {}, {}", p, pic);
         int result = popUpService.PostPopUp(pic,p);

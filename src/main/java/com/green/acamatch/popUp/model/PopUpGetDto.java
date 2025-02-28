@@ -19,4 +19,6 @@ public class PopUpGetDto {
     private int popUpShow;
     @Schema(title = "대상",example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     private int popUpType;
+    @Schema(title = "총 합")
+    private int sumCount;
 }
