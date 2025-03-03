@@ -3,7 +3,7 @@ constant:
     base-url: http://acamatch.site:5233
 
 file:
-  directory: /home/download/image
+  directory: /home/download
 
 spring:
   datasource:
