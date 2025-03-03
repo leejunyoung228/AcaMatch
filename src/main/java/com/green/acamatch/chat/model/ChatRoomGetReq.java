@@ -1,5 +1,6 @@
 package com.green.acamatch.chat.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.Paging;
@@ -16,6 +17,7 @@ public class ChatRoomGetReq extends Paging {
     private Long userId;
     @Schema(name = "aca-id")
     private Long acaId;
+    @JsonIgnore
     private SenderType senderType;
 
 

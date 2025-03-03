@@ -226,10 +226,29 @@
     </select>
 
     <!-- 학원 상세 정보 보기 -->
-    <select id="getAcademyDetail">
+    <resultMap id="AcademyDetail" type="com.green.acamatch.academy.model.HB.GetAcademyDetail">
+    <id property="acaId" column="aca_id"/>
+        <result property="acaPhone" column="aca_phone"/>
+        <result property="acaName" column="aca_name"/>
+        <result property="acaPic" column="aca_pic"/>
+        <result property="comment" column="comment"/>
+        <result property="teacherNum" column="teacher_num"/>
+        <result property="address" column="address"/>
+        <result property="detailAddress" column="detail_address"/>
+        <result property="postNum" column="post_num"/>
+        <result property="openTime" column="open_time"/>
+        <result property="closeTime" column="close_time"/>
+            <association property="addressDto" javaType="com.green.acamatch.academy.model.AddressDto">
+                <result property="address" column="address"/>
+                <result property="detailAddress" column="detail_address"/>
+                <result property="postNum" column="post_num"/>
+            </association>
+    </resultMap>
+    <select id="getAcademyDetail" resultMap="AcademyDetail">
         SELECT A.aca_id, A.aca_phone, A.aca_name,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pic,
-        A.COMMENT, A.teacher_num, A.open_time, A.close_time, address
+        A.comment, A.teacher_num, A.open_time, A.close_time,
+        A.address, A.detail_address, A.post_num
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
@@ -556,6 +575,8 @@
         <result property="acaName" column="aca_name"/>
         <result property="acaPic" column="aca_pic"/>
         <result property="address" column="address"/>
+        <result property="detailAddress" column="detail_address"/>
+        <result property="postNum" column="post_num"/>
         <result property="acaPhone" column="aca_phone"/>
         <result property="teacherNum" column="teacher_num"/>
         <result property="comments" column="comment"/>
@@ -564,6 +585,11 @@
         <result property="likeCount" column="likeCount"/>
         <result property="isLiked" column="isLiked"/>
         <result property="tagName" column="tagName" typeHandler="com.green.acamatch.config.exception.StringToListTypeHandler"/>
+        <association property="addressDto" javaType="com.green.acamatch.academy.model.AddressDto">
+            <result property="address" column="address"/>
+            <result property="detailAddress" column="detail_address"/>
+            <result property="postNum" column="post_num"/>
+        </association>
         <!-- 클래스 정보 매핑 (하위 리스트) -->
         <collection property="classes" ofType="com.green.acamatch.academy.model.HB.GetAcademyDetailClassDto" javaType="ArrayList" notNullColumn="classId">
             <id property="classId" column="classId"/>
@@ -612,7 +638,6 @@
         A.updated_at AS reviewUpdatedAt,
         A.review_id AS reviewId,
         A.ban_review AS banReview,
-        A.role_type AS roleType,
         A.join_class_id AS joinClassId,
         B.user_id AS reviewUserId,
         D.nick_name AS reviewUserNickName,
@@ -733,14 +758,14 @@
         COALESCE(AC.classDay, '') AS classDay,
         COALESCE(AC.classCategoryName, '') AS classCategoryName,
 
-        BC.bookId,
-        BC.bookName,
-        BC.bookAmount,
-        BC.bookComment,
-        BC.bookPic,
-        BC.bookPrice,
-        BC.manager,
-        BC.classId,
+        COALESCE(BC.bookId, 0) AS bookId,
+        COALESCE(BC.bookName, '') AS bookName,
+        COALESCE(BC.bookAmount, 0) AS bookAmount,
+        COALESCE(BC.bookComment, '') AS bookComment,
+        COALESCE(BC.bookPic, '') AS bookPic,
+        COALESCE(BC.bookPrice, 0) AS bookPrice,
+        COALESCE(BC.manager, '') AS manager,
+        COALESCE(BC.classId, 0) AS classId,
 
         -- 학원별 총 좋아요 수
         COALESCE(LC.likeCount, 0) AS likeCount,
@@ -760,20 +785,19 @@
         COALESCE(R.reviewStar, 0) AS reviewStar,
         COALESCE(R.reviewCreatedAt, '') AS reviewCreatedAt,
         COALESCE(R.reviewUpdatedAt, '') AS reviewUpdatedAt,
-        R.reviewId AS reviewId,   -- reviewId가 NULL이면 0으로 설정
+        COALESCE(R.reviewId, 0) AS reviewId,
         COALESCE(R.reviewUserId, 0) AS reviewUserId,
         COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
         COALESCE(R.reviewClassName, '') AS reviewClassName,
-        COALESCE(R.banReview, '') AS banReview,
-        COALESCE(R.roleType, '') AS roleType,
-        COALESCE(R.joinClassId, '') AS joinClassId
+        COALESCE(R.banReview, 0) AS banReview,
+        COALESCE(R.joinClassId, 0) AS joinClassId
 
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
         LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
-        LEFT JOIN LatestReviews R ON R.class_id = AC.classId  -- 클래스별 최신 리뷰 1개만 선택
-        JOIN BookByClass BC ON AC.classId = BC.classId
+        LEFT JOIN LatestReviews R ON R.aca_id = AC.aca_id  -- 클래스별 최신 리뷰 1개만 선택
+        LEFT JOIN BookByClass BC ON AC.classId = BC.classId
         LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId  -- 클래스별 별점 평균 및 리뷰 개수
         LEFT JOIN UserCertification UC ON UC.class_id = AC.classId  -- 유저의 클래스별 수강 여부
         LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id
@@ -952,13 +976,13 @@
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id
         FROM academy A
-        JOIN academy_pic AP
+        LEFT JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
         JOIN user U
         ON A.user_id = U.user_id
-        JOIN aca_class AC
+        LEFT JOIN aca_class AC
         ON A.aca_id = AC.aca_id
-        JOIN exam E
+        LEFT JOIN exam E
         ON AC.class_id = E.class_id
         <where>
             <if test=" acaName != null and acaName != '' ">
@@ -975,5 +999,44 @@
             </if>
         </where>
         GROUP BY A.aca_id;
+    </select>
+    <select id="getAcademyListByDistance">
+        SELECT
+        A.aca_id,
+        A.aca_name,
+        AP.aca_pic,
+        A.address,
+        A.detail_address,
+        A.post_num,
+        IFNULL(`AS`.starAvg, 0) AS starAvg,
+        IFNULL(GROUP_CONCAT(DISTINCT T.tag_name ORDER BY T.tag_id SEPARATOR ', '), '') AS tagNames,
+        IFNULL(LC.likeCount, 0) AS likeCount,
+        IFNULL(`AS`.reviewCount, 0) AS reviewCount,
+        (6371 * ACOS(COS(RADIANS(#{lat}))
+        * COS(RADIANS(A.lat))
+        * COS(RADIANS(A.lon) - RADIANS(#{lon}))
+        + SIN(RADIANS(#{lat}))
+        * SIN(RADIANS(A.lat)))) AS distance
+        FROM academy A
+        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy_tag AT ON A.aca_id = AT.aca_id
+        LEFT JOIN tag T ON AT.tag_id = T.tag_id
+        LEFT JOIN (
+        SELECT AVG(ROUND(R.star, 0)) AS starAvg, A.aca_id, COUNT(R.review_id) AS reviewCount
+        FROM review R
+        JOIN join_class JC ON R.join_class_id = JC.join_class_id
+        JOIN aca_class AC ON JC.class_id = AC.class_id
+        JOIN academy A ON AC.aca_id = A.aca_id
+        GROUP BY A.aca_id
+        ) `AS` ON A.aca_id = `AS`.aca_id
+        LEFT JOIN (
+        SELECT COUNT(L.aca_id) AS likeCount, A.aca_id
+        FROM academy A
+        LEFT JOIN likes L ON A.aca_id = L.aca_id
+        GROUP BY A.aca_id
+        ) LC ON A.aca_id = LC.aca_id
+        GROUP BY A.aca_id
+        ORDER BY distance ASC
+        LIMIT 5
     </select>
 </mapper>

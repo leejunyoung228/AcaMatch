@@ -26,7 +26,7 @@ public class PopUp {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    @Column(length = 100)
+    @Column(length = 1000)
     private String popUpPic;
 
     @Column(nullable = false)

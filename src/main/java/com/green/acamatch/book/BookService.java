@@ -117,12 +117,20 @@ public class BookService {
                 bookMessage.setMessage("책 수량을 입력하지 않았습니다.");
                 return 0;
             }
+            book.setBookAmount(req.getBookAmount());
 
             if(file == null){
                 bookMessage.setMessage("책 사진을 입력하지 않았습니다.");
                 String originalPicName = book.getBookPic();
                 book.setBookPic(originalPicName);
                 bookRepository.save(book);
+
+                long productId = bookMapper.getProductIdByBookId(req.getBookId());
+                Product product = productRepository.findById(productId).orElse(null);
+                product.setProductName(req.getBookName());
+                product.setProductPrice(req.getBookPrice());
+                productRepository.save(product);
+
                 return 1;
             }
             String savedPicName = myFileUtils.makeRandomFileName(file);
@@ -139,6 +147,13 @@ public class BookService {
 
             bookRepository.save(book);
         }
+
+        long productId = bookMapper.getProductIdByBookId(req.getBookId());
+        Product product = productRepository.findById(productId).orElse(null);
+        product.setProductName(req.getBookName());
+        product.setProductPrice(req.getBookPrice());
+        productRepository.save(product);
+
         bookMessage.setMessage("수정 완료");
         return 1;
     }

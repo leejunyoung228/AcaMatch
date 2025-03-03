@@ -14,5 +14,7 @@ public class GetBookListByAcaNameBookNameRes {
     private int bookPrice;
     private String manager;
     private String createdAt;
-    private String bookCount;
+    private long acaId;
+    private String acaName;
+    private int bookCount;
 }
