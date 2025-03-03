@@ -9,5 +9,5 @@ import java.util.List;
 public interface PopUpMapper {
 //    int PostPopUp(PopUpPostReq p);
     List<PopUpGetDto> getPopUpList(PopUpGetReq p);
-    List<PopUpGetDetailRes> getPopUpDetail(PopUpGetDetailReq p);
+    List<PopUpGetDto> getPopUpDetail(PopUpGetDetailReq p);
 }

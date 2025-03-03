@@ -84,8 +84,8 @@ public class PopUpService {
         return result;
     }
 
-    public List<PopUpGetDetailRes> getPopUpDetail(PopUpGetDetailReq p) {
-        List<PopUpGetDetailRes> result = popUpMapper.getPopUpDetail(p);
+    public List<PopUpGetDto> getPopUpDetail(PopUpGetDetailReq p) {
+        List<PopUpGetDto> result = popUpMapper.getPopUpDetail(p);
         return result;
     }
 
