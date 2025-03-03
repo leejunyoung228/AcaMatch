@@ -49,7 +49,9 @@ public class UserManagementService {
         if (req.getBirth() != null) user.setBirth(req.getBirth());
         if (req.getPhone() != null) user.setPhone(req.getPhone());
         if (req.getNewPw() != null) user.setUpw(passwordEncoder.encode(req.getNewPw()));
-        if (req.getUserPic() != null && !userPic.isEmpty()) updateUserProfile(user, userPic);
+        if (userPic != null && !userPic.isEmpty()) {
+            updateUserProfile(user, userPic);
+        }
 
         userRepository.save(user);
 
