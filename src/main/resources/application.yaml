@@ -68,7 +68,7 @@ constant:
     refresh-token-cookie-expiry: 1_296_000 #15일 (S)
 
 file:
-  directory: D:/2024-02/download/greengram_ver1
+  directory: D:/LJY/GreenGramTdd/image
 
 mybatis:
   configuration:
