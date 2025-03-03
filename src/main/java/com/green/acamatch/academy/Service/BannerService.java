@@ -5,6 +5,8 @@ import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.BannerPicRepository;
 import com.green.acamatch.academy.BannerRepository;
 import com.green.acamatch.academy.PremiumRepository;
+import com.green.acamatch.academy.banner.model.BannerByPositionGetRes;
+import com.green.acamatch.academy.banner.model.BannerGetRes;
 import com.green.acamatch.academy.banner.model.BannerPostReq;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.config.MyFileUtils;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,10 +149,15 @@ public class BannerService {
 
     @Transactional
     public int updateBannerType(Long acaId, int bannerType) {
-        bannerRepository.updateBannerTypeByAcaId(acaId, bannerType);
+        int result = bannerRepository.updateBannerTypeByAcaId(acaId, bannerType);
+        if(result == 1) {
+            bannerRepository.updateBannerDateByAcaId(acaId, LocalDate.now(), LocalDate.now().plusMonths(1));
+        }
         academyMessage.setMessage("배너 승인이 완료되었습니다.");
         return 1;
     }
+
+
 
     @Transactional
     public int updateBannerShow(Long acaId, int bannerPosition, int bannerShow) {
@@ -160,5 +168,18 @@ public class BannerService {
             academyMessage.setMessage("배너가 비활성화 되었습니다.");
         }
         return 1;
+    }
+
+    @Transactional
+    public List<BannerByPositionGetRes> getBannerByPosition(Long acaId, int position) {
+        List<BannerByPositionGetRes> res = bannerRepository.findBannerByPosition(acaId, position);
+        academyMessage.setMessage("배너가 조회되었습니다.");
+        return res;
+    }
+
+    @Transactional
+    public List<BannerGetRes> getBanner(Long acaId) {
+        List<BannerGetRes> res = bannerRepository.findBanner(acaId);
+        return res;
     }
 }

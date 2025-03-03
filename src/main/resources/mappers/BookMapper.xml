@@ -8,19 +8,16 @@
     </select>
     <select id="getBookListByAcaNameBookName">
         SELECT B.book_id, B.book_name, B.book_comment, B.book_pic,
-        B.book_amount, B.book_price, B.manager, B.created_at, CB.bookCount
+        B.book_amount, B.book_price, B.manager, B.created_at,
+        A.aca_id, A.aca_name, BC.bookCount
         FROM book B
-        JOIN aca_class AC
-        ON B.class_id = AC.class_id
-        JOIN academy A
-        ON AC.aca_id = A.aca_id
-        JOIN (
-        SELECT COUNT(B.book_id) AS bookCount, B.class_id
+        JOIN aca_class AC ON B.class_id = AC.class_id
+        JOIN academy A ON AC.aca_id = A.aca_id
+        LEFT JOIN (
+        SELECT B.book_id, COUNT(B.book_id) AS bookCount
         FROM book B
-        JOIN aca_class AC
-        ON B.class_id = AC.class_id
-        ) CB
-        ON B.class_id = CB.class_id
+        ) BC ON B.book_id = BC.book_id
+        ORDER BY B.created_at DESC
         <where>
             <if test=" acaName != null and acaName != '' ">
                 AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
@@ -29,12 +26,20 @@
                 AND B.book_name LIKE CONCAT('%', #{bookName}, '%')
             </if>
         </where>
-        ORDER BY B.created_at DESC
         LIMIT #{startIdx}, #{size}
     </select>
     <select id="getBookInfo">
-        SELECT *
-        FROM book
-        WHERE book_id = #{bookId}
+        SELECT B.*, P.product_id
+        FROM book B
+        JOIN product P
+        ON B.book_id = P.book_id
+        WHERE B.book_id = #{bookId}
+    </select>
+    <select id="getProductIdByBookId">
+        select product_id
+        from book B
+        join product P
+        on B.book_id = P.book_id
+        where B.book_id = #{bookId}
     </select>
 </mapper>

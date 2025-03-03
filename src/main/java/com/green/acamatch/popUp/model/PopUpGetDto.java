@@ -26,4 +26,6 @@ public class PopUpGetDto {
     private String popUpPic;
     @Schema(title = "코멘트", requiredMode = Schema.RequiredMode.REQUIRED)
     private String comment;
+    @Schema(title = "총 합")
+    private int sumCount;
 }

@@ -8,6 +8,7 @@ import com.green.acamatch.config.exception.popUpErrorCode;
 import com.green.acamatch.entity.popUp.PopUp;
 import com.green.acamatch.popUp.model.*;
 import com.nimbusds.jose.util.IntegerUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class PopUpService {
     private final PopUpMapper popUpMapper;
@@ -59,17 +62,19 @@ public class PopUpService {
                 try {
                     myFileUtils.transferTo(pic, filePath);
                     popUp.setPopUpPic(savedPicName);
+
                     popUpRepository.save(popUp);
 
                 } catch (IOException e) {
                     String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
                     myFileUtils.deleteFolder(delFolderPath, true);
+                    log.error("파일 저장 실패: " + e.getMessage());
                     throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
                 }
             }
             return 1;
         } catch (CustomException e) {
-            e.getMessage();
+            log.error("에러 발생: " + e.getMessage()); // 에러를 로깅;
             return 0;
         }
     }

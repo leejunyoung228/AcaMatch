@@ -4,31 +4,18 @@ import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.PremiumRepository;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.academy.premium.model.PremiumDeleteReq;
+import com.green.acamatch.academy.premium.model.PremiumGetRes;
 import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
-import com.green.acamatch.academyCost.KakaoPayProperties;
-import com.green.acamatch.academyCost.ProductRepository;
-import com.green.acamatch.academyCost.model.KakaoPayPostReq;
-import com.green.acamatch.academyCost.model.KakaoReadyResponse;
-import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.PremiumAcademy;
-import com.green.acamatch.entity.academyCost.AcademyCost;
-import com.green.acamatch.entity.academyCost.Product;
-import com.green.acamatch.entity.joinClass.JoinClass;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -57,13 +44,14 @@ public class PremiumService {
     }
 
     //프리미엄학원 수정(관리자 승인)
+    @Transactional
     public int updPremium(PremiumUpdateReq req) {
         int result = premiumRepository.updateByAcaId(req.getAcaId(), req.getPreCheck());
-        academyMessage.setMessage("프리미엄 학원이 승인되었습니다.");
         if(result == 1) {
             updateAcademyPremiumIfNeeded(req.getAcaId());
             premiumRepository.updateDateByAcaId(req.getAcaId(), LocalDate.now(), LocalDate.now().plusMonths(1));
         }
+        academyMessage.setMessage("프리미엄 학원이 승인되었습니다.");
         return 1;
     }
 
@@ -82,6 +70,14 @@ public class PremiumService {
             }
         }
     }
+
+    //프리미엄학원 조회(관리자)
+    public List<PremiumGetRes> getPremium() {
+        List<PremiumGetRes> resList = premiumRepository.findAllByPremium();
+        academyMessage.setMessage("프리미엄학원을 조회하였습니다.");
+        return resList;
+    }
+
 
     //프리미엄학원 삭제(관리자)
     public int delPremium(PremiumDeleteReq req) {

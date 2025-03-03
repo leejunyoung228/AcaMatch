@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.green.acamatch.attendance.AttendanceMapper">
+    <select id="getAttendanceStatusCount">
+        SELECT COUNT(B.join_class_id) AS sum_count, D.aca_id, D.aca_name, C.class_id, C.class_name,
+        SUM(CASE WHEN A.status = '출석' THEN 1 ELSE 0 END) AS PRESENT,
+        SUM(CASE WHEN A.status = '지각' THEN 1 ELSE 0 END) AS LATE,
+        SUM(CASE WHEN A.status = '결석' THEN 1 ELSE 0 END) AS ABSENT,
+        SUM(CASE WHEN A.status = '조퇴' THEN 1 ELSE 0 END) AS EARLY_LEAVE,
+        A.attendance_date
+        FROM attendance A
+        INNER JOIN join_class B
+        ON A.join_class_id = B.join_class_id
+        INNER JOIN aca_class C
+        ON B.class_id = C.class_id
+        INNER JOIN academy D
+        ON C.aca_id = D.aca_id
+        WHERE D.aca_id = #{acaId} AND C.class_id = #{classId}
+        AND A.attendance_date BETWEEN #{startDate} AND #{endDate}
+        GROUP BY D.aca_id, D.aca_name, C.class_id, C.class_name, A.attendance_date
+        ORDER BY D.aca_id, C.class_id
+    </select>
+
+    <resultMap id="attendanceResultMap" type="com.green.acamatch.attendance.model.AttendanceGetUserDto">
+        <result property="userId" column="user_id"/>
+        <result property="name" column="name"/>
+        <result property="status" column="status"
+                javaType="com.green.acamatch.entity.attendance.AttendanceStatus"
+                typeHandler="com.green.acamatch.entity.attendance.AttendanceTypeHandler"/>
+    </resultMap>
+
+    <select id="getAttendanceUserName" resultMap="attendanceResultMap">
+        SELECT E.user_id, E.name, A.`status`
+        FROM attendance A
+        INNER JOIN join_class B
+        ON A.join_class_id = B.join_class_id
+        INNER JOIN aca_class C
+        ON B.class_id = C.class_id
+        INNER JOIN academy D
+        ON C.aca_id = D.aca_id
+        INNER JOIN `user` E
+        ON E.user_id = B.user_id
+        WHERE D.aca_id = #{acaId} AND C.class_id = #{classId}
+        AND A.attendance_date = #{attendanceDate}
+        ORDER BY E.name
+    </select>
+</mapper>

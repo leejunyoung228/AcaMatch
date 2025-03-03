@@ -1,15 +1,13 @@
 package com.green.acamatch.academy;
 
-import com.green.acamatch.entity.academy.Academy;
+import com.green.acamatch.academy.premium.model.PremiumGetRes;
 import com.green.acamatch.entity.academy.PremiumAcademy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,6 +17,7 @@ import java.util.Optional;
 public interface PremiumRepository extends JpaRepository<PremiumAcademy, Long> {
 
     Optional<PremiumAcademy> findByAcademy_AcaId(Long academyId);
+
 
     //프리미엄 학원 승인 여부
     @Transactional
@@ -31,6 +30,10 @@ public interface PremiumRepository extends JpaRepository<PremiumAcademy, Long> {
     @Modifying
     @Query(" update PremiumAcademy a set a.startDate =:startDate, a.endDate =:endDate where a.acaId =:acaId")
     int updateDateByAcaId(@Param("acaId") Long acaId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    //프리미엄 학원 조회
+    @Query("SELECT new com.green.acamatch.academy.premium.model.PremiumGetRes(a.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, a.createdAt) from PremiumAcademy a join Academy b on a.acaId = b.acaId")
+    List<PremiumGetRes> findAllByPremium();
 
     //프리미엄 학원 삭제
     @Transactional

@@ -53,11 +53,11 @@ public class BoardService {
         try {
             List<BoardGetListDto> result = boardMapper.getBoardList(p);
 
-            if (result == null && result.isEmpty()) {
+            if (result == null || result.isEmpty()) {
                 throw new IllegalArgumentException("공지사항을 찾을 수 없습니다.");
             }
             return result;
-        }catch (CustomException e) {
+        }catch (IllegalArgumentException e) {
             e.getMessage();
             return null;
         }

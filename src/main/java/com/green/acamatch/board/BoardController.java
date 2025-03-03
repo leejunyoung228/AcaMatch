@@ -1,7 +1,6 @@
 package com.green.acamatch.board;
 
 import com.green.acamatch.board.model.*;
-import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

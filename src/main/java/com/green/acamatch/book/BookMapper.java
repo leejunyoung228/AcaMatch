@@ -13,4 +13,5 @@ public interface BookMapper {
     List<BookGetRes> getBookListByClassId(Long classId);
     List<GetBookListByAcaNameBookNameRes> getBookListByAcaNameBookName(GetBookListByAcaNameBookNameReq req);
     GetBookInfo getBookInfo(long bookId);
+    long getProductIdByBookId(long bookId);
 }
