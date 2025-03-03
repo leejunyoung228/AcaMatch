@@ -1,5 +1,6 @@
 package com.green.acamatch.popUp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,4 +20,8 @@ public class PopUpGetDto {
     private int popUpShow;
     @Schema(title = "대상",example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     private int popUpType;
+    @Schema(title = "팝업 ID PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long popUpId;
+    @Schema(title = "팝업 사진", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String popUpPic;
 }

@@ -3,13 +3,14 @@
 
 <mapper namespace="com.green.acamatch.popUp.PopUpMapper">
     <select id="getPopUpList">
-        SELECT DISTINCT title, start_date, end_date, pop_up_show, pop_up_type
+        SELECT DISTINCT title, start_date, end_date, pop_up_show, pop_up_type, pop_up_id, pop_up_pic
         FROM pop_up
         LIMIT #{startIdx}, #{size}
     </select>
 
     <select id="getPopUpDetail">
-        SELECT title, comment, pop_up_pic
+        SELECT title, start_date, end_date, pop_up_show, pop_up_type, pop_up_id, pop_up_pic
         FROM pop_up
+        WHERE pop_up_id = #{popUpId}
     </select>
 </mapper>

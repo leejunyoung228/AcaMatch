@@ -48,9 +48,9 @@ public class PopUpController {
 
     @GetMapping("detail")
     @Operation(summary = "팝업 상세정보 가져오기")
-    public ResultResponse<List<PopUpGetDetailRes>> getPopUpDetail(@ParameterObject @ModelAttribute PopUpGetDetailReq p) {
-        List<PopUpGetDetailRes> result = popUpService.getPopUpDetail(p);
-        return ResultResponse.<List<PopUpGetDetailRes>>builder()
+    public ResultResponse<List<PopUpGetDto>> getPopUpDetail(@ParameterObject @ModelAttribute PopUpGetDetailReq p) {
+        List<PopUpGetDto> result = popUpService.getPopUpDetail(p);
+        return ResultResponse.<List<PopUpGetDto>>builder()
                 .resultMessage("팝업 상세정보 보기 완료")
                 .resultData(result)
                 .build();
