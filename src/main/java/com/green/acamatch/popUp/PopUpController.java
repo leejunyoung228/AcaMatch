@@ -56,8 +56,10 @@ public class PopUpController {
     }
 
     @PutMapping
-    @Operation(summary = "팝업 수정", description = "postMan으로 테스트")
-    public ResultResponse<Integer> updPopUp(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart PopUpPutReq p) {
+    @Operation(summary = "팝업 수정", description = "Postman으로 테스트")
+    public ResultResponse<Integer> updPopUp(
+            @RequestPart(value = "pic", required = false) MultipartFile pic,
+            @Valid @RequestPart PopUpPutReq p) {
         int result = popUpService.UpdPopUp(pic, p);
         return ResultResponse.<Integer>builder()
                 .resultMessage(result == 1 ? "팝업 수정 성공" : "팝업 수정 실패")
