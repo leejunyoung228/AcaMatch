@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.transform.Result;
 import java.util.List;
 
 @Slf4j
@@ -24,8 +25,8 @@ public class BannerController {
 
     @PostMapping
     @Operation(summary = "배너신청")
-    public ResultResponse<Integer> postBanner(@RequestPart MultipartFile topBannerPic, @RequestPart MultipartFile bottomBannerPic
-                        , @RequestPart MultipartFile leftBannerPic, @RequestPart MultipartFile rightBannerPic
+    public ResultResponse<Integer> postBanner(@RequestPart(required = false) MultipartFile topBannerPic, @RequestPart(required = false) MultipartFile bottomBannerPic
+                        , @RequestPart(required = false) MultipartFile leftBannerPic, @RequestPart(required = false) MultipartFile rightBannerPic
                         , @RequestPart BannerPostReq req) {
         bannerService.postBanner(topBannerPic, bottomBannerPic, leftBannerPic, rightBannerPic, req);
         return ResultResponse.<Integer>builder()
@@ -84,6 +85,16 @@ public class BannerController {
         return ResultResponse.<List<BannerGetRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(res)
+                .build();
+    }
+
+    @DeleteMapping
+    @Operation(summary = "배너 삭제")
+    public ResultResponse<Integer> delBanner(BannerDeleteReq req) {
+        bannerService.delBanner(req.getAcaId(), req.getBannerPosition());
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(1)
                 .build();
     }
 }

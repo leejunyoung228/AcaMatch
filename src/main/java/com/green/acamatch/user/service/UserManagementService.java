@@ -6,6 +6,7 @@ import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.security.AuthenticationFacade;
+import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.SimpleUserDataUpdateReq;
@@ -15,6 +16,10 @@ import com.green.acamatch.user.model.UserUpdateReq;
 import com.green.acamatch.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,10 +127,9 @@ public class UserManagementService {
         return users.isEmpty() ? null : users; // 리스트가 비어있으면 null 반환
     }
 
-    // 특정 사용자 정보 조회
-    public UserReportProjection getUserInfo(Long userId) {
-        return userRepository.findUserWithReportCountById(userId)
-                .orElse(null);  // Optional을 활용하여 null 처리
-    }
 
+    public Page<UserReportProjection> searchUsers(Long userId, String name, String nickName, UserRole userRole, int page, int size) {
+        Pageable pageable = (size == 0) ? Pageable.unpaged() : PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return userRepository.findUsersWithFilters(userId, name, nickName, userRole, pageable);
+    }
 }
