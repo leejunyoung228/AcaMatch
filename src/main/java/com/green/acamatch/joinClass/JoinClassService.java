@@ -41,10 +41,9 @@ public class JoinClassService {
             joinClass.setCertification(p.getCertification());
             joinClass.setRegistrationDate(p.getRegistrationDate());
             joinClassRepository.save(joinClass);
-            joinClassRepository.save(joinClass);
             return 1;
         } catch (CustomException e) {
-            e.getMessage();
+            e.printStackTrace();
             return 0;
         }
     }

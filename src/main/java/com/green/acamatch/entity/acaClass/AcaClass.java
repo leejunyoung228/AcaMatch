@@ -44,11 +44,11 @@ public class AcaClass {
     @Column(nullable = false)
     private int price;
 
-    // 복합키 기반으로 Teacher와 연결 (TeacherIds 직접 사용)
-    @ManyToOne
-    @JoinColumns({
-            @JoinColumn(name = "teacher_user_id", referencedColumnName = "user_id"),
-            @JoinColumn(name = "teacher_aca_id", referencedColumnName = "aca_id")
-    })
-    private Teacher teacher;
+//    // 복합키 기반으로 Teacher와 연결 (TeacherIds 직접 사용)
+//    @ManyToOne
+//    @JoinColumns({
+//            @JoinColumn(name = "teacher_user_id", referencedColumnName = "user_id"),
+//            @JoinColumn(name = "teacher_aca_id", referencedColumnName = "aca_id")
+//    })
+//    private Teacher teacher;
 }

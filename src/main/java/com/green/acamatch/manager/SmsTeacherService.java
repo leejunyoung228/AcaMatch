@@ -15,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class SnsTeacherService {
+public class SmsTeacherService {
 
-    private final SnsTeacherRepository snsTeacherRepository;
+    private final SmsTeacherRepository smsTeacherRepository;
     private final UserRepository userRepository;
     private final AcademyRepository academyRepository;
     private final UserMessage userMessage;
@@ -101,10 +101,10 @@ public class SnsTeacherService {
         // TeacherIds 생성 (복합키)
         TeacherIds teacherIds = new TeacherIds();
         teacherIds.setUserId(req.getUserId());
-        teacherIds.setAcaId(req.getAcaId());
+//        teacherIds.setAcaId(req.getAcaId());
 
         // 이미 등록된 선생님인지 확인
-        if (snsTeacherRepository.findByTeacherIds(teacherIds).isPresent()) {
+        if (smsTeacherRepository.findByTeacherIds(teacherIds).isPresent()) {
             throw new CustomException(ManagerErrorCode.TEACHER_ALREADY_EXISTS);
         }
 
@@ -112,10 +112,10 @@ public class SnsTeacherService {
         Teacher teacher = new Teacher();
         teacher.setTeacherIds(teacherIds);
         teacher.setUser(user);
-        teacher.setAcademy(academy);
+//        teacher.setAcademy(academy);
         teacher.setTeacherComment(req.getTeacherComment());
         teacher.setTeacherAgree(req.getTeacherAgree());
 
-        snsTeacherRepository.save(teacher);
+        smsTeacherRepository.save(teacher);
     }
 }

@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SnsTeacherRepository extends JpaRepository<Teacher, TeacherIds> {
+public interface SmsTeacherRepository extends JpaRepository<Teacher, TeacherIds> {
     Optional<Teacher> findByTeacherIds(TeacherIds teacherIds);
 }

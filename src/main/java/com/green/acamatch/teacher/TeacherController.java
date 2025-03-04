@@ -1,12 +1,15 @@
+
 package com.green.acamatch.teacher;
 
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.teacher.model.TeacherDelReq;
 import com.green.acamatch.teacher.model.TeacherPostReq;
+import com.green.acamatch.teacher.model.TeacherPutReq;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "선생님 관리", description = "선생님 등록, 가져오기, 수정, 삭제")
 @RestController
@@ -20,6 +23,15 @@ public class TeacherController {
         Integer result = teacherService.postTeacher(p);
         return ResultResponse.<Integer>builder()
                 .resultMessage(result == 1 ? "선생님 등록 성공" : "선생님 등록 실패")
+                .resultData(result)
+                .build();
+    }
+
+    @PutMapping
+    public ResultResponse<Integer> updateTeacher(@ModelAttribute @ParameterObject TeacherPutReq p) {
+        Integer result = teacherService.updateTeacher(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(result == 1 ? "선생님 정보 수정 성공" : "선생님 정보 수정 실패")
                 .resultData(result)
                 .build();
     }

@@ -7,14 +7,14 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class TeacherPostReq {
+public class TeacherPutReq {
     @JsonIgnore
     private long acaId;
     @Schema(title = "강좌 pk", example = "1")
     private long classId;
-    @Schema(title = "사용자 pk", example = "1")
+    @Schema(title = "유저 pk", example = "1")
     private long userId;
-    @Schema(title = "선생님 소개", example = "국어 전문가입니다.")
+    @Schema(title = "선생님 소개")
     private String teacherComment;
     @Schema(title = "선생님 동의 여부 (0=미동의, 1=동의)", example = "0")
     private int teacherAgree;
