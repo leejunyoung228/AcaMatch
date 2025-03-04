@@ -18,6 +18,14 @@ public class GetAcademyListByUserIdRes {
 
     private int acaAgree;
 
+    private String comment;
+
+    private String acaPhone;
+
+    private String address;
+
+    private String name;
+
     private String acaPic;
 
     private String acaPics;
