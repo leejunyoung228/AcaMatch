@@ -176,54 +176,24 @@ public class UserController {
                 .build();
     }
 
-    // 특정 사용자 정보 및 신고 횟수를 조회
+    @GetMapping("/search")
+    @Operation(summary = "사용자 검색", description = "userId, 이름, 역할로 검색 가능")
+    public ResultResponse<List<UserReportProjection>> searchUsers(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) UserRole userRole) {
 
-    @GetMapping("/{userId}/report-count")
-    @Operation(summary = "특정 사용자 정보 및 신고 횟수를 조회")
-    public ResultResponse<UserReportProjection> getUserInfo(@PathVariable Long userId) {
-        UserReportProjection user = userManagementService.getUserInfo(userId);
-        if (user == null) {
-            return ResultResponse.<UserReportProjection>builder()
-                    .resultMessage("해당 사용자를 찾을 수 없음")
-                    .resultData(null) // 데이터 없음
-                    .build();
-        }
-        return ResultResponse.<UserReportProjection>builder()
-                .resultMessage("사용자 정보 조회 성공")
-                .resultData(user) //정상 데이터 반환
-                .build();
-    }
-
-    // PathVariable을 String으로 변경
-    @GetMapping("/role/{userRole}/report-count")
-    @Operation(summary = "특정 사용자 타입과 해당 사용자들의 정보 및 신고 횟수를 조회")
-    public ResultResponse<List<UserReportProjection>> getUserInfoByUserRole(@PathVariable String userRole) {
-        UserRole roleEnum;
-        try {
-            // 숫자로 변환할 수 있는 경우 처리
-            roleEnum = UserRole.fromJson(Integer.parseInt(userRole));
-        } catch (NumberFormatException e) {
-            //숫자가 아닐 경우 문자열로 처리
-            roleEnum = UserRole.fromJson(userRole);
-        } catch (IllegalArgumentException e) {
-            return ResultResponse.<List<UserReportProjection>>builder()
-                    .resultMessage("잘못된 사용자 역할입니다.")
-                    .resultData(null)
-                    .build();
-        }
-
-        // 서비스 호출
-        List<UserReportProjection> users = userManagementService.getUserInfoByUserRole(roleEnum);
+        List<UserReportProjection> users = userManagementService.searchUsers(userId, name, userRole);
 
         if (users.isEmpty()) {
             return ResultResponse.<List<UserReportProjection>>builder()
-                    .resultMessage("해당 사용자 타입의 사용자를 찾을 수 없음")
+                    .resultMessage("해당 조건에 맞는 사용자가 없습니다.")
                     .resultData(null)
                     .build();
         }
 
         return ResultResponse.<List<UserReportProjection>>builder()
-                .resultMessage("사용자 정보 조회 성공")
+                .resultMessage("사용자 조회 성공")
                 .resultData(users)
                 .build();
     }

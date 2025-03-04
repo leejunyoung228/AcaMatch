@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 @Getter
 @RequiredArgsConstructor
 public enum UserRole {
@@ -35,16 +34,31 @@ public enum UserRole {
     }
 
     @JsonCreator
-    public static UserRole fromJson(Object input) {
-        if (input instanceof Number) {
-            int intValue = ((Number) input).intValue();
-            return valueMap.get(intValue);  // Map에서 바로 조회
-        } else if (input instanceof String strValue) {
-            return nameMap.get(strValue.toUpperCase());  // 대소문자 무시하고 Map에서 바로 조회
+    public static UserRole fromJson(String input) {
+        if (input == null || input.isBlank()) {
+            throw new IllegalArgumentException("UserRole cannot be null or empty");
         }
+
+        // 숫자 값 변환 시도
+        try {
+            int numericValue = Integer.parseInt(input);
+            UserRole role = valueMap.get(numericValue);
+            if (role != null) {
+                return role;
+            }
+        } catch (NumberFormatException ignored) { }
+
+        // 문자열 변환 시도 (대소문자 무시)
+        UserRole role = nameMap.get(input.toUpperCase());
+        if (role != null) {
+            return role;
+        }
+
         throw new IllegalArgumentException("Invalid UserRole input: " + input);
     }
 
+
+    // 추가된 개별 역할 확인 메서드
     public boolean isAdmin() {
         return this == ADMIN;
     }
@@ -57,7 +71,7 @@ public enum UserRole {
         return this == ACADEMY;
     }
 
-    // 관리자(ADMIN), 선생(TEACHER), 학원(Academy)만 가능
+    // 관리자, 선생님, 학원 역할 확인 (기존 유지)
     public boolean isAdminOrTeacherOrAcademy() {
         return isAdmin() || isTeacher() || isAcademy();
     }

@@ -123,16 +123,9 @@ public class UserManagementService {
         return users.isEmpty() ? null : users; // 리스트가 비어있으면 null 반환
     }
 
-    // 특정 사용자 정보 조회
-    public UserReportProjection getUserInfo(Long userId) {
-        return userRepository.findUserWithReportCountByUserId(userId)
-                .orElse(null);  // Optional을 활용하여 null 처리
+
+    public List<UserReportProjection> searchUsers(Long userId, String name, UserRole userRole) {
+        return userRepository.findUsersWithFilters(userId, name, userRole);
     }
-
-    public List<UserReportProjection> getUserInfoByUserRole(UserRole userRole) {
-        return userRepository.findUsersWithReportCountByUserRole(userRole);
-    }
-
-
 
 }
