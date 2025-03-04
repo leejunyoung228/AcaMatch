@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -178,27 +179,30 @@ public class UserController {
 
     @GetMapping("/search")
     @Operation(summary = "사용자 검색", description = "userId, 이름, 역할로 검색 가능")
-    public ResultResponse<List<UserReportProjection>> searchUsers(
+    public ResultResponse<Page<UserReportProjection>> searchUsers(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) UserRole userRole) {
+            @RequestParam(required = false) String nickName,
+            @RequestParam(required = false) UserRole userRole,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size ) {
 
-        List<UserReportProjection> users = userManagementService.searchUsers(userId, name, userRole);
+        // page가 1 이상일 경우, Spring의 0-based index에 맞추기 위해 -1 적용 가능
+        int adjustedPage = (page > 0) ? page - 1 : 0;
+
+        Page<UserReportProjection> users = userManagementService.searchUsers(userId, name, nickName, userRole, adjustedPage, size);
 
         if (users.isEmpty()) {
-            return ResultResponse.<List<UserReportProjection>>builder()
+            return ResultResponse.<Page<UserReportProjection>>builder()
                     .resultMessage("해당 조건에 맞는 사용자가 없습니다.")
                     .resultData(null)
                     .build();
         }
 
-        return ResultResponse.<List<UserReportProjection>>builder()
+        return ResultResponse.<Page<UserReportProjection>>builder()
                 .resultMessage("사용자 조회 성공")
                 .resultData(users)
                 .build();
     }
-
-
-
 
 }
