@@ -259,10 +259,17 @@ public class KakaoPayService {
             academyCost.setPartnerOrderId(partnerOrderId);
             academyCost.setStatus(0);
             if(req.getAcaId() != null) {
-                academyCost.setOrderType(0);
+                academyCost.setOrderType(2);
             }
             if(req.getAcaId() == null){
-                academyCost.setOrderType(1);
+                if(product.getBookId() != null){
+                    academyCost.setOrderType(1);
+                    //academyCost.setAcademyId();
+
+                }
+                if(product.getClassId() != null){
+                    academyCost.setOrderType(0);
+                }
             }
             academyCost.setCost_status(0);
             academyCost.setTId(kakaoReady.getTid());

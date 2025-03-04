@@ -42,4 +42,11 @@
         on B.book_id = P.book_id
         where B.book_id = #{bookId}
     </select>
+    <select id="getAcaId">
+        SELECT A.aca_id
+        from book B
+        join aca_class AC on B.class_id = AC.class_id
+        join academy A on AC.aca_id = A.aca_id
+        where A.aca_id = #{acaId}
+    </select>
 </mapper>
