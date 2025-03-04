@@ -15,6 +15,6 @@ import java.io.Serializable;
 public class TeacherIds implements Serializable {
     @Column(name = "user_id")
     private Long userId;
-    @Column(name = "aca_id")
-    private Long acaId;
+    @Column(name = "class_id")
+    private Long classId;
 }

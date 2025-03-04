@@ -6,10 +6,12 @@ import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.security.AuthenticationFacade;
+import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.SimpleUserDataUpdateReq;
 import com.green.acamatch.user.model.UserDeleteReq;
+import com.green.acamatch.user.model.UserReportProjection;
 import com.green.acamatch.user.model.UserUpdateReq;
 import com.green.acamatch.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -113,4 +116,23 @@ public class UserManagementService {
         user.setNickName(req.getNickName());
         userRepository.save(user);
     }
+
+    // 모든 사용자 정보 조회
+    public List<UserReportProjection> getAllUserInfo() {
+        List<UserReportProjection> users = userRepository.findUsersExceptAdmin();
+        return users.isEmpty() ? null : users; // 리스트가 비어있으면 null 반환
+    }
+
+    // 특정 사용자 정보 조회
+    public UserReportProjection getUserInfo(Long userId) {
+        return userRepository.findUserWithReportCountByUserId(userId)
+                .orElse(null);  // Optional을 활용하여 null 처리
+    }
+
+    public List<UserReportProjection> getUserInfoByUserRole(UserRole userRole) {
+        return userRepository.findUsersWithReportCountByUserRole(userRole);
+    }
+
+
+
 }

@@ -1,5 +1,6 @@
 package com.green.acamatch.entity.manager;
 
+import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
@@ -20,11 +21,10 @@ public class Teacher {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // aca_id 나중에 매핑
     @ManyToOne
-    @MapsId("acaId") // acaId를 나중에 매핑
-    @JoinColumn(name = "aca_id", nullable = false)
-    private Academy academy;
+    @MapsId("classId")
+    @JoinColumn(name = "class_id", nullable = false)
+    private AcaClass acaClass;
 
     @Lob
     @Column(nullable = false, length = 300)

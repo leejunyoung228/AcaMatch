@@ -1,6 +1,7 @@
 package com.green.acamatch.user.contoller;
 
 import com.green.acamatch.config.model.ResultResponse;
+import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.user.model.*;
 import com.green.acamatch.user.service.AuthService;
@@ -14,6 +15,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -155,4 +158,77 @@ public class UserController {
                 .resultData(true)
                 .build();
     }
+
+    // 모든 사용자 정보 및 신고 횟수를 조회
+    @GetMapping("/report-count")
+    @Operation(summary = "모든 사용자 정보 및 신고 횟수를 조회")
+    public ResultResponse<List<UserReportProjection>> getAllUsersInfo() {
+        List<UserReportProjection> users = userManagementService.getAllUserInfo();
+        if (users == null || users.isEmpty()) {
+            return ResultResponse.<List<UserReportProjection>>builder()
+                    .resultMessage("사용자 정보 없음")
+                    .resultData(null) // 데이터 없음
+                    .build();
+        }
+        return ResultResponse.<List<UserReportProjection>>builder()
+                .resultMessage("모든 사용자 정보 조회 성공")
+                .resultData(users) // 정상 데이터 반환
+                .build();
+    }
+
+    // 특정 사용자 정보 및 신고 횟수를 조회
+
+    @GetMapping("/{userId}/report-count")
+    @Operation(summary = "특정 사용자 정보 및 신고 횟수를 조회")
+    public ResultResponse<UserReportProjection> getUserInfo(@PathVariable Long userId) {
+        UserReportProjection user = userManagementService.getUserInfo(userId);
+        if (user == null) {
+            return ResultResponse.<UserReportProjection>builder()
+                    .resultMessage("해당 사용자를 찾을 수 없음")
+                    .resultData(null) // 데이터 없음
+                    .build();
+        }
+        return ResultResponse.<UserReportProjection>builder()
+                .resultMessage("사용자 정보 조회 성공")
+                .resultData(user) //정상 데이터 반환
+                .build();
+    }
+
+    // PathVariable을 String으로 변경
+    @GetMapping("/role/{userRole}/report-count")
+    @Operation(summary = "특정 사용자 타입과 해당 사용자들의 정보 및 신고 횟수를 조회")
+    public ResultResponse<List<UserReportProjection>> getUserInfoByUserRole(@PathVariable String userRole) {
+        UserRole roleEnum;
+        try {
+            // 숫자로 변환할 수 있는 경우 처리
+            roleEnum = UserRole.fromJson(Integer.parseInt(userRole));
+        } catch (NumberFormatException e) {
+            //숫자가 아닐 경우 문자열로 처리
+            roleEnum = UserRole.fromJson(userRole);
+        } catch (IllegalArgumentException e) {
+            return ResultResponse.<List<UserReportProjection>>builder()
+                    .resultMessage("잘못된 사용자 역할입니다.")
+                    .resultData(null)
+                    .build();
+        }
+
+        // 서비스 호출
+        List<UserReportProjection> users = userManagementService.getUserInfoByUserRole(roleEnum);
+
+        if (users.isEmpty()) {
+            return ResultResponse.<List<UserReportProjection>>builder()
+                    .resultMessage("해당 사용자 타입의 사용자를 찾을 수 없음")
+                    .resultData(null)
+                    .build();
+        }
+
+        return ResultResponse.<List<UserReportProjection>>builder()
+                .resultMessage("사용자 정보 조회 성공")
+                .resultData(users)
+                .build();
+    }
+
+
+
+
 }

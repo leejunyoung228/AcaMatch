@@ -1,7 +1,15 @@
 package com.green.acamatch.grade;
 
+import com.green.acamatch.config.exception.AcaClassErrorCode;
+import com.green.acamatch.config.exception.AcademyException;
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserMessage;
+import com.green.acamatch.entity.exam.Exam;
+import com.green.acamatch.entity.grade.Grade;
+import com.green.acamatch.entity.joinClass.JoinClass;
+import com.green.acamatch.exam.ExamRepository;
 import com.green.acamatch.grade.model.*;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
@@ -14,24 +22,34 @@ import java.util.List;
 public class GradeService {
     private final GradeMapper mapper;
     private final UserMessage userMessage;
+    private final JoinClassRepository joinClassRepository;
+    private final ExamRepository examRepository;
+    private final GradeRepository gradeRepository;
 
     //성적 입력(joinclass에서 학생이 시험을 쳐야 성적 입력 가능)
     @Transactional
     public int postGrade(GradePostReq p) {
         try {
-            int exists = mapper.existsGrade(p.getJoinClassId(), p.getSubjectId());
-            if (exists > 0) {
-                userMessage.setMessage("이미 성적을 입력하였습니다.");
-                return 0;
+            if (gradeRepository.existsGrade(p.getJoinClassId(), p.getExamId()) > 0) {
+                throw new IllegalArgumentException("이미 성적 등록 하였습니다.");
             }
-            int result = mapper.insGrade(p);
-            userMessage.setMessage("성적이 성공적으로 입력되었습니다.");
-            return result;
-        } catch (BadSqlGrammarException e) {
-            userMessage.setMessage("잘못된 형식을 입력하였습니다.");
-            return 0;
-        } catch (Exception e) {
-            userMessage.setMessage("잘못된 값을 입력하였습니다.");
+            Grade grade = new Grade();
+            JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(()
+                    -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
+            Exam exam = examRepository.findById(p.getExamId()).orElseThrow(()
+                    -> new CustomException(AcaClassErrorCode.NOT_FOUND_EXAM));
+
+            grade.setJoinClass(joinClass);
+            grade.setExam(exam);
+            grade.setScore(p.getScore());
+            grade.setPass(p.getPass());
+            grade.setExamDate(p.getExamDate());
+            grade.setProcessingStatus(p.getProcessingStatus());
+
+            gradeRepository.save(grade);
+            return 1;
+        } catch (CustomException e) {
+            e.getStackTrace();
             return 0;
         }
     }
@@ -83,13 +101,31 @@ public class GradeService {
     }
 
     //성적 수정하기
+    @Transactional
     public int updGradeScore(GradePutReq p) {
-            int result = mapper.updGradeScore(p);
-            if (result == 0) {
-                userMessage.setMessage("수정할 정보가 존재하지 않습니다.");
-                return 0;
+        try {
+            Grade grade = gradeRepository.findById(p.getGradeId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_GRADE));
+            grade.setGradeId(p.getGradeId());
+            if (p.getScore() < 0) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
             }
-            userMessage.setMessage("성적 수정에 성공하였습니다.");
-            return result;
+            if (p.getPass() < 0) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+            }
+            if (p.getProcessingStatus() < 0) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+            }
+
+            grade.setExamDate(p.getExamDate());
+            grade.setScore(p.getScore());
+            grade.setPass(p.getPass());
+            grade.setProcessingStatus(p.getProcessingStatus());
+
+            gradeRepository.save(grade);
+            return 1;
+        } catch (Exception e) {
+            e.getStackTrace();
+            return 0;
+        }
     }
 }

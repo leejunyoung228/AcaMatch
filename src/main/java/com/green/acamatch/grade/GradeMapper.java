@@ -7,10 +7,10 @@ import java.util.List;
 
 @Mapper
 public interface GradeMapper {
-    int insGrade(GradePostReq p);
-    int existsGrade(long joinClassId, long subjectId);
+//    int insGrade(GradePostReq p);
+//    int existsGrade(long joinClassId, long subjectId);
     List<GradeGetDto> selGradeScore(GradeGetReq p);
     List<GradeUserDto> selGradeUser(GradeUserGetReq p);
     List<GradeStatusGetDto> selGradeStatus(GradeStatusGetReq p);
-    int updGradeScore(GradePutReq p);
+//    int updGradeScore(GradePutReq p);
 }

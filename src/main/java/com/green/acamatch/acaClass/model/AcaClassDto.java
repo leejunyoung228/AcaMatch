@@ -9,20 +9,30 @@ import java.util.List;
 @Setter
 @Getter
 public class AcaClassDto {
-    @Schema(title = "강좌 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private long classId;
+    @Schema(title = "학원 PK", example = "1")
+    private Long acaId;
     @Schema(title = "학원 사진 여러장")
     private String acaPics;
     @Schema(title = "학원 사진")
     private String acaPic;
+    @Schema(title = "학원 이름")
+    private String acaName;
+    @Schema(title = "강좌 PK", example = "1")
+    private Long classId;
     @Schema(title = "강좌 이름", example = "초등 국어")
     private String className;
     @Schema(title = "수업 시작 날짜", example = "2025-01-16")
     private String startDate;
     @Schema(title = "수업 종료 날짜", example = "2025-01-30")
     private String endDate;
-    @Schema(title = "검색어", example = "과학 창의 반")
-    private String keyword;
-
+    @Schema(title = "검색어1")
+    private String keyword1;
+    @Schema(title = "검색어2")
+    private String keyword2;
+    @Schema(title = "검색어3")
+    private String keyword3;
+    @Schema(title = "선생님 이름")
     private String name;
+//    @Schema(title = "시험 이름")
+//    private String examName;
 }

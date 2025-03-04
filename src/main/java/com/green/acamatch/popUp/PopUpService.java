@@ -147,8 +147,6 @@ public class PopUpService {
         }
     }
 
-
-
     public int delPopUp(Long popUpId) {
         try {
             PopUp popUp = popUpRepository.findById(popUpId)

@@ -296,10 +296,15 @@
         A.aca_name,
         A.created_at,
         A.aca_agree,
+        A.comment,
+        A.aca_phone,
+        A.address,
+        U.name,
         AP.aca_pic,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics
         FROM academy A
         JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        JOIN User U ON A.user_id = U.user_id
         WHERE A.user_id = #{signedUserId}
         GROUP BY A.aca_id;
     </select>
@@ -981,7 +986,7 @@
     <select id="getAcademyInfoByAcaNameClassNameExamNameAcaAgree">
         SELECT A.aca_name, AP.aca_pic,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
-        A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id
+        A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id, U.name
         FROM academy A
         LEFT JOIN academy_pic AP
         ON A.aca_id = AP.aca_id

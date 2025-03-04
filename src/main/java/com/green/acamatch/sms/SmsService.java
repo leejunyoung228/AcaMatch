@@ -44,7 +44,7 @@ public class SmsService {
         // 예외 처리 및 검증 수행 후 메시지 전송
         try {
             validateUser(requestUserId);
-            validateTeacherPermission(requestUserId, smsRequest.getClassId());
+//            validateTeacherPermission(requestUserId, smsRequest.getClassId());
             validateSmsParameters(smsRequest);
             sendMessage(smsRequest, requestUserId);
 
@@ -68,12 +68,12 @@ public class SmsService {
         }
     }
 
-    /**
-     * 특정 수업의 담당 선생님인지 확인
-     */
-    private void validateTeacherPermission(long requestUserId, long classId) {
-        acaClassService.validateTeacherPermission(requestUserId, classId);
-    }
+//    /**
+//     * 특정 수업의 담당 선생님인지 확인
+//     */
+//    private void validateTeacherPermission(long requestUserId, long classId) {
+//        acaClassService.validateTeacherPermission(requestUserId, classId);
+//    }
 
     /**
      * SMS 전송을 위한 입력값 검증
