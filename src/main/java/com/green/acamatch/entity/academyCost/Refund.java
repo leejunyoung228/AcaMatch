@@ -23,6 +23,9 @@ public class Refund extends UpdatedAt {
     @Column(nullable = false)
     private int refundStatus;
 
+    @Column(nullable = false)
+    private String tid;
+
     public void setAcademyCost(long costId) {
         this.academyCost = new AcademyCost();
         this.academyCost.setCostId(costId);

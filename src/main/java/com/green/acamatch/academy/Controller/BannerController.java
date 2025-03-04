@@ -75,4 +75,15 @@ public class BannerController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("all")
+    @Operation(summary = "모든 프리미엄학원 배너 조회 ")
+    public ResultResponse<List<BannerGetRes>> getBannerAll() {
+
+        List<BannerGetRes> res = bannerService.getBannerAll();
+        return ResultResponse.<List<BannerGetRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(res)
+                .build();
+    }
 }

@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("user")
@@ -155,4 +157,41 @@ public class UserController {
                 .resultData(true)
                 .build();
     }
+
+    // 모든 사용자 정보 및 신고 횟수를 조회
+    @GetMapping("/report-count")
+    @Operation(summary = "모든 사용자 정보 및 신고 횟수를 조회")
+    public ResultResponse<List<UserReportProjection>> getAllUsersInfo() {
+        List<UserReportProjection> users = userManagementService.getAllUserInfo();
+        if (users == null || users.isEmpty()) {
+            return ResultResponse.<List<UserReportProjection>>builder()
+                    .resultMessage("사용자 정보 없음")
+                    .resultData(null) // 데이터 없음
+                    .build();
+        }
+        return ResultResponse.<List<UserReportProjection>>builder()
+                .resultMessage("모든 사용자 정보 조회 성공")
+                .resultData(users) // 정상 데이터 반환
+                .build();
+    }
+
+    // 특정 사용자 정보 및 신고 횟수를 조회
+
+    @GetMapping("/{userId}/report-count")
+    @Operation(summary = "특정 사용자 정보 및 신고 횟수를 조회")
+    public ResultResponse<UserReportProjection> getUserInfo(@PathVariable Long userId) {
+        UserReportProjection user = userManagementService.getUserInfo(userId);
+        if (user == null) {
+            return ResultResponse.<UserReportProjection>builder()
+                    .resultMessage("해당 사용자를 찾을 수 없음")
+                    .resultData(null) // 데이터 없음
+                    .build();
+        }
+        return ResultResponse.<UserReportProjection>builder()
+                .resultMessage("사용자 정보 조회 성공")
+                .resultData(user) //정상 데이터 반환
+                .build();
+    }
+
+
 }
