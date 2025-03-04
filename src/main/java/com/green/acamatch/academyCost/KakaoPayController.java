@@ -32,7 +32,8 @@ public class KakaoPayController {
      * 결제요청
      */
     @PostMapping("/ready")
-    public ResultResponse<KakaoReadyResponse> readyToKakaoPay(@ParameterObject KakaoPayPostReq req) {
+    @Operation(summary = "결제 준비")
+    public ResultResponse<KakaoReadyResponse> readyToKakaoPay(@RequestBody KakaoPayPostReq req) {
         return ResultResponse.<KakaoReadyResponse>builder()
                 .resultData(kakaoPayService.kakaoPayReady(req))
                 .resultMessage(academyCostMessage.getMessage())

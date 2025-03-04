@@ -27,4 +27,7 @@ public interface AcademyCostRepository extends JpaRepository<AcademyCost, Intege
         @Query("SELECT a FROM AcademyCost a WHERE a.userId = :userId AND a.createdAt >= :oneMonthAgo")
         List<AcademyCost> findRecentPaymentsByUserId(@Param("userId") Long userId,
                                                      @Param("oneMonthAgo") LocalDateTime oneMonthAgo);
+
+        @Query("SELECT a FROM AcademyCost a WHERE a.tId = :tId")
+        List<AcademyCost> findByTId(@Param("tId") String tId);
 }

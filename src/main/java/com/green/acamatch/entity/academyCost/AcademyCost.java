@@ -40,6 +40,9 @@ public class AcademyCost extends UpdatedAt {
     @Column(nullable = false)
     private String tId;
 
+    @Column(nullable = false)
+    private String partnerOrderId;
+
     @JoinColumn(name = "product_id")
     @ManyToOne
     private Product productId;
