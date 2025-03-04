@@ -14,4 +14,5 @@ public class GetAcademyInfoRes {
     private String acaPhone;
     private String address;
     private long userId;
+    private String name;
 }
