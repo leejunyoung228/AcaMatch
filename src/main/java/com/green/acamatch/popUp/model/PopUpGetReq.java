@@ -10,7 +10,6 @@ import lombok.Setter;
 public class PopUpGetReq extends Paging {
     @JsonIgnore
     private long popUpId;
-
     public PopUpGetReq(Integer page, Integer size) {
         super(page, size);
     }

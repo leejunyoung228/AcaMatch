@@ -3,6 +3,7 @@ package com.green.acamatch.academy;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.location.Dong;
 import com.green.acamatch.entity.user.User;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -62,5 +63,13 @@ public interface AcademyRepository extends JpaRepository<Academy, Long> {
     @Transactional
     @Query(" SELECT COUNT(a) FROM Academy a WHERE a.acaId = :acaId")
     int checkAcaExists(Long acaId);
+
+
+    boolean existsByAcaIdAndUser_UserId(Long acaId, Long userId);
+
+    // 특정 사용자가 소유한 학원의 ID 목록 조회
+    @Query("SELECT a.acaId FROM Academy a WHERE a.user.userId = :userId")
+    List<Long> findOwnedAcademyIdsByUserId(@Param("userId") Long userId);
+
 
 }

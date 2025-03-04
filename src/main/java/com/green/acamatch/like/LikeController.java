@@ -86,7 +86,7 @@ public class LikeController {
 
         log.debug("소유한 학원의 좋아요 유저 목록 조회 요청: page={}, size={}", page, size);
 
-        // 🔥 로그인된 유저 가져오기 (JWT 사용)
+        //  로그인된 유저 가져오기 (JWT 사용)
         AcaLikedUserGetReq req = new AcaLikedUserGetReq(page, size);
         List<AcademyLikedUsersDto> likedAcademies = service.getAllOwnedAcademyLikes(req);
 

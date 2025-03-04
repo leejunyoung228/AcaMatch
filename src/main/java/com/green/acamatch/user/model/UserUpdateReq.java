@@ -31,4 +31,6 @@ public class UserUpdateReq {
     private LocalDate birth;
     @Size(min = 3)
     private String nickName;
+
+    private String userPic;
 }

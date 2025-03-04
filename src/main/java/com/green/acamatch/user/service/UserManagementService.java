@@ -39,7 +39,7 @@ public class UserManagementService {
     }
 
     @Transactional
-    public int updateUser(UserUpdateReq req, MultipartFile pic) {
+    public int updateUser(UserUpdateReq req, MultipartFile userPic) {
         User user = userUtils.findUserById(AuthenticationFacade.getSignedUserId());
         if (req.getCurrentPw() == null || !passwordEncoder.matches(req.getCurrentPw(), user.getUpw())) {
             throw new CustomException(UserErrorCode.INCORRECT_PW);
@@ -49,7 +49,9 @@ public class UserManagementService {
         if (req.getBirth() != null) user.setBirth(req.getBirth());
         if (req.getPhone() != null) user.setPhone(req.getPhone());
         if (req.getNewPw() != null) user.setUpw(passwordEncoder.encode(req.getNewPw()));
-        if (pic != null && !pic.isEmpty()) updateUserProfile(user, pic);
+        if (userPic != null && !userPic.isEmpty()) {
+            updateUserProfile(user, userPic);
+        }
 
         userRepository.save(user);
 
