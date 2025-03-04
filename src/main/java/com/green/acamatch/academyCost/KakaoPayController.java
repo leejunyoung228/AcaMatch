@@ -30,7 +30,12 @@ public class KakaoPayController {
      * 결제요청
      */
     @PostMapping("/ready")
-    @Operation(summary = "결제 준비")
+    @Operation(summary = "결제 준비", description = "aca_id는 프리미엄 학원 결제 시에만 필요한 값입니다. 교재 결제할때는 aca_id 없이 보내시면 되고" +
+            "교재 여러개 결제한다면 예시로 나와 있는 products를 교재 종류 만큼 쓰시면 됩니다." +
+            "성공적으로 excute가 된다면 tid랑 이것저것 나올텐데, 그 중 pc_url을 사용하시면 되는데" +
+            "그 pc_url를 검색창에 그대로 복사해서 붙여넣어보시면 바로 결제 페이지가 나옵니다." +
+            "그 상태에서 결제하시면 페이지가 자동으로 넘어가게 되는데, url에 pg_token이라는게 붙어서 넘어옵니다." +
+            "그러면 그 pg_token이랑 결제 준비에서 받았던 tid를 kakaoPay/success에 입력하시면 결제가 완료됩니다.")
     public ResultResponse<KakaoReadyResponse> readyToKakaoPay(@RequestBody KakaoPayPostReq req) {
         return ResultResponse.<KakaoReadyResponse>builder()
                 .resultData(kakaoPayService.kakaoPayReady(req))
