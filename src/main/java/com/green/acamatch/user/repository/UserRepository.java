@@ -4,6 +4,8 @@ import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.UserReportProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -48,17 +50,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "u.nickName AS nickName, u.userPic AS userPic, " +
             "u.createdAt AS createdAt, u.updatedAt AS updatedAt, COALESCE(COUNT(r), 0) AS reportsCount " +
             "FROM User u LEFT JOIN Reports r ON u.userId = r.user.userId " +
-            "WHERE (:userId IS NULL OR u.userId = :userId) " +  // userId 조건 추가 (NULL이면 전체 조회)
-            "AND (:name IS NULL OR u.name LIKE %:name%) " +  // userName 검색 (부분 일치 가능)
-            "AND (:userRole IS NULL OR u.userRole = :userRole) " +  // userRole 조건 (NULL이면 전체 조회)
-            "AND u.userId != 1 " +  // userId가 1이 아닌 경우만 조회
+            "WHERE (:userId IS NULL OR u.userId = :userId) " +
+            "AND (:name IS NULL OR u.name LIKE %:name%) " +
+            "AND (:nickName IS NULL OR u.nickName LIKE %:nickName%) " +
+            "AND (:userRole IS NULL OR u.userRole = :userRole) " +
+            "AND u.userId != 1 " +
             "GROUP BY u.userId")
-    List<UserReportProjection> findUsersWithFilters(
+    Page<UserReportProjection> findUsersWithFilters(
             @Param("userId") Long userId,
             @Param("name") String name,
-            @Param("userRole") UserRole userRole
+            @Param("nickName") String nickName,
+            @Param("userRole") UserRole userRole,
+            Pageable pageable
     );
-
-
-
 }

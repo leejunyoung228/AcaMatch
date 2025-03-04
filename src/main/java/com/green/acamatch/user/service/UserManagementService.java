@@ -16,6 +16,10 @@ import com.green.acamatch.user.model.UserUpdateReq;
 import com.green.acamatch.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,8 +128,8 @@ public class UserManagementService {
     }
 
 
-    public List<UserReportProjection> searchUsers(Long userId, String name, UserRole userRole) {
-        return userRepository.findUsersWithFilters(userId, name, userRole);
+    public Page<UserReportProjection> searchUsers(Long userId, String name, String nickName, UserRole userRole, int page, int size) {
+        Pageable pageable = (size == 0) ? Pageable.unpaged() : PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return userRepository.findUsersWithFilters(userId, name, nickName, userRole, pageable);
     }
-
 }
