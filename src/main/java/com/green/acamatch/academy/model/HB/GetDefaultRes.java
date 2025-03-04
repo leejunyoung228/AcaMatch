@@ -17,4 +17,5 @@ public class GetDefaultRes {
     private AddressDto addressDto;
     private List<GetAcademyTagDto> tagName;
     private long totalCount;
+    private int premium;
 }
