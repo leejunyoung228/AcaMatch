@@ -23,16 +23,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "카카오페이")
 public class KakaoPayController {
-
     private final KakaoPayService kakaoPayService;
-    private final PremiumService premiumService;
     private final AcademyCostMessage academyCostMessage;
 
     /**
      * 결제요청
      */
     @PostMapping("/ready")
-    public ResultResponse<KakaoReadyResponse> readyToKakaoPay(@ParameterObject KakaoPayPostReq req) {
+    @Operation(summary = "결제 준비")
+    public ResultResponse<KakaoReadyResponse> readyToKakaoPay(@RequestBody KakaoPayPostReq req) {
         return ResultResponse.<KakaoReadyResponse>builder()
                 .resultData(kakaoPayService.kakaoPayReady(req))
                 .resultMessage(academyCostMessage.getMessage())
