@@ -17,7 +17,8 @@ public enum AcademyException implements ErrorCode{
     MISSING_UPDATE_FILED_EXCEPTION(HttpStatus.BAD_REQUEST, "수정할 값을 하나 이상 입력해주세요."),
     NO_SUCH_ELEMENT_EXCEPTION(HttpStatus.NOT_FOUND, "값을 가져올수 없습니다."),
     ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "주소를 수정하려면 주소와 관련된 값을 다 입력해주세요."),
-    NOT_FOUND_BUSINESSNUMBER(HttpStatus.NOT_FOUND, "조회할 수 없는 사업자등록번호입니다.");
+    NOT_FOUND_BUSINESSNUMBER(HttpStatus.NOT_FOUND, "조회할 수 없는 사업자등록번호입니다."),
+    DATA_EXISTS(HttpStatus.BAD_REQUEST, "배너가 이미 존재합니다.");
 
 
     private final HttpStatus httpStatus;

@@ -44,11 +44,22 @@ public class BannerService {
     private final RequestBodyService requestBodyBuilder;
     private final AcademyMessage academyMessage;
 
+    //배너신청
     @Transactional
     public int postBanner(MultipartFile topBannerPic, MultipartFile bottomBannerPic,
                           MultipartFile leftBannerPic, MultipartFile rightBannerPic
                         , BannerPostReq req) {
         log.info("req: {}", req);
+
+        //특정 학원pk가 하나라도 있을때
+        if(bannerPicRepository.countById(req.getAcaId()) > 0) {
+            throw new CustomException(AcademyException.DATA_EXISTS);
+        }
+
+        //배너사진을 하나도 넣지 않았을때
+        if((topBannerPic == null && bottomBannerPic == null && leftBannerPic == null && rightBannerPic == null)) {
+            throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
+        }
 
         long acaId = req.getAcaId();
         PremiumAcademy premiumAcademy = premiumRepository.findById(acaId).orElseThrow();
@@ -69,6 +80,7 @@ public class BannerService {
             String bottomBannerPicName = (bottomBannerPic != null ? myFileUtils.makeRandomFileName(topBannerPic) : null);
             String leftBannerPicName = (leftBannerPic != null ? myFileUtils.makeRandomFileName(leftBannerPic) : null);
             String rightBannerPicName = (rightBannerPic != null ? myFileUtils.makeRandomFileName(rightBannerPic) : null);
+
             String filePath1 = String.format("%s/%s/%s", middlePath, "top", topBannerPicName);
             myFileUtils.makeFolders(filePath1);
             String filePath2 = String.format("%s/%s/%s", middlePath, "bottom", bottomBannerPicName);
@@ -86,7 +98,10 @@ public class BannerService {
             bannerpic.setBannerPicIds(bannerPicIds);
             bannerpic.setBanner(banner);
             bannerpic.setBannerPosition(1);
-            bannerPicRepository.save(bannerpic);
+            if(topBannerPic != null && !topBannerPic.isEmpty()) {
+                bannerPicRepository.save(bannerpic);
+            }
+
             try {
                 myFileUtils.transferTo(topBannerPic, filePath1);
             } catch (IOException e) {
@@ -102,7 +117,10 @@ public class BannerService {
             bannerpic.setBannerPicIds(bannerPicIds);
             bannerpic.setBanner(banner);
             bannerpic.setBannerPosition(2);
-            bannerPicRepository.save(bannerpic);
+            if(bottomBannerPic != null && !bottomBannerPic.isEmpty()) {
+                bannerPicRepository.save(bannerpic);
+            }
+
             try {
                 myFileUtils.transferTo(bottomBannerPic, filePath2);
             } catch (IOException e) {
@@ -118,7 +136,10 @@ public class BannerService {
             bannerpic.setBannerPicIds(bannerPicIds);
             bannerpic.setBanner(banner);
             bannerpic.setBannerPosition(3);
-            bannerPicRepository.save(bannerpic);
+            if(leftBannerPic != null && !leftBannerPic.isEmpty()) {
+                bannerPicRepository.save(bannerpic);
+            }
+
             try {
                 myFileUtils.transferTo(leftBannerPic, filePath3);
             } catch (IOException e) {
@@ -128,14 +149,17 @@ public class BannerService {
             }
 
 
-            bannerPicIds.setAcaId(acaId);
-            bannerPicIds.setBannerPic(rightBannerPicName);
+        bannerPicIds.setAcaId(acaId);
+        bannerPicIds.setBannerPic(rightBannerPicName);
 
-            bannerpic.setBannerPicIds(bannerPicIds);
-            bannerpic.setBanner(banner);
-            bannerpic.setBannerPosition(4);
+        bannerpic.setBannerPicIds(bannerPicIds);
+        bannerpic.setBanner(banner);
+        bannerpic.setBannerPosition(4);
+        if(rightBannerPic != null && rightBannerPic.isEmpty()) {
             bannerPicRepository.save(bannerpic);
-            try {
+        }
+
+        try {
                 myFileUtils.transferTo(rightBannerPic, filePath4);
             } catch (IOException e) {
                 String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
@@ -147,6 +171,7 @@ public class BannerService {
         return 1;
     }
 
+    //배너승인
     @Transactional
     public int updateBannerType(Long acaId, int bannerType) {
         int result = bannerRepository.updateBannerTypeByAcaId(acaId, bannerType);
@@ -158,7 +183,7 @@ public class BannerService {
     }
 
 
-
+    //배너 활성화/비활성화
     @Transactional
     public int updateBannerShow(Long acaId, int bannerPosition, int bannerShow) {
         bannerPicRepository.updateBannerPicShowByAcaIdAndBannerPosition(acaId, bannerPosition, bannerShow);
@@ -170,6 +195,7 @@ public class BannerService {
         return 1;
     }
 
+    //배너 포지션별 조회
     @Transactional
     public List<BannerByPositionGetRes> getBannerByPosition(Long acaId, int position) {
         List<BannerByPositionGetRes> res = bannerRepository.findBannerByPosition(acaId, position);
@@ -177,13 +203,15 @@ public class BannerService {
         return res;
     }
 
+    //특정 프리미엄학원의 배너 조회
     @Transactional
     public List<BannerGetRes> getBanner(Long acaId) {
         List<BannerGetRes> res = bannerRepository.findBanner(acaId);
-        academyMessage.setMessage("%d번의, acaId" + "프리미엄학원의 배너가 조회되었습니다.");
+        academyMessage.setMessage("%d번, acaId" + " 프리미엄학원의 배너가 조회되었습니다.");
         return res;
     }
 
+    //프리미엄 학원의 모든 배너 조회
     @Transactional
     public List<BannerGetRes> getBannerAll() {
         List<BannerGetRes> res = bannerRepository.findAllBanner();
