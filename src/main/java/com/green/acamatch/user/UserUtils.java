@@ -8,6 +8,7 @@ import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.jwt.JwtTokenProvider;
 import com.green.acamatch.config.jwt.JwtUser;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.user.model.UserReportProjection;
 import com.green.acamatch.user.model.UserSignInRes;
 import com.green.acamatch.user.model.UserSignUpReq;
 import com.green.acamatch.user.repository.UserRepository;
@@ -99,4 +100,5 @@ public class UserUtils {
             throw new CustomException(ManagerErrorCode.PERMISSION_DENIED);
         }
     }
+
 }
