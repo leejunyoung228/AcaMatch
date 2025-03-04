@@ -23,9 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "카카오페이")
 public class KakaoPayController {
-
     private final KakaoPayService kakaoPayService;
-    private final PremiumService premiumService;
     private final AcademyCostMessage academyCostMessage;
 
     /**
