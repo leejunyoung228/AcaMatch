@@ -15,12 +15,14 @@ import com.green.acamatch.teacher.model.TeacherPutReq;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -35,10 +37,7 @@ public class TeacherService {
     private final UserRepository userRepository;
     private final AcademyRepository academyRepository;
     private final TeacherRepository teacherRepository;
-    private final UserUtils userUtils;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final MyFileUtils myFileUtils;
-    private final UserConst userConst;
+
     @Autowired
     private JavaMailSender mailSender;
 
@@ -60,6 +59,34 @@ public class TeacherService {
         teacherRepository.save(teacher);
 
         return 1;
+    }
+
+    public Integer updateTeacher(TeacherPutReq p) {
+        try {
+            TeacherIds teacherIds = new TeacherIds(p.getAcaId(), p.getUserId());
+            teacherIds.setAcaId(p.getAcaId());
+            teacherIds.setUserId(p.getUserId());
+
+            Teacher teacher = teacherRepository.findById(teacherIds).orElseThrow(()
+                    -> new CustomException(TeacherErrorCode.NOT_FOUND_TEACHER));
+
+            if (!StringUtils.hasText(p.getTeacherComment())) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+            }
+
+            if(p.getTeacherAgree() < 0) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+            }
+
+            teacher.setTeacherComment(p.getTeacherComment());
+            teacher.setTeacherAgree(p.getTeacherAgree());
+            teacherRepository.save(teacher);
+
+            return 1;
+        } catch (CustomException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     @Transactional
@@ -86,81 +113,4 @@ public class TeacherService {
             return 0;
         }
     }
-
-//    @Transactional
-//    public int updateTeacher(TeacherPutReq p, MultipartFile pic, String inputCode) {
-//        Long userId = AuthenticationFacade.getSignedUserId();
-//
-//        // 이메일 인증 코드 검증
-//        if (!verifyCode(userId, inputCode)) {
-//            throw new CustomException(UserErrorCode.INVALID_VERIFICATION_CODE);
-//        }
-//
-//        // 사용자 정보 조회
-//        User user = userUtils.findUserById(userId);
-//        Teacher teacher = teacherRepository.findByAcaIdAndUserId(userId)
-//                .orElseThrow(() -> new CustomException(UserErrorCode.TEACHER_NOT_FOUND));
-//
-//        String email = teacherRepository.findEmailByUserId(AuthenticationFacade.getSignedUserId());
-//        if(p.getEmail() != null) user.setEmail(email);
-//        if (p.getCurrentPw() == null || !passwordEncoder.matches(p.getCurrentPw(), user.getUpw())) {
-//            throw new CustomException(UserErrorCode.INCORRECT_PW);
-//        }
-//        if (p.getNewPw() != null) user.setUpw(passwordEncoder.encode(p.getNewPw()));
-//        if (p.getName() != null) user.setName(p.getName());
-//        if (p.getNickName() != null) user.setNickName(p.getNickName());
-//        if (p.getPhone() != null) user.setPhone(p.getPhone());
-//        if (p.getBirth() != null) user.setBirth(p.getBirth());
-//        if (pic != null && !pic.isEmpty()) updateTeacherProfile(user, pic);
-//        if (p.getTeacherComment() != null) teacher.setTeacherComment(p.getTeacherComment());
-//
-//        userRepository.save(user);
-//        teacherRepository.save(teacher);
-//
-//        return 1;
-//    }
-//
-//    public void updateTeacherProfile(User user, MultipartFile pic) {
-//        String prePic = user.getUserPic();
-//        String folderPath = String.format(userConst.getUserPicFilePath(), user, user.getUserId());
-//        user.setUserPic(myFileUtils.makeRandomFileName(pic));
-//        String filePath = String.format("%s/%s", folderPath, user.getUserPic());
-//        if (prePic != null) {
-//            myFileUtils.deleteFolder(folderPath, false);
-//        }
-//        myFileUtils.makeFolders(folderPath);
-//        try {
-//            myFileUtils.transferTo(pic, filePath);
-//        } catch (IOException e) {
-//            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    public String generateVerificationCode() {
-//        return UUID.randomUUID().toString().substring(0, 6); // 6자리 랜덤 코드
-//    }
-//
-//    public void sendVerificationEmail(String email, String code) {
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setTo(email);
-//        message.setSubject("본인 인증 코드");
-//        message.setText("인증 코드: " + code);
-//        mailSender.send(message);
-//    }
-//
-//    // 인증 코드 저장소 (임시: Redis 또는 DB 사용 가능)
-//    private Map<Long, String> verificationCodes = new HashMap<>();
-//
-//    public void requestEmailVerification(Long userId) {
-//        String email = teacherRepository.findEmailByUserId(userId);
-//        String code = generateVerificationCode();
-//        verificationCodes.put(userId, code);
-//        sendVerificationEmail(email, code);
-//    }
-//
-//    // 사용자가 입력한 인증 코드 검증
-//    public boolean verifyCode(Long userId, String inputCode) {
-//        String correctCode = verificationCodes.get(userId);
-//        return correctCode != null && correctCode.equals(inputCode);
-//    }
 }

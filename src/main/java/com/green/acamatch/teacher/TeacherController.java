@@ -1,3 +1,4 @@
+
 package com.green.acamatch.teacher;
 
 import com.green.acamatch.config.model.ResultResponse;
@@ -26,17 +27,14 @@ public class TeacherController {
                 .build();
     }
 
-//    @PutMapping
-//    public ResultResponse<Integer> updateTeacher(@RequestPart TeacherPutReq p, MultipartFile pic) {
-//        Integer result = teacherService.updateTeacher(p, pic);
-//        return ResultResponse.<Integer>builder()
-//                .resultMessage(result == 1 ? "선생님 정보 수정 성공" : "선생님 정보 수정 실패")
-//                .resultData(result)
-//                .build();
-//    }
-
-
-
+    @PutMapping
+    public ResultResponse<Integer> updateTeacher(@ModelAttribute @ParameterObject TeacherPutReq p) {
+        Integer result = teacherService.updateTeacher(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(result == 1 ? "선생님 정보 수정 성공" : "선생님 정보 수정 실패")
+                .resultData(result)
+                .build();
+    }
 
     @DeleteMapping
     public ResultResponse<Integer> deleteTeacher(@ModelAttribute @ParameterObject TeacherDelReq p) {

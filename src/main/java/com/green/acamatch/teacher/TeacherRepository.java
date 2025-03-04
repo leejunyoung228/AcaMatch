@@ -12,10 +12,4 @@ import java.util.Optional;
 @Repository
 public interface TeacherRepository extends JpaRepository<Teacher, TeacherIds> {
     Optional<Teacher> findById(TeacherIds teacherIds);
-
-    @Query("SELECT a.email FROM User a WHERE a.userId = :userId")
-    String findEmailByUserId(@Param("userId") Long userId);
-
-    @Query("SELECT t FROM Teacher t WHERE t.academy.acaId = :acaId AND t.user.userId = :userId")
-    Optional<Teacher> findByAcaIdAndUserId(@Param("acaId") Long acaId, @Param("userId") Long userId);
 }
