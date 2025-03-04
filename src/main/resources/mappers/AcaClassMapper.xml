@@ -158,7 +158,7 @@
         INNER JOIN academy_pic C
         ON B.aca_id = C.aca_id
         LEFT JOIN teacher D
-        ON B.aca_id = D.aca_id
+        ON A.class_id = D.class_id
         LEFT JOIN `user` E
         ON D.user_id = E.user_id
         LEFT JOIN exam F
@@ -174,7 +174,6 @@
                     </if>
                 </trim>
             </if>
-
             <if test="keyword2 != null and keyword2 != '' ">
                 AND A.class_name LIKE '%${keyword2}%'
             </if>

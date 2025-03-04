@@ -2,22 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.green.acamatch.joinClass.JoinClassMapper">
-    <insert id = "insJoinClass" useGeneratedKeys="true" keyProperty="joinClassId">
-        INSERT INTO joinclass
-        SET class_id = #{classId},
-        user_id = #{userId},
-        certification = #{certification},
-        registration_date = #{registrationDate}
-    </insert>
+<!--    <insert id = "insJoinClass" useGeneratedKeys="true" keyProperty="joinClassId">-->
+<!--        INSERT INTO joinclass-->
+<!--        SET class_id = #{classId},-->
+<!--        user_id = #{userId},-->
+<!--        certification = #{certification},-->
+<!--        registration_date = #{registrationDate}-->
+<!--    </insert>-->
 
-    <select id = "existsJoinClass" parameterType="map" resultType="int">
-        SELECT COUNT(*)
-        FROM joinclass
-        WHERE class_id = #{classId} AND user_id = #{userId}
-    </select>
+<!--    <select id = "existsJoinClass" parameterType="map" resultType="int">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM joinclass-->
+<!--        WHERE class_id = #{classId} AND user_id = #{userId}-->
+<!--    </select>-->
 
     <resultMap id="JoinClassResultMap" type="com.green.acamatch.joinClass.model.JoinClassDto">
-        <id property = "acaId" column="aca_id" />
+        <id property="acaId" column="aca_id" />
+        <result property="acaPics" column="aca_pics"/>
         <result property="acaPic" column="aca_pic"/>
         <result property="acaName" column="aca_name"/>
         <collection property="classList" resultMap="JoinClassInfoResultMap" />
@@ -31,30 +32,22 @@
     </resultMap>
 
     <select id= "selJoinClass" resultMap="JoinClassResultMap">
-        SELECT C.aca_id, D.aca_pic, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
-        FROM join_class A
-        INNER JOIN aca_class B
-        ON A.class_id = B.class_id
-        INNER JOIN academy C
-        ON B.aca_id = C.aca_id
-        INNER JOIN academy_pic D
-        ON C.aca_id = D.aca_id
-        WHERE A.user_id = #{userId}
-        LIMIT #{startIdx}, #{size}
-    </select>
-
-    <select id="selParents" resultMap="JoinClassResultMap">
-        SELECT C.aca_id, C.aca_pic, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
-        FROM joinclass A
-        INNER JOIN class B
-        ON A.class_id = B.class_id
-        INNER JOIN academy C
-        ON B.aca_id = C.aca_id
-        INNER JOIN relationship R
-        ON A.user_id = R.student_id
-        WHERE R.parents_id = #{userId}
-        AND R.certification = 1
-        LIMIT #{startIdx}, #{size}
+    SELECT C.aca_id,
+    GROUP_CONCAT(DISTINCT D.aca_pic ORDER BY D.aca_pic SEPARATOR ',') AS aca_pics,
+    D.aca_pic, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
+    FROM join_class A
+    INNER JOIN aca_class B
+    ON A.class_id = B.class_id
+    INNER JOIN academy C
+    ON B.aca_id = C.aca_id
+    LEFT JOIN academy_pic D
+    ON C.aca_id = D.aca_id
+    LEFT JOIN relationship E
+    ON A.user_id = E.student_id
+    WHERE E.parent_id = #{parentId}
+    OR A.user_id = #{studentId}
+    GROUP BY C.aca_id, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
+    LIMIT #{startIdx}, #{size}
     </select>
 
     <update id = "updJoinClass">

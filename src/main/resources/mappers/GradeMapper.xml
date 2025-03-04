@@ -41,7 +41,7 @@
 
     <select id = "selGradeStatus">
         SELECT GROUP_CONCAT(DISTINCT B.aca_pic ORDER BY B.aca_pic SEPARATOR ',') AS aca_pics,
-        B.aca_pic, D.exam_id, D.exam_name, E.exam_date, E.processing_status
+        B.aca_pic, D.exam_id, D.exam_name, E.exam_date, E.processing_status, F.user_id, G.name AS teacher_name
         FROM academy A
         LEFT JOIN academy_pic B
         ON A.aca_id = B.aca_id
@@ -51,26 +51,32 @@
         ON C.class_id = D.class_id
         LEFT JOIN grade E
         ON D.exam_id = E.exam_id
+        LEFT JOIN teacher F
+        ON C.class_id = F.class_id
+        LEFT JOIN `user` G
+        ON F.user_id = G.user_id
         <where>
-            <if test="acaId != null or keyword1 != null">
-                <trim prefixOverrides="OR">
-                    <if test="acaId != null">
-                        OR A.aca_id = #{acaId}
-                    </if>
-                    <if test="keyword1 != null and keyword1 != '' ">
-                        OR A.aca_name LIKE '%${keyword1}%'
-                    </if>
-                </trim>
-            </if>
-
-            <if test="keyword2 != null and keyword2 != '' ">
-                AND C.class_name LIKE '%${keyword2}%'
-            </if>
-            <if test="keyword3 != null and keyword3 != '' ">
-                AND D.exam_name LIKE '%${keyword3}%'
-            </if>
+        <if test="acaId != null or keyword1 != null">
+            <trim prefixOverrides="OR">
+                <if test="acaId != null">
+                    OR A.aca_id = #{acaId}
+                </if>
+                <if test="classId != null">
+                    AND C.class_id = #{classId}
+                </if>
+                <if test="keyword1 != null and keyword1 != '' ">
+                    OR A.aca_name LIKE '%${keyword1}%'
+                </if>
+            </trim>
+        </if>
+        <if test="keyword2 != null and keyword2 != '' ">
+            AND C.class_name LIKE '%${keyword2}%'
+        </if>
+        <if test="keyword3 != null and keyword3 != '' ">
+            AND D.exam_name LIKE '%${keyword3}%'
+        </if>
         </where>
-        GROUP BY D.exam_id, D.exam_name, E.exam_date, E.processing_status
+        GROUP BY D.exam_id, D.exam_name, E.exam_date, E.processing_status, F.user_id, G.name
         ORDER BY D.exam_id
         LIMIT #{startIdx}, #{size}
     </select>

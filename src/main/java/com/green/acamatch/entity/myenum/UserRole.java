@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 
+import java.beans.PropertyEditorSupport;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +37,17 @@ public enum UserRole {
     }
 
     @JsonCreator
+
+    public static UserRole fromJson(Object input) {
+        if (input == null) {
+            // null일 경우 기본값 반환 (예: STUDENT)
+            return UserRole.STUDENT;
+        } else if (input instanceof Number) {
+            int intValue = ((Number) input).intValue();
+            return valueMap.get(intValue);  // Map에서 바로 조회
+        } else if (input instanceof String strValue) {
+            return nameMap.get(strValue.toUpperCase());  // 대소문자 무시하고 Map에서 바로 조회
+
     public static UserRole fromJson(String input) {
         if (input == null || input.isBlank()) {
             throw new IllegalArgumentException("UserRole cannot be null or empty");
@@ -52,6 +66,7 @@ public enum UserRole {
         UserRole role = nameMap.get(input.toUpperCase());
         if (role != null) {
             return role;
+
         }
 
         throw new IllegalArgumentException("Invalid UserRole input: " + input);
@@ -75,4 +90,5 @@ public enum UserRole {
     public boolean isAdminOrTeacherOrAcademy() {
         return isAdmin() || isTeacher() || isAcademy();
     }
+
 }
