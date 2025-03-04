@@ -101,7 +101,7 @@ public class SmsTeacherService {
         // TeacherIds 생성 (복합키)
         TeacherIds teacherIds = new TeacherIds();
         teacherIds.setUserId(req.getUserId());
-        teacherIds.setAcaId(req.getAcaId());
+//        teacherIds.setAcaId(req.getAcaId());
 
         // 이미 등록된 선생님인지 확인
         if (smsTeacherRepository.findByTeacherIds(teacherIds).isPresent()) {
@@ -112,7 +112,7 @@ public class SmsTeacherService {
         Teacher teacher = new Teacher();
         teacher.setTeacherIds(teacherIds);
         teacher.setUser(user);
-        teacher.setAcademy(academy);
+//        teacher.setAcademy(academy);
         teacher.setTeacherComment(req.getTeacherComment());
         teacher.setTeacherAgree(req.getTeacherAgree());
 

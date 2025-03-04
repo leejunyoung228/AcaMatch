@@ -1,5 +1,6 @@
 package com.green.acamatch.teacher.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,8 +8,10 @@ import lombok.Setter;
 @Setter
 @Getter
 public class TeacherPostReq {
-    @Schema(title = "학원 pk", example = "1")
+    @JsonIgnore
     private long acaId;
+    @Schema(title = "강좌 pk", example = "1")
+    private long classId;
     @Schema(title = "사용자 pk", example = "1")
     private long userId;
     @Schema(title = "선생님 소개", example = "국어 전문가입니다.")

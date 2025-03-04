@@ -22,18 +22,11 @@ public class GradeController {
     @PostMapping
     @Operation(summary = "시험 점수 등록하기/ joinclass 값을 입력한 후 성적 입력 가능")
     public ResultResponse<Integer> postGrade(@RequestBody GradePostReq p) {
-        try {
             Integer result = service.postGrade(p);
             return ResultResponse.<Integer>builder()
-                    .resultMessage(userMessage.getMessage())
+                    .resultMessage(result == 1 ? "점수 등록 완료" : "점수 등록 실패")
                     .resultData(result)
                     .build();
-        } catch (IllegalArgumentException e) {
-            return ResultResponse.<Integer>builder()
-                    .resultMessage(e.getMessage())
-                    .resultData(0)
-                    .build();
-        }
     }
 
     @GetMapping
@@ -72,7 +65,7 @@ public class GradeController {
     public ResultResponse<Integer> updGradeScore(@RequestBody GradePutReq p) {
         Integer result = service.updGradeScore(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage())
+                .resultMessage(result == 1 ? "점수 수정 완료" : "점수 수정 실패")
                 .resultData(result)
                 .build();
     }

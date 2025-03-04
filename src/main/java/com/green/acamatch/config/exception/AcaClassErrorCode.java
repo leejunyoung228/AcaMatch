@@ -14,8 +14,10 @@ public enum AcaClassErrorCode implements ErrorCode {
     INVALID_DAY_FOR_CLASS(HttpStatus.BAD_REQUEST, "강좌가 열리는 날이 아닙니다."),
     NOT_FOUND_JOIN_CLASS(HttpStatus.NOT_FOUND, "수강생을 찾을 수 없습니다."),
     EXISTS_STATUS(HttpStatus.BAD_REQUEST, "이미 처리 되었습니다."),
-    NOT_FOUND_ATTENDANCE(HttpStatus.NOT_FOUND, "출석부를 찾을 수 없습니다.")
-    ;
+    NOT_FOUND_ATTENDANCE(HttpStatus.NOT_FOUND, "출석부를 찾을 수 없습니다."),
+    NOT_FOUND_EXAM(HttpStatus.NOT_FOUND, "시험을 찾을 수 없습니다."),
+    NOT_FOUND_GRADE(HttpStatus.NOT_FOUND, "성적을 찾을 수 없습니다."),
+    EXISTS_TEACHER(HttpStatus.BAD_REQUEST, "이미 강좌에 등록된 선생님이 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

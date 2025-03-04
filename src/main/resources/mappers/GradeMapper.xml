@@ -2,54 +2,76 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.green.acamatch.grade.GradeMapper">
-    <insert id="insGrade">
-        INSERT INTO grade
-        ( join_class_id, subject_id, score, pass, exam_date, processing_status)
-        SELECT join_class_id, #{subjectId}, #{score}, #{pass}, #{examDate}, #{processingStatus}
-        FROM joinclass
-        WHERE join_class_id = #{joinClassId}
-    </insert>
+<!--    <insert id="insGrade">-->
+<!--        INSERT INTO grade-->
+<!--        ( join_class_id, subject_id, score, pass, exam_date, processing_status)-->
+<!--        SELECT join_class_id, #{subjectId}, #{score}, #{pass}, #{examDate}, #{processingStatus}-->
+<!--        FROM joinclass-->
+<!--        WHERE join_class_id = #{joinClassId}-->
+<!--    </insert>-->
 
-    <select id ="existsGrade">
-        SELECT COUNT(*)
-        FROM grade A
-        INNER JOIN joinclass B
-        ON A.join_class_id = B.join_class_id
-        WHERE B.join_class_id = #{joinClassId} AND A.subject_id = #{subjectId}
-    </select>
+<!--    <select id ="existsGrade">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM grade A-->
+<!--        INNER JOIN joinclass B-->
+<!--        ON A.join_class_id = B.join_class_id-->
+<!--        WHERE B.join_class_id = #{joinClassId} AND A.subject_id = #{subjectId}-->
+<!--    </select>-->
 
     <resultMap id="selGradeScoreResultMap" type="com.green.acamatch.grade.model.GradeGetDto">
-        <result property="subjectName" column="subject_name" />
+        <result property="examName" column="exam_name" />
         <result property="examDate" column="exam_date" />
         <result property="score" column="result_score" />
         <result property="pass" column="result_pass" />
     </resultMap>
 
     <select id="selGradeScore" resultMap="selGradeScoreResultMap">
-        SELECT A.subject_name, B.exam_date,
+        SELECT A.exam_name, B.exam_date,
         CASE WHEN A.SCORE_TYPE = 0 THEN B.score ELSE NULL END AS result_score,
         CASE WHEN A.SCORE_TYPE != 0 THEN
         CASE WHEN COALESCE(B.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass
-        FROM subject A
+        FROM exam A
         INNER JOIN grade B
-        ON A.subject_id = B.subject_id
-        INNER JOIN joinclass C
+        ON A.exam_id = B.exam_id
+        INNER JOIN join_class C
         ON B.join_class_id = C.join_class_id
         WHERE C.user_id = #{userId} AND C.class_id = #{classId}
         LIMIT #{startIdx}, #{size}
     </select>
 
     <select id = "selGradeStatus">
-        SELECT A.aca_pic, C.subject_id, C.subject_name, D.exam_date, D.processing_status
+        SELECT GROUP_CONCAT(DISTINCT B.aca_pic ORDER BY B.aca_pic SEPARATOR ',') AS aca_pics,
+        B.aca_pic, D.exam_id, D.exam_name, E.exam_date, E.processing_status
         FROM academy A
-        INNER JOIN class B
+        LEFT JOIN academy_pic B
         ON A.aca_id = B.aca_id
-        INNER JOIN subject C
-        ON B.class_id = C.class_id
-        LEFT JOIN grade D
-        ON C.subject_id = D.subject_id
-        WHERE A.aca_id = #{acaId} AND B.class_id = #{classId}
-        GROUP BY subject_id
+        INNER JOIN aca_class C
+        ON A.aca_id = C.aca_id
+        INNER JOIN exam D
+        ON C.class_id = D.class_id
+        LEFT JOIN grade E
+        ON D.exam_id = E.exam_id
+        <where>
+            <if test="acaId != null or keyword1 != null">
+                <trim prefixOverrides="OR">
+                    <if test="acaId != null">
+                        OR A.aca_id = #{acaId}
+                    </if>
+                    <if test="keyword1 != null and keyword1 != '' ">
+                        OR A.aca_name LIKE '%${keyword1}%'
+                    </if>
+                </trim>
+            </if>
+
+            <if test="keyword2 != null and keyword2 != '' ">
+                AND C.class_name LIKE '%${keyword2}%'
+            </if>
+            <if test="keyword3 != null and keyword3 != '' ">
+                AND D.exam_name LIKE '%${keyword3}%'
+            </if>
+        </where>
+        GROUP BY D.exam_id, D.exam_name, E.exam_date, E.processing_status
+        ORDER BY D.exam_id
         LIMIT #{startIdx}, #{size}
     </select>
 
@@ -60,49 +82,49 @@
         <result property="joinClassId" column="join_class_id" />
         <result property="scoreType" column="score_type"/>
         <result property="gradeId" column="grade_id" />
-        <result property="subjectName" column="subject_name"/>
+        <result property="examName" column="exam_name"/>
         <result property="examDate" column="exam_date" />
         <result property="score" column="score" />
         <result property="pass" column="pass" />
     </resultMap>
 
     <select id="selGradeUser" resultMap="gradeUserResultMap">
-        SELECT E.user_id, E.user_pic, E.name, C.join_class_id, F.score_type, D.grade_id, F.subject_name, D.exam_date,
+        SELECT E.user_id, E.user_pic, E.name, C.join_class_id, F.score_type, D.grade_id, F.exam_name, D.exam_date,
         CASE WHEN F.SCORE_TYPE = 0 THEN D.score ELSE 0 END AS score,
         CASE WHEN F.SCORE_TYPE != 0 THEN
         CASE WHEN COALESCE(D.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS pass
         FROM academy A
-        INNER JOIN class B
+        INNER JOIN aca_class B
         ON A.aca_id = B.aca_id
-        INNER JOIN joinclass C
+        INNER JOIN join_class C
         ON B.class_id = C.class_id
         INNER JOIN `user` E
         ON E.user_id = C.user_id
-        INNER JOIN `subject` F
+        INNER JOIN exam F
         ON B.class_id = F.class_id
         LEFT JOIN grade D
         ON C.join_class_id = D.join_class_id
-        AND F.subject_id = D.subject_id
-        WHERE F.subject_id = #{subjectId}
+        AND F.exam_id = D.exam_id
+        WHERE F.exam_id = #{examId}
         LIMIT #{startIdx}, #{size}
     </select>
 
-    <update id="updGradeScore">
-        UPDATE grade
-        <set>
-            <if test =" examDate != null and examDate != '' ">
-                exam_date = #{examDate},
-            </if>
-            <if test =" score != null">
-                score = #{score},
-            </if>
-            <if test =" pass != null">
-                pass = #{pass},
-            </if>
-            <if test =" processingStatus != null">
-                processing_status = #{processingStatus}
-            </if>
-        </set>
-        WHERE grade_id = #{gradeId}
-    </update>
+<!--    <update id="updGradeScore">-->
+<!--        UPDATE grade-->
+<!--        <set>-->
+<!--            <if test =" examDate != null and examDate != '' ">-->
+<!--                exam_date = #{examDate},-->
+<!--            </if>-->
+<!--            <if test =" score != null">-->
+<!--                score = #{score},-->
+<!--            </if>-->
+<!--            <if test =" pass != null">-->
+<!--                pass = #{pass},-->
+<!--            </if>-->
+<!--            <if test =" processingStatus != null">-->
+<!--                processing_status = #{processingStatus}-->
+<!--            </if>-->
+<!--        </set>-->
+<!--        WHERE grade_id = #{gradeId}-->
+<!--    </update>-->
 </mapper>
