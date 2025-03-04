@@ -118,7 +118,7 @@ public class UserManagementService {
 
     // 모든 사용자 정보 조회
     public List<UserReportProjection> getAllUserInfo() {
-        List<UserReportProjection> users = userRepository.findUsersWithReportCount();
+        List<UserReportProjection> users = userRepository.findUsersExceptAdmin();
         return users.isEmpty() ? null : users; // 리스트가 비어있으면 null 반환
     }
 
