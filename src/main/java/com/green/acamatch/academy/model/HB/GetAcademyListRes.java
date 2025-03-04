@@ -14,6 +14,7 @@ public class GetAcademyListRes {
     private String acaPics;
     private String acaName;
     private String address;
+    private int premium;
     private String detailAddress;
     private String postNum;
     private double star;
