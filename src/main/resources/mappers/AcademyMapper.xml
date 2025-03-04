@@ -140,7 +140,7 @@
     <select id="getAcademyBest" resultType="com.green.acamatch.academy.model.JW.AcademyBestLikeGetRes">
         SELECT a.aca_id,
         COUNT(DISTINCT a.user_id) AS like_count,
-        b.aca_name, b.aca_pic,
+        b.aca_name, AP.aca_pic,
         GROUP_CONCAT(DISTINCT c.tag_id ORDER BY c.tag_id ASC) AS tag_ids,
         GROUP_CONCAT(DISTINCT g.tag_name ORDER BY c.tag_id ASC) AS tag_names,
         ifnull(AVG(f.star), 0) AS star_avg,
@@ -148,6 +148,8 @@
         FROM `likes` a
         LEFT JOIN `academy` b
         ON a.aca_id = b.aca_id
+        LEFT JOIN `academy_pic` AP
+        ON b.aca_id = AP.aca_id
         LEFT JOIN `academy_tag` c
         ON a.aca_id = c.aca_id
         LEFT JOIN `aca_class` d
