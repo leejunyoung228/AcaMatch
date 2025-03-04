@@ -51,5 +51,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "WHERE u.userId = :userId " +
             "AND u.userId != 1 " +
             "GROUP BY u.userId")
-    Optional<UserReportProjection> findUserWithReportCountById(@Param("userId") Long userId);
+    Optional<UserReportProjection> findUserWithReportCountByUserId(@Param("userId") Long userId);
+
+    // user_role로 검색
+    @Query("SELECT u.userId AS userId, u.userRole AS userRole, u.name AS name, " +
+            "u.email AS email, u.phone AS phone, u.birth AS birth, " +
+            "u.nickName AS nickName, u.userPic AS userPic, " +
+            "u.createdAt AS createdAt, u.updatedAt AS updatedAt, COALESCE(COUNT(r), 0) AS reportsCount " +
+            "FROM User u LEFT JOIN Reports r ON u.userId = r.user.userId " +
+            "WHERE u.userRole = :userRole " +
+            "GROUP BY u.userId")
+    List<UserReportProjection> findUsersWithReportCountByUserRole(@Param("userRole") UserRole userRole);
+
+
 }

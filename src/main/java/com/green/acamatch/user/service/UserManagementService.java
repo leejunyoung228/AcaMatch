@@ -6,6 +6,7 @@ import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.security.AuthenticationFacade;
+import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.user.model.SimpleUserDataUpdateReq;
@@ -124,8 +125,14 @@ public class UserManagementService {
 
     // 특정 사용자 정보 조회
     public UserReportProjection getUserInfo(Long userId) {
-        return userRepository.findUserWithReportCountById(userId)
+        return userRepository.findUserWithReportCountByUserId(userId)
                 .orElse(null);  // Optional을 활용하여 null 처리
     }
+
+    public List<UserReportProjection> getUserInfoByUserRole(UserRole userRole) {
+        return userRepository.findUsersWithReportCountByUserRole(userRole);
+    }
+
+
 
 }
