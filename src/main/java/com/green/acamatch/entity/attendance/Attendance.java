@@ -5,6 +5,8 @@ import com.green.acamatch.entity.joinClass.JoinClass;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 
@@ -17,6 +19,7 @@ public class Attendance extends CreatedAt{
     private Long attendanceId;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "join_class_id", nullable = false)
     private JoinClass joinClass;
 

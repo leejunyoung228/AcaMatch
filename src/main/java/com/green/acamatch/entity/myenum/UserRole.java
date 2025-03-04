@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 
+import java.beans.PropertyEditorSupport;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +39,10 @@ public enum UserRole {
 
     @JsonCreator
     public static UserRole fromJson(Object input) {
-        if (input instanceof Number) {
+        if (input == null) {
+            // null일 경우 기본값 반환 (예: STUDENT)
+            return UserRole.STUDENT;
+        } else if (input instanceof Number) {
             int intValue = ((Number) input).intValue();
             return valueMap.get(intValue);  // Map에서 바로 조회
         } else if (input instanceof String strValue) {
@@ -61,4 +67,5 @@ public enum UserRole {
     public boolean isAdminOrTeacherOrAcademy() {
         return isAdmin() || isTeacher() || isAcademy();
     }
+
 }

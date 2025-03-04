@@ -8,6 +8,7 @@ import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.joinClass.JoinClass;
+import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.model.*;
 import com.green.acamatch.user.repository.UserRepository;
@@ -49,19 +50,14 @@ public class JoinClassService {
     }
 
     public List<JoinClassDto> selJoinClass(JoinClassGetReq p) {
-        p.setUserId(AuthenticationFacade.getSignedUserId());
         try {
-            List<JoinClassDto> result = null;
-            if (p.getRole() == 1) result = mapper.selJoinClass(p);
-            else if (p.getRole() == 2) result = mapper.selParents(p);
+            List<JoinClassDto> result = mapper.selJoinClass(p);
             if (result == null || result.isEmpty()) {
-                userMessage.setMessage("성적확인을 위한 학원명/강좌명 불러오기에 실패하였습니다.");
-                return null;
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_SEL);
             }
-            userMessage.setMessage("성적확인을 위한 학원명/강좌명 불러오기에 성공하였습니다.");
             return result;
-        } catch (Exception e) {
-            userMessage.setMessage("기타 오류 사항으로 성적확인을위한 불러오지 못했습니다.");
+        } catch (CustomException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -69,7 +65,8 @@ public class JoinClassService {
     @Transactional
     public int putJoinClass(JoinClassPutReq p) {
         try {
-            JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
+            JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(()
+                    -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
             joinClass.setJoinClassId(p.getJoinClassId());
 
             if (p.getCertification() > 0) {
@@ -89,7 +86,8 @@ public class JoinClassService {
     // 수강생 삭제
     public int delJoinClass(JoinClassDel p) {
         try {
-            JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(() -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
+            JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(()
+                    -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
             joinClassRepository.delete(joinClass);
             return 1;
         } catch (CustomException e) {
