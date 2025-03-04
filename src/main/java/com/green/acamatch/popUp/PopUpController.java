@@ -47,17 +47,19 @@ public class PopUpController {
 
     @GetMapping("detail")
     @Operation(summary = "팝업 상세정보 가져오기")
-    public ResultResponse<List<PopUpGetDetailRes>> getPopUpDetail(@ParameterObject @ModelAttribute PopUpGetDetailReq p) {
-        List<PopUpGetDetailRes> result = popUpService.getPopUpDetail(p);
-        return ResultResponse.<List<PopUpGetDetailRes>>builder()
+    public ResultResponse<List<PopUpGetDto>> getPopUpDetail(@ParameterObject @ModelAttribute PopUpGetDetailReq p) {
+        List<PopUpGetDto> result = popUpService.getPopUpDetail(p);
+        return ResultResponse.<List<PopUpGetDto>>builder()
                 .resultMessage("팝업 상세정보 보기 완료")
                 .resultData(result)
                 .build();
     }
 
     @PutMapping
-    @Operation(summary = "팝업 수정", description = "postMan으로 테스트")
-    public ResultResponse<Integer> updPopUp(@RequestPart(required = false) MultipartFile pic, @Valid @RequestPart PopUpPutReq p) {
+    @Operation(summary = "팝업 수정", description = "Postman으로 테스트")
+    public ResultResponse<Integer> updPopUp(
+            @RequestPart(value = "pic", required = false) MultipartFile pic,
+            @Valid @RequestPart PopUpPutReq p) {
         int result = popUpService.UpdPopUp(pic, p);
         return ResultResponse.<Integer>builder()
                 .resultMessage(result == 1 ? "팝업 수정 성공" : "팝업 수정 실패")

@@ -17,6 +17,7 @@ public enum popUpErrorCode implements ErrorCode{
 
     @Override
     public HttpStatus getHttpStatus() {
-        return null;
+        return this.status;
     }
+
 }
