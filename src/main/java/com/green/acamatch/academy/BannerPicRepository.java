@@ -22,4 +22,11 @@ public interface BannerPicRepository extends JpaRepository<BannerPic, Long> {
     //배너 pk 갯수 뽑기.
     @Query(" select COUNT(a) as countBannerPic from BannerPic a WHERE a.bannerPicIds.acaId = :acaId")
     Long countById(@Param("acaId") Long acaId);
+
+    //배너 사진 하나씩 삭제
+    @Transactional
+    @Modifying
+    @Query(" delete from BannerPic a where a.bannerPicIds.acaId =:acaId and a.bannerPosition =:bannerPosition ")
+    int deleteByacaIdAndBannerPosition(Long acaId, int bannerPosition);
+
 }

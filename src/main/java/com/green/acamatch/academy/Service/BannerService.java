@@ -98,16 +98,18 @@ public class BannerService {
             bannerpic.setBannerPicIds(bannerPicIds);
             bannerpic.setBanner(banner);
             bannerpic.setBannerPosition(1);
-            if(topBannerPic != null && !topBannerPic.isEmpty()) {
-                bannerPicRepository.save(bannerpic);
-            }
 
-            try {
-                myFileUtils.transferTo(topBannerPic, filePath1);
-            } catch (IOException e) {
-                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                myFileUtils.deleteFolder(delFolderPath, true);
-                throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+                bannerPicRepository.save(bannerpic);
+
+
+            if(topBannerPic != null && !topBannerPic.isEmpty()) {
+                try {
+                    myFileUtils.transferTo(topBannerPic, filePath1);
+                } catch (IOException e) {
+                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                    myFileUtils.deleteFolder(delFolderPath, true);
+                    throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+                }
             }
 
 
@@ -117,16 +119,18 @@ public class BannerService {
             bannerpic.setBannerPicIds(bannerPicIds);
             bannerpic.setBanner(banner);
             bannerpic.setBannerPosition(2);
-            if(bottomBannerPic != null && !bottomBannerPic.isEmpty()) {
-                bannerPicRepository.save(bannerpic);
-            }
 
-            try {
-                myFileUtils.transferTo(bottomBannerPic, filePath2);
-            } catch (IOException e) {
-                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                myFileUtils.deleteFolder(delFolderPath, true);
-                throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+                bannerPicRepository.save(bannerpic);
+
+
+            if(bottomBannerPic != null && !bottomBannerPic.isEmpty()) {
+                try {
+                    myFileUtils.transferTo(bottomBannerPic, filePath2);
+                } catch (IOException e) {
+                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                    myFileUtils.deleteFolder(delFolderPath, true);
+                    throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+                }
             }
 
 
@@ -136,16 +140,18 @@ public class BannerService {
             bannerpic.setBannerPicIds(bannerPicIds);
             bannerpic.setBanner(banner);
             bannerpic.setBannerPosition(3);
-            if(leftBannerPic != null && !leftBannerPic.isEmpty()) {
-                bannerPicRepository.save(bannerpic);
-            }
 
-            try {
-                myFileUtils.transferTo(leftBannerPic, filePath3);
-            } catch (IOException e) {
-                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                myFileUtils.deleteFolder(delFolderPath, true);
-                throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+                bannerPicRepository.save(bannerpic);
+
+
+            if(leftBannerPic != null && !leftBannerPic.isEmpty()) {
+                try {
+                    myFileUtils.transferTo(leftBannerPic, filePath3);
+                } catch (IOException e) {
+                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                    myFileUtils.deleteFolder(delFolderPath, true);
+                    throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
+                }
             }
 
 
@@ -155,17 +161,19 @@ public class BannerService {
         bannerpic.setBannerPicIds(bannerPicIds);
         bannerpic.setBanner(banner);
         bannerpic.setBannerPosition(4);
-        if(rightBannerPic != null && rightBannerPic.isEmpty()) {
-            bannerPicRepository.save(bannerpic);
-        }
 
-        try {
+            bannerPicRepository.save(bannerpic);
+
+
+        if(rightBannerPic != null && !rightBannerPic.isEmpty()) {
+            try {
                 myFileUtils.transferTo(rightBannerPic, filePath4);
             } catch (IOException e) {
                 String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
                 myFileUtils.deleteFolder(delFolderPath, true);
                 throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
             }
+        }
 
         academyMessage.setMessage("배너신청이 완료되었습니다.");
         return 1;
@@ -217,5 +225,17 @@ public class BannerService {
         List<BannerGetRes> res = bannerRepository.findAllBanner();
         academyMessage.setMessage("프리미엄학원의 모든 배너가 조회되었습니다.");
         return res;
+    }
+
+    //배너 하나씩 삭제
+    @Transactional
+    public int delBanner(Long acaId, int bannerPosition) {
+        bannerPicRepository.deleteByacaIdAndBannerPosition(acaId, bannerPosition);
+        if(bannerPicRepository.countById(acaId) == 0) {
+            bannerRepository.deleteBannerByAcaId(acaId);
+        }
+
+        academyMessage.setMessage("배너가 삭제되었습니다.");
+        return 1;
     }
 }
