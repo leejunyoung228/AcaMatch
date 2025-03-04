@@ -180,6 +180,14 @@ public class BannerService {
     @Transactional
     public List<BannerGetRes> getBanner(Long acaId) {
         List<BannerGetRes> res = bannerRepository.findBanner(acaId);
+        academyMessage.setMessage("%d번의, acaId" + "프리미엄학원의 배너가 조회되었습니다.");
+        return res;
+    }
+
+    @Transactional
+    public List<BannerGetRes> getBannerAll() {
+        List<BannerGetRes> res = bannerRepository.findAllBanner();
+        academyMessage.setMessage("프리미엄학원의 모든 배너가 조회되었습니다.");
         return res;
     }
 }
