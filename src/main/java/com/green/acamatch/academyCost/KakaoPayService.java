@@ -175,7 +175,7 @@ public class KakaoPayService {
 
         //academyCostRepository.updateCostStatus(1, TId);
         AcademyCost acaResult = academyCostRepository.findById(result.getCostId()).orElse(null);
-        acaResult.setCost_status(1);
+        acaResult.setCost_status(2);
         academyCostRepository.save(acaResult);
         if(acaResult.getAcademyId() != null){
             PremiumAcademy premiumAcademy = new PremiumAcademy();
