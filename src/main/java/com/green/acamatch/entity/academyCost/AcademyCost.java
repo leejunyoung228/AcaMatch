@@ -1,16 +1,19 @@
 package com.green.acamatch.entity.academyCost;
 
 import com.green.acamatch.entity.academy.Academy;
+import com.green.acamatch.entity.datetime.CreatedAt;
 import com.green.acamatch.entity.datetime.UpdatedAt;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
-public class AcademyCost extends UpdatedAt {
+public class AcademyCost extends CreatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long costId;
@@ -53,6 +56,8 @@ public class AcademyCost extends UpdatedAt {
     @JoinColumn(name = "aca_id")
     @ManyToOne
     private Academy academyId;
+
+    private LocalDateTime updatedAt;
 
     public void setProductId(Long productId) {
         this.productId = new Product();
