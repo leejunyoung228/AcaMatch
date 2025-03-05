@@ -18,4 +18,6 @@ public class TeacherPostReq {
     private String teacherComment;
     @Schema(title = "선생님 동의 여부 (0=미동의, 1=동의)", example = "0")
     private int teacherAgree;
+    @Schema(title = "선생님 퇴사 여부 (0=퇴사, 1=퇴사x", example = "1")
+    private int isActive;
 }
