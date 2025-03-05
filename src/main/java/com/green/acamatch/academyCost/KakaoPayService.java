@@ -48,12 +48,23 @@ public class KakaoPayService {
         return headers;
     }
 
-    public String getBaseUrl(HttpServletRequest request) {
+    public String getBaseUrl(HttpServletRequest request, String urlType) {
         String scheme = request.getScheme(); // http 또는 https
         String serverName = request.getServerName(); // localhost
         int serverPort = request.getServerPort(); // 요청받은 포트
 
-        return scheme + "://" + serverName + ":" + serverPort;
+        String baseUrl = scheme + "://" + serverName + ":" + serverPort;
+
+        // URL 타입에 맞는 경로를 붙여줍니다.
+        if ("success".equals(urlType)) {
+            return baseUrl + "/success";
+        } else if ("fail".equals(urlType)) {
+            return baseUrl + "/fail";
+        } else if ("cancel".equals(urlType)) {
+            return baseUrl + "/cancel";
+        }
+
+        return baseUrl; // 기본 URL 반환
     }
 //
 //    /**
@@ -244,11 +255,14 @@ public class KakaoPayService {
         parameters.put("quantity", products.size()); // 상품 종류 개수
         parameters.put("total_amount", totalAmount);
         parameters.put("vat_amount", totalVatAmount);
-        parameters.put("tax_free_amount", "0");List<Integer> allowedPorts = List.of(8080, 5173, 4173);
-        String baseUrl = getBaseUrl(request); // 현재 요청된 포트를 가져옴
-        parameters.put("approval_url", baseUrl + "/success");
-        parameters.put("fail_url", baseUrl + "/fail");
-        parameters.put("cancel_url", baseUrl + "/cancel");
+        parameters.put("tax_free_amount", "0");
+        List<Integer> allowedPorts = List.of(8080, 5173, 4173);
+        String successUrl = getBaseUrl(request, "success");
+        String failUrl = getBaseUrl(request, "fail");
+        String cancelUrl = getBaseUrl(request, "cancel");
+        parameters.put("approval_url", successUrl);
+        parameters.put("fail_url", failUrl);
+        parameters.put("cancel_url", cancelUrl);
 
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
