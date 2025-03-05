@@ -4,6 +4,7 @@ import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.UserConst;
 import com.green.acamatch.config.exception.CommonErrorCode;
 import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.CustomPageResponse;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.myenum.UserRole;
@@ -127,9 +128,19 @@ public class UserManagementService {
         return users.isEmpty() ? null : users; // 리스트가 비어있으면 null 반환
     }
 
+//
+//    public Page<UserReportProjection> searchUsers(Long userId, String name, String nickName, UserRole userRole, int page, int size) {
+//        Pageable pageable = (size == 0) ? Pageable.unpaged() : PageRequest.of(page, size, Sort.by("createdAt").descending());
+//        return userRepository.findUsersWithFilters(userId, name, nickName, userRole, pageable);
+//    }
 
-    public Page<UserReportProjection> searchUsers(Long userId, String name, String nickName, UserRole userRole, int page, int size) {
-        Pageable pageable = (size == 0) ? Pageable.unpaged() : PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return userRepository.findUsersWithFilters(userId, name, nickName, userRole, pageable);
+
+    public CustomPageResponse<UserReportProjection> searchUsers(
+            Long userId, String name, String nickName, UserRole userRole, Pageable pageable) {
+
+        Page<UserReportProjection> users = userRepository.findUsersWithFilters(userId, name, nickName, userRole, pageable);
+
+        return new CustomPageResponse<>(users);
     }
+
 }
