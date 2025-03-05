@@ -2,27 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.green.acamatch.grade.GradeMapper">
-<!--    <insert id="insGrade">-->
-<!--        INSERT INTO grade-->
-<!--        ( join_class_id, subject_id, score, pass, exam_date, processing_status)-->
-<!--        SELECT join_class_id, #{subjectId}, #{score}, #{pass}, #{examDate}, #{processingStatus}-->
-<!--        FROM joinclass-->
-<!--        WHERE join_class_id = #{joinClassId}-->
-<!--    </insert>-->
+    <!--    <insert id="insGrade">-->
+    <!--        INSERT INTO grade-->
+    <!--        ( join_class_id, subject_id, score, pass, exam_date, processing_status)-->
+    <!--        SELECT join_class_id, #{subjectId}, #{score}, #{pass}, #{examDate}, #{processingStatus}-->
+    <!--        FROM joinclass-->
+    <!--        WHERE join_class_id = #{joinClassId}-->
+    <!--    </insert>-->
 
-<!--    <select id ="existsGrade">-->
-<!--        SELECT COUNT(*)-->
-<!--        FROM grade A-->
-<!--        INNER JOIN joinclass B-->
-<!--        ON A.join_class_id = B.join_class_id-->
-<!--        WHERE B.join_class_id = #{joinClassId} AND A.subject_id = #{subjectId}-->
-<!--    </select>-->
+    <!--    <select id ="existsGrade">-->
+    <!--        SELECT COUNT(*)-->
+    <!--        FROM grade A-->
+    <!--        INNER JOIN joinclass B-->
+    <!--        ON A.join_class_id = B.join_class_id-->
+    <!--        WHERE B.join_class_id = #{joinClassId} AND A.subject_id = #{subjectId}-->
+    <!--    </select>-->
 
     <resultMap id="selGradeScoreResultMap" type="com.green.acamatch.grade.model.GradeGetDto">
-        <result property="examName" column="exam_name" />
-        <result property="examDate" column="exam_date" />
-        <result property="score" column="result_score" />
-        <result property="pass" column="result_pass" />
+        <result property="examName" column="exam_name"/>
+        <result property="examDate" column="exam_date"/>
+        <result property="score" column="result_score"/>
+        <result property="pass" column="result_pass"/>
     </resultMap>
 
     <select id="selGradeScore" resultMap="selGradeScoreResultMap">
@@ -39,9 +39,10 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
-    <select id = "selGradeStatus">
+    <!-- 학원관리 - 강의 관리 -> 테스트 목록 -->
+    <select id="selGradeStatus">
         SELECT GROUP_CONCAT(DISTINCT B.aca_pic ORDER BY B.aca_pic SEPARATOR ',') AS aca_pics,
-        B.aca_pic, D.exam_id, D.exam_name, E.exam_date, E.processing_status
+        B.aca_pic, D.exam_id, D.exam_name, E.exam_date, E.processing_status, F.user_id, G.name AS teacher_name
         FROM academy A
         LEFT JOIN academy_pic B
         ON A.aca_id = B.aca_id
@@ -51,18 +52,24 @@
         ON C.class_id = D.class_id
         LEFT JOIN grade E
         ON D.exam_id = E.exam_id
+        LEFT JOIN teacher F
+        ON C.class_id = F.class_id
+        LEFT JOIN `user` G
+        ON F.user_id = G.user_id
         <where>
             <if test="acaId != null or keyword1 != null">
                 <trim prefixOverrides="OR">
                     <if test="acaId != null">
                         OR A.aca_id = #{acaId}
                     </if>
+                    <if test="classId != null">
+                        AND C.class_id = #{classId}
+                    </if>
                     <if test="keyword1 != null and keyword1 != '' ">
                         OR A.aca_name LIKE '%${keyword1}%'
                     </if>
                 </trim>
             </if>
-
             <if test="keyword2 != null and keyword2 != '' ">
                 AND C.class_name LIKE '%${keyword2}%'
             </if>
@@ -70,22 +77,61 @@
                 AND D.exam_name LIKE '%${keyword3}%'
             </if>
         </where>
-        GROUP BY D.exam_id, D.exam_name, E.exam_date, E.processing_status
+        GROUP BY D.exam_id, D.exam_name, E.exam_date, E.processing_status, F.user_id, G.name
         ORDER BY D.exam_id
         LIMIT #{startIdx}, #{size}
     </select>
 
+    <!-- 학원 관리 - 강의 관리 -> 수강생 목록 -->
+    <select id="selGradeUserAndParent">
+        SELECT C.join_class_id, D.user_id, D.user_pic, D.`name` AS student_name,
+        D.email, E.parent_id, F.`name` AS parent_name, F.phone, D.phone, D.birth
+        FROM academy A
+        INNER JOIN aca_class B
+        ON A.aca_id = B.aca_id
+        INNER JOIN join_class C
+        ON B.class_id = C.class_id
+        LEFT JOIN `user` D
+        ON C.user_id = D.user_id
+        LEFT JOIN relationship E
+        ON D.user_id = E.student_id
+        LEFT JOIN `user` F
+        ON F.user_id = E.parent_id
+        <where>
+            <if test="acaId != null or keyword1 != null">
+                <trim prefixOverrides="OR">
+                    <if test="acaId != null">
+                        OR A.aca_id = #{acaId}
+                    </if>
+                    <if test="classId != null">
+                        AND B.class_id = #{classId}
+                    </if>
+                    <if test="keyword1 != null and keyword1 != '' ">
+                        OR A.aca_name LIKE '%${keyword1}%'
+                    </if>
+                </trim>
+            </if>
+            <if test="keyword2 != null and keyword2 != '' ">
+                AND B.class_name LIKE '%${keyword2}%'
+            </if>
+        </where>
+        GROUP BY C.join_class_id, D.user_pic, D.name, D.email, E.parent_id, F.name, F.phone, D.phone, D.birth
+        ORDER BY D.name
+        LIMIT #{startIdx}, #{size}
+    </select>
+
+
     <resultMap id="gradeUserResultMap" type="com.green.acamatch.grade.model.GradeUserDto">
-        <result property="userId" column="user_id" />
-        <result property="userPic" column="user_pic" />
-        <result property="userName" column="name" />
-        <result property="joinClassId" column="join_class_id" />
+        <result property="userId" column="user_id"/>
+        <result property="userPic" column="user_pic"/>
+        <result property="userName" column="name"/>
+        <result property="joinClassId" column="join_class_id"/>
         <result property="scoreType" column="score_type"/>
-        <result property="gradeId" column="grade_id" />
+        <result property="gradeId" column="grade_id"/>
         <result property="examName" column="exam_name"/>
-        <result property="examDate" column="exam_date" />
-        <result property="score" column="score" />
-        <result property="pass" column="pass" />
+        <result property="examDate" column="exam_date"/>
+        <result property="score" column="score"/>
+        <result property="pass" column="pass"/>
     </resultMap>
 
     <select id="selGradeUser" resultMap="gradeUserResultMap">
@@ -109,22 +155,22 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
-<!--    <update id="updGradeScore">-->
-<!--        UPDATE grade-->
-<!--        <set>-->
-<!--            <if test =" examDate != null and examDate != '' ">-->
-<!--                exam_date = #{examDate},-->
-<!--            </if>-->
-<!--            <if test =" score != null">-->
-<!--                score = #{score},-->
-<!--            </if>-->
-<!--            <if test =" pass != null">-->
-<!--                pass = #{pass},-->
-<!--            </if>-->
-<!--            <if test =" processingStatus != null">-->
-<!--                processing_status = #{processingStatus}-->
-<!--            </if>-->
-<!--        </set>-->
-<!--        WHERE grade_id = #{gradeId}-->
-<!--    </update>-->
+    <!--    <update id="updGradeScore">-->
+    <!--        UPDATE grade-->
+    <!--        <set>-->
+    <!--            <if test =" examDate != null and examDate != '' ">-->
+    <!--                exam_date = #{examDate},-->
+    <!--            </if>-->
+    <!--            <if test =" score != null">-->
+    <!--                score = #{score},-->
+    <!--            </if>-->
+    <!--            <if test =" pass != null">-->
+    <!--                pass = #{pass},-->
+    <!--            </if>-->
+    <!--            <if test =" processingStatus != null">-->
+    <!--                processing_status = #{processingStatus}-->
+    <!--            </if>-->
+    <!--        </set>-->
+    <!--        WHERE grade_id = #{gradeId}-->
+    <!--    </update>-->
 </mapper>

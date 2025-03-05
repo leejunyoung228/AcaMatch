@@ -12,5 +12,7 @@ public interface GradeMapper {
     List<GradeGetDto> selGradeScore(GradeGetReq p);
     List<GradeUserDto> selGradeUser(GradeUserGetReq p);
     List<GradeStatusGetDto> selGradeStatus(GradeStatusGetReq p);
+
+    List<GradeUserAndParentGetRes> selGradeUserAndParent(GradeUserAndParentGetReq p);
 //    int updGradeScore(GradePutReq p);
 }

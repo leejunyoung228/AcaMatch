@@ -1,5 +1,6 @@
 package com.green.acamatch.user.contoller;
 
+import com.green.acamatch.config.exception.CustomPageResponse;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.user.UserUtils;
@@ -13,6 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -176,59 +181,66 @@ public class UserController {
                 .build();
     }
 
-    // 특정 사용자 정보 및 신고 횟수를 조회
+//    @GetMapping("/search")
+//    @Operation(summary = "사용자 검색", description = "userId, 이름, 역할로 검색 가능")
+//    public ResultResponse<Page<UserReportProjection>> searchUsers(
+//            @RequestParam(required = false) Long userId,
+//            @RequestParam(required = false) String name,
+//            @RequestParam(required = false) String nickName,
+//            @RequestParam(required = false) UserRole userRole,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size ) {
+//
+//        // page가 1 이상일 경우, Spring의 0-based index에 맞추기 위해 -1 적용 가능
+//        int adjustedPage = (page > 0) ? page - 1 : 0;
+//
+//        Page<UserReportProjection> users = userManagementService.searchUsers(userId, name, nickName, userRole, adjustedPage, size);
+//
+//        if (users.isEmpty()) {
+//            return ResultResponse.<Page<UserReportProjection>>builder()
+//                    .resultMessage("해당 조건에 맞는 사용자가 없습니다.")
+//                    .resultData(null)
+//                    .build();
+//        }
+//
+//        return ResultResponse.<Page<UserReportProjection>>builder()
+//                .resultMessage("사용자 조회 성공")
+//                .resultData(users)
+//                .build();
+//    }
 
-    @GetMapping("/{userId}/report-count")
-    @Operation(summary = "특정 사용자 정보 및 신고 횟수를 조회")
-    public ResultResponse<UserReportProjection> getUserInfo(@PathVariable Long userId) {
-        UserReportProjection user = userManagementService.getUserInfo(userId);
-        if (user == null) {
-            return ResultResponse.<UserReportProjection>builder()
-                    .resultMessage("해당 사용자를 찾을 수 없음")
-                    .resultData(null) // 데이터 없음
-                    .build();
-        }
-        return ResultResponse.<UserReportProjection>builder()
-                .resultMessage("사용자 정보 조회 성공")
-                .resultData(user) //정상 데이터 반환
-                .build();
-    }
+    @GetMapping("/search")
+    @Operation(summary = "사용자 검색", description = "userId, 이름, 역할로 검색 가능")
+    public ResultResponse<CustomPageResponse<UserReportProjection>> searchUsers(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String nickName,
+            @RequestParam(required = false) UserRole userRole,
+            @RequestParam(defaultValue = "1") int page,  // 기본값 1로 설정
+            @RequestParam(defaultValue = "10") int size // 기본값 10으로 설정
+    ) {
+        // Spring Data JPA의 페이징은 0부터 시작하므로 page를 -1 조정
+        int adjustedPage = Math.max(page - 1, 0);
 
-    // PathVariable을 String으로 변경
-    @GetMapping("/role/{userRole}/report-count")
-    @Operation(summary = "특정 사용자 타입과 해당 사용자들의 정보 및 신고 횟수를 조회")
-    public ResultResponse<List<UserReportProjection>> getUserInfoByUserRole(@PathVariable String userRole) {
-        UserRole roleEnum;
-        try {
-            // 숫자로 변환할 수 있는 경우 처리
-            roleEnum = UserRole.fromJson(Integer.parseInt(userRole));
-        } catch (NumberFormatException e) {
-            //숫자가 아닐 경우 문자열로 처리
-            roleEnum = UserRole.fromJson(userRole);
-        } catch (IllegalArgumentException e) {
-            return ResultResponse.<List<UserReportProjection>>builder()
-                    .resultMessage("잘못된 사용자 역할입니다.")
+        // Pageable 객체 생성 (size가 0이면 페이징 없이 전체 조회)
+        Pageable pageable = (size <= 0) ? Pageable.unpaged() : PageRequest.of(adjustedPage, size, Sort.by("createdAt").descending());
+
+        // pageable을 searchUsers() 메서드에 전달
+        CustomPageResponse<UserReportProjection> users = userManagementService.searchUsers(userId, name, nickName, userRole, pageable);
+
+        // 조회된 데이터가 없을 경우 응답 처리
+        if (users.getContent().isEmpty()) {
+            return ResultResponse.<CustomPageResponse<UserReportProjection>>builder()
+                    .resultMessage("해당 조건에 맞는 사용자가 없습니다.")
                     .resultData(null)
                     .build();
         }
 
-        // 서비스 호출
-        List<UserReportProjection> users = userManagementService.getUserInfoByUserRole(roleEnum);
-
-        if (users.isEmpty()) {
-            return ResultResponse.<List<UserReportProjection>>builder()
-                    .resultMessage("해당 사용자 타입의 사용자를 찾을 수 없음")
-                    .resultData(null)
-                    .build();
-        }
-
-        return ResultResponse.<List<UserReportProjection>>builder()
-                .resultMessage("사용자 정보 조회 성공")
+        return ResultResponse.<CustomPageResponse<UserReportProjection>>builder()
+                .resultMessage("사용자 조회 성공")
                 .resultData(users)
                 .build();
     }
-
-
 
 
 }

@@ -42,4 +42,6 @@ public class GetAcademyDetail {
     private String postNum;
 
     private AddressDto addressDto;
+
+    private String businessNumber;
 }

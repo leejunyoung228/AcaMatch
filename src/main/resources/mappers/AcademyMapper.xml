@@ -240,6 +240,7 @@
         <result property="postNum" column="post_num"/>
         <result property="openTime" column="open_time"/>
         <result property="closeTime" column="close_time"/>
+        <result property="businessNumber" column="business_number"/>
             <association property="addressDto" javaType="com.green.acamatch.academy.model.AddressDto">
                 <result property="address" column="address"/>
                 <result property="detailAddress" column="detail_address"/>
@@ -250,11 +251,11 @@
         SELECT A.aca_id, A.aca_phone, A.aca_name,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pic,
         A.comment, A.teacher_num, A.open_time, A.close_time,
-        A.address, A.detail_address, A.post_num
+        A.address, A.detail_address, A.post_num, A.business_number
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
-        WHERE A.aca_id = #{acaId};
+        WHERE A.aca_id = #{acaId}
     </select>
 
     <!-- 학원 태그 리스트 불러오기 -->
@@ -311,15 +312,7 @@
 
     <!-- 모든 입력을 받고 학원 리스트 불러오기-->
     <select id="getAcademyListByAll" resultMap="searchResultMap">
-
-        WITH premium_academies AS (
-        -- ✅ 프리미엄 학원 3개 랜덤 선택 (개수 동적 설정 가능)
-        SELECT A.aca_id
-        FROM academy A
-        WHERE A.premium = 1
-        ORDER BY RAND()
-        LIMIT 0, #{premiumLimit}
-        ), filtered_academies AS (
+        WITH filtered_academies AS (
         -- ✅ 기존 필터링된 학원 목록 (동, 검색어, 태그, 카테고리 적용)
         SELECT
         A.aca_id AS acaId,
@@ -330,7 +323,6 @@
         A.address AS address,
         IFNULL(GROUP_CONCAT(DISTINCT F.tag_name ORDER BY F.tag_id SEPARATOR ', '), '') AS tagName,
         COALESCE(G.star, 0) AS star,
-        (CASE WHEN A.aca_id IN (SELECT aca_id FROM premium_academies) THEN 0 ELSE 1 END) AS premium_order,
         RAND() AS rand_order
         FROM academy A
         JOIN academy_pic AP ON A.aca_id = AP.aca_id
@@ -371,13 +363,14 @@
         </if>
         GROUP BY A.aca_id
         )
-
-        -- ✅ 프리미엄 학원 랜덤 → 일반 학원 별점순 정렬
+        -- ✅ 프리미엄 학원 상위 3개, 그 아래 일반 학원 정렬
         SELECT *, (SELECT COUNT(*) FROM filtered_academies) AS totalCount
-        FROM filtered_academies
-        ORDER BY premium_order, rand_order, star DESC
-        LIMIT #{startIdx}, #{size};
-
+        FROM (
+        (SELECT * FROM filtered_academies WHERE premium = 1 ORDER BY RAND() LIMIT 0, #{premiumLimit})
+        UNION ALL
+        (SELECT * FROM filtered_academies WHERE premium = 0 ORDER BY star DESC)
+        ) final_academies
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <insert id="postToSearch">
@@ -1087,5 +1080,8 @@
                 AND AC.created_at &lt;= #{endDate}
             </if>
         </where>
+    </select>
+    <select id="getAcademyListByAcaNameAndDate">
+
     </select>
 </mapper>
