@@ -1,5 +1,6 @@
 package com.green.acamatch.popUp;
 
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.popUp.model.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -38,21 +40,52 @@ public class PopUpController {
     @GetMapping
     @Operation(summary = "팝업 리스트 가져오기")
     public ResultResponse<List<PopUpGetDto>> getPopUpList(@ParameterObject @ModelAttribute PopUpGetReq p) {
-        List<PopUpGetDto> result = popUpService.getPopUpList(p);
-        return ResultResponse.<List<PopUpGetDto>>builder()
-                .resultMessage("팝업 리스트 보기 완료")
-                .resultData(result)
-                .build();
+        try {
+            List<PopUpGetDto> result = popUpService.getPopUpList(p);
+            return ResultResponse.<List<PopUpGetDto>>builder()
+                    .resultMessage("팝업 리스트 보기 완료")
+                    .resultData(result)
+                    .build();
+        } catch (CustomException e) {
+            return ResultResponse.<List<PopUpGetDto>>builder()
+                    .resultMessage("팝업 리스트 보기 실패")
+                    .resultData(new ArrayList<>())
+                    .build();
+        }
     }
 
     @GetMapping("detail")
     @Operation(summary = "팝업 상세정보 가져오기")
     public ResultResponse<List<PopUpGetDto>> getPopUpDetail(@ParameterObject @ModelAttribute PopUpGetDetailReq p) {
-        List<PopUpGetDto> result = popUpService.getPopUpDetail(p);
-        return ResultResponse.<List<PopUpGetDto>>builder()
-                .resultMessage("팝업 상세정보 보기 완료")
-                .resultData(result)
-                .build();
+        try {
+            List<PopUpGetDto> result = popUpService.getPopUpDetail(p);
+            return ResultResponse.<List<PopUpGetDto>>builder()
+                    .resultMessage("팝업 상세정보 보기 완료")
+                    .resultData(result)
+                    .build();
+        } catch (CustomException e) {
+            return ResultResponse.<List<PopUpGetDto>>builder()
+                    .resultMessage("팝업 상세정보 보기 실패")
+                    .resultData(new ArrayList<>())
+                    .build();
+        }
+    }
+
+    @GetMapping("show")
+    @Operation(summary = "활성화된 팝업 가져오기")
+    public ResultResponse<List<PopUpGetShowRes>> getPopUpShow() {
+        try {
+            List<PopUpGetShowRes> result = popUpService.getPopUpShow();
+            return ResultResponse.<List<PopUpGetShowRes>>builder()
+                    .resultMessage("활성화된 팝업 가져오기 완료")
+                    .resultData(result)
+                    .build();
+        } catch (CustomException e) {
+            return ResultResponse.<List<PopUpGetShowRes>>builder()
+                    .resultMessage("활성화된 팝업 가져오기 실패")
+                    .resultData(new ArrayList<>())
+                    .build();
+        }
     }
 
     @PutMapping

@@ -140,10 +140,9 @@
         <result property="className" column="class_name" />
         <result property="startDate" column="start_date"/>
         <result property="endDate" column="end_date" />
-        <result property="keyword1" column="keyword1" />
-        <result property="keyword2" column="keyword2" />
-        <result property="keyword3" column="keyword3" />
-        <result property="name" column="teacher_name"/>
+        <result property="teacherId" column="teacher_id"/>
+        <result property="academyId" column="academy_id"/>
+        <result property="teacherName" column="teacher_name"/>
     </resultMap>
 
     <!-- 학원 강좌 가져오기 -->
@@ -151,7 +150,7 @@
         SELECT
         B.aca_id, B.aca_name,
         GROUP_CONCAT(DISTINCT C.aca_pic ORDER BY C.aca_pic SEPARATOR ',') AS aca_pics,
-        C.aca_pic, A.class_id, A.class_name, E.name AS teacher_name, A.start_date, A.end_date
+        C.aca_pic, A.class_id, A.class_name, E.user_id AS teacher_id, E.name AS teacher_name, A.start_date, A.end_date, G.user_id AS academy_id
         FROM aca_class A
         INNER JOIN academy B
         ON A.aca_id = B.aca_id
@@ -163,6 +162,8 @@
         ON D.user_id = E.user_id
         LEFT JOIN exam F
         ON A.class_id = F.class_id
+        LEFT JOIN `user` G
+        ON B.user_id = G.user_id
         <where>
             <if test="acaId != null or keyword1 != null">
                 <trim prefixOverrides="OR">
@@ -181,7 +182,7 @@
                 AND F.exam_name LIKE '%${keyword3}%'
             </if>
         </where>
-        GROUP BY B.aca_id, A.class_id, A.class_name, E.name, A.start_date, A.end_date
+        GROUP BY B.aca_id, A.class_id, A.class_name, E.user_id, E.name, A.start_date, A.end_date
         ORDER BY A.class_id
         LIMIT #{startIdx}, #{size}
     </select>

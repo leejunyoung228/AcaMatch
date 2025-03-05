@@ -30,7 +30,7 @@ public class AttendanceController {
     }
 
     @GetMapping
-    @Operation(summary = "출석부 가져오기")
+    @Operation(summary = "출석부 가져오기 / 강사입장 출석률")
     public ResultResponse<List<AttendanceGetDto>> getAttendanceCount(@ParameterObject AttendanceGetReq p) {
         try {
             List<AttendanceGetDto> result = attendanceService.getAttendance(p);
@@ -41,6 +41,23 @@ public class AttendanceController {
         } catch (IllegalArgumentException e) {
             return ResultResponse.<List<AttendanceGetDto>>builder()
                     .resultMessage(e.getMessage())
+                    .resultData(new ArrayList<>())
+                    .build();
+        }
+    }
+
+    @GetMapping("academyCount")
+    @Operation(summary = "학원입장 출석률")
+    public ResultResponse<List<AcademyAttendanceGetRes>> getAcademyAttendanceStatusCount(@ParameterObject AcademyAttendanceGetReq p) {
+        try {
+            List<AcademyAttendanceGetRes> result = attendanceService.getAcademyAttendanceStatusCount(p);
+            return ResultResponse.<List<AcademyAttendanceGetRes>>builder()
+                    .resultMessage("학원입장 출석률 가져오기 성공")
+                    .resultData(result)
+                    .build();
+        } catch (CustomException e) {
+            return ResultResponse.<List<AcademyAttendanceGetRes>>builder()
+                    .resultMessage("학원입장 출석률 가져오기 실패")
                     .resultData(new ArrayList<>())
                     .build();
         }
@@ -64,7 +81,7 @@ public class AttendanceController {
     }
 
     @PutMapping
-    @Operation(summary = "출석부 수정" , description = "출석, 지각, 결석, 조퇴")
+    @Operation(summary = "출석부 수정", description = "출석, 지각, 결석, 조퇴")
     public ResultResponse<Integer> putAttendance(@RequestBody AttendancePutReq p) {
         Integer result = attendanceService.updAttendance(p);
         return ResultResponse.<Integer>builder()
