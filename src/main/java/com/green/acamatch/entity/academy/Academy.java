@@ -78,13 +78,11 @@ public class Academy extends CreatedAt {
     @Column(nullable = false)
     private int acaAgree = 0;
 
-    @Column(nullable = false)
     private double lat;
 
-    @Column(nullable = false)
     private double lon;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20)
     private String businessName;
 
     @Column(length = 20, nullable = false)
