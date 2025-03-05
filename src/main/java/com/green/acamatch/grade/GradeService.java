@@ -100,6 +100,19 @@ public class GradeService {
         }
     }
 
+    public List<GradeUserAndParentGetRes> selGradeUserAndParent(GradeUserAndParentGetReq p) {
+        try {
+            List<GradeUserAndParentGetRes> result = mapper.selGradeUserAndParent(p);
+            if (result == null || result.isEmpty()) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_SEL);
+            }
+            return result;
+        }catch (CustomException e) {
+            e.getStackTrace();
+            return null;
+        }
+    }
+
     //성적 수정하기
     @Transactional
     public int updGradeScore(GradePutReq p) {
