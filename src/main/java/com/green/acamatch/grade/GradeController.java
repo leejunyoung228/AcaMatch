@@ -39,12 +39,12 @@ public class GradeController {
                 .build();
     }
 
-    @GetMapping("gradeUser")
-    @Operation(summary = "시험에 따른 user들 성적 가져오기")
-    public ResultResponse<List<GradeUserDto>> selGradeUser(@ModelAttribute @ParameterObject GradeUserGetReq p) {
-        List<GradeUserDto> result = service.selGradeUser(p);
-        return ResultResponse.<List<GradeUserDto>>builder()
-                .resultMessage(userMessage.getMessage())
+    @GetMapping("gradeDetail")
+    @Operation(summary = "성적 상세보기")
+    public ResultResponse<List<GradeDetailDto>> selGradeDetail(@ModelAttribute @ParameterObject GradeDetailGetReq p) {
+        List<GradeDetailDto> result = service.selGradeDetail(p);
+        return ResultResponse.<List<GradeDetailDto>>builder()
+                .resultMessage("상세보기 불러오기 성공")
                 .resultData(result)
                 .build();
     }
@@ -69,9 +69,6 @@ public class GradeController {
                 .resultData(result)
                 .build();
     }
-
-
-
 
     @PutMapping
     @Operation(summary = "시험 점수 수정하기")

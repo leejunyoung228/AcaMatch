@@ -1,7 +1,5 @@
 package com.green.acamatch.joinClass;
 
-import com.green.acamatch.grade.model.GradeUserDto;
-import com.green.acamatch.grade.model.GradeUserGetReq;
 import com.green.acamatch.joinClass.model.*;
 import org.apache.ibatis.annotations.Mapper;
 

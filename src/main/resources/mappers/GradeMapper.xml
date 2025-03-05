@@ -120,13 +120,12 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
-
-    <resultMap id="gradeUserResultMap" type="com.green.acamatch.grade.model.GradeUserDto">
+    <!-- 학원 관리 - 강의 관리 -> 성적 상세보기 -->
+    <resultMap id="gradeDetailResultMap" type="com.green.acamatch.grade.model.GradeDetailDto">
         <result property="userId" column="user_id"/>
         <result property="userPic" column="user_pic"/>
         <result property="userName" column="name"/>
         <result property="joinClassId" column="join_class_id"/>
-        <result property="scoreType" column="score_type"/>
         <result property="gradeId" column="grade_id"/>
         <result property="examName" column="exam_name"/>
         <result property="examDate" column="exam_date"/>
@@ -134,24 +133,40 @@
         <result property="pass" column="pass"/>
     </resultMap>
 
-    <select id="selGradeUser" resultMap="gradeUserResultMap">
-        SELECT E.user_id, E.user_pic, E.name, C.join_class_id, F.score_type, D.grade_id, F.exam_name, D.exam_date,
-        CASE WHEN F.SCORE_TYPE = 0 THEN D.score ELSE 0 END AS score,
-        CASE WHEN F.SCORE_TYPE != 0 THEN
-        CASE WHEN COALESCE(D.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS pass
+    <select id="selGradeDetail" resultMap="gradeDetailResultMap">
+        SELECT D.user_id, D.user_pic, D.name, C.join_class_id, D.email, F.grade_id, E.exam_name, F.exam_date,
+        CASE WHEN E.exam_type = 0 THEN F.score ELSE 0 END AS score,
+        CASE WHEN E.exam_type != 0 THEN
+        CASE WHEN COALESCE(F.pass, 0) THEN 0 ELSE 1 END ELSE NULL END AS pass
         FROM academy A
         INNER JOIN aca_class B
         ON A.aca_id = B.aca_id
         INNER JOIN join_class C
         ON B.class_id = C.class_id
-        INNER JOIN `user` E
-        ON E.user_id = C.user_id
-        INNER JOIN exam F
-        ON B.class_id = F.class_id
-        LEFT JOIN grade D
-        ON C.join_class_id = D.join_class_id
-        AND F.exam_id = D.exam_id
-        WHERE F.exam_id = #{examId}
+        INNER JOIN `user` D
+        ON C.user_id = D.user_id
+        INNER JOIN exam E
+        ON C.class_id = E.class_id
+        LEFT JOIN grade F
+        ON E.exam_id = F.exam_id
+        AND C.join_class_id = F.join_class_id
+        <where>
+            <if test="examId != null">
+                AND E.exam_id = #{examId}
+            </if>
+            <if test="keyword1 != null and keyword1 != ''">
+                AND A.aca_name  LIKE '%${keyword1}%'
+            </if>
+            <if test="keyword2 != null and keyword2 != ''">
+                AND B.class_name  LIKE '%${keyword2}%'
+            </if>
+            <if test="keyword3 != null and keyword3 != ''">
+                AND E.exam_name  LIKE '%${keyword3}%'
+            </if>
+        </where>
+        GROUP BY D.user_id, D.user_pic, D.name, C.join_class_id, D.email,
+        F.grade_id, E.exam_name, F.exam_date
+        ORDER BY D.name
         LIMIT #{startIdx}, #{size}
     </select>
 
