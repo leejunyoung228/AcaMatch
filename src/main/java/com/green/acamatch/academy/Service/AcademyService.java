@@ -231,6 +231,8 @@ public class AcademyService {
             academyPicRepository.deleteAcademyPicsByAcaId(acaId);
             String middlePath = String.format(academyConst.getAcademyPicFilePath(), acaId);
             myFileUtils.deleteFolder(middlePath, false);
+            myFileUtils.makeFolders(middlePath);
+
 
             List<String> picNameList = new ArrayList<>();
             List<AcademyPic> picList = new ArrayList<>(pics.size());
