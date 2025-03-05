@@ -229,4 +229,24 @@ public class AcademyController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("GetAcaNameList/{acaName}")
+    @Operation(summary = "단어로 학원 이름 조회")
+    public ResultResponse<List<GetAcaNameListRes>> getAcaNameList(@PathVariable String acaName){
+        List<GetAcaNameListRes> res = academyService.getAcaNameListRes(acaName);
+        return ResultResponse.<List<GetAcaNameListRes>>builder()
+                .resultMessage("조회 성공")
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("GetAcademyListByAcaNameOrderType")
+    @Operation(summary = "학원 이름, 주문 타입, 주문자 이름, 시작일, 종료일을 입력받아 학원 리스트 불러오기")
+    public ResultResponse<List<GetAcademyListByAcaNameOrderTypeRes>> getAcademyListByAcaNameOrderType(@ParameterObject GetAcademyListByAcaNameOrderTypeReq req){
+        List<GetAcademyListByAcaNameOrderTypeRes> res = academyService.getAcademyListByAcaNameOrderType(req);
+        return ResultResponse.<List<GetAcademyListByAcaNameOrderTypeRes>>builder()
+                .resultMessage("조회 완료")
+                .resultData(res)
+                .build();
+    }
 }

@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class AcademyPicIds implements Serializable {
     private Long acaId;
 
-    @Column(length = 50)
+    @Column(length = 50, nullable = true)
     private String acaPic;
 
 }

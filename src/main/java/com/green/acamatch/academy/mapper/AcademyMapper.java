@@ -81,4 +81,8 @@ public interface AcademyMapper {
     List<GetAcademyInfoRes> getAcademyInfoByAcaNameClassNameExamNameAcaAgree(GetAcademyInfoReq p);
 
     List<GetAcademyListByDistanceRes> getAcademyListByDistance(GetAcademyListByDistanceReq p);
+
+    List<GetAcaNameListRes> getAcaNameList(String acaName);
+
+    List<GetAcademyListByAcaNameOrderTypeRes> getAcademyListByAcaNameOrderType(GetAcademyListByAcaNameOrderTypeReq p);
 }

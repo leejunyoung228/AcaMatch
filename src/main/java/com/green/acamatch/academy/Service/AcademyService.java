@@ -753,4 +753,12 @@ public class AcademyService {
         academyMessage.setMessage("학원 출력 성공");
         return res;
     }
+
+    public List<GetAcaNameListRes> getAcaNameListRes(String acaName){
+        return academyMapper.getAcaNameList(acaName);
+    }
+
+    public List<GetAcademyListByAcaNameOrderTypeRes> getAcademyListByAcaNameOrderType(GetAcademyListByAcaNameOrderTypeReq p) {
+        return academyMapper.getAcademyListByAcaNameOrderType(p);
+    }
 }

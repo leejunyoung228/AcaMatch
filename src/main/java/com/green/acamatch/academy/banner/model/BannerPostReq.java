@@ -20,8 +20,9 @@ public class BannerPostReq {
     @Schema(title = "학원 pk")
     private Long acaId;
 
+    /*@JsonIgnore
     @Schema(title = "배너 사진")
-    private String bannerPic;
+    private String bannerPic;*/
 
     /*@JsonIgnore
     @Schema(title = "배너승인여부")

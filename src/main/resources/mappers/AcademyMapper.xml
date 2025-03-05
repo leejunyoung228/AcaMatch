@@ -240,6 +240,7 @@
         <result property="postNum" column="post_num"/>
         <result property="openTime" column="open_time"/>
         <result property="closeTime" column="close_time"/>
+        <result property="businessNumber" column="business_number"/>
             <association property="addressDto" javaType="com.green.acamatch.academy.model.AddressDto">
                 <result property="address" column="address"/>
                 <result property="detailAddress" column="detail_address"/>
@@ -250,11 +251,11 @@
         SELECT A.aca_id, A.aca_phone, A.aca_name,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pic,
         A.comment, A.teacher_num, A.open_time, A.close_time,
-        A.address, A.detail_address, A.post_num
+        A.address, A.detail_address, A.post_num, A.business_number
         FROM academy A
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
-        WHERE A.aca_id = #{acaId};
+        WHERE A.aca_id = #{acaId}
     </select>
 
     <!-- 학원 태그 리스트 불러오기 -->
@@ -985,6 +986,7 @@
     </select>
     <select id="getAcademyInfoByAcaNameClassNameExamNameAcaAgree">
         SELECT A.aca_name, AP.aca_pic,
+        A.aca_id,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id, U.name
         FROM academy A
@@ -1050,5 +1052,44 @@
         GROUP BY A.aca_id
         ORDER BY distance ASC
         LIMIT 5
+    </select>
+    <select id="getAcaNameList">
+        SELECT aca_name
+        FROM academy
+        WHERE aca_name like CONCAT('%', #{acaName}, '%')
+    </select>
+    <select id="getAcademyListByAcaNameOrderType">
+        SELECT
+        A.aca_name,
+        A.comment,
+        AP.aca_pic,
+        AC.created_at,
+        AC.price,
+        U.name,
+        AC.cost_status
+        FROM academy A
+        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        JOIN academy_cost AC ON A.aca_id = AC.aca_id
+        JOIN user U ON AC.user_id = U.user_id
+        <where>
+            <if test="acaName != null and acaName != ''">
+                AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
+            </if>
+            <if test="orderType != null and orderType != ''">
+                AND AC.order_type = #{orderType}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND U.user_name LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND AC.created_at &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND AC.created_at &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
+    <select id="getAcademyListByAcaNameAndDate">
+
     </select>
 </mapper>
