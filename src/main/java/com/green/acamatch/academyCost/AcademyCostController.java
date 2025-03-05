@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,6 +45,16 @@ public class AcademyCostController {
         return ResultResponse.<GetAcademyCostInfoByCostId>builder()
                 .resultMessage("조회 성공")
                 .resultData(academyCostService.getAcademyCostInfoByCostId(costId))
+                .build();
+    }
+
+    @PutMapping("updateStatus/{costId}")
+    @Operation(summary = "정산 X -> 정산 O로 처리", description = "어떻게 만드실지 몰라서 일단 결제 PK를 받아와서 정산 상태인 status를 1로 변경하도록 만들었습니다.")
+    public ResultResponse<Integer> updateStatus(@PathVariable Integer costId) {
+        int result = academyCostService.updateStatus(costId);
+        return ResultResponse.<Integer>builder()
+                .resultMessage("정산 처리 완료")
+                .resultData(result)
                 .build();
     }
 }

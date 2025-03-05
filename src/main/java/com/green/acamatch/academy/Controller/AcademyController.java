@@ -249,4 +249,14 @@ public class AcademyController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("GetSearchInfo")
+    @Operation(summary = "태그로 검색 분포 정보")
+    public ResultResponse<List<GetSearchInfoRes>> getSearchInfo(){
+        List<GetSearchInfoRes> res = academyService.getSearchInfo();
+        return ResultResponse.<List<GetSearchInfoRes>>builder()
+                .resultMessage("조회 성공")
+                .resultData(res)
+                .build();
+    }
 }

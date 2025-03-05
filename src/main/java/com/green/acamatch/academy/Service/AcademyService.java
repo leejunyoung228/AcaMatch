@@ -761,4 +761,8 @@ public class AcademyService {
     public List<GetAcademyListByAcaNameOrderTypeRes> getAcademyListByAcaNameOrderType(GetAcademyListByAcaNameOrderTypeReq p) {
         return academyMapper.getAcademyListByAcaNameOrderType(p);
     }
+
+    public List<GetSearchInfoRes> getSearchInfo(){
+        return academyMapper.getSearchInfo();
+    }
 }

@@ -17,7 +17,7 @@
         FROM academy_cost
         WHERE YEAR(created_at) = YEAR(NOW())  -- 현재 연도
         AND MONTH(created_at) = MONTH(NOW())
-        AND cost_status = 1
+        AND cost_status = 2
         ) AS CC
         ON AC.cost_id = CC.cost_id
         JOIN
@@ -26,7 +26,7 @@
         FROM academy_cost
         WHERE WEEK(created_at) = WEEK(NOW())
         AND YEAR(created_at) = YEAR(NOW())  -- 같은 연도 내에서 이번 주 데이터만 선택
-        AND cost_status = 1
+        AND cost_status = 2
         GROUP BY cost_id
         ) AS SF
         ON AC.cost_id = SF.cost_id
@@ -41,7 +41,7 @@
         ON B.book_id = P.book_id
         JOIN academy_cost AC
         ON P.product_id = AC.product_id
-        WHERE AC.cost_status = 1
+        WHERE AC.cost_status = 2
         ) SP
         ON AC.cost_id = SP.cost_id
         ) SQ
