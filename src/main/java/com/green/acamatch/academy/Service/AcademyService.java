@@ -207,7 +207,7 @@ public class AcademyService {
 
     //학원정보수정
     @Transactional
-    public int updAcademy(List<MultipartFile> pics, MultipartFile businessLicensePic, MultipartFile operationLicensePic, AcademyUpdateReq req) {
+    public int updAcademy(List<MultipartFile> pics, AcademyUpdateReq req) {
         Academy academy = academyRepository.findById(req.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
         long acaId = academy.getAcaId();
 
@@ -224,25 +224,15 @@ public class AcademyService {
         if (req.getPremium() != null) academy.setPremium(req.getPremium());
         if (req.getLat() != null) academy.setLat(req.getLat());
         if (req.getLon() != null) academy.setLon(req.getLon());
-        if (req.getCorporateNumber() != null) academy.setCorporateNumber(req.getCorporateNumber());
 
-        if ((businessLicensePic != null && !businessLicensePic.isEmpty()) && req.getBusinessName() != null && req.getBusinessNumber() != null) {
-            academy.setBusinessPic(
-                    saveLicensePic(String.format(academyConst.getBusinessLicenseFilePath(), acaId), businessLicensePic)
-            );
-            academy.setBusinessName(req.getBusinessName());
-            academy.setBusinessNumber(req.getBusinessNumber());
-        }
-        if (operationLicensePic != null && !operationLicensePic.isEmpty()) {
-            academy.setOperationLicencePic(
-                    saveLicensePic(String.format(academyConst.getOperationLicenseFilePath(), acaId), operationLicensePic)
-            );
-        }
+
         //학원사진수정
         if (pics != null && !pics.isEmpty()) {
             academyPicRepository.deleteAcademyPicsByAcaId(acaId);
             String middlePath = String.format(academyConst.getAcademyPicFilePath(), acaId);
             myFileUtils.deleteFolder(middlePath, false);
+            myFileUtils.makeFolders(middlePath);
+
 
             List<String> picNameList = new ArrayList<>();
             List<AcademyPic> picList = new ArrayList<>(pics.size());
