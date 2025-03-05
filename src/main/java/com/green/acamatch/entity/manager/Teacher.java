@@ -23,7 +23,7 @@ public class Teacher {
 
     @ManyToOne
     @MapsId("classId")
-    @JoinColumn(name = "class_id", nullable = false)
+    @JoinColumn(name = "class_id")
     private AcaClass acaClass;
 
     @Lob
@@ -32,4 +32,7 @@ public class Teacher {
 
     @Column(nullable = false)
     private int teacherAgree;
+
+    @Column(nullable = false)
+    private int isActive;
 }

@@ -2,10 +2,7 @@ package com.green.acamatch.teacher;
 
 import com.green.acamatch.acaClass.ClassRepository;
 import com.green.acamatch.academy.AcademyRepository;
-import com.green.acamatch.config.MyFileUtils;
-import com.green.acamatch.config.constant.UserConst;
 import com.green.acamatch.config.exception.*;
-import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.manager.Teacher;
@@ -14,23 +11,13 @@ import com.green.acamatch.entity.user.User;
 import com.green.acamatch.teacher.model.TeacherDelReq;
 import com.green.acamatch.teacher.model.TeacherPostReq;
 import com.green.acamatch.teacher.model.TeacherPutReq;
-import com.green.acamatch.user.UserUtils;
 import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +50,7 @@ public class TeacherService {
         teacher.setTeacherIds(teacherIds);
         teacher.setTeacherComment(p.getTeacherComment());
         teacher.setTeacherAgree(p.getTeacherAgree());
+        teacher.setIsActive(p.getIsActive());
         teacherRepository.save(teacher);
 
         return 1;
@@ -110,7 +98,8 @@ public class TeacherService {
                     -> new CustomException(TeacherErrorCode.NOT_FOUND_TEACHER));
 
             if (acaClass.getClassId().equals(teacher.getTeacherIds().getClassId())) {
-                teacherRepository.delete(teacher);
+                teacher.setIsActive(0);
+                teacherRepository.save(teacher);
                 return 1;
             } else {
                 throw new IllegalArgumentException("학원에 등록된 선생님이 아닙니다.");

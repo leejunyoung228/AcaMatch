@@ -7,6 +7,6 @@ import java.util.List;
 
 @Setter
 @Getter
-public class GradeUserGetRes {
-    List<GradeUserDto> joinClassGradeDtoList;
+public class GradeDetailGetRes {
+    List<GradeDetailDto> joinClassGradeDtoList;
 }

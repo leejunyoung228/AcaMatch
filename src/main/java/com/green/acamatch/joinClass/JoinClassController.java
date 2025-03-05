@@ -2,19 +2,14 @@ package com.green.acamatch.joinClass;
 
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.entity.myenum.UserRole;
-import com.green.acamatch.grade.model.GradeUserDto;
-import com.green.acamatch.grade.model.GradeUserGetReq;
 import com.green.acamatch.joinClass.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import java.beans.PropertyEditorSupport;
+import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "수강 관리", description = "수강 신청, 불러오기, 수정, 삭제")
@@ -39,6 +34,14 @@ public class JoinClassController {
     @Operation(summary = "user가 신청한 학원명/강좌명 / 학생id / 부모id 하나만 적으셔도 됩니다.")
     public ResultResponse<List<JoinClassDto>> selJoinClass(@ModelAttribute @ParameterObject JoinClassGetReq p) {
         List<JoinClassDto> result = service.selJoinClass(p);
+        // 데이터가 null일 경우 에러 메시지 처리
+        if (result == null || result.isEmpty()) {
+            return ResultResponse.<List<JoinClassDto>>builder()
+                    .resultMessage("데이터가 없습니다.")
+                    .resultData(new ArrayList<>())
+                    .build();
+        }
+
         return ResultResponse.<List<JoinClassDto>>builder()
                 .resultMessage("불러오기 성공")
                 .resultData(result)

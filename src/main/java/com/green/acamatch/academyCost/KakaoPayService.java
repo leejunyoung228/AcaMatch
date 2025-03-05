@@ -11,6 +11,7 @@ import com.green.acamatch.entity.academyCost.Book;
 import com.green.acamatch.entity.academyCost.Product;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.joinClass.JoinClassRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -45,6 +46,25 @@ public class KakaoPayService {
         headers.set("Authorization", auth);
         headers.set("Content-Type", "application/json");
         return headers;
+    }
+
+    public String getBaseUrl(HttpServletRequest request, String urlType) {
+        String scheme = request.getScheme(); // http 또는 https
+        String serverName = request.getServerName(); // localhost
+        int serverPort = request.getServerPort(); // 요청받은 포트
+
+        String baseUrl = scheme + "://" + serverName + ":" + serverPort;
+
+        // URL 타입에 맞는 경로를 붙여줍니다.
+        if ("success".equals(urlType)) {
+            return baseUrl + "/success";
+        } else if ("fail".equals(urlType)) {
+            return baseUrl + "/fail";
+        } else if ("cancel".equals(urlType)) {
+            return baseUrl + "/cancel";
+        }
+
+        return baseUrl; // 기본 URL 반환
     }
 //
 //    /**
@@ -193,7 +213,7 @@ public class KakaoPayService {
 //        return approveResponse;
 //    }
 
-    public KakaoReadyResponse kakaoPayReady(KakaoPayPostReq req) {
+    public KakaoReadyResponse kakaoPayReady(HttpServletRequest request, KakaoPayPostReq req) {
         Map<String, Object> parameters = new HashMap<>();
         List<ProductRequest> products = req.getProducts(); // 상품 ID와 수량 리스트 가져오기
 
@@ -236,9 +256,14 @@ public class KakaoPayService {
         parameters.put("total_amount", totalAmount);
         parameters.put("vat_amount", totalVatAmount);
         parameters.put("tax_free_amount", "0");
-        parameters.put("approval_url", "http://localhost:8080/success");
-        parameters.put("fail_url", "http://localhost:8080/fail");
-        parameters.put("cancel_url", "http://localhost:8080/cancel");
+        List<Integer> allowedPorts = List.of(8080, 5173, 4173);
+        String successUrl = getBaseUrl(request, "success");
+        String failUrl = getBaseUrl(request, "fail");
+        String cancelUrl = getBaseUrl(request, "cancel");
+        parameters.put("approval_url", successUrl);
+        parameters.put("fail_url", failUrl);
+        parameters.put("cancel_url", cancelUrl);
+
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
         KakaoReadyResponse kakaoReady = restTemplate.postForObject(

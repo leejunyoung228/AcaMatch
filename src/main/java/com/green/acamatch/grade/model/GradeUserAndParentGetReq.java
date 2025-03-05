@@ -16,15 +16,14 @@ public class GradeUserAndParentGetReq extends Paging {
     private String keyword1;
     @Schema(title = "검색어", example = "초등영어")
     private String keyword2;
-    @Schema(title = "검색어")
-    private String keyword3;
+//    @Schema(title = "검색어")
+//    private String keyword3;
 
-    public GradeUserAndParentGetReq(Integer page, Integer size, long acaId, long classId, String keyword1, String keyword2, String keyword3) {
+    public GradeUserAndParentGetReq(Integer page, Integer size, long acaId, long classId, String keyword1, String keyword2) {
         super(page, size);
         this.acaId = acaId;
         this.classId = classId;
         this.keyword1 = keyword1;
         this.keyword2 = keyword2;
-        this.keyword3 = keyword3;
     }
 }

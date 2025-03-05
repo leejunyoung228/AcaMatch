@@ -10,6 +10,7 @@ import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.entity.academyCost.AcademyCost;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
@@ -36,9 +37,9 @@ public class KakaoPayController {
             "그 pc_url를 검색창에 그대로 복사해서 붙여넣어보시면 바로 결제 페이지가 나옵니다." +
             "그 상태에서 결제하시면 페이지가 자동으로 넘어가게 되는데, url에 pg_token이라는게 붙어서 넘어옵니다." +
             "그러면 그 pg_token이랑 결제 준비에서 받았던 tid를 kakaoPay/success에 입력하시면 결제가 완료됩니다.")
-    public ResultResponse<KakaoReadyResponse> readyToKakaoPay(@RequestBody KakaoPayPostReq req) {
+    public ResultResponse<KakaoReadyResponse> readyToKakaoPay(@RequestBody KakaoPayPostReq req, HttpServletRequest request) {
         return ResultResponse.<KakaoReadyResponse>builder()
-                .resultData(kakaoPayService.kakaoPayReady(req))
+                .resultData(kakaoPayService.kakaoPayReady(request, req))
                 .resultMessage(academyCostMessage.getMessage())
                 .build();
     }

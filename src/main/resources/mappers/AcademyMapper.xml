@@ -1082,6 +1082,18 @@
         </where>
     </select>
     <select id="getAcademyListByAcaNameAndDate">
-
+    </select>
+    <select id="getSearchInfo">
+        SELECT COUNT(S.tag_id) AS tagCount, tag_name, TT.totalTagCount
+        FROM search S
+        JOIN tag T ON S.tag_id = T.tag_id
+        LEFT JOIN
+        (
+        SELECT COUNT(S.tag_id) AS totalTagCount, T.tag_id
+        FROM search S
+        JOIN tag T ON S.tag_id = T.tag_id
+        ) TT
+        ON S.tag_id = TT.tag_id
+        GROUP BY S.tag_id;
     </select>
 </mapper>
