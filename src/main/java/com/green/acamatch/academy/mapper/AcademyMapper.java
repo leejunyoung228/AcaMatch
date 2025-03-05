@@ -85,4 +85,6 @@ public interface AcademyMapper {
     List<GetAcaNameListRes> getAcaNameList(String acaName);
 
     List<GetAcademyListByAcaNameOrderTypeRes> getAcademyListByAcaNameOrderType(GetAcademyListByAcaNameOrderTypeReq p);
+
+    List<GetSearchInfoRes> getSearchInfo();
 }
