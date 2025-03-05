@@ -53,7 +53,6 @@ public class AttendanceService {
 
     public List<AttendanceGetDto> getAttendance(AttendanceGetReq p) {
         List<AttendanceGetDto> result = attendanceMapper.getAttendanceStatusCount(p);
-
         if (result == null || result.isEmpty()) {
             throw new IllegalArgumentException("출석부를 찾을 수 없습니다.");
         }
@@ -62,44 +61,56 @@ public class AttendanceService {
 
     public List<AttendanceGetUserDto> getAttendanceUser(AttendanceGetUserReq p) {
         List<AttendanceGetUserDto> result = attendanceMapper.getAttendanceUserName(p);
-
         if (result == null || result.isEmpty()) {
             throw new IllegalArgumentException("수강생을 찾을 수 없습니다.");
         }
         return result;
-}
+    }
 
-@Transactional
-public int updAttendance(AttendancePutReq p) {
-    try {
-        Attendance attendance = attendanceRepository.findById(p.getAttendanceId()).orElseThrow(()
-                -> new CustomException(AcaClassErrorCode.NOT_FOUND_ATTENDANCE));
-        JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(()
-                -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
-        if (p.getStatus() == null) {
-            throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+    public List<AcademyAttendanceGetRes> getAcademyAttendanceStatusCount(AcademyAttendanceGetReq p) {
+        try {
+            List<AcademyAttendanceGetRes> result = attendanceMapper.getAcademyAttendanceStatusCount(p);
+            if (result == null || result.isEmpty()) {
+                throw new CustomException(AcaClassErrorCode.NOT_FOUND_ATTENDANCE);
+            }
+            return result;
+        }catch (CustomException e) {
+            e.printStackTrace();
+            return null;
         }
-        attendance.setJoinClass(joinClass);
-        attendance.setAttendanceDate(p.getAttendanceDate());
-        attendance.setStatus(p.getStatus());
-        attendanceRepository.save(attendance);
-        return 1;
-    } catch (IllegalArgumentException e) {
-        e.getMessage();
-        return 0;
     }
-}
 
-@Transactional
-public int delAttendance(AttendanceDelReq p) {
-    try {
-        Attendance attendance = attendanceRepository.findById(p.getAttendanceId()).orElseThrow(()
-                -> new CustomException(AcaClassErrorCode.NOT_FOUND_ATTENDANCE));
-        attendanceRepository.delete(attendance);
-        return 1;
-    } catch (IllegalArgumentException e) {
-        e.getMessage();
-        return 0;
+    @Transactional
+    public int updAttendance(AttendancePutReq p) {
+        try {
+            Attendance attendance = attendanceRepository.findById(p.getAttendanceId()).orElseThrow(()
+                    -> new CustomException(AcaClassErrorCode.NOT_FOUND_ATTENDANCE));
+            JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(()
+                    -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
+            if (p.getStatus() == null) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+            }
+            attendance.setJoinClass(joinClass);
+            attendance.setAttendanceDate(p.getAttendanceDate());
+            attendance.setStatus(p.getStatus());
+            attendanceRepository.save(attendance);
+            return 1;
+        } catch (IllegalArgumentException e) {
+            e.getMessage();
+            return 0;
+        }
     }
-}
+
+    @Transactional
+    public int delAttendance(AttendanceDelReq p) {
+        try {
+            Attendance attendance = attendanceRepository.findById(p.getAttendanceId()).orElseThrow(()
+                    -> new CustomException(AcaClassErrorCode.NOT_FOUND_ATTENDANCE));
+            attendanceRepository.delete(attendance);
+            return 1;
+        } catch (IllegalArgumentException e) {
+            e.getMessage();
+            return 0;
+        }
+    }
 }

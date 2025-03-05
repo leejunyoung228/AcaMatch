@@ -10,4 +10,5 @@ public interface PopUpMapper {
 //    int PostPopUp(PopUpPostReq p);
     List<PopUpGetDto> getPopUpList(PopUpGetReq p);
     List<PopUpGetDto> getPopUpDetail(PopUpGetDetailReq p);
+    List<PopUpGetShowRes> getPopUpShow();
 }

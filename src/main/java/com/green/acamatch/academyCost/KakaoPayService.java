@@ -256,13 +256,16 @@ public class KakaoPayService {
         parameters.put("total_amount", totalAmount);
         parameters.put("vat_amount", totalVatAmount);
         parameters.put("tax_free_amount", "0");
-        List<Integer> allowedPorts = List.of(8080, 5173, 4173);
-        String successUrl = getBaseUrl(request, "success");
-        String failUrl = getBaseUrl(request, "fail");
-        String cancelUrl = getBaseUrl(request, "cancel");
-        parameters.put("approval_url", successUrl);
-        parameters.put("fail_url", failUrl);
-        parameters.put("cancel_url", cancelUrl);
+//        List<Integer> allowedPorts = List.of(8080, 5173, 4173);
+//        String successUrl = getBaseUrl(request, "success");
+//        String failUrl = getBaseUrl(request, "fail");
+//        String cancelUrl = getBaseUrl(request, "cancel");
+//        parameters.put("approval_url", successUrl);
+//        parameters.put("fail_url", failUrl);
+//        parameters.put("cancel_url", cancelUrl);
+        parameters.put("approval_url", "http://localhost:5173/success");
+        parameters.put("fail_url",  "http://localhost:5173/fail");
+        parameters.put("cancel_url", "http://localhost:5173/cancel");
 
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
