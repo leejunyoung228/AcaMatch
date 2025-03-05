@@ -264,7 +264,7 @@ public class KakaoPayService {
 //        parameters.put("fail_url", failUrl);
 //        parameters.put("cancel_url", cancelUrl);
         parameters.put("approval_url", "http://localhost:5173/success");
-        parameters.put("fail_url", "http://localhost:5173/fail");
+        parameters.put("fail_url",  "http://localhost:5173/fail");
         parameters.put("cancel_url", "http://localhost:5173/cancel");
 
 
