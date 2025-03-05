@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Setter
 @Getter
 public class AcaClassDto {
@@ -25,14 +23,10 @@ public class AcaClassDto {
     private String startDate;
     @Schema(title = "수업 종료 날짜", example = "2025-01-30")
     private String endDate;
-    @Schema(title = "검색어1")
-    private String keyword1;
-    @Schema(title = "검색어2")
-    private String keyword2;
-    @Schema(title = "검색어3")
-    private String keyword3;
+    @Schema(title = "선생님 ID")
+    private long teacherId;
+    @Schema(title = "학원관계자 ID")
+    private long academyId;
     @Schema(title = "선생님 이름")
-    private String name;
-//    @Schema(title = "시험 이름")
-//    private String examName;
+    private String teacherName;
 }

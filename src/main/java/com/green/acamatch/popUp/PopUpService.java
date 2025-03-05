@@ -80,13 +80,42 @@ public class PopUpService {
     }
 
     public List<PopUpGetDto> getPopUpList(PopUpGetReq p) {
-        List<PopUpGetDto> result = popUpMapper.getPopUpList(p);
-        return result;
+        try {
+            List<PopUpGetDto> result = popUpMapper.getPopUpList(p);
+            if(result == null || result.isEmpty()) {
+                throw new CustomException(popUpErrorCode.POPUP_NOT_FOUND);
+            }
+            return result;
+        }catch (CustomException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public List<PopUpGetDto> getPopUpDetail(PopUpGetDetailReq p) {
-        List<PopUpGetDto> result = popUpMapper.getPopUpDetail(p);
-        return result;
+        try {
+            List<PopUpGetDto> result = popUpMapper.getPopUpDetail(p);
+            if(result == null || result.isEmpty()) {
+                throw new CustomException(popUpErrorCode.POPUP_NOT_FOUND);
+            }
+            return result;
+        }catch (CustomException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<PopUpGetShowRes> getPopUpShow() {
+        try {
+            List<PopUpGetShowRes> result = popUpMapper.getPopUpShow();
+            if(result == null || result.isEmpty()) {
+                throw new CustomException(popUpErrorCode.POPUP_NOT_FOUND);
+            }
+            return result;
+        }catch (CustomException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Transactional
