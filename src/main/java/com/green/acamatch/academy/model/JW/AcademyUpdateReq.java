@@ -71,13 +71,5 @@ public class AcademyUpdateReq {
     @Schema(title = "경도")
     private Double lon;
 
-    @Schema(title = "사업자명")
-    private String businessName;
-
-    @Schema(title = "사업자번호")
-    private String businessNumber;
-
-    @Schema(title = "법인번호")
-    private String corporateNumber;
 
 }
