@@ -18,10 +18,6 @@ public class AcademyCost extends CreatedAt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long costId;
 
-    @ManyToOne
-    @JoinColumn(name = "join_class_id")
-    private JoinClass joinClass;
-
     @Column(nullable = false)
     private int orderType;
 
