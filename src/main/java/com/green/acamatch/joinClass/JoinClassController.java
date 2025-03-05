@@ -2,19 +2,13 @@ package com.green.acamatch.joinClass;
 
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.entity.myenum.UserRole;
-import com.green.acamatch.grade.model.GradeUserDto;
-import com.green.acamatch.grade.model.GradeUserGetReq;
 import com.green.acamatch.joinClass.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import java.beans.PropertyEditorSupport;
 import java.util.List;
 
 @Tag(name = "수강 관리", description = "수강 신청, 불러오기, 수정, 삭제")

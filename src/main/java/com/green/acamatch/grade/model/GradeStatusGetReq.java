@@ -8,9 +8,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class GradeStatusGetReq extends Paging {
-    @Schema(title = "학원 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "학원 PK", example = "1")
     private long acaId;
-    @Schema(title = "수업 PK", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "수업 PK", example = "1")
     private long classId;
     @Schema(title = "검색어", example = "대구 ABC 상아탑 학원")
     private String keyword1;

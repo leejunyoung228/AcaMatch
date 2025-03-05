@@ -1,7 +1,6 @@
 package com.green.acamatch.grade;
 
 import com.green.acamatch.config.exception.AcaClassErrorCode;
-import com.green.acamatch.config.exception.AcademyException;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.entity.exam.Exam;
@@ -11,7 +10,6 @@ import com.green.acamatch.exam.ExamRepository;
 import com.green.acamatch.grade.model.*;
 import com.green.acamatch.joinClass.JoinClassRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,17 +68,15 @@ public class GradeService {
         }
     }
 
-    public List<GradeUserDto> selGradeUser(GradeUserGetReq p) {
+    public List<GradeDetailDto> selGradeDetail(GradeDetailGetReq p) {
         try {
-            List<GradeUserDto> result = mapper.selGradeUser(p);
+            List<GradeDetailDto> result = mapper.selGradeDetail(p);
             if (result == null || result.isEmpty()) {
-                userMessage.setMessage("수강생들의 성적이 없습니다.");
-                return null;
+                throw new CustomException(AcaClassErrorCode.NOT_FOUND_GRADE);
             }
-            userMessage.setMessage("수강생들의 성적 불러오기를 성공하였습니다.");
             return result;
-        } catch (Exception e) {
-            userMessage.setMessage("수강생들의 성적 불러오기를 실패하였습니다.");
+        } catch (CustomException e) {
+            e.getStackTrace();
             return null;
         }
     }

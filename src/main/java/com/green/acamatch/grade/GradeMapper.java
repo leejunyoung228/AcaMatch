@@ -10,7 +10,7 @@ public interface GradeMapper {
 //    int insGrade(GradePostReq p);
 //    int existsGrade(long joinClassId, long subjectId);
     List<GradeGetDto> selGradeScore(GradeGetReq p);
-    List<GradeUserDto> selGradeUser(GradeUserGetReq p);
+    List<GradeDetailDto> selGradeDetail(GradeDetailGetReq p);
     List<GradeStatusGetDto> selGradeStatus(GradeStatusGetReq p);
 
     List<GradeUserAndParentGetRes> selGradeUserAndParent(GradeUserAndParentGetReq p);
