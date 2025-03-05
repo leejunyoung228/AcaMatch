@@ -60,6 +60,19 @@ public class GradeController {
                 .build();
     }
 
+    @GetMapping("userAndParent")
+    @Operation(summary = "부모,수험생 목록 가져오기")
+    public ResultResponse<List<GradeUserAndParentGetRes>> selGradeUserAndParent(@ModelAttribute @ParameterObject GradeUserAndParentGetReq p) {
+        List<GradeUserAndParentGetRes> result = service.selGradeUserAndParent(p);
+        return ResultResponse.<List<GradeUserAndParentGetRes>>builder()
+                .resultMessage("목록 불러오기 성공")
+                .resultData(result)
+                .build();
+    }
+
+
+
+
     @PutMapping
     @Operation(summary = "시험 점수 수정하기")
     public ResultResponse<Integer> updGradeScore(@RequestBody GradePutReq p) {
