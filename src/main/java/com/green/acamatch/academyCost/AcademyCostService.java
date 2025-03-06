@@ -8,6 +8,7 @@ import com.green.acamatch.entity.academyCost.AcademyCost;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,9 +29,10 @@ public class AcademyCostService {
         return academyCostMapper.getAcademyCostInfoByCostId(costId);
     }
 
-    public int updateStatus(Integer costId){
+    public int updateStatus(Long costId){
         AcademyCost academyCost = academyCostRepository.findById(costId).orElse(null);
         academyCost.setStatus(1);
+        academyCost.setUpdatedAt(LocalDateTime.now());
         academyCostRepository.save(academyCost);
         return 1;
     }
