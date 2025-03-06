@@ -9,43 +9,20 @@
         where t_id = #{tid}
     </select>
     <select id="getAcademyCostInfo">
-        SELECT CC.costCount, SF.sumFee, SQ.saleRate
-        FROM academy_cost AC
-        JOIN
-        (
-        SELECT COUNT(cost_id) AS costCount, cost_id
-        FROM academy_cost
-        WHERE YEAR(created_at) = YEAR(NOW())  -- 현재 연도
-        AND MONTH(created_at) = MONTH(NOW())
-        AND cost_status = 2
-        ) AS CC
-        ON AC.cost_id = CC.cost_id
-        JOIN
-        (
-        SELECT SUM(fee) AS sumFee, cost_id
-        FROM academy_cost
-        WHERE WEEK(created_at) = WEEK(NOW())
-        AND YEAR(created_at) = YEAR(NOW())  -- 같은 연도 내에서 이번 주 데이터만 선택
-        AND cost_status = 2
-        GROUP BY cost_id
-        ) AS SF
-        ON AC.cost_id = SF.cost_id
-        JOIN
-        (
-        SELECT SP.cost_id, SP.saleRate
-        FROM academy_cost AC
-        JOIN (
-        SELECT sum(AC.amount) / B.book_amount AS saleRate, AC.cost_id
-        FROM book B
-        JOIN product P
-        ON B.book_id = P.book_id
-        JOIN academy_cost AC
-        ON P.product_id = AC.product_id
-        WHERE AC.cost_status = 2
-        ) SP
-        ON AC.cost_id = SP.cost_id
-        ) SQ
-        ON SQ.cost_id = AC.cost_id
+        SELECT SUM(fee) AS sumFee, COUNT(cost_id) AS costCount, ((
+        SELECT COUNT(X2.product_id)
+        FROM academy_cost X1
+        INNER JOIN product X2
+        ON X2.book_id IS NOT NULL
+        AND X1.product_id = X2.product_id
+        ) / (
+        SELECT SUM(X3.book_amount)
+        FROM book X3
+        )) AS saleRate
+        FROM academy_cost A
+        WHERE A.cost_status = 2
+        AND YEAR(DATE(A.created_at)) = YEAR(CURDATE())
+        AND WEEK(DATE(A.created_at), 1) = WEEK(CURDATE(), 1);
     </select>
     <select id="getBookIdByProductId">
         select book_id
@@ -112,9 +89,10 @@
         LIMIT #{startIdx}, #{size}
     </select>
     <select id="getAcademyCostInfoByCostId">
-        SELECT AC.*, U.name
+        SELECT AC.*, U.name, P.product_name
         FROM academy_cost AC
         JOIN User U ON AC.user_id = U.user_id
+        JOIN product P ON AC.product_id = P.product_id
         WHERE cost_id = #{costId}
     </select>
 </mapper>
