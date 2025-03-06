@@ -9,9 +9,9 @@ import lombok.Setter;
 @Getter
 public class GradeStatusGetReq extends Paging {
     @Schema(title = "학원 PK", example = "1")
-    private long acaId;
+    private Long acaId;
     @Schema(title = "수업 PK", example = "1")
-    private long classId;
+    private Long classId;
     @Schema(title = "검색어", example = "대구 ABC 상아탑 학원")
     private String keyword1;
     @Schema(title = "검색어", example = "과학 창의 반")
@@ -20,7 +20,7 @@ public class GradeStatusGetReq extends Paging {
     private String keyword3;
 
 
-    public GradeStatusGetReq(Integer page, Integer size, long acaId, long classId, String keyword1, String keyword2, String keyword3) {
+    public GradeStatusGetReq(Integer page, Integer size, Long acaId, Long classId, String keyword1, String keyword2, String keyword3) {
         super(page, size);
         this.acaId = acaId;
         this.classId = classId;

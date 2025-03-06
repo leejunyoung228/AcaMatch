@@ -30,7 +30,7 @@ public class GradeController {
     }
 
     @GetMapping
-    @Operation(summary = "수강생 한 명의 시험 점수 가져오기/ null일 경우 resultData 반환 값이 없습니다.")
+    @Operation(summary = "수강생 한 명의 시험 점수 가져오기/  안 쓰는 것 같아요.")
     public ResultResponse<List<GradeGetDto>> selGradeScore(@ModelAttribute @ParameterObject GradeGetReq p) {
         List<GradeGetDto> result = service.selGradeScore(p);
         return ResultResponse.<List<GradeGetDto>>builder()
@@ -51,7 +51,7 @@ public class GradeController {
 
 
     @GetMapping("status")
-    @Operation(summary = "시험 처리 상태 가져오기/ null일 경우 resultData 반환 값이 없습니다.")
+    @Operation(summary = "시험 처리 상태 가져오기")
     public ResultResponse<List<GradeStatusGetDto>> selGradeStatus(@ModelAttribute @ParameterObject GradeStatusGetReq p) {
         List<GradeStatusGetDto> result = service.selGradeStatus(p);
         return ResultResponse.<List<GradeStatusGetDto>>builder()
