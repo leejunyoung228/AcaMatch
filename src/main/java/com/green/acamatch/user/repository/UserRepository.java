@@ -39,7 +39,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "u.email AS email, u.phone AS phone, u.birth AS birth, " +
             "u.nickName AS nickName, u.userPic AS userPic, " +
             "u.createdAt AS createdAt, u.updatedAt AS updatedAt, COALESCE(COUNT(r), 0) AS reportsCount " +
-            "FROM User u LEFT JOIN Reports r ON u.userId = r.user.userId " +
+            "FROM User u LEFT JOIN Reports r ON u.userId = r.reportedUser.userId " +
             "WHERE u.userId != 1 " +  // userId 1 제외
             "GROUP BY u.userId")
     List<UserReportProjection> findUsersExceptAdmin(); // Optional 제거
@@ -49,7 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "u.email AS email, u.phone AS phone, u.birth AS birth, " +
             "u.nickName AS nickName, u.userPic AS userPic, " +
             "u.createdAt AS createdAt, u.updatedAt AS updatedAt, COALESCE(COUNT(r), 0) AS reportsCount " +
-            "FROM User u LEFT JOIN Reports r ON u.userId = r.user.userId " +
+            "FROM User u LEFT JOIN Reports r ON u.userId = r.reportedUser.userId " +
             "WHERE (:userId IS NULL OR u.userId = :userId) " +
             "AND (:name IS NULL OR u.name LIKE %:name%) " +
             "AND (:nickName IS NULL OR u.nickName LIKE %:nickName%) " +
