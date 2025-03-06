@@ -1,9 +1,7 @@
 package com.green.acamatch.academyCost;
 
 import com.green.acamatch.academy.Service.PremiumService;
-import com.green.acamatch.academyCost.model.KakaoApproveResponse;
-import com.green.acamatch.academyCost.model.KakaoPayPostReq;
-import com.green.acamatch.academyCost.model.KakaoReadyResponse;
+import com.green.acamatch.academyCost.model.*;
 import com.green.acamatch.config.exception.AcademyCostException;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.ResultResponse;
@@ -73,6 +71,17 @@ public class KakaoPayController {
     public void fail() {
 
         throw new CustomException(AcademyCostException.PAY_FAILED);
+    }
+
+    /**
+     * 환불
+     */
+    @PostMapping("/refund")
+    public ResponseEntity<KakaoCancelResponse> refund(@ParameterObject KakaoCancelReq req) {
+
+        KakaoCancelResponse kakaoCancelResponse = kakaoPayService.kakaoCancel(req);
+
+        return new ResponseEntity<>(kakaoCancelResponse, HttpStatus.OK);
     }
 
     @GetMapping("/recent")
