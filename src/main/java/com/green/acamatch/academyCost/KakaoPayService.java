@@ -328,24 +328,12 @@ public class KakaoPayService {
         long userId = result.getUserId();
         String partnerOrderId = result.getPartnerOrderId();  // 저장된 주문번호 가져오기
 
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("cid", payProperties.getCid());
-        parameters.put("tid", tid);
-        parameters.put("partner_order_id", partnerOrderId);  // 올바른 주문번호 사용
-        parameters.put("partner_user_id", String.valueOf(userId));
-        parameters.put("pg_token", pgToken);
-
-        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
-
-        KakaoApproveResponse approveResponse = restTemplate.postForObject(
-                "https://open-api.kakaopay.com/online/v1/payment/approve",
-                requestEntity,
-                KakaoApproveResponse.class);
-
-        // 결제 완료 후 상태 변경 로직 유지
         List<AcademyCost> costs = academyCostRepository.findByTId(TId);
         for (AcademyCost cost : costs) {
             cost.setCost_status(2);
+            if (cost.getProductId() != null && cost.getProductId().getProductId() == 1) {
+                cost.setStatus(1);
+            }
             academyCostRepository.save(cost);
 
             if(cost.getAcademyId() != null){
@@ -376,6 +364,21 @@ public class KakaoPayService {
             }
         }
 
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("cid", payProperties.getCid());
+        parameters.put("tid", tid);
+        parameters.put("partner_order_id", partnerOrderId);  // 올바른 주문번호 사용
+        parameters.put("partner_user_id", String.valueOf(userId));
+        parameters.put("pg_token", pgToken);
+
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
+
+        KakaoApproveResponse approveResponse = restTemplate.postForObject(
+                "https://open-api.kakaopay.com/online/v1/payment/approve",
+                requestEntity,
+                KakaoApproveResponse.class);
+
+        // 결제 완료 후 상태 변경 로직 유지
         return approveResponse;
     }
 
