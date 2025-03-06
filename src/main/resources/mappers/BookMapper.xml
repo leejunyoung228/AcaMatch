@@ -20,7 +20,6 @@
         SELECT B.book_id, COUNT(B.book_id) AS bookCount
         FROM book B
         ) BC ON B.book_id = BC.book_id
-        ORDER BY B.created_at DESC
         <where>
             <if test=" acaName != null and acaName != '' ">
                 AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
@@ -29,6 +28,7 @@
                 AND B.book_name LIKE CONCAT('%', #{bookName}, '%')
             </if>
         </where>
+        ORDER BY B.created_at DESC
         LIMIT #{startIdx}, #{size}
     </select>
     <select id="getBookInfo">
