@@ -108,6 +108,7 @@
                 AND MONTH(AC.created_at) = #{month}
             </if>
         </where>
+        GROUP BY cost_id
         LIMIT #{startIdx}, #{size}
     </select>
     <select id="getAcademyCostInfoByCostId">

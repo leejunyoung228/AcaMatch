@@ -36,16 +36,4 @@ public class Reports extends CreatedAt {
 
     @Column(nullable = false)
     private int processingStatus = 0; // 0: 처리 전, 1: 처리 후, 2: 무죄 판정
-
-    public void setReporter(Long reporter) {
-        this.setReporter(reporter);
-    }
-
-    public void setReportedUser(Long reportedUser) {
-        this.setReportedUser(reportedUser);
-    }
-
-    public void setAcademy(Long acaId) {
-        this.setAcademy(acaId);
-    }
 }
