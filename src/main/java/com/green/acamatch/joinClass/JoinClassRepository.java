@@ -46,7 +46,7 @@ public interface JoinClassRepository extends JpaRepository<JoinClass, Long> {
     """)
     boolean existsByClassAndStudentOrParent(@Param("classId") Long classId, @Param("userId") Long userId);
 
-
+    boolean existsByAcaClassInAndUser_UserId(List<AcaClass> acaClasses, Long userId);
 
 
 }

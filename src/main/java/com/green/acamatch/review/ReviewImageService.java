@@ -529,7 +529,7 @@ public class ReviewImageService {
 
         // joinClassId 조회
         List<Long> joinClassIds = mapper.findJoinClassIdByAcademyAndUser(req.getAcaId(), requestUserId);
-        log.info("📌 joinClassId 리스트: {}", joinClassIds);
+        log.info("joinClassId 리스트: {}", joinClassIds);
 
         if (joinClassIds.isEmpty()) {
             userMessage.setMessage("해당 학원에 등록된 기록이 없습니다.");
@@ -540,7 +540,7 @@ public class ReviewImageService {
         List<Integer> reviewIds = mapper.getReviewIdsByAcaIdAndUser(req.getAcaId(), requestUserId);
         if (reviewIds.isEmpty()) {
             userMessage.setMessage("삭제할 리뷰가 없습니다.");
-            log.warn("❌ 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
+            log.warn("삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
             return 0;
         }
 
@@ -557,7 +557,7 @@ public class ReviewImageService {
             return 0;
         }
 
-        log.info("✅ 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", req.getAcaId(), requestUserId);
+        log.info("학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", req.getAcaId(), requestUserId);
         userMessage.setMessage("리뷰 삭제가 완료되었습니다.");
         return 1;
     }
@@ -613,9 +613,9 @@ public class ReviewImageService {
 
         if (!reviewIds.isEmpty()) {
             mapper.deleteReviewByReviewId(reviewIds);
-            log.info("✅ 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", acaId, requestUserId);
+            log.info(" 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", acaId, requestUserId);
         } else {
-            log.warn("❌ 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
+            log.warn(" 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
         }
 
         if (mapper.checkAcaExists(acaId) == 0) {
@@ -789,8 +789,6 @@ public class ReviewImageService {
 
             return jwtUserId;
         }
-
-        /* 유효성 검사 */
 
 
         /**

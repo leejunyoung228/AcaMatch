@@ -53,6 +53,8 @@ public class ReviewController {
                 .build();
     }
 
+
+
     // 학원 관계자 리뷰 삭제
     @DeleteMapping("/academy")
     @Operation(
