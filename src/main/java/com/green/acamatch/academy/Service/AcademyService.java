@@ -105,7 +105,6 @@ public class AcademyService {
         Academy academy = new Academy();
         academy.setUser(signedUser);
         academy.setDongId(req.getDongId());
-        //academy.setPremium(req.getPremium());
         academy.setAcaName(req.getAcaName());
         academy.setAcaPhone(req.getAcaPhone());
         academy.setComment(req.getComment());
@@ -115,7 +114,6 @@ public class AcademyService {
         academy.setAddress(req.getAddress());
         academy.setDetailAddress(req.getDetailAddress());
         academy.setPostNum(req.getPostNum());
-        //academy.setAcaAgree(req.getAcaAgree());
         academy.setLat(req.getLat());
         academy.setLon(req.getLon());
         academy.setBusinessName(req.getBusinessName());
@@ -238,6 +236,7 @@ public class AcademyService {
             List<AcademyPic> picList = new ArrayList<>(pics.size());
             for (MultipartFile pic : pics) {
                 String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
+
                 picNameList.add(savedPicName);
                 String filePath = String.format("%s/%s", middlePath, savedPicName);
 
@@ -247,8 +246,11 @@ public class AcademyService {
 
                 AcademyPic academyPic = new AcademyPic();
                 academyPic.setAcademyPicIds(academyPicIds);
+                academyPicRepository.save(academyPic);
+                /*academyPic.setAcademyPicIds(academyPicIds);
                 academyPic.setAcademy(academy);
-                picList.add(academyPic);
+                picList.add(academyPic);*/
+
                 try {
                     myFileUtils.transferTo(pic, filePath);
                 } catch (IOException e) {
@@ -262,7 +264,7 @@ public class AcademyService {
                 academyTagRepository.deleteAllByAcademy_AcaId(req.getAcaId());
                 tagService.insAcaTag(academy, tagService.insTag(req.getTagNameList()));
             }
-            academyPicRepository.saveAll(picList);
+            //academyPicRepository.saveAll(picList);
         }
         ;
 
