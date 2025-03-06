@@ -21,4 +21,32 @@ public interface JoinClassRepository extends JpaRepository<JoinClass, Long> {
 
     Optional<JoinClass> findByAcaClassAndUser(AcaClass acaClass, User user);
 
+    // 특정 수업(AcaClass)과 학생(User) 간의 JoinClass 존재 여부 확인
+    boolean existsByAcaClassAndUser(AcaClass acaClass, User user);
+
+
+    Optional<JoinClass> findByAcaClass_ClassIdAndUser_UserId(Long classId, Long userId);
+
+
+//    @Query("SELECT COUNT(j) > 0 FROM JoinClass j " +
+//            "LEFT JOIN Relationship r ON j.user.userId = r.student.userId " +
+//            "WHERE j.acaClass.classId = :classId " +
+//            "AND (j.user.userId = :userId OR r.parent.userId = :userId) " +
+//            "AND (r.certification = 1 OR r.certification IS NULL)")
+//    boolean existsByAcaClass_ClassIdAndUser_UserId(@Param("classId") Long classId, @Param("userId") Long userId);
+
+    boolean existsByAcaClass_ClassIdAndUser_UserId(Long classId, Long userId);
+
+    @Query("""
+        SELECT COUNT(j) > 0
+        FROM JoinClass j
+        LEFT JOIN Relationship r ON j.user.userId = r.student.userId
+        WHERE j.acaClass.classId = :classId
+        AND (:userId = j.user.userId OR (:userId = r.parent.userId AND r.certification = 1))
+    """)
+    boolean existsByClassAndStudentOrParent(@Param("classId") Long classId, @Param("userId") Long userId);
+
+
+
+
 }

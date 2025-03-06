@@ -1,12 +1,15 @@
 package com.green.acamatch.review;
 
 import com.green.acamatch.acaClass.ClassRepository;
+import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.exception.*;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.entity.review.Review;
+import com.green.acamatch.entity.review.ReviewPic;
+import com.green.acamatch.entity.review.ReviewPicIds;
 import com.green.acamatch.entity.user.Relationship;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
@@ -17,33 +20,30 @@ import com.green.acamatch.user.repository.RelationshipRepository;
 import com.green.acamatch.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-
-import javax.management.relation.Role;
+import java.io.IOException;
+import java.util.*;
 
 
 @Service
 @RequiredArgsConstructor
-
-public class ReviewService {
+public class ReviewImageService {
 
     private final ReviewMapper mapper;
     private final UserMessage userMessage;
-    private static final Logger log = LoggerFactory.getLogger(ReviewService.class);
+    private static final Logger log = LoggerFactory.getLogger(ReviewImageService.class);
     private final RelationshipRepository relationshipRepository;
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final JoinClassRepository joinClassRepository;
     private final ClassRepository acaClassRepository;
+    private final ReviewPicRepository reviewPicRepository;
+    private final MyFileUtils myFileUtils;
 
 
     /**
@@ -61,7 +61,6 @@ public class ReviewService {
         }
         return jwtUserId;
     }
-
 
     /**
      * JWT userId와 요청 userId 비교
@@ -81,77 +80,68 @@ public class ReviewService {
         return userRepository.existsByUserIdAndUserRole(userId, UserRole.STUDENT);
     }
 
+
     @Transactional
-    public int createReview(@Valid ReviewPostReqForParent req) {
-        long requestUserId = req.getUserId();
-        long jwtUserId = validateAuthenticatedUser(requestUserId);  // 인증된 사용자 검증
+    public int createReview(ReviewPostReqForParent req, List<MultipartFile> files) {
+        long jwtUserId = validateAuthenticatedUser();
+        Long requestUserId = req.getUserId();
 
         // 본인 계정 검증
+        if (requestUserId == null || requestUserId == 0L) {
+            userMessage.setMessage("잘못된 요청입니다. 유효한 사용자 ID가 필요합니다.");
+            return 0;
+        }
+
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
             return 0;
         }
 
+        // 유효한 학생 또는 학부모인지 검증
+        List<UserRole> validRoles = Arrays.asList(UserRole.STUDENT, UserRole.PARENT);
+        boolean isValidUser = userRepository.existsByUserIdAndUserRoleIn(requestUserId, validRoles);
 
-        // 사용자 존재 여부 확인
-        validateUserExists(requestUserId);
-
-        // 수업 등록 여부 확인
-        if (joinClassRepository.findStudentsByClassId(req.getClassId()).isEmpty()) {
-            userMessage.setMessage("해당 수업에 등록된 학생이 아닙니다.");
+        if (!isValidUser) {
+            userMessage.setMessage("리뷰를 작성할 권한이 없습니다. 학생 또는 학부모 계정으로 로그인해주세요.");
             return 0;
         }
 
-        // 중복 리뷰 작성 방지
-        if (reviewRepository.existsByJoinClass_AcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId)) {
+        Long targetUserId = requestUserId;
+
+        // 기존 리뷰 확인
+        if (reviewRepository.existsByJoinClass_AcaClass_ClassIdAndUser_UserId(req.getClassId(), targetUserId)) {
             userMessage.setMessage("이미 해당 학원에 대한 리뷰를 작성하셨습니다.");
             return 0;
         }
 
-        // 리뷰 작성자 검증 (학생 또는 학부모)
-        User reviewWriter;
-        if (isStudent(requestUserId)) {
-            reviewWriter = userRepository.findByUserId(requestUserId)
-                    .orElseThrow(() -> new CustomException(ReviewErrorCode.INVALID_USER));
-        } else {
-            if (req.getStudentId() == null) {
-                userMessage.setMessage("유효하지 않은 학생 정보입니다.");
-                return 0;
-            }
+        // JoinClass 조회 (사용자가 수업을 수강했는지 확인)
+        JoinClass joinClass = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), targetUserId)
+                .orElse(null);
 
-            Relationship relationship = relationshipRepository.findByParentUserIdAndStudentUserIdAndCertification(
-                            requestUserId, req.getStudentId(), req.getCertification())
-                    .orElseThrow(() -> new CustomException(ReviewErrorCode.NOT_STUDENT_PARENT));
-
-            reviewWriter = relationship.getParent();
+        if (joinClass == null) {
+            userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다. 수강한 후 리뷰를 작성할 수 있습니다.");
+            return 0;
         }
 
-        // 학원 수업 정보 조회
-        AcaClass acaClass = acaClassRepository.findById(req.getClassId())
-                .orElseThrow(() -> new CustomException(ReviewErrorCode.CLASS_NOT_FOUND));
+        // 사용자 정보 조회
+        User reviewWriter = userRepository.findById(targetUserId).orElse(null);
+        if (reviewWriter == null) {
+            userMessage.setMessage("유효하지 않은 사용자입니다.");
+            return 0;
+        }
 
-        User user = userRepository.findById(requestUserId)
-                .orElseThrow(() -> new CustomException(ReviewErrorCode.INVALID_USER));
-
-        // JoinClass 조회
-        JoinClass joinClass = joinClassRepository.findByAcaClassAndUser(acaClass, user)
-                .orElseThrow(() -> {
-                    userMessage.setMessage("해당 수업을 찾을 수 없습니다.");
-                    return new CustomException(ReviewErrorCode.CLASS_NOT_FOUND);
-                });
-
-        // 별점 유효성 검사 (null 불가, 1~5 범위 유지)
-        if (req.getStar() == null || req.getStar() < 1 || req.getStar() > 5) {
+        // 별점 범위 검증
+        if (req.getStar() < 1 || req.getStar() > 5) {
             userMessage.setMessage("별점은 1~5 사이의 값이어야 합니다.");
             return 0;
         }
 
-        // 댓글 유효성 검사 (null이면 빈 문자열 설정)
+        // 댓글이 없을 경우 빈 문자열로 설정
         if (req.getComment() == null || req.getComment().trim().isEmpty()) {
             req.setComment("");
         }
 
-        // 새로운 리뷰 객체 생성 및 저장
+        // 리뷰 저장
         Review newReview = new Review();
         newReview.setUser(reviewWriter);
         newReview.setJoinClass(joinClass);
@@ -159,7 +149,16 @@ public class ReviewService {
         newReview.setStar(req.getStar());
         newReview.setBanReview(0); // 기본값 0 설정
 
-        reviewRepository.save(newReview);
+        int rowsInserted = reviewRepository.save(newReview) != null ? 1 : 0;
+        if (rowsInserted == 0) {
+            userMessage.setMessage("리뷰 등록에 실패했습니다.");
+            return 0;
+        }
+
+        // 파일 업로드 처리
+        if (files != null && !files.isEmpty()) {
+            saveReviewFiles(newReview, files);
+        }
 
         userMessage.setMessage("리뷰가 성공적으로 등록되었습니다.");
         return 1;
@@ -167,96 +166,230 @@ public class ReviewService {
 
 
 
-
-//    // 리뷰 등록
 //    @Transactional
-//    public int addReview(ReviewPostReq req) {
+//    public int createReview(ReviewPostReqForParent req, List<MultipartFile> files) {
 //        long jwtUserId = validateAuthenticatedUser();
-//        long requestUserId = req.getUserId();
+//        Long requestUserId = req.getUserId();
 //
-//        // 본인 계정 검증
-//        if (jwtUserId != requestUserId) {
-//            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
-//            return 0;
+//        if (requestUserId == null || requestUserId == 0L) {
+//            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
 //        }
 //
-//        // 유저 존재 여부 확인
+//        if (jwtUserId != requestUserId) {
+//            throw new CustomException(ReviewErrorCode.INVALID_USER);
+//        }
+//
 //        validateUserExists(requestUserId);
 //
-//        if (!isAuthorizedUser(req.getUserId())) {
-//            return 0;
+//        if (joinClassRepository.findStudentsByClassId(req.getClassId()).isEmpty()) {
+//            throw new CustomException(ReviewErrorCode. STUDENT_NOT_IN_CLASS);
 //        }
 //
-//        if (mapper.checkAcaExists(req.getAcaId()) == 0) {
-//            userMessage.setMessage("유효하지 않은 학원 ID입니다.");
-//            return 0;
+//        if (!userRepository.existsByUserId(requestUserId)) {
+//            throw new CustomException(ReviewErrorCode.INVALID_USER);
 //        }
 //
-//        if (mapper.checkUserExists(req.getUserId()) == 0) {
-//            userMessage.setMessage("유효하지 않은 유저 ID입니다.");
-//            return 0;
+//        if (reviewRepository.existsByJoinClass_AcaClass_ClassIdAndUser_UserId(req.getClassId(), req.getUserId())) {
+//            throw new CustomException(ReviewErrorCode.CONFLICT_REVIEW_ALREADY_EXISTS);
 //        }
 //
-////        // 본인 학원인지 먼저 검증 (가장 먼저 실행!)
-////        if (isUserLinkedToAcademy(req.getAcaId(), req.getUserId())) {
-////            userMessage.setMessage("해당 학원은 본인의 학원이므로 리뷰를 남길 수 없습니다.");
-////            return 0;
-////        }
+//        User reviewWriter = userRepository.findById(requestUserId)
+//                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 //
-//        // 학원에 등록된 수업 조회
-//        List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId());
-//        log.info("클래스 ID 리스트: {}", classIds);
+//        JoinClass joinClass = joinClassRepository.findById(req.getClassId())
+//                .orElseThrow(() -> new CustomException(ManagerErrorCode.CLASS_NOT_FOUND));
 //
-//        if (classIds.isEmpty()) {
-//            userMessage.setMessage("해당 학원에 등록된 수업이 없습니다.");
-//            return 0;
-//        }
-//
-//        // 유저가 해당 학원의 수업을 수강했는지 확인
-//        List<Long> joinClassIds = mapper.findJoinClassIdByAcademyAndUser(req.getAcaId(), requestUserId);
-//        log.info("joinClassId 리스트: {}", joinClassIds);
-//
-//        if (joinClassIds.isEmpty()) {
-//            userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다. 수강한 후 리뷰를 작성할 수 있습니다.");
-//            return 0;
-//        }
-//
-//        Long joinClassId = joinClassIds.get(0);
-//        log.info(" 최종 joinClassId 값: {}", joinClassId);
-//
-//        // 이미 리뷰를 작성했는지 체크
-//        int existingReviewCount = mapper.checkExistingReview(req.getAcaId(), requestUserId);
-//        if (existingReviewCount > 0) {
-//            userMessage.setMessage("이미 해당 학원에 대한 리뷰를 작성하셨습니다.");
-//            return 0;
-//        }
-//
-//        // 별점 범위 검증
 //        if (req.getStar() < 1 || req.getStar() > 5) {
-//            userMessage.setMessage("별점은 1~5 사이의 값이어야 합니다.");
-//            return 0;
+//            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
 //        }
 //
-//        // 댓글이 없을 경우 빈 문자열로 설정
 //        if (req.getComment() == null || req.getComment().trim().isEmpty()) {
 //            req.setComment("");
 //        }
 //
-//        // 리뷰 등록
-//        int rowsInserted = mapper.insertReview(req);
-//        if (rowsInserted == 0) {
-//            userMessage.setMessage("리뷰 등록에 실패했습니다.");
-//            return 0;
+//        // 리뷰 저장
+//        Review newReview = new Review();
+//        newReview.setUser(reviewWriter);
+//        newReview.setJoinClass(joinClass);
+//        newReview.setComment(req.getComment());
+//        newReview.setStar(req.getStar());
+//        newReview.setBanReview(0); // 기본값 0 설정
+//
+//        reviewRepository.save(newReview);
+//
+//        // 파일이 하나도 없을 경우 예외 발생
+//        if (files == null || files.isEmpty()) {
+//            throw new CustomException(CommonErrorCode.MISSING_REQUIRED_FILED_EXCEPTION);
 //        }
 //
-//        userMessage.setMessage("리뷰가 성공적으로 등록되었습니다.");
+//        // 파일 저장 로직
+//        String middlePath = String.format("reviews/%s", newReview.getReviewId());
+//
+//        for (MultipartFile file : files) {
+//            if (file == null || file.isEmpty()) {
+//                throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
+//            }
+//
+//            // 파일 유형 구분
+//            String fileType = file.getContentType();
+//            if (fileType == null) {
+//                throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
+//            }
+//
+//            String fileCategory = fileType.startsWith("image") ? "images" : "videos";
+//            String filePath = String.format("%s/%s/", middlePath, fileCategory);
+//            myFileUtils.makeFolders(filePath);
+//
+//            // 파일 저장
+//            String savedFileName = myFileUtils.makeRandomFileName(file);
+//            String fullPath = filePath + savedFileName;
+//
+//            try {
+//                myFileUtils.transferTo(file, fullPath);
+//            } catch (IOException e) {
+//                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+//                myFileUtils.deleteFolder(delFolderPath, true);
+//                throw new CustomException(CommonErrorCode.FILE_UPLOAD_FAILED);
+//            }
+//
+//            // ReviewPic 저장 (NULL 방지)
+//            ReviewPic reviewPic = new ReviewPic();
+//            reviewPic.setReview(newReview);
+//            reviewPic.getReviewPicIds().setReviewPic(fullPath);
+//
+//            reviewPicRepository.save(reviewPic);
+//        }
+//
 //        return 1;
 //    }
 
 
-    //리뷰 수정
+//    @Transactional
+//    public int createReview(ReviewPostReqForParent req, List<MultipartFile> files) {
+//        long jwtUserId = validateAuthenticatedUser();
+//        Long requestUserId = req.getUserId();
+//
+//        if (requestUserId == null || requestUserId == 0L) {
+//            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
+//        }
+//
+//        if (jwtUserId != requestUserId) {
+//            throw new CustomException(ReviewErrorCode.INVALID_USER);
+//        }
+//
+//        // 학생(1) 또는 부모(2) 검증
+//        List<UserRole> validRoles = Arrays.asList(UserRole.STUDENT, UserRole.PARENT);
+//        boolean isValidUser = userRepository.existsByUserIdAndUserRoleIn(requestUserId, validRoles);
+//
+//        if (!isValidUser) {
+//            throw new CustomException(ReviewErrorCode.INVALID_USER);
+//        }
+//
+////        User reviewWriter;
+//        Long targetUserId = requestUserId; // 기본값: 본인이 직접 작성
+//
+////        // 부모(`user_role=2`)가 로그인한 경우 보호자 인증 확인 후 `targetUserId` 설정
+////        if (userRepository.findRoleByUserId(requestUserId) == UserRole.PARENT) {
+////            if (req.getStudentId() == null) {
+////                throw new CustomException(ReviewErrorCode.INVALID_USER);
+////            }
+////
+////            // 보호자-학생 관계 검증
+////            Relationship relationship = relationshipRepository.findByParentUserIdAndStudentUserIdAndCertification(
+////                            requestUserId, req.getStudentId(), req.getCertification())
+////                    .orElseThrow(() -> new CustomException(ReviewErrorCode.UNAUTHORIZED_PARENT));
+////
+////            targetUserId = req.getStudentId();
+////        }
+////
+////        // 부모가 대신 작성하는 경우에도 학생이 수업을 수강한 기록이 있는지 확인
+////        if (!joinClassRepository.existsByClassAndStudentOrParent(req.getClassId(), targetUserId)) {
+////            throw new CustomException(ReviewErrorCode.STUDENT_NOT_IN_CLASS);
+////        }
+////
+////        // 부모가 대신 작성할 경우에도 `reviewWriter`는 학생으로 설정
+////        reviewWriter = userRepository.findById(targetUserId)
+////                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+//
+//        // 기존 리뷰가 존재하는지 확인
+//        if (reviewRepository.existsByJoinClass_AcaClass_ClassIdAndUser_UserId(req.getClassId(), targetUserId)) {
+//            throw new CustomException(ReviewErrorCode.CONFLICT_REVIEW_ALREADY_EXISTS);
+//        }
+//
+//        // JoinClass 조회
+//        JoinClass joinClass = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), targetUserId)
+//                .orElseThrow(() -> new CustomException(ManagerErrorCode.CLASS_NOT_FOUND));
+//
+//        if (req.getStar() < 1 || req.getStar() > 5) {
+//            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
+//        }
+//
+//        if (req.getComment() == null || req.getComment().trim().isEmpty()) {
+//            req.setComment("");
+//        }
+//
+//        // 리뷰 저장
+//        Review newReview = new Review();
+////        newReview.setUser(reviewWriter);
+//        newReview.setJoinClass(joinClass);
+//        newReview.setComment(req.getComment());
+//        newReview.setStar(req.getStar());
+//        newReview.setBanReview(0); // 기본값 0 설정
+//
+//        reviewRepository.save(newReview);
+//
+//        // 파일 저장 로직
+//        if (files != null && !files.isEmpty()) {
+//            String middlePath = String.format("reviews/%s", newReview.getReviewId());
+//
+//            for (MultipartFile file : files) {
+//                if (file == null || file.isEmpty()) {
+//                    continue; // 빈 파일은 무시
+//                }
+//
+//                // 파일 유형 구분
+//                String fileType = file.getContentType();
+//                if (fileType == null) {
+//                    throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
+//                }
+//
+//                String fileCategory = fileType.startsWith("image") ? "images" : "videos";
+//                String filePath = String.format("%s/%s/", middlePath, fileCategory);
+//                myFileUtils.makeFolders(filePath);
+//
+//                // 파일 저장
+//                String savedFileName = myFileUtils.makeRandomFileName(file);
+//                String fullPath = filePath + savedFileName;
+//
+//                try {
+//                    myFileUtils.transferTo(file, fullPath);
+//                } catch (IOException e) {
+//                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+//                    myFileUtils.deleteFolder(delFolderPath, true);
+//                    throw new CustomException(CommonErrorCode.FILE_UPLOAD_FAILED);
+//                }
+//
+//                // ReviewPic 저장
+//                ReviewPic reviewPic = new ReviewPic();
+//                ReviewPicIds reviewPicIds = new ReviewPicIds();
+//                reviewPicIds.setReviewId(newReview.getReviewId());
+//                reviewPicIds.setReviewPic(fullPath);
+//                reviewPic.setReviewPicIds(reviewPicIds);
+//                reviewPic.setReview(newReview);
+//
+//                reviewPicRepository.save(reviewPic);
+//            }
+//        }
+//
+//        return 1;
+//    }
+
+
+
+
+    // 리뷰 수정
     @Transactional
-    public int updateReview(@Valid ReviewUpdateReq req) {
+    public int updateReviewWithFiles(@Valid ReviewUpdateReq req, List<MultipartFile> files, List<String> deletedFiles) {
         long jwtUserId = validateAuthenticatedUser();
         long requestUserId = req.getUserId();
 
@@ -280,7 +413,7 @@ public class ReviewService {
                 return 0;
             }
 
-            // 학원 존재 여부 검증 (수강 기록 확인)
+            // 학원 등록 여부 검증 (수강 기록 확인)
             boolean acaExists = joinClassRepository.existsByAcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId);
             if (!acaExists) {
                 userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다.");
@@ -300,11 +433,51 @@ public class ReviewService {
             if (req.getComment() != null) {
                 existingReview.setComment(req.getComment());
             }
-
             reviewRepository.save(existingReview);
+
+            // 기존 파일 삭제 처리 (삭제 요청이 있는 경우)
+            List<String> failedToDelete = new ArrayList<>();
+            if (deletedFiles != null && !deletedFiles.isEmpty()) {
+                for (String filePath : deletedFiles) {
+                    Optional<ReviewPic> reviewPicOpt = reviewPicRepository.findByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(
+                            existingReview.getReviewId(), filePath);
+
+                    if (reviewPicOpt.isPresent()) {
+                        reviewPicRepository.deleteByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(
+                                existingReview.getReviewId(), filePath);
+
+                        // 실제 파일 삭제 (실패 시 리스트에 추가)
+                        boolean deleted = myFileUtils.deleteFile(filePath);
+                        if (!deleted) {
+                            failedToDelete.add(filePath);
+                        }
+                    } else {
+                        userMessage.setMessage("삭제할 파일을 찾을 수 없습니다: " + filePath);
+                        return 0;
+                    }
+                }
+            }
+
+            // 일부 파일 삭제 실패 예외 처리
+            if (!failedToDelete.isEmpty()) {
+                userMessage.setMessage("일부 파일 삭제에 실패했습니다: " + failedToDelete);
+                return 0;
+            }
+
+            // 최소 1개 사진 유지 검사 (삭제 후 사진이 없는 경우 방지)
+            long remainingImageCount = reviewPicRepository.countByReviewPicIds_ReviewId(existingReview.getReviewId());
+            if (remainingImageCount == 0 && (files == null || files.isEmpty())) {
+                userMessage.setMessage("이미지 리뷰에는 최소 1개의 사진이 필요합니다.");
+                return 0;
+            }
+
+            // 새로운 파일 추가 처리 (중복 방지)
+            if (files != null && !files.isEmpty()) {
+                saveNewReviewFiles(existingReview, files);
+            }
+
             userMessage.setMessage("리뷰 수정이 완료되었습니다.");
             return 1;
-
         } catch (Exception e) {
             userMessage.setMessage("리뷰 수정 중 오류가 발생했습니다: " + e.getMessage());
             return 0;
@@ -312,130 +485,6 @@ public class ReviewService {
     }
 
 
-
-//    /**
-//     * 리뷰 수정
-//     */
-//    @Transactional
-//    public int updateReview(ReviewUpdateReq req) {
-//        userMessage.setMessage(null); //  요청 시작 전에 초기화
-//        log.debug("Updating review for user ID: {}, class ID: {}", req.getUserId(), req.getAcaId());
-//
-//        long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
-//        long requestUserId = req.getUserId();
-//
-//        // 1. 본인 계정 검증
-//        if (jwtUserId != requestUserId) {
-//            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 수정할 수 있습니다.");
-//            return 0;
-//        }
-//
-//        // 유저 존재 여부 확인
-//        validateUserExists(req.getUserId());
-//
-//
-//        if (mapper.checkAcaExists(req.getAcaId()) == 0) {
-//            userMessage.setMessage("유효하지 않은 학원 ID입니다.");
-//            return 0;
-//        }
-//
-//        if (mapper.checkUserExists(req.getUserId()) == 0) {
-//            userMessage.setMessage("유효하지 않은 유저 ID입니다.");
-//            return 0;
-//        }
-//
-//        // 유저 인증 확인
-//        if (!isAuthorizedUser(req.getUserId())) {
-//            log.warn("Unauthorized access attempt by user ID: {}", req.getUserId());
-//            return 0;
-//        }
-//
-//        // 학원 ID 검증
-//        Long acaId = req.getAcaId();
-//        if (acaId == null) {
-//            userMessage.setMessage("학원 ID가 제공되지 않았습니다.");
-//            log.error("AcaId is null for userId: {}", requestUserId);
-//            return 0;
-//        }
-//
-//        List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId());
-//        log.info("클래스 ID 리스트: {}", classIds);
-//
-//        //  학원에 수업이 하나라도 있는지 확인
-//        if (classIds.isEmpty()) {
-//            userMessage.setMessage("해당 학원에 등록된 수업이 없습니다.");
-//            log.warn("No classes found for acaId: {}", req.getAcaId());
-//            return 0;
-//        }
-//
-//        //  첫 번째 수업 ID 선택 (NULL 방지)
-//        Optional<Long> classIdOptional = classIds.stream().findFirst();
-//        if (!classIdOptional.isPresent()) {
-//            log.error("classId가 NULL입니다!");
-//            return 0;
-//        }
-//        Long classId = classIdOptional.get();
-//        log.info("최종 classId 값: {}", classId);
-//
-//
-//        List<Long> joinClassIds = mapper.findJoinClassIdByAcademyAndUser(req.getAcaId(), requestUserId);
-//        log.info("joinClassId 리스트: {}", joinClassIds);
-//
-//        Optional<Long> joinClassIdOptional = joinClassIds.stream().findFirst();
-//        if (!joinClassIdOptional.isPresent()) {
-//            userMessage.setMessage("해당 학원에 등록된 기록이 없습니다.");
-//            log.error("joinClassId가 NULL입니다!");
-//            return 0;
-//        }
-//
-//        Long joinClassId = joinClassIdOptional.get();
-//        log.info("최종 joinClassId 값: {}", joinClassId);
-//        log.info("최종 classId 값: {}", classId);
-//
-//
-//        if (req.getStar() < 1 || req.getStar() > 5) {
-//            userMessage.setMessage("별점은 1~5 사이의 값이어야 합니다.");
-//            return 0;
-//        }
-//
-//        if (req.getComment() == null || req.getComment().trim().isEmpty()) {
-//            req.setComment(""); // 빈 문자열로 설정
-//        }
-//
-//
-//
-//
-//
-//
-////        // 리뷰 요청 유효성 검사
-////        boolean isValid = validateReviewRequest2(req);
-////        if (!isValid) {
-////            log.warn("Invalid review update request: {}", req);
-////            return 0;
-////        }
-//
-//        // 유효성 검사 실패 메시지가 존재하는 경우 처리 중단
-//
-//        req.setJoinClassId(joinClassId);
-//
-//        if (userMessage.getMessage() != null) {
-//            log.warn("Validation failed with message: {}", userMessage.getMessage());
-//            userMessage.setMessage(null); // 메시지 초기화
-//            return 0;
-//        }
-//
-//        // 리뷰 업데이트 수행
-//        int rowsUpdated = mapper.updateReview(req);
-//        if (rowsUpdated == 0) {
-//            userMessage.setMessage("수정할 리뷰를 찾을 수 없습니다.");
-//            return 0;
-//        }
-//
-//        // 데이터 반영 확인
-//        log.debug("Review update successful for user ID: {}, class ID: {}", req.getUserId(), req.getAcaId());
-//        userMessage.setMessage("리뷰 수정이 완료되었습니다.");
-//        return 1;
-//    }
 
     //  리뷰 삭제 (작성자 본인)
 
@@ -464,14 +513,14 @@ public class ReviewService {
 
         // 학원 존재 여부 확인
         List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId()); // acaId 기준으로 classId 조회
-        log.info(" 학원(acaId: {})에 속한 클래스 ID 리스트: {}", req.getAcaId(), classIds);
+        log.info("📌 학원(acaId: {})에 속한 클래스 ID 리스트: {}", req.getAcaId(), classIds);
 
         if (classIds.isEmpty()) {
             userMessage.setMessage("해당 학원에 등록된 수업이 없습니다.");
             return 0;
         }
 
-        // 올바른 class_id 리스트를 가져와서 JOINCLASS 확인
+// 올바른 class_id 리스트를 가져와서 JOINCLASS 확인
         int enrollmentCheck = mapper.checkEnrollmentByClassIds(classIds, requestUserId);
         if (enrollmentCheck == 0) {
             userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다.");
@@ -480,7 +529,7 @@ public class ReviewService {
 
         // joinClassId 조회
         List<Long> joinClassIds = mapper.findJoinClassIdByAcademyAndUser(req.getAcaId(), requestUserId);
-        log.info("joinClassId 리스트: {}", joinClassIds);
+        log.info("📌 joinClassId 리스트: {}", joinClassIds);
 
         if (joinClassIds.isEmpty()) {
             userMessage.setMessage("해당 학원에 등록된 기록이 없습니다.");
@@ -491,7 +540,7 @@ public class ReviewService {
         List<Integer> reviewIds = mapper.getReviewIdsByAcaIdAndUser(req.getAcaId(), requestUserId);
         if (reviewIds.isEmpty()) {
             userMessage.setMessage("삭제할 리뷰가 없습니다.");
-            log.warn(" 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
+            log.warn("❌ 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
             return 0;
         }
 
@@ -508,7 +557,7 @@ public class ReviewService {
             return 0;
         }
 
-        log.info(" 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", req.getAcaId(), requestUserId);
+        log.info("✅ 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", req.getAcaId(), requestUserId);
         userMessage.setMessage("리뷰 삭제가 완료되었습니다.");
         return 1;
     }
@@ -858,5 +907,105 @@ public class ReviewService {
             Long count = mapper.isReviewLinkedToAcademy(joinClassId, acaId);
             return count != null && count > 0;
         }
+
+
+
+    // 미디어 파일 저장
+    private void saveReviewFiles(Review newReview, List<MultipartFile> files) {
+        String middlePath = String.format("reviews/%s", newReview.getReviewId());
+
+        for (MultipartFile file : files) {
+            if (file == null || file.isEmpty()) {
+                continue; // 빈 파일 무시
+            }
+
+            // 파일 유형 구분
+            String fileType = file.getContentType();
+            if (fileType == null) {
+                throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
+            }
+
+            String fileCategory = fileType.startsWith("image") ? "images" : "videos";
+            String filePath = String.format("%s/%s/", middlePath, fileCategory);
+            myFileUtils.makeFolders(filePath);
+
+            // 파일 저장
+            String savedFileName = myFileUtils.makeRandomFileName(file);
+            String fullPath = filePath + savedFileName;
+
+            try {
+                myFileUtils.transferTo(file, fullPath);
+            } catch (IOException e) {
+                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                myFileUtils.deleteFolder(delFolderPath, true);
+                throw new CustomException(CommonErrorCode.FILE_UPLOAD_FAILED);
+            }
+
+            // ReviewPic 저장
+            ReviewPic reviewPic = new ReviewPic();
+            ReviewPicIds reviewPicIds = new ReviewPicIds();
+            reviewPicIds.setReviewId(newReview.getReviewId());
+            reviewPicIds.setReviewPic(fullPath);
+            reviewPic.setReviewPicIds(reviewPicIds);
+            reviewPic.setReview(newReview);
+
+            reviewPicRepository.save(reviewPic);
+        }
+    }
+
+
+    /**
+     * 새로운 리뷰 파일 저장 (중복 방지 포함)
+     */
+    private void saveNewReviewFiles(Review review, List<MultipartFile> files) {
+        // 기존 파일 경로 가져오기 (DB에서 조회)
+        List<String> existingFilePaths = reviewPicRepository.findFilePathsByReview(review.getReviewId());
+
+        for (MultipartFile file : files) {
+            if (file == null || file.isEmpty()) {
+                continue;
+            }
+
+            // 파일 유형 확인
+            String fileType = file.getContentType();
+            if (fileType == null) {
+                userMessage.setMessage("유효하지 않은 파일 형식입니다.");
+                return;
+            }
+
+            String middlePath = String.format("reviews/%s", review.getReviewId());
+            String fileCategory = fileType.startsWith("image") ? "images" : "videos";
+            String filePath = String.format("%s/%s/", middlePath, fileCategory);
+            myFileUtils.makeFolders(filePath);
+
+            // 새로운 파일을 저장할 경로 생성
+            String savedFileName = myFileUtils.makeRandomFileName(file);
+            String fullPath = filePath + savedFileName;
+
+            // 중복 파일 체크 (이미 DB에 존재하는 경우 저장하지 않음)
+            if (existingFilePaths.contains(fullPath)) {
+                log.info("이미 존재하는 파일: {}", fullPath);
+                continue;
+            }
+
+            try {
+                myFileUtils.transferTo(file, fullPath);
+            } catch (IOException e) {
+                userMessage.setMessage("파일 업로드에 실패했습니다.");
+                return;
+            }
+
+            // ReviewPic 저장
+            ReviewPic reviewPic = new ReviewPic();
+            ReviewPicIds reviewPicIds = new ReviewPicIds();
+            reviewPicIds.setReviewId(review.getReviewId());
+            reviewPicIds.setReviewPic(fullPath);
+            reviewPic.setReviewPicIds(reviewPicIds);
+            reviewPic.setReview(review);
+
+            reviewPicRepository.save(reviewPic);
+        }
+    }
+
 
 }

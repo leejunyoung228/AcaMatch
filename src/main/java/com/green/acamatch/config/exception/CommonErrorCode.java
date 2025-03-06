@@ -14,6 +14,8 @@ public enum CommonErrorCode implements ErrorCode {
     , INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "잘못된 파라미터입니다.")
     , REQUEST_URL_NOT_FOUND(HttpStatus.NOT_FOUND, "Request Url is Not Found.")
     , COOKIE_NOT_FOUND(HttpStatus.BAD_REQUEST, "쿠키를 찾을수 없습니다.")
+    , MISSING_REQUIRED_FILED_EXCEPTION(HttpStatus.BAD_REQUEST, "파일을 하나 이상 업로드해야 합니다.")
+    , FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 저장에 실패했습니다.")
     ;
 
     private final HttpStatus httpStatus;

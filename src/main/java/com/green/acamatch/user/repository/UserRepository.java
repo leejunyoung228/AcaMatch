@@ -22,8 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    // 부모(2) 또는 학생(1)인 유저가 존재하는지 확인
+    boolean existsByUserIdAndUserRoleIn(Long userId, List<UserRole> roles);
 
-    Optional<User> findByUserIdAndUserRole(Long userId, UserRole userRole);
+    Optional<User> findById(Long userId);
 
     Optional<User> findByUserId(long userId);
 
@@ -44,6 +46,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "GROUP BY u.userId")
     List<UserReportProjection> findUsersExceptAdmin(); // Optional 제거
 
+    @Query("SELECT COUNT(u) FROM User u WHERE u.userId = :userId AND u.userRole IN (:roles)")
+    int checkUserExists(@Param("userId") long userId, @Param("roles") List<UserRole> roles);
 
     @Query("SELECT u.userId AS userId, u.userRole AS userRole, u.name AS name, " +
             "u.email AS email, u.phone AS phone, u.birth AS birth, " +
@@ -63,4 +67,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("userRole") UserRole userRole,
             Pageable pageable
     );
+
+    // userId로 user_role 조회하는 메서드
+    @Query("SELECT u.userRole FROM User u WHERE u.userId = :userId")
+    UserRole findRoleByUserId(@Param("userId") Long userId);
 }
