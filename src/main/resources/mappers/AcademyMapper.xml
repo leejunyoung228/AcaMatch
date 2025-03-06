@@ -1007,7 +1007,8 @@
                 AND A.aca_agree = #{acaAgree}
             </if>
         </where>
-        GROUP BY A.aca_id;
+        GROUP BY A.aca_id
+        LIMIT #{startIdx}, #{size}
     </select>
     <select id="getAcademyListByDistance">
         SELECT
@@ -1046,7 +1047,7 @@
         ) LC ON A.aca_id = LC.aca_id
         GROUP BY A.aca_id
         ORDER BY distance ASC
-        LIMIT 5
+        LIMIT #{startIdx}, #{size}
     </select>
     <select id="getAcaNameList">
         SELECT aca_name
