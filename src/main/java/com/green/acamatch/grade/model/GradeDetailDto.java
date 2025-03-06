@@ -26,6 +26,8 @@ public class GradeDetailDto {
     private String examName;
     @Schema(title = "시험 날짜", example = "2025-01-24")
     private LocalDate examDate;
+    @Schema(title = "시험 유형")
+    private int examType;
     @Schema(title = "성적", example = "90")
     private Integer score;
     @Schema(title = "통과 여부", example = "null")
