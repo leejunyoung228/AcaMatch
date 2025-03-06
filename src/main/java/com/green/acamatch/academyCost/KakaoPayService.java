@@ -302,6 +302,7 @@ public class KakaoPayService {
             academyCost.setCost_status(0);
             academyCost.setTId(kakaoReady.getTid());
             academyCost.setFee(academyCost.getPrice() * 0.01);
+            academyCost.setAcademyId(req.getAcaId());
             academyCostRepository.save(academyCost);
         }
 
@@ -336,6 +337,14 @@ public class KakaoPayService {
         for (AcademyCost cost : costs) {
             cost.setCost_status(2);
             academyCostRepository.save(cost);
+
+            if(cost.getAcademyId() != null){
+                PremiumAcademy premiumAcademy = new PremiumAcademy();
+                premiumAcademy.setAcademy(cost.getAcademyId());
+                premiumAcademy.setPreCheck(0);
+                premiumAcademy.setPrice(cost.getPrice());
+                premiumRepository.save(premiumAcademy);
+            }
 
             Product product = productRepository.findById(cost.getProductId().getProductId()).orElse(null);
             if (product != null && product.getBookId() != null) {
