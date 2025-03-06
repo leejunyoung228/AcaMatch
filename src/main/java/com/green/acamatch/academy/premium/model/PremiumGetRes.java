@@ -16,5 +16,6 @@ public class PremiumGetRes {
     private LocalDate startDate;
     private LocalDate endDate;
     private int preCheck;
+    private int bannerType;
     private LocalDateTime createdAt;
 }
