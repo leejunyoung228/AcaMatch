@@ -1,16 +1,20 @@
 package com.green.acamatch.academyCost;
 
+import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.PremiumRepository;
 import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academyCost.model.*;
 import com.green.acamatch.book.BookRepository;
+import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.PremiumAcademy;
 import com.green.acamatch.entity.academyCost.AcademyCost;
 import com.green.acamatch.entity.academyCost.Book;
 import com.green.acamatch.entity.academyCost.Product;
 import com.green.acamatch.entity.joinClass.JoinClass;
+import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
+import com.green.acamatch.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -34,6 +39,8 @@ public class KakaoPayService {
     private final ProductRepository productRepository;
     private final PremiumRepository premiumRepository;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
+    private final AcademyRepository academyRepository;
     private RestTemplate restTemplate = new RestTemplate();
     private final AcademyCostMapper academyCostMapper;
     private final PremiumService premiumService;
@@ -280,7 +287,7 @@ public class KakaoPayService {
             Product product = productRepository.findById(productId).get();
 
             AcademyCost academyCost = new AcademyCost();
-            academyCost.setProductId(productId);
+            academyCost.setProductId(product);
             academyCost.setUserId(req.getUserId());
             academyCost.setAmount(quantity);
             academyCost.setPrice((product.getProductPrice() + (product.getProductPrice() / 10)) * quantity);
@@ -302,7 +309,10 @@ public class KakaoPayService {
             academyCost.setCost_status(0);
             academyCost.setTId(kakaoReady.getTid());
             academyCost.setFee(academyCost.getPrice() * 0.01);
-            academyCost.setAcademyId(req.getAcaId());
+            if(req.getAcaId() != null){
+                Academy academy = academyRepository.findById(req.getAcaId()).orElse(null);
+                academyCost.setAcademyId(academy);
+            }
             academyCostRepository.save(academyCost);
         }
 
@@ -353,6 +363,16 @@ public class KakaoPayService {
                     book.setBookAmount(book.getBookAmount() - cost.getAmount());
                     bookRepository.save(book);
                 }
+            }
+
+            if(product.getClassId() != null){
+                JoinClass joinClass = new JoinClass();
+                joinClass.setAcaClass(product.getClassId());
+                User user = userRepository.findByUserId(userId).orElse(null);
+                joinClass.setUser(user);
+                joinClass.setRegistrationDate(LocalDate.now());
+                joinClass.setCertification(0);
+                joinClassRepository.save(joinClass);
             }
         }
 
