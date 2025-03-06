@@ -40,7 +40,7 @@ public class AcademyCostController {
     }
 
     @GetMapping("getAcademyCostInfoByCostId/{costId}")
-    @Operation(summary = "주문 상세 내역")
+    @Operation(summary = "주문 상세 내역", description = "orderType 0: 학원, 1: 책, 2:프리미엄 학원")
     public ResultResponse<GetAcademyCostInfoByCostId> getAcademyCostInfoByCostId(@PathVariable long costId) {
         return ResultResponse.<GetAcademyCostInfoByCostId>builder()
                 .resultMessage("조회 성공")
