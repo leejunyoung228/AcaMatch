@@ -4,6 +4,8 @@ import com.green.acamatch.entity.datetime.CreatedAt;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 
@@ -18,6 +20,7 @@ public class PremiumAcademy extends CreatedAt {
     @OneToOne
     @MapsId
     @JoinColumn(name = "aca_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Academy academy;
 
     @Column

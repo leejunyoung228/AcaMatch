@@ -25,7 +25,7 @@ public class PremiumController {
     private final PremiumService premiumService;
     private final AcademyMessage academyMessage;
 
-    //프리미엄학원신청
+    /*//프리미엄학원신청
     @PostMapping
     @Operation(summary = "프리미엄 신청")
     public ResultResponse<Integer> postPremiumAcademy(@RequestBody PremiumPostReq req) {
@@ -34,7 +34,7 @@ public class PremiumController {
                 .resultMessage(academyMessage.getMessage())
                 .resultData(result)
                 .build();
-    }
+    }*/
 
     //프리미엄승인
     @PutMapping
