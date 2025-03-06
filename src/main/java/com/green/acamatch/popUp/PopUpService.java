@@ -141,12 +141,23 @@ public class PopUpService {
                 throw new CustomException(popUpErrorCode.COMMENT_OR_PHOTO_REQUIRED);
             }
 
+            // comment와 pic이 동시에 들어오면 오류 발생
+            if (hasComment && hasPic) {
+                throw new CustomException(popUpErrorCode.CANNOT_SET_BOTH_COMMENT_AND_PHOTO);
+            }
+
             popUp.setTitle(p.getTitle());
             popUp.setPopUpShow(p.getPopUpShow());
             popUp.setPopUpType(p.getPopUpType());
 
             if (hasComment) {
+                if(popUp.getPopUpPic() != null) {
+                    String middlePath = String.format("popUp/%d", popUp.getPopUpId());
+                    myFileUtils.deleteFolder(middlePath, true);
+
+                }
                 popUp.setComment(p.getComment());
+                popUp.setPopUpPic(null);
             }
 
             //기존 이미지 유지 로직 추가
@@ -163,12 +174,12 @@ public class PopUpService {
                 try {
                     myFileUtils.transferTo(pic, filePath);
                     popUp.setPopUpPic(savedPicName);
+                    popUp.setComment(null);
                 } catch (IOException e) {
                     myFileUtils.deleteFolder(middlePath, true);
                     throw new CustomException(popUpErrorCode.FAIL_TO_UPD);
                 }
             }
-
             popUpRepository.save(popUp);
             return 1;
         } catch (CustomException e) {
