@@ -754,7 +754,7 @@ public class AcademyService {
         return academyMapper.getAcademyListByAcaNameOrderType(p);
     }
 
-    public List<GetSearchInfoRes> getSearchInfo(){
-        return academyMapper.getSearchInfo();
+    public List<GetSearchInfoRes> getSearchInfo(String week){
+        return academyMapper.getSearchInfo(week);
     }
 }
