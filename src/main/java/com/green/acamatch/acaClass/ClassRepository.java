@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClassRepository extends JpaRepository<AcaClass, Long> {
@@ -36,4 +37,6 @@ public interface ClassRepository extends JpaRepository<AcaClass, Long> {
 //            @Param("startDate") LocalDate startDate,
 //            @Param("endDate") LocalDate endDate,
 //            @Param("teacherUserId") Long teacherUserId);
+
+    Optional<AcaClass> findById(Long classId);
 }

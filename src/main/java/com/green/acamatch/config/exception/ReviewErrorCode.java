@@ -20,7 +20,9 @@ public enum ReviewErrorCode implements ErrorCode {
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 리뷰를 찾을 수 없습니다."),
     CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 수업을 찾을 수 없습니다."),
     JOIN_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 수업을 들은 정보가 없습니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, "리뷰를 쓸 권한이 없습니다.")
+    FORBIDDEN(HttpStatus.FORBIDDEN, "리뷰를 쓸 권한이 없습니다."),
+    IMAGE_UPLOAD_FAILED(HttpStatus.ACCEPTED, "사진 올리기를 실패하였습니다."),
+    UNAUTHORIZED_PARENT(HttpStatus.FORBIDDEN, "부모-학생 관계가 인증되지 않았습니다.")
     ;
 
     private final HttpStatus status;

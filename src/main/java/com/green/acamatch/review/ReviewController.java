@@ -21,7 +21,7 @@ public class ReviewController {
     private final UserMessage userMessage;
 
 
-    @PostMapping("/user/create")
+    @PostMapping("/user")
     @Operation(summary = "리뷰 등록", description = "학생 유저가 리뷰를 등록합니다.")
     public ResultResponse<Integer> createReview(@RequestBody ReviewPostReqForParent req) {
         service.createReview(req);
@@ -31,16 +31,16 @@ public class ReviewController {
                 .build();
     }
 
-    // 학생 유저 리뷰 등록
-    @PostMapping("/user")
-    @Operation(summary = "리뷰 등록", description = "학생 유저가 리뷰를 등록합니다.")
-    public ResultResponse<Integer> addReview(@RequestBody ReviewPostReq req) {
-        int result = service.addReview(req); // 0 또는 1 반환
-        return ResultResponse.<Integer>builder()
-                .resultMessage(userMessage.getMessage()) // 서비스에서 설정된 메시지 사용
-                .resultData(result)
-                .build();
-    }
+//    // 학생 유저 리뷰 등록
+//    @PostMapping("/user")
+//    @Operation(summary = "리뷰 등록", description = "학생 유저가 리뷰를 등록합니다.")
+//    public ResultResponse<Integer> addReview(@RequestBody ReviewPostReq req) {
+//        int result = service.addReview(req); // 0 또는 1 반환
+//        return ResultResponse.<Integer>builder()
+//                .resultMessage(userMessage.getMessage()) // 서비스에서 설정된 메시지 사용
+//                .resultData(result)
+//                .build();
+//    }
 
     // 학생 유저 리뷰 수정
     @PutMapping("/user")
