@@ -46,8 +46,8 @@ public class BannerService {
 
     //배너신청
     @Transactional
-    public int postBanner(MultipartFile topBannerPic, MultipartFile bottomBannerPic,
-                          MultipartFile leftBannerPic, MultipartFile rightBannerPic
+    public int postBanner(MultipartFile topBannerPic, MultipartFile bottomBannerPic
+                        , MultipartFile rightBannerPic
                         , BannerPostReq req) {
         log.info("req: {}", req);
 
@@ -57,7 +57,7 @@ public class BannerService {
         }
 
         //배너사진을 하나도 넣지 않았을때
-        if((topBannerPic == null && bottomBannerPic == null && leftBannerPic == null && rightBannerPic == null)) {
+        if((topBannerPic == null && bottomBannerPic == null && rightBannerPic == null)) {
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
         }
 
@@ -75,18 +75,17 @@ public class BannerService {
         //배너 사진 저장
         String middlePath = String.format(academyConst.getBannerPicFilePath(), acaId);
 
+        myFileUtils.deleteFolder(String.format("%s/%s", myFileUtils.getUploadPath(), middlePath), true);
+
 
             String topBannerPicName = (topBannerPic != null ? myFileUtils.makeRandomFileName(topBannerPic) : null);
             String bottomBannerPicName = (bottomBannerPic != null ? myFileUtils.makeRandomFileName(topBannerPic) : null);
-            String leftBannerPicName = (leftBannerPic != null ? myFileUtils.makeRandomFileName(leftBannerPic) : null);
             String rightBannerPicName = (rightBannerPic != null ? myFileUtils.makeRandomFileName(rightBannerPic) : null);
 
             String filePath1 = String.format("%s/%s/%s", middlePath, "top", topBannerPicName);
             myFileUtils.makeFolders(filePath1);
             String filePath2 = String.format("%s/%s/%s", middlePath, "bottom", bottomBannerPicName);
             myFileUtils.makeFolders(filePath2);
-            String filePath3 = String.format("%s/%s/%s", middlePath, "left", leftBannerPicName);
-            myFileUtils.makeFolders(filePath3);
             String filePath4 = String.format("%s/%s/%s", middlePath, "right", rightBannerPicName);
             myFileUtils.makeFolders(filePath4);
 
@@ -133,26 +132,6 @@ public class BannerService {
                 }
             }
 
-
-            bannerPicIds.setAcaId(acaId);
-            bannerPicIds.setBannerPic(leftBannerPicName);
-
-            bannerpic.setBannerPicIds(bannerPicIds);
-            bannerpic.setBanner(banner);
-            bannerpic.setBannerPosition(3);
-
-                bannerPicRepository.save(bannerpic);
-
-
-            if(leftBannerPic != null && !leftBannerPic.isEmpty()) {
-                try {
-                    myFileUtils.transferTo(leftBannerPic, filePath3);
-                } catch (IOException e) {
-                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                    myFileUtils.deleteFolder(delFolderPath, true);
-                    throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
-                }
-            }
 
 
         bannerPicIds.setAcaId(acaId);

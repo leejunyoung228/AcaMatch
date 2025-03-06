@@ -13,36 +13,6 @@ import java.time.LocalDate;
 @Setter
 @ToString
 public class BannerPostReq {
-    /*@JsonIgnore
-    @Schema(title = "배너 Pk")
-    private Long bannerId;*/
-
     @Schema(title = "학원 pk")
     private Long acaId;
-
-    /*@JsonIgnore
-    @Schema(title = "배너 사진")
-    private String bannerPic;*/
-
-    /*@JsonIgnore
-    @Schema(title = "배너승인여부")
-    private String bannerType;*/
-
-   /* @JsonIgnore
-    @Schema(title = "배너 활성화")
-    private String bannerShow;*/
-
-    /*@JsonIgnore
-    @Schema(title = "배너 시작일")
-    private LocalDate startDate;*/
-
-    /*@JsonIgnore
-    @Schema(title = "배너 종료일")
-    private LocalDate endDate;*/
-
-   /* @Schema(title = "학원이름")
-    private String acaName;*/
-
-    /*@Schema(title = "배너위치")
-    private int bannerPosition;*/
 }
