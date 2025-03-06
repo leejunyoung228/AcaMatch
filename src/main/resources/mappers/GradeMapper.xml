@@ -132,12 +132,13 @@
         <result property="gradeId" column="grade_id"/>
         <result property="examName" column="exam_name"/>
         <result property="examDate" column="exam_date"/>
+        <result property="examType" column="exam_type"/>
         <result property="score" column="score"/>
         <result property="pass" column="pass"/>
     </resultMap>
 
     <select id="selGradeDetail" resultMap="gradeDetailResultMap">
-        SELECT D.user_id, D.user_pic, D.name, C.join_class_id, D.email, F.grade_id, E.exam_name, F.exam_date,
+        SELECT D.user_id, D.user_pic, D.name, C.join_class_id, D.email, F.grade_id, E.exam_name, F.exam_date, E.exam_type,
         CASE WHEN E.exam_type = 0 THEN F.score ELSE 0 END AS score,
         CASE WHEN E.exam_type != 0 THEN
         CASE WHEN COALESCE(F.pass, 0) THEN 0 ELSE 1 END ELSE NULL END AS pass
@@ -167,7 +168,7 @@
                 AND E.exam_name  LIKE '%${keyword3}%'
             </if>
         </where>
-        GROUP BY D.user_id, D.user_pic, D.name, C.join_class_id, D.email,
+        GROUP BY D.user_id, D.user_pic, D.name, C.join_class_id, D.email, E.exam_type,
         F.grade_id, E.exam_name, F.exam_date
         ORDER BY D.name
         LIMIT #{startIdx}, #{size}
