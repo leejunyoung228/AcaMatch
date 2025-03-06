@@ -1097,6 +1097,13 @@
         JOIN tag T ON S.tag_id = T.tag_id
         ) TT
         ON S.tag_id = TT.tag_id
-        GROUP BY S.tag_id;
+        WHERE 1=1
+        <if test='week == "이번주"'>
+            AND YEARWEEK(S.created_at) = YEARWEEK(NOW())
+        </if>
+        <if test='week == "지난주"'>
+            AND YEARWEEK(S.created_at) = YEARWEEK(NOW() - INTERVAL 1 WEEK)
+        </if>
+        GROUP BY S.tag_id
     </select>
 </mapper>
