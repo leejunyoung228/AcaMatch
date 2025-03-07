@@ -250,9 +250,9 @@ public class BannerService {
         bannerPicIds.setBannerPic(BannerPicName);
 
         bannerPic.setBannerPicIds(bannerPicIds);
-        bannerPicRepository.save(bannerPic);
+        //bannerPicRepository.save(bannerPic);
 
-        //bannerPicRepository.updateBannerPicByAcaIdAndBannerPosition(acaId, req.getBannerPosition(), BannerPicName);
+        bannerPicRepository.updateBannerPicByAcaIdAndBannerPosition(acaId, req.getBannerPosition(), BannerPicName);
 
             try {
                 myFileUtils.transferTo(pic, filePath);
