@@ -2,12 +2,14 @@ package com.green.acamatch.entity.reports;
 
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.datetime.CreatedAt;
+import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -37,9 +39,15 @@ public class Reports extends CreatedAt {
     @JoinColumn(name = "aca_id") // 신고당한 학원
     private Academy academy;
 
+    @ManyToOne
+    @JoinColumn(name = "review_id") // 신고당한 학원
+    private Review review;
+
     @Column(nullable = false)
     private int processingStatus = 0; // 0: 처리 전, 1: 처리 후, 2: 무죄 판정
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    private LocalDateTime exposureEndDate;
 }

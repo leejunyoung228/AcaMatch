@@ -7,6 +7,7 @@ import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academyCost.model.*;
 import com.green.acamatch.book.BookRepository;
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.PremiumAcademy;
@@ -259,6 +260,28 @@ public class KakaoPayService {
                 itemNames.append(", ");
             }
             itemNames.append(product.getProductName()).append(" x").append(quantity);
+
+
+            Product productN = productRepository.findById(productId).orElse(null);
+            if(productN.getClassId() != null){
+                User user = userRepository.findByUserId(req.getUserId()).orElse(null);
+                AcaClass acaClass = classRepository.findById(productN.getClassId().getClassId()).orElse(null);
+
+                try{
+                    if(joinClassRepository.existsJoinClass(acaClass.getClassId(), user.getUserId()) != null){
+                        throw new IllegalArgumentException("이미 수강 신청하였습니다.");
+                    }
+                    JoinClass joinClass1 = new JoinClass();
+                    joinClass1.setAcaClass(productN.getClassId());
+                    joinClass1.setUser(user);
+                    joinClass1.setRegistrationDate(LocalDate.now());
+                    joinClass1.setCertification(0);
+                    joinClassRepository.save(joinClass1);
+                }catch (CustomException e){
+                    e.printStackTrace();
+                }
+
+            }
         }
 
         parameters.put("cid", payProperties.getCid());
@@ -361,13 +384,23 @@ public class KakaoPayService {
             }
 
             if(product.getClassId() != null){
-                JoinClass joinClass = new JoinClass();
-                joinClass.setAcaClass(product.getClassId());
                 User user = userRepository.findByUserId(userId).orElse(null);
-                joinClass.setUser(user);
-                joinClass.setRegistrationDate(LocalDate.now());
-                joinClass.setCertification(0);
-                joinClassRepository.save(joinClass);
+                AcaClass acaClass = classRepository.findById(product.getClassId().getClassId()).orElse(null);
+
+                try{
+                    if(joinClassRepository.existsJoinClass(acaClass.getClassId(), user.getUserId()) != null){
+                        throw new IllegalArgumentException("이미 수강 신청하였습니다.");
+                    }
+                    JoinClass joinClass1 = new JoinClass();
+                    joinClass1.setAcaClass(product.getClassId());
+                    joinClass1.setUser(user);
+                    joinClass1.setRegistrationDate(LocalDate.now());
+                    joinClass1.setCertification(0);
+                    joinClassRepository.save(joinClass1);
+                }catch (CustomException e){
+                    e.printStackTrace();
+                }
+
             }
         }
 
