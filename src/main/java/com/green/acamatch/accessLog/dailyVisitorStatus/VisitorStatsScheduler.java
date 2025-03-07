@@ -22,7 +22,7 @@ public class VisitorStatsScheduler {
     @Transactional
     @Scheduled(cron = "0 0 0 1 * *") // 매월 1일 자정 실행
     public void aggregateMonthlyStats() {
-        System.out.println("📊 월간 방문자 통계 집계 시작...");
+        System.out.println("월간 방문자 통계 집계 시작");
 
         YearMonth lastMonth = YearMonth.now().minusMonths(1);
 
@@ -48,7 +48,7 @@ public class VisitorStatsScheduler {
     // 매일 자정에 30일 이상 지난 방문 기록 삭제
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정 실행
     public void deleteOldVisitorStats() {
-        System.out.println("🗑30일 이상 지난 방문 기록 삭제 시작...");
+        System.out.println("30일 이상 지난 방문 기록 삭제 시작");
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusDays(30);
         dailyVisitorStatRepository.deleteByLastVisitBefore(oneMonthAgo);
         System.out.println("30일 이상 지난 방문 기록 삭제 완료.");

@@ -5,13 +5,13 @@
 
     <!-- 좋아요 등록 -->
     <insert id="insertLike">
-        INSERT INTO `like` (user_id, aca_id)
+        INSERT INTO `likes` (user_id, aca_id)
         VALUES (#{userId}, #{acaId})
     </insert>
 
     <!-- 좋아요 삭제 -->
     <delete id="deleteLike">
-        DELETE FROM `like`
+        DELETE FROM `likes`
         WHERE user_id = #{userId} AND aca_id = #{acaId}
     </delete>
 
@@ -39,9 +39,9 @@
         u.nick_name,
         u.user_pic
         FROM academy a
-        LEFT JOIN `like` l ON a.aca_id = l.aca_id
+        LEFT JOIN `likes` l ON a.aca_id = l.aca_id
         LEFT JOIN user u ON l.user_id = u.user_id
-        LEFT JOIN `like` l2 ON l2.aca_id = a.aca_id
+        LEFT JOIN `likes` l2 ON l2.aca_id = a.aca_id
         WHERE a.user_id = #{userId}
         GROUP BY a.aca_id, u.user_id
         ORDER BY academy_like_count DESC
@@ -56,11 +56,11 @@
         a.aca_name AS acaName,
         COUNT(DISTINCT l2.aca_id) AS userLikeCount,
         COUNT(DISTINCT l3.user_id) AS academyAllLikeCount
-        FROM `like` l
+        FROM `likes` l
         JOIN academy a ON l.aca_id = a.aca_id
         JOIN user u ON l.user_id = u.user_id
-        LEFT JOIN `like` l2 ON l2.user_id = u.user_id
-        LEFT JOIN `like` l3 ON l3.aca_id = a.aca_id
+        LEFT JOIN `likes` l2 ON l2.user_id = u.user_id
+        LEFT JOIN `likes` l3 ON l3.aca_id = a.aca_id
         WHERE l.user_id = #{userId}
         GROUP BY a.aca_id, a.aca_pic, a.aca_name
         LIMIT #{startIdx}, #{size};
@@ -109,7 +109,7 @@
 
     <select id="checkLikeExists">
         SELECT COUNT(*)
-        FROM `like`
+        FROM `likes`
         WHERE user_id = #{userId}
         AND aca_id = #{acaId}
     </select>
