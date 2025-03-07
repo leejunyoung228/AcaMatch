@@ -35,7 +35,6 @@ public class Refund{
     @Column(nullable = false)
     private LocalDate createdAt;
 
-    @LastModifiedDate
     private LocalDate updatedAt;
 
     public void setAcademyCost(long costId) {
