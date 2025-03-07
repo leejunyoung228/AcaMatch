@@ -7,6 +7,5 @@ import lombok.Setter;
 @Setter
 public class KakaoCancelReq {
     private String tid;
-    private String refundComment;
-    private long costId;
+    private Integer costId;
 }

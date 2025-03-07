@@ -1,5 +1,7 @@
 package com.green.acamatch.refund;
 
+import com.green.acamatch.academyCost.AcademyCostRepository;
+import com.green.acamatch.entity.academyCost.AcademyCost;
 import com.green.acamatch.entity.academyCost.Refund;
 import com.green.acamatch.refund.model.GetRefundRes;
 import com.green.acamatch.refund.model.PostRefundReq;
@@ -8,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -15,14 +18,18 @@ import java.util.List;
 public class RefundService {
     private final RefundRepository refundRepository;
     private final RefundMapper refundMapper;
+    private final AcademyCostRepository academyCostRepository;
 
     public int postRefund(PostRefundReq req){
+        AcademyCost academyCost = academyCostRepository.findById(req.getCostId()).orElse(null);
         Refund refund = new Refund();
         refund.setAcademyCost(req.getCostId());
+        refund.setTid(academyCost.getTId());
         if(req.getRefundComment() != null){
             refund.setRefundComment(req.getRefundComment());
         }
         refund.setRefundStatus(0);
+        refund.setCreatedAt(LocalDate.now());
         refundRepository.save(refund);
         return 1;
     }

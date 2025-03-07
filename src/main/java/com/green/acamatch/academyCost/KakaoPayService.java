@@ -1,11 +1,13 @@
 package com.green.acamatch.academyCost;
 
+import com.green.acamatch.acaClass.ClassRepository;
 import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.PremiumRepository;
 import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academyCost.model.*;
 import com.green.acamatch.book.BookRepository;
+import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.PremiumAcademy;
 import com.green.acamatch.entity.academyCost.AcademyCost;
@@ -28,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -44,6 +47,7 @@ public class KakaoPayService {
     private final UserRepository userRepository;
     private final AcademyRepository academyRepository;
     private final RefundRepository refundRepository;
+    private final ClassRepository classRepository;
     private RestTemplate restTemplate = new RestTemplate();
     private final AcademyCostMapper academyCostMapper;
     private final PremiumService premiumService;
@@ -389,19 +393,41 @@ public class KakaoPayService {
      * 결제 환불
      */
     public KakaoCancelResponse kakaoCancel(KakaoCancelReq req) {
-        Refund refund = new Refund();
-        refund.setTid(req.getTid());
-        refund.setRefundComment(req.getRefundComment());
-        refund.setRefundStatus(1);
-        refund.setAcademyCost(req.getCostId());
-        refundRepository.save(refund);
-
 
         // 카카오페이 요청
         Map<String, String> parameters = new HashMap<>();
         parameters.put("cid", payProperties.getCid());
         parameters.put("tid", req.getTid());
-        parameters.put("cancel_amount", "2200");
+
+        AcademyCost academyCost1 = academyCostRepository.findById(Long.valueOf(req.getCostId())).orElse(null);
+        Refund refund = refundRepository.findByCostId(academyCost1);
+        refund.setRefundStatus(1);
+        refundRepository.save(refund);
+
+        AcademyCost academyCost = academyCostRepository.findById(Long.valueOf(req.getCostId())).orElse(null);
+        int price = academyCost.getPrice();
+        Product product = productRepository.findById(academyCost.getProductId().getProductId()).orElse(null);
+        if(product.getClassId() != null){
+            AcaClass acaClass = classRepository.findById(product.getClassId().getClassId()).orElse(null);
+            LocalDate startDate = acaClass.getStartDate();
+            LocalDate endDate = acaClass.getEndDate();
+            long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+            LocalDate refundDate = refund.getCreatedAt();
+            long classBetween = ChronoUnit.DAYS.between(refundDate, startDate);
+            double refundClass = classBetween / daysBetween;
+            if(refundClass <= 0){
+                parameters.put("cancel_amount", String.format("%d", price));
+            }
+            else if(refundClass <= 33.3) {
+                parameters.put("cancel_amount", String.format("%f", price / 0.66));
+            }
+            else if(refundClass >= 33.3 && refundClass < 50.0){
+                parameters.put("cancel_amount", String.format("%f", price/0.5));
+            }
+            else if(refundClass >= 50.0){
+                parameters.put("cancel_amount", String.format("%d", 0));
+            }
+        }
         parameters.put("cancel_tax_free_amount", "0");
         parameters.put("cancel_vat_amount", "0");
 

@@ -19,9 +19,11 @@ import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.AcademyPic;
 import com.green.acamatch.entity.academy.AcademyPicIds;
+import com.green.acamatch.entity.reports.Reports;
 import com.green.acamatch.entity.tag.Search;
 import com.green.acamatch.entity.tag.Tag;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.reports.ReportsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static kotlin.reflect.jvm.internal.impl.builtins.StandardNames.FqNames.iterator;
 
 @Slf4j
 @Service
@@ -47,6 +51,7 @@ public class AcademyService {
     private final SearchRepository searchRepository;
     private final AcademyTagRepository academyTagRepository;
     private final TagRepository tagRepository;
+    private final ReportsRepository reportsRepository;
 
 
     //학원정보등록

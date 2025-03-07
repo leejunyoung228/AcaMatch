@@ -1045,6 +1045,11 @@
         LEFT JOIN likes L ON A.aca_id = L.aca_id
         GROUP BY A.aca_id
         ) LC ON A.aca_id = LC.aca_id
+        WHERE NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         GROUP BY A.aca_id
         ORDER BY distance ASC
         LIMIT #{startIdx}, #{size}
