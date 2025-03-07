@@ -14,7 +14,7 @@ import java.util.List;
 
 
 @Repository
-public interface AcademyCostRepository extends JpaRepository<AcademyCost, Integer> {
+public interface AcademyCostRepository extends JpaRepository<AcademyCost, Long> {
         @Modifying
         @Transactional
         @Query("UPDATE AcademyCost a SET a.cost_status = :status WHERE a.tId = :tid")

@@ -2,15 +2,19 @@ package com.green.acamatch.acaClass;
 
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.manager.Teacher;
+import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClassRepository extends JpaRepository<AcaClass, Long> {
@@ -36,4 +40,8 @@ public interface ClassRepository extends JpaRepository<AcaClass, Long> {
 //            @Param("startDate") LocalDate startDate,
 //            @Param("endDate") LocalDate endDate,
 //            @Param("teacherUserId") Long teacherUserId);
+
+    Optional<AcaClass> findById(Long classId);
+
+    List<AcaClass> findByAcademy_AcaId(Long acaId);
 }

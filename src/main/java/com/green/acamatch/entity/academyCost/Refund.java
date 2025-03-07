@@ -4,11 +4,16 @@ import com.green.acamatch.entity.datetime.UpdatedAt;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
-public class Refund extends UpdatedAt {
+public class Refund{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long refundId;
@@ -25,6 +30,12 @@ public class Refund extends UpdatedAt {
 
     @Column(nullable = false)
     private String tid;
+
+    @CreatedDate
+    @Column(nullable = false)
+    private LocalDate createdAt;
+
+    private LocalDate updatedAt;
 
     public void setAcademyCost(long costId) {
         this.academyCost = new AcademyCost();

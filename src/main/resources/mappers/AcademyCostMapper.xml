@@ -9,43 +9,20 @@
         where t_id = #{tid}
     </select>
     <select id="getAcademyCostInfo">
-        SELECT CC.costCount, SF.sumFee, SQ.saleRate
-        FROM academy_cost AC
-        JOIN
-        (
-        SELECT COUNT(cost_id) AS costCount, cost_id
-        FROM academy_cost
-        WHERE YEAR(created_at) = YEAR(NOW())  -- 현재 연도
-        AND MONTH(created_at) = MONTH(NOW())
-        AND cost_status = 2
-        ) AS CC
-        ON AC.cost_id = CC.cost_id
-        JOIN
-        (
-        SELECT SUM(fee) AS sumFee, cost_id
-        FROM academy_cost
-        WHERE WEEK(created_at) = WEEK(NOW())
-        AND YEAR(created_at) = YEAR(NOW())  -- 같은 연도 내에서 이번 주 데이터만 선택
-        AND cost_status = 2
-        GROUP BY cost_id
-        ) AS SF
-        ON AC.cost_id = SF.cost_id
-        JOIN
-        (
-        SELECT SP.cost_id, SP.saleRate
-        FROM academy_cost AC
-        JOIN (
-        SELECT sum(AC.amount) / B.book_amount AS saleRate, AC.cost_id
-        FROM book B
-        JOIN product P
-        ON B.book_id = P.book_id
-        JOIN academy_cost AC
-        ON P.product_id = AC.product_id
-        WHERE AC.cost_status = 2
-        ) SP
-        ON AC.cost_id = SP.cost_id
-        ) SQ
-        ON SQ.cost_id = AC.cost_id
+        SELECT SUM(fee) AS sumFee, COUNT(cost_id) AS costCount, ((
+        SELECT COUNT(X2.product_id)
+        FROM academy_cost X1
+        INNER JOIN product X2
+        ON X2.book_id IS NOT NULL
+        AND X1.product_id = X2.product_id
+        ) / (
+        SELECT SUM(X3.book_amount)
+        FROM book X3
+        )) AS saleRate
+        FROM academy_cost A
+        WHERE A.cost_status = 2
+        AND YEAR(DATE(A.created_at)) = YEAR(CURDATE())
+        AND WEEK(DATE(A.created_at), 1) = WEEK(CURDATE(), 1);
     </select>
     <select id="getBookIdByProductId">
         select book_id
@@ -58,70 +35,64 @@
         where book_id = #{bookId}
     </select>
     <select id="getSettlementList">
-        WITH product_cost AS (
-        -- ✅ 첫 번째 product와 academy_cost 조인
-        SELECT
-        P.class_id,
-        AC.cost_id AS cost_id,
-        AC.price,
-        AC.`status`,
-        AC.updated_at,
-        P.product_id
-        FROM product P
-        LEFT JOIN academy_cost AC ON P.product_id = AC.product_id
-        ),
-        book_cost AS (
-        -- ✅ 두 번째 product (book을 통한)와 academy_cost 조인
-        SELECT
-        B.class_id,
-        AC1.cost_id AS cost_id,
-        AC1.price,
-        AC1.`status`,
-        AC1.updated_at,
-        P1.product_id
-        FROM book B
-        LEFT JOIN product P1 ON B.book_id = P1.book_id
-        LEFT JOIN academy_cost AC1 ON P1.product_id = AC1.product_id
-        )
-        SELECT
-        A.aca_name,
-        A.address,
-        AP.aca_pic,
-        IFNULL(PC.cost_id, IFNULL(BC.cost_id, PI1.cost_id)) AS cost_id,
-        IFNULL(PC.price, IFNULL(BC.price, PI1.price)) AS price,
-        IFNULL(PC.`status`, IFNULL(BC.`status`, PI1.`status`)) AS `status`,
-        IFNULL(PC.updated_at, IFNULL(BC.updated_at, PI1.updated_at)) AS updated_at,
-        A.aca_id
-        FROM academy A
-        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
-        LEFT JOIN aca_class C ON A.aca_id = C.aca_id
-        LEFT JOIN product_cost PC ON C.class_id = PC.class_id
-        LEFT JOIN book_cost BC ON C.class_id = BC.class_id
-        LEFT JOIN (
-        SELECT cost_id, price, `status`, updated_at, aca_id
+        SELECT IFNULL(A1.aca_id, A2.aca_id) AS acaId,
+        IFNULL(A1.aca_name, A2.aca_name) AS acaName,
+        IFNULL(A1.address, A2.address) AS address,
+        IFNULL(AP1.aca_pic, AP2.aca_pic) AS acaPic,
+        AC.updated_at AS updatedAt,
+        AC.price - AC.fee AS price, AC.status,
+        AC.created_at AS createdAt,
+        AC.cost_id,
+        TC.totalCount
         FROM academy_cost AC
         JOIN product P ON AC.product_id = P.product_id
-        WHERE P.product_id = 1
-        ) PI1
-        ON A.aca_id = PI1.aca_id
+        LEFT JOIN book B ON P.book_id = B.book_id
+        LEFT JOIN aca_class C1 ON P.class_id = C1.class_id
+        LEFT JOIN aca_class C2 ON B.class_id = C2.class_id
+        LEFT JOIN academy A1 ON C1.aca_id = A1.aca_id
+        LEFT JOIN academy A2 ON C2.aca_id = A2.aca_id
+        LEFT JOIN academy_pic AP1 ON A1.aca_id = AP1.aca_id
+        LEFT JOIN academy_pic AP2 ON A2.aca_id = AP2.aca_id
+        LEFT JOIN
+        (
+        SELECT COUNT(AC.cost_id) AS totalCount, AC.cost_id
+        FROM academy_cost AC
         <where>
+            AC.product_id != 1
+            AND AC.cost_status = 2
             <if test=" status != null ">
-                AND IFNULL(PC.`status`, IFNULL(BC.`status`, PI1.`status`)) = #{status}
+                AND AC.status = #{status}
             </if>
             <if test=" year != null and year != '' ">
-                AND YEAR(IFNULL(PC.updated_at, IFNULL(BC.updated_at, PI1.updated_at))) = #{year}
+                AND YEAR(AC.created_at) = #{year}
             </if>
             <if test=" month != null and month != '' ">
-                AND MONTH(IFNULL(PC.updated_at, IFNULL(BC.updated_at, PI1.updated_at))) = #{month}
+                AND MONTH(AC.created_at) = #{month}
+            </if>
+        </where>
+        ) TC
+        ON AC.cost_id = TC.cost_id
+        <where>
+            P.product_id != 1
+            AND AC.cost_status = 2
+            <if test=" status != null ">
+                AND AC.status = #{status}
+            </if>
+            <if test=" year != null and year != '' ">
+                AND YEAR(AC.created_at) = #{year}
+            </if>
+            <if test=" month != null and month != '' ">
+                AND MONTH(AC.created_at) = #{month}
             </if>
         </where>
         GROUP BY cost_id
         LIMIT #{startIdx}, #{size}
     </select>
     <select id="getAcademyCostInfoByCostId">
-        SELECT AC.*, U.name
+        SELECT AC.*, U.name, P.product_name
         FROM academy_cost AC
         JOIN User U ON AC.user_id = U.user_id
+        JOIN product P ON AC.product_id = P.product_id
         WHERE cost_id = #{costId}
     </select>
 </mapper>

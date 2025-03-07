@@ -9,7 +9,7 @@ public class GetAcademyCostInfoRes {
     private String tId;
     private long userId;
     private long productId;
-    private Integer costId;
+    private Long costId;
     private int amount;
     private String partnerOrderId;
 }

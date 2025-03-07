@@ -22,8 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    // 부모(2) 또는 학생(1)인 유저가 존재하는지 확인
+    boolean existsByUserIdAndUserRoleIn(Long userId, List<UserRole> roles);
 
-    Optional<User> findByUserIdAndUserRole(Long userId, UserRole userRole);
+    Optional<User> findById(Long userId);
 
     Optional<User> findByUserId(long userId);
 
@@ -39,17 +41,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "u.email AS email, u.phone AS phone, u.birth AS birth, " +
             "u.nickName AS nickName, u.userPic AS userPic, " +
             "u.createdAt AS createdAt, u.updatedAt AS updatedAt, COALESCE(COUNT(r), 0) AS reportsCount " +
-            "FROM User u LEFT JOIN Reports r ON u.userId = r.user.userId " +
+            "FROM User u LEFT JOIN Reports r ON u.userId = r.reportedUser.userId " +
             "WHERE u.userId != 1 " +  // userId 1 제외
             "GROUP BY u.userId")
     List<UserReportProjection> findUsersExceptAdmin(); // Optional 제거
 
+    @Query("SELECT COUNT(u) FROM User u WHERE u.userId = :userId AND u.userRole IN (:roles)")
+    int checkUserExists(@Param("userId") long userId, @Param("roles") List<UserRole> roles);
 
     @Query("SELECT u.userId AS userId, u.userRole AS userRole, u.name AS name, " +
             "u.email AS email, u.phone AS phone, u.birth AS birth, " +
             "u.nickName AS nickName, u.userPic AS userPic, " +
             "u.createdAt AS createdAt, u.updatedAt AS updatedAt, COALESCE(COUNT(r), 0) AS reportsCount " +
-            "FROM User u LEFT JOIN Reports r ON u.userId = r.user.userId " +
+            "FROM User u LEFT JOIN Reports r ON u.userId = r.reportedUser.userId " +
             "WHERE (:userId IS NULL OR u.userId = :userId) " +
             "AND (:name IS NULL OR u.name LIKE %:name%) " +
             "AND (:nickName IS NULL OR u.nickName LIKE %:nickName%) " +
@@ -63,4 +67,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("userRole") UserRole userRole,
             Pageable pageable
     );
+
+    // userId로 user_role 조회하는 메서드
+    @Query("SELECT u.userRole FROM User u WHERE u.userId = :userId")
+    UserRole findRoleByUserId(@Param("userId") Long userId);
+
 }

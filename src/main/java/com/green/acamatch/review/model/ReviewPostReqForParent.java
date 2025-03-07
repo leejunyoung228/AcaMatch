@@ -27,7 +27,7 @@ public class ReviewPostReqForParent {
     private String comment;
 
     @Schema(title = "별점", description = "리뷰 별점", example = "5", required = true)
-    private double star;
+    private Double star;
 
     @JsonIgnore
     private Long reviewId; // 리뷰 ID (DB에서 생성되므로 요청에는 필요 없음)

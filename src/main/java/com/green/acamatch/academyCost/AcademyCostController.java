@@ -40,7 +40,7 @@ public class AcademyCostController {
     }
 
     @GetMapping("getAcademyCostInfoByCostId/{costId}")
-    @Operation(summary = "주문 상세 내역")
+    @Operation(summary = "주문 상세 내역", description = "orderType 0: 학원, 1: 책, 2:프리미엄 학원")
     public ResultResponse<GetAcademyCostInfoByCostId> getAcademyCostInfoByCostId(@PathVariable long costId) {
         return ResultResponse.<GetAcademyCostInfoByCostId>builder()
                 .resultMessage("조회 성공")
@@ -50,7 +50,7 @@ public class AcademyCostController {
 
     @PutMapping("updateStatus/{costId}")
     @Operation(summary = "정산 X -> 정산 O로 처리", description = "어떻게 만드실지 몰라서 일단 결제 PK를 받아와서 정산 상태인 status를 1로 변경하도록 만들었습니다.")
-    public ResultResponse<Integer> updateStatus(@PathVariable Integer costId) {
+    public ResultResponse<Integer> updateStatus(@PathVariable Long costId) {
         int result = academyCostService.updateStatus(costId);
         return ResultResponse.<Integer>builder()
                 .resultMessage("정산 처리 완료")

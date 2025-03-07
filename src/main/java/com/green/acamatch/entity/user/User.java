@@ -22,6 +22,7 @@ public class User extends UpdatedAt {
     private Long userId;
 
     // 'role_id' 컬럼과 'role' 객체 연결
+    @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
     private UserRole userRole;
 

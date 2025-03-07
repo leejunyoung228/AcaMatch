@@ -1,16 +1,25 @@
 package com.green.acamatch.academyCost;
 
+import com.green.acamatch.acaClass.ClassRepository;
+import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.PremiumRepository;
 import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academy.premium.model.PremiumPostReq;
 import com.green.acamatch.academyCost.model.*;
 import com.green.acamatch.book.BookRepository;
+import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.entity.acaClass.AcaClass;
+import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.academy.PremiumAcademy;
 import com.green.acamatch.entity.academyCost.AcademyCost;
 import com.green.acamatch.entity.academyCost.Book;
 import com.green.acamatch.entity.academyCost.Product;
+import com.green.acamatch.entity.academyCost.Refund;
 import com.green.acamatch.entity.joinClass.JoinClass;
+import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
+import com.green.acamatch.refund.RefundRepository;
+import com.green.acamatch.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +29,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -34,6 +45,10 @@ public class KakaoPayService {
     private final ProductRepository productRepository;
     private final PremiumRepository premiumRepository;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
+    private final AcademyRepository academyRepository;
+    private final RefundRepository refundRepository;
+    private final ClassRepository classRepository;
     private RestTemplate restTemplate = new RestTemplate();
     private final AcademyCostMapper academyCostMapper;
     private final PremiumService premiumService;
@@ -245,6 +260,28 @@ public class KakaoPayService {
                 itemNames.append(", ");
             }
             itemNames.append(product.getProductName()).append(" x").append(quantity);
+
+
+            Product productN = productRepository.findById(productId).orElse(null);
+            if(productN.getClassId() != null){
+                User user = userRepository.findByUserId(req.getUserId()).orElse(null);
+                AcaClass acaClass = classRepository.findById(productN.getClassId().getClassId()).orElse(null);
+
+                try{
+                    if(joinClassRepository.existsJoinClass(acaClass.getClassId(), user.getUserId()) != null){
+                        throw new IllegalArgumentException("이미 수강 신청하였습니다.");
+                    }
+                    JoinClass joinClass1 = new JoinClass();
+                    joinClass1.setAcaClass(productN.getClassId());
+                    joinClass1.setUser(user);
+                    joinClass1.setRegistrationDate(LocalDate.now());
+                    joinClass1.setCertification(0);
+                    joinClassRepository.save(joinClass1);
+                }catch (CustomException e){
+                    e.printStackTrace();
+                }
+
+            }
         }
 
         parameters.put("cid", payProperties.getCid());
@@ -264,7 +301,7 @@ public class KakaoPayService {
 //        parameters.put("fail_url", failUrl);
 //        parameters.put("cancel_url", cancelUrl);
         parameters.put("approval_url", "http://localhost:5173/success");
-        parameters.put("fail_url", "http://localhost:5173/fail");
+        parameters.put("fail_url",  "http://localhost:5173/fail");
         parameters.put("cancel_url", "http://localhost:5173/cancel");
 
 
@@ -280,7 +317,7 @@ public class KakaoPayService {
             Product product = productRepository.findById(productId).get();
 
             AcademyCost academyCost = new AcademyCost();
-            academyCost.setProductId(productId);
+            academyCost.setProductId(product);
             academyCost.setUserId(req.getUserId());
             academyCost.setAmount(quantity);
             academyCost.setPrice((product.getProductPrice() + (product.getProductPrice() / 10)) * quantity);
@@ -302,6 +339,10 @@ public class KakaoPayService {
             academyCost.setCost_status(0);
             academyCost.setTId(kakaoReady.getTid());
             academyCost.setFee(academyCost.getPrice() * 0.01);
+            if(req.getAcaId() != null){
+                Academy academy = academyRepository.findById(req.getAcaId()).orElse(null);
+                academyCost.setAcademyId(academy);
+            }
             academyCostRepository.save(academyCost);
         }
 
@@ -316,6 +357,52 @@ public class KakaoPayService {
         String tid = result.getTId();
         long userId = result.getUserId();
         String partnerOrderId = result.getPartnerOrderId();  // 저장된 주문번호 가져오기
+
+        List<AcademyCost> costs = academyCostRepository.findByTId(TId);
+        for (AcademyCost cost : costs) {
+            cost.setCost_status(2);
+            if (cost.getProductId() != null && cost.getProductId().getProductId() == 1) {
+                cost.setStatus(1);
+            }
+            academyCostRepository.save(cost);
+
+            if(cost.getAcademyId() != null){
+                PremiumAcademy premiumAcademy = new PremiumAcademy();
+                premiumAcademy.setAcademy(cost.getAcademyId());
+                premiumAcademy.setPreCheck(0);
+                premiumAcademy.setPrice(cost.getPrice());
+                premiumRepository.save(premiumAcademy);
+            }
+
+            Product product = productRepository.findById(cost.getProductId().getProductId()).orElse(null);
+            if (product != null && product.getBookId() != null) {
+                Book book = bookRepository.findById(product.getBookId().getBookId()).orElse(null);
+                if (book != null) {
+                    book.setBookAmount(book.getBookAmount() - cost.getAmount());
+                    bookRepository.save(book);
+                }
+            }
+
+            if(product.getClassId() != null){
+                User user = userRepository.findByUserId(userId).orElse(null);
+                AcaClass acaClass = classRepository.findById(product.getClassId().getClassId()).orElse(null);
+
+                try{
+                    if(joinClassRepository.existsJoinClass(acaClass.getClassId(), user.getUserId()) != null){
+                        throw new IllegalArgumentException("이미 수강 신청하였습니다.");
+                    }
+                    JoinClass joinClass1 = new JoinClass();
+                    joinClass1.setAcaClass(product.getClassId());
+                    joinClass1.setUser(user);
+                    joinClass1.setRegistrationDate(LocalDate.now());
+                    joinClass1.setCertification(0);
+                    joinClassRepository.save(joinClass1);
+                }catch (CustomException e){
+                    e.printStackTrace();
+                }
+
+            }
+        }
 
         Map<String, String> parameters = new HashMap<>();
         parameters.put("cid", payProperties.getCid());
@@ -332,22 +419,89 @@ public class KakaoPayService {
                 KakaoApproveResponse.class);
 
         // 결제 완료 후 상태 변경 로직 유지
-        List<AcademyCost> costs = academyCostRepository.findByTId(TId);
-        for (AcademyCost cost : costs) {
-            cost.setCost_status(2);
-            academyCostRepository.save(cost);
+        return approveResponse;
+    }
 
-            Product product = productRepository.findById(cost.getProductId().getProductId()).orElse(null);
-            if (product != null && product.getBookId() != null) {
-                Book book = bookRepository.findById(product.getBookId().getBookId()).orElse(null);
-                if (book != null) {
-                    book.setBookAmount(book.getBookAmount() - cost.getAmount());
-                    bookRepository.save(book);
-                }
-            }
+    /**
+     * 결제 환불
+     */
+    public KakaoCancelResponse kakaoCancel(KakaoCancelReq req) {
+
+        // 카카오페이 요청
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("cid", payProperties.getCid());
+        parameters.put("tid", req.getTid());
+
+        AcademyCost academyCost = academyCostRepository.findById(Long.valueOf(req.getCostId()))
+                .orElseThrow(() -> new RuntimeException("AcademyCost not found"));
+
+        Refund refund = refundRepository.findByCostId(academyCost);
+        if (refund == null) {
+            throw new RuntimeException("Refund record not found");
         }
 
-        return approveResponse;
+        refund.setRefundStatus(1);
+        refund.setUpdatedAt(LocalDate.now()); // LocalDateTime 사용 (정확한 시간 기록)
+        refundRepository.save(refund);
+
+        int price = academyCost.getPrice();
+        Product product = productRepository.findById(academyCost.getProductId().getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (product.getClassId() != null) {
+            AcaClass acaClass = classRepository.findById(product.getClassId().getClassId())
+                    .orElseThrow(() -> new RuntimeException("Class not found"));
+
+            LocalDate startDate = acaClass.getStartDate();
+            LocalDate endDate = acaClass.getEndDate();
+            LocalDate refundDate = refund.getCreatedAt(); // 환불 신청 날짜
+
+            // 날짜 차이 계산
+            long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+            long classBetween = ChronoUnit.DAYS.between(startDate, refundDate); // 수업 시작일부터 환불 신청일까지
+
+            // 수업 시작 전에 환불한 경우, 전액 환불
+            if (classBetween < 0) {
+                parameters.put("cancel_amount", String.format("%d", price));
+            }
+
+            // 비율 계산 (double로 변환하여 소수점 유지)
+            double refundRatio = (double) classBetween / daysBetween * 100;
+            int cancelAmount;
+            if (refundRatio <= 0) {
+                parameters.put("cancel_amount", String.format("%d", price)); // 전액 환불
+            } else if (refundRatio <= 33.3) {
+                cancelAmount = price * 2 / 3;
+                parameters.put("cancel_amount", String.format("%d", cancelAmount)); // 2/3 환불
+            } else if (refundRatio <= 50.0) {  // ✅ "<" 대신 "<=" 사용
+                cancelAmount = price / 2;
+                parameters.put("cancel_amount", String.format("%d", cancelAmount)); // 1/2 환불
+            } else {  // ✅ 이제 50 이상이면 여기에 포함됨
+                parameters.put("cancel_amount", "1"); // 환불 불가
+            }
+
+        }
+        parameters.put("cancel_tax_free_amount", "0");
+        parameters.put("cancel_vat_amount", "0");
+
+        // 파라미터, 헤더
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
+
+        // 외부에 보낼 url
+        RestTemplate restTemplate = new RestTemplate();
+
+        KakaoCancelResponse cancelResponse = restTemplate.postForObject(
+                "https://open-api.kakaopay.com/online/v1/payment/cancel",
+                requestEntity,
+                KakaoCancelResponse.class);
+
+        System.out.println();
+        System.out.println();
+        System.out.println(cancelResponse);
+        System.out.println();
+        System.out.println();
+
+        return cancelResponse;
     }
 
 

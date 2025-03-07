@@ -160,6 +160,7 @@
         ON e.join_class_id = f.join_class_id
         LEFT JOIN `tag` g
         ON c.tag_id = g.tag_id
+        WHERE b.aca_agree = 1
         GROUP BY a.aca_id
         ORDER BY like_count DESC
         LIMIT #{startIdx}, #{size}
@@ -256,6 +257,11 @@
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
         WHERE A.aca_id = #{acaId}
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
     </select>
 
     <!-- 학원 태그 리스트 불러오기 -->
@@ -302,10 +308,16 @@
         A.address,
         U.name,
         AP.aca_pic,
-        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
+        IFNULL(RC.reportsCount, 0) AS reportsCount  -- 신고 수가 없으면 0으로 처리
         FROM academy A
         JOIN academy_pic AP ON A.aca_id = AP.aca_id
         JOIN User U ON A.user_id = U.user_id
+        LEFT JOIN (
+        SELECT R.aca_id, COUNT(R.report_id) AS reportsCount
+        FROM reports R
+        GROUP BY R.aca_id
+        ) RC ON A.aca_id = RC.aca_id  -- 학원별 신고 개수를 LEFT JOIN
         WHERE A.user_id = #{signedUserId}
         GROUP BY A.aca_id;
     </select>
@@ -339,6 +351,11 @@
         ) G ON G.aca_id = A.aca_id
         WHERE 1 = 1
         AND A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
         AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
         <if test="tagName != null and tagName != ''">
@@ -619,6 +636,11 @@
             <result property="banReview" column="banReview"/>
             <result property="roleType" column="roleType"/>
             <result property="joinClassId" column="joinClassId"/>
+            <collection property="reviewPics" ofType="com.green.acamatch.academy.model.HB.ReviewPicDto" javaType="ArrayList" notNullColumn="reviewId">
+                <result property="reviewId" column="reviewId"/>
+                <result property="reviewPic" column="review_pic"/>
+            </collection>
+
         </collection>
         <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
             <result property="bookId" column="bookId"/>
@@ -646,8 +668,10 @@
         C.class_name AS reviewClassName,
         B.join_class_id AS reviewjoin_classId,
         C.aca_id,
-        C.class_id
+        C.class_id,
+        RP.`review_pic`
         FROM review A
+        LEFT JOIN review_pic RP ON A.review_id = RP.review_id
         JOIN join_class B ON A.join_class_id = B.join_class_id
         JOIN aca_class C ON B.class_id = C.class_id
         JOIN user D ON B.user_id = D.user_id
@@ -792,7 +816,8 @@
         COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
         COALESCE(R.reviewClassName, '') AS reviewClassName,
         COALESCE(R.banReview, 0) AS banReview,
-        COALESCE(R.joinClassId, 0) AS joinClassId
+        COALESCE(R.joinClassId, 0) AS joinClassId,
+        COALESCE(R.`review_pic`, '') AS review_pic
 
         FROM academy A
         JOIN academy_pic AP
@@ -806,6 +831,18 @@
         LEFT JOIN UserLikes UL ON UL.aca_id = A.aca_id
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
+        AND A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r1
+        WHERE r1.review_id = R.reviewId
+        AND (r1.exposure_end_date IS NULL OR r1.exposure_end_date > NOW())
+        )
         ORDER BY R.reviewId DESC;
     </select>
 
@@ -854,6 +891,12 @@
         GROUP BY C.aca_id
         ) G
         ON G.aca_id = A.aca_id
+        WHERE A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         GROUP BY A.aca_id
         ORDER BY RAND()
         LIMIT 0, 5
@@ -901,6 +944,11 @@
         FROM academy A
         WHERE A.premium = 1
         AND A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         ORDER BY RAND()
         LIMIT 0, #{size}
         ), all_academies AS (
@@ -956,6 +1004,11 @@
         ) G ON G.aca_id = A.aca_id
         WHERE A.premium = 0  -- 일반 학원 필터링
         AND A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         GROUP BY A.aca_id
         )
 
@@ -1004,7 +1057,8 @@
                 AND A.aca_agree = #{acaAgree}
             </if>
         </where>
-        GROUP BY A.aca_id;
+        GROUP BY A.aca_id
+        LIMIT #{startIdx}, #{size}
     </select>
     <select id="getAcademyListByDistance">
         SELECT
@@ -1041,9 +1095,14 @@
         LEFT JOIN likes L ON A.aca_id = L.aca_id
         GROUP BY A.aca_id
         ) LC ON A.aca_id = LC.aca_id
+        WHERE NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         GROUP BY A.aca_id
         ORDER BY distance ASC
-        LIMIT 5
+        LIMIT #{startIdx}, #{size}
     </select>
     <select id="getAcaNameList">
         SELECT aca_name
@@ -1094,6 +1153,13 @@
         JOIN tag T ON S.tag_id = T.tag_id
         ) TT
         ON S.tag_id = TT.tag_id
-        GROUP BY S.tag_id;
+        WHERE 1=1
+        <if test='week == "이번주"'>
+            AND YEARWEEK(S.created_at) = YEARWEEK(NOW())
+        </if>
+        <if test='week == "지난주"'>
+            AND YEARWEEK(S.created_at) = YEARWEEK(NOW() - INTERVAL 1 WEEK)
+        </if>
+        GROUP BY S.tag_id
     </select>
 </mapper>

@@ -29,4 +29,6 @@ public class GetAcademyListByUserIdRes {
     private String acaPic;
 
     private String acaPics;
+
+    private int reportsCount;
 }

@@ -2,9 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.green.acamatch.book.BookMapper">
     <select id="getBookListByClassId">
-        select *
-        from book
-        where class_id = #{classId}
+        select B.*
+        from book B
+        join aca_class C on B.class_id = C.class_id
+        join academy A on A.aca_id = C.aca_id
+        where B.class_id = #{classId}
+        AND A.aca_agree = 1
     </select>
     <select id="getBookListByAcaNameBookName">
         SELECT B.book_id, B.book_name, B.book_comment, B.book_pic,
@@ -17,7 +20,6 @@
         SELECT B.book_id, COUNT(B.book_id) AS bookCount
         FROM book B
         ) BC ON B.book_id = BC.book_id
-        ORDER BY B.created_at DESC
         <where>
             <if test=" acaName != null and acaName != '' ">
                 AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
@@ -26,6 +28,7 @@
                 AND B.book_name LIKE CONCAT('%', #{bookName}, '%')
             </if>
         </where>
+        ORDER BY B.created_at DESC
         LIMIT #{startIdx}, #{size}
     </select>
     <select id="getBookInfo">

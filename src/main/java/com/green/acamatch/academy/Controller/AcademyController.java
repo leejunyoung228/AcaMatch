@@ -45,10 +45,8 @@ public class AcademyController {
     @PutMapping
     @Operation(summary = "학원정보수정", description = "acaId, userId는 필수로 받고, 수정하기 원하는 항목 값을 입력합니다.")
     public ResultResponse<Integer> putAcademy(@RequestPart(required = false) List<MultipartFile> pics
-                                            , @RequestPart(required = false) MultipartFile businessLicensePic
-                                            , @RequestPart(required = false) MultipartFile operationLicensePic
                                             , @RequestPart AcademyUpdateReq req) {
-        int result = academyService.updAcademy(pics, businessLicensePic, operationLicensePic, req);
+        int result = academyService.updAcademy(pics, req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(result)
@@ -250,10 +248,10 @@ public class AcademyController {
                 .build();
     }
 
-    @GetMapping("GetSearchInfo")
-    @Operation(summary = "태그로 검색 분포 정보")
-    public ResultResponse<List<GetSearchInfoRes>> getSearchInfo(){
-        List<GetSearchInfoRes> res = academyService.getSearchInfo();
+    @GetMapping("GetSearchInfo/{week}")
+    @Operation(summary = "태그로 검색 분포 정보", description = "이번주, 지난주 넣으시면 됩니다!")
+    public ResultResponse<List<GetSearchInfoRes>> getSearchInfo(@PathVariable String week){
+        List<GetSearchInfoRes> res = academyService.getSearchInfo(week);
         return ResultResponse.<List<GetSearchInfoRes>>builder()
                 .resultMessage("조회 성공")
                 .resultData(res)
