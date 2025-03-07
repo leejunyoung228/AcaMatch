@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public class CustomUserDetails implements UserDetails {
 
-    private Long userId; // ✅ 추가 (User ID 저장)
+    private Long userId; // 추가
     private String username;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
@@ -18,7 +18,7 @@ public class CustomUserDetails implements UserDetails {
         this.authorities = authorities;
     }
 
-    public Long getUserId() { // ✅ getUserId() 추가
+    public Long getUserId() {  // getUserId() 추가
         return userId;
     }
 

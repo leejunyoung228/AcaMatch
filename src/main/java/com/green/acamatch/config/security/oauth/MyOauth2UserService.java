@@ -95,7 +95,8 @@ public class MyOauth2UserService extends DefaultOAuth2UserService {
                 , user.getUserPic()
                 , user.getUserId()
                 , List.of(user.getUserRole().name())
-                , needMoreData);
+                , needMoreData
+                , signInProviderType);
     }
 }
 

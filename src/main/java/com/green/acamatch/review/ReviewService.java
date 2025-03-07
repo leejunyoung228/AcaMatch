@@ -1,6 +1,7 @@
 package com.green.acamatch.review;
 
 import com.green.acamatch.acaClass.ClassRepository;
+import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.config.exception.*;
 import com.green.acamatch.config.security.AuthenticationFacade;
 import com.green.acamatch.entity.acaClass.AcaClass;
@@ -44,6 +45,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final JoinClassRepository joinClassRepository;
     private final ClassRepository acaClassRepository;
+    private final AcademyRepository academyRepository;
 
 
     /**
@@ -401,12 +403,7 @@ public class ReviewService {
 //        if (req.getComment() == null || req.getComment().trim().isEmpty()) {
 //            req.setComment(""); // 빈 문자열로 설정
 //        }
-//
-//
-//
-//
-//
-//
+
 ////        // 리뷰 요청 유효성 검사
 ////        boolean isValid = validateReviewRequest2(req);
 ////        if (!isValid) {
@@ -437,11 +434,13 @@ public class ReviewService {
 //        return 1;
 //    }
 
-    //  리뷰 삭제 (작성자 본인)
+
+
+    //리뷰 삭제 (작성자 본인)
 
     @Transactional
-    public int deleteReviewByUser(ReviewDelReq req) {
-        // 필수 파라미터 확인
+    public int deleteReviewByUser(@Valid ReviewDelReq req) {
+        // 필수값 확인
         if (req.getAcaId() == null || req.getUserId() == null) {
             userMessage.setMessage("잘못된 요청입니다. acaId와 userId가 필요합니다.");
             return 0;
@@ -457,68 +456,133 @@ public class ReviewService {
         }
 
         // 유저 존재 여부 확인
-        if (mapper.checkUserExists(requestUserId) == 0) {
+        if (!userRepository.existsById(requestUserId)) {
             userMessage.setMessage("유효하지 않은 유저 ID입니다.");
             return 0;
         }
 
         // 학원 존재 여부 확인
-        List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId()); // acaId 기준으로 classId 조회
-        log.info(" 학원(acaId: {})에 속한 클래스 ID 리스트: {}", req.getAcaId(), classIds);
-
-        if (classIds.isEmpty()) {
+        List<AcaClass> classes = acaClassRepository.findByAcademy_AcaId(req.getAcaId());
+        if (classes.isEmpty()) {
             userMessage.setMessage("해당 학원에 등록된 수업이 없습니다.");
             return 0;
         }
 
-        // 올바른 class_id 리스트를 가져와서 JOINCLASS 확인
-        int enrollmentCheck = mapper.checkEnrollmentByClassIds(classIds, requestUserId);
-        if (enrollmentCheck == 0) {
+        // 해당 학원에서 수업을 들었는지 확인
+        boolean isEnrolled = joinClassRepository.existsByAcaClassInAndUser_UserId(classes, requestUserId);
+        if (!isEnrolled) {
             userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다.");
             return 0;
         }
 
-        // joinClassId 조회
-        List<Long> joinClassIds = mapper.findJoinClassIdByAcademyAndUser(req.getAcaId(), requestUserId);
-        log.info("joinClassId 리스트: {}", joinClassIds);
-
-        if (joinClassIds.isEmpty()) {
-            userMessage.setMessage("해당 학원에 등록된 기록이 없습니다.");
-            return 0;
-        }
-
-        // 리뷰 ID 조회
-        List<Integer> reviewIds = mapper.getReviewIdsByAcaIdAndUser(req.getAcaId(), requestUserId);
-        if (reviewIds.isEmpty()) {
+        // 삭제할 리뷰 조회
+        List<Review> reviews = reviewRepository.findByJoinClass_AcaClass_Academy_AcaIdAndUser_UserId(req.getAcaId(), requestUserId);
+        if (reviews.isEmpty()) {
             userMessage.setMessage("삭제할 리뷰가 없습니다.");
-            log.warn(" 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
             return 0;
         }
 
-        // 작성자 확인
-        if (!reviewIds.isEmpty() && !isUserAuthorOfReview(reviewIds, requestUserId)) {
+        // 리뷰 작성자 검증
+        boolean isAuthor = reviews.stream().allMatch(review -> review.getUser().getUserId().equals(requestUserId));
+        if (!isAuthor) {
             userMessage.setMessage("해당 리뷰의 작성자가 아닙니다. 삭제할 권한이 없습니다.");
             return 0;
         }
 
         // 리뷰 삭제 수행
-        int rowsDeleted = mapper.deleteReviewByReviewId(reviewIds);
-        if (rowsDeleted == 0) {
-            userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
-            return 0;
-        }
-
-        log.info(" 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", req.getAcaId(), requestUserId);
+        reviewRepository.deleteAll(reviews);
         userMessage.setMessage("리뷰 삭제가 완료되었습니다.");
+
+        log.info("사용자(userId: {})의 학원(acaId: {}) 리뷰 삭제 완료!", requestUserId, req.getAcaId());
         return 1;
     }
-    /**
-     * 리뷰 삭제 (학원 관계자)
-     */
+
+
+
+
+
+//    //  리뷰 삭제 (작성자 본인)
+//
+//    @Transactional
+//    public int deleteReviewByUser(ReviewDelReq req) {
+//        // 필수 파라미터 확인
+//        if (req.getAcaId() == null || req.getUserId() == null) {
+//            userMessage.setMessage("잘못된 요청입니다. acaId와 userId가 필요합니다.");
+//            return 0;
+//        }
+//
+//        long jwtUserId = validateAuthenticatedUser();
+//        long requestUserId = req.getUserId();
+//
+//        // 본인 계정 검증
+//        if (jwtUserId != requestUserId) {
+//            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 삭제할 수 있습니다.");
+//            return 0;
+//        }
+//
+//        // 유저 존재 여부 확인
+//        if (mapper.checkUserExists(requestUserId) == 0) {
+//            userMessage.setMessage("유효하지 않은 유저 ID입니다.");
+//            return 0;
+//        }
+//
+//        // 학원 존재 여부 확인
+//        List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId()); // acaId 기준으로 classId 조회
+//        log.info(" 학원(acaId: {})에 속한 클래스 ID 리스트: {}", req.getAcaId(), classIds);
+//
+//        if (classIds.isEmpty()) {
+//            userMessage.setMessage("해당 학원에 등록된 수업이 없습니다.");
+//            return 0;
+//        }
+//
+//        // 올바른 class_id 리스트를 가져와서 JOINCLASS 확인
+//        int enrollmentCheck = mapper.checkEnrollmentByClassIds(classIds, requestUserId);
+//        if (enrollmentCheck == 0) {
+//            userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다.");
+//            return 0;
+//        }
+//
+//        // joinClassId 조회
+//        List<Long> joinClassIds = mapper.findJoinClassIdByAcademyAndUser(req.getAcaId(), requestUserId);
+//        log.info("joinClassId 리스트: {}", joinClassIds);
+//
+//        if (joinClassIds.isEmpty()) {
+//            userMessage.setMessage("해당 학원에 등록된 기록이 없습니다.");
+//            return 0;
+//        }
+//
+//        // 리뷰 ID 조회
+//        List<Integer> reviewIds = mapper.getReviewIdsByAcaIdAndUser(req.getAcaId(), requestUserId);
+//        if (reviewIds.isEmpty()) {
+//            userMessage.setMessage("삭제할 리뷰가 없습니다.");
+//            log.warn(" 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
+//            return 0;
+//        }
+//
+//        // 작성자 확인
+//        if (!reviewIds.isEmpty() && !isUserAuthorOfReview(reviewIds, requestUserId)) {
+//            userMessage.setMessage("해당 리뷰의 작성자가 아닙니다. 삭제할 권한이 없습니다.");
+//            return 0;
+//        }
+//
+//        // 리뷰 삭제 수행
+//        int rowsDeleted = mapper.deleteReviewByReviewId(reviewIds);
+//        if (rowsDeleted == 0) {
+//            userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
+//            return 0;
+//        }
+//
+//        log.info(" 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", req.getAcaId(), requestUserId);
+//        userMessage.setMessage("리뷰 삭제가 완료되었습니다.");
+//        return 1;
+//    }
+//
+
+
     @Transactional
     public int deleteReviewByAcademy(ReviewDelMyacademyReq req) {
-        // 학원 ID(acaId)와 리뷰 ID(reviewId) 검증
-        if (req.getAcaId() == null ) {
+        // 필수 필드 검증
+        if (req.getAcaId() == null) {
             userMessage.setMessage("학원 ID(acaId)가 누락되었습니다.");
             return 0;
         }
@@ -527,8 +591,6 @@ public class ReviewService {
             userMessage.setMessage("리뷰 ID가 누락되었습니다.");
             return 0;
         }
-
-
 
         long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
         long requestUserId = req.getUserId();
@@ -539,102 +601,166 @@ public class ReviewService {
             return 0;
         }
 
-        // 유저 존재 여부 확인
-        validateUserExists(req.getUserId());
-
-        if (!isAuthorizedUser(req.getUserId())) {
-            return 0;
-        }
-
-        Long acaId = req.getAcaId();
-        if (acaId == null) {
-            userMessage.setMessage("학원 ID가 제공되지 않았습니다.");
-            log.error("AcaId is null for userId: {}", requestUserId);
-            return 0;
-        }
-
-
-        validateUserExists(req.getUserId());
-
-        if (!isAuthorizedUser(req.getUserId())) {
-            return 0;  // 인증되지 않은 요청이면 종료
-        }
-
-        List<Integer> reviewIds = mapper.getReviewIdsByAcaIdAndUser(acaId, requestUserId);
-
-        if (!reviewIds.isEmpty()) {
-            mapper.deleteReviewByReviewId(reviewIds);
-            log.info("✅ 학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", acaId, requestUserId);
-        } else {
-            log.warn("❌ 삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
-        }
-
-        if (mapper.checkAcaExists(acaId) == 0) {
-            userMessage.setMessage("유효하지 않은 학원 ID입니다.");
-            return 0;
-        }
-
-        if (mapper.checkUserExists(req.getUserId()) == 0) {
+        // 학원 ID와 유저 ID가 유효한지 검증
+        if (!userRepository.existsById(requestUserId)) {
             userMessage.setMessage("유효하지 않은 유저 ID입니다.");
             return 0;
         }
 
-        if (mapper.checkReviewExists(req.getReviewId()) == 0) {
-            userMessage.setMessage("유효하지 않은 리뷰 ID입니다.");
+        if (!academyRepository.existsById(req.getAcaId())) {
+            userMessage.setMessage("유효하지 않은 학원 ID입니다.");
             return 0;
         }
 
-
-
-
-        // 학원 관계자 권한 확인
-        if (!isUserLinkedToAcademy(req.getAcaId(), req.getUserId())) {
+        // 학원 관리자 권한 검증
+        if (!academyRepository.existsByAcaIdAndUser_UserId(req.getAcaId(), requestUserId)) {
             userMessage.setMessage("해당 학원을 관리할 권한이 없습니다.");
             return 0;
         }
 
-        // 리뷰 존재 여부 확인
-        if (mapper.checkReviewExists(req.getReviewId()) == 0) {
+        // 해당 리뷰가 학원에 속하는지 검증
+        Optional<Review> reviewOpt = reviewRepository.findById(req.getReviewId());
+        if (reviewOpt.isEmpty()) {
             userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
             return 0;
         }
 
-        // 삭제할 리뷰의 학원 ID 조회
-        Long reviewAcaId = mapper.findAcademyIdByReviewId(req.getReviewId());
-        if (reviewAcaId == null) {
-            userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
-            return 0;
-        }
-
-        // 관리자가 해당 학원과 관련이 있는지 검증
-        Integer isAdminOfAcademy = mapper.isUserLinkedToAcademy(reviewAcaId, requestUserId);
-        if (isAdminOfAcademy == null || isAdminOfAcademy == 0) {
-            userMessage.setMessage("삭제할 리뷰는 로그인한 관리자의 학원과 관련이 없습니다.");
-            return 0;
-        }
-
-        // 해당 리뷰가 해당 학원에 속하는지 확인
-        if (!isReviewLinkedToAcademy(req.getReviewId(), req.getAcaId())) {
+        Review review = reviewOpt.get();
+        if (!review.getJoinClass().getAcaClass().getAcademy().getAcaId().equals(req.getAcaId())) {
             userMessage.setMessage("해당 리뷰는 요청한 학원에 속해 있지 않습니다.");
             return 0;
         }
 
         // 리뷰 삭제 수행
-        int rowsDeleted = mapper.deleteReviewByAcademy(req);
-        if (rowsDeleted == 0) {
-            userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
-            return 0;
-        }
-
-        // 리뷰 삭제 완료 메시지
+        reviewRepository.delete(review);
         userMessage.setMessage("리뷰 삭제가 완료되었습니다.");
+
         return 1;
     }
 
 
-    /**
-         * 학원 관리자의 자신의 모든 학원 리뷰 조회 (로그인 필요)
-         */
+
+
+
+
+
+
+//    // 리뷰 삭제 (학원 관계자)
+//    @Transactional
+//    public int deleteReviewByAcademy(ReviewDelMyacademyReq req) {
+//        // 학원 ID(acaId)와 리뷰 ID(reviewId) 검증
+//        if (req.getAcaId() == null ) {
+//            userMessage.setMessage("학원 ID(acaId)가 누락되었습니다.");
+//            return 0;
+//        }
+//
+//        if (req.getReviewId() == null) {
+//            userMessage.setMessage("리뷰 ID가 누락되었습니다.");
+//            return 0;
+//        }
+//
+//
+//
+//        long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
+//        long requestUserId = req.getUserId();
+//
+//        // 본인 계정 검증
+//        if (jwtUserId != requestUserId) {
+//            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 학원 리뷰 관리가 가능합니다.");
+//            return 0;
+//        }
+//
+//        // 유저 존재 여부 확인
+//        validateUserExists(req.getUserId());
+//
+//        if (!isAuthorizedUser(req.getUserId())) {
+//            return 0;
+//        }
+//
+//        Long acaId = req.getAcaId();
+//        if (acaId == null) {
+//            userMessage.setMessage("학원 ID가 제공되지 않았습니다.");
+//            log.error("AcaId is null for userId: {}", requestUserId);
+//            return 0;
+//        }
+//
+//        validateUserExists(req.getUserId());
+//
+//        if (!isAuthorizedUser(req.getUserId())) {
+//            return 0;  // 인증되지 않은 요청이면 종료
+//        }
+//
+//        List<Integer> reviewIds = mapper.getReviewIdsByAcaIdAndUser(acaId, requestUserId);
+//
+//        if (!reviewIds.isEmpty()) {
+//            mapper.deleteReviewByReviewId(reviewIds);
+//            log.info("학원(acaId: {})에 대한 사용자(userId: {}) 리뷰 삭제 완료!", acaId, requestUserId);
+//        } else {
+//            log.warn("삭제할 리뷰가 없습니다. reviewId가 NULL입니다.");
+//        }
+//
+//        if (mapper.checkAcaExists(acaId) == 0) {
+//            userMessage.setMessage("유효하지 않은 학원 ID입니다.");
+//            return 0;
+//        }
+//
+//        if (mapper.checkUserExists(req.getUserId()) == 0) {
+//            userMessage.setMessage("유효하지 않은 유저 ID입니다.");
+//            return 0;
+//        }
+//
+//        if (mapper.checkReviewExists(req.getReviewId()) == 0) {
+//            userMessage.setMessage("유효하지 않은 리뷰 ID입니다.");
+//            return 0;
+//        }
+//
+//        // 학원 관계자 권한 확인
+//        if (!isUserLinkedToAcademy(req.getAcaId(), req.getUserId())) {
+//            userMessage.setMessage("해당 학원을 관리할 권한이 없습니다.");
+//            return 0;
+//        }
+//
+//        // 리뷰 존재 여부 확인
+//        if (mapper.checkReviewExists(req.getReviewId()) == 0) {
+//            userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
+//            return 0;
+//        }
+//
+//        // 삭제할 리뷰의 학원 ID 조회
+//        Long reviewAcaId = mapper.findAcademyIdByReviewId(req.getReviewId());
+//        if (reviewAcaId == null) {
+//            userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
+//            return 0;
+//        }
+//
+//        // 관리자가 해당 학원과 관련이 있는지 검증
+//        Integer isAdminOfAcademy = mapper.isUserLinkedToAcademy(reviewAcaId, requestUserId);
+//        if (isAdminOfAcademy == null || isAdminOfAcademy == 0) {
+//            userMessage.setMessage("삭제할 리뷰는 로그인한 관리자의 학원과 관련이 없습니다.");
+//            return 0;
+//        }
+//
+//        // 해당 리뷰가 해당 학원에 속하는지 확인
+//        if (!isReviewLinkedToAcademy(req.getReviewId(), req.getAcaId())) {
+//            userMessage.setMessage("해당 리뷰는 요청한 학원에 속해 있지 않습니다.");
+//            return 0;
+//        }
+//
+//        // 리뷰 삭제 수행
+//        int rowsDeleted = mapper.deleteReviewByAcademy(req);
+//        if (rowsDeleted == 0) {
+//            userMessage.setMessage("삭제할 리뷰를 찾을 수 없습니다.");
+//            return 0;
+//        }
+//
+//        // 리뷰 삭제 완료 메시지
+//        userMessage.setMessage("리뷰 삭제가 완료되었습니다.");
+//        return 1;
+//    }
+
+
+
+    // 학원 관리자의 자신의 모든 학원 리뷰 조회 (로그인 필요)
         @Transactional
         public List<ReviewDto> getMyAcademyReviews (MyAcademyReviewListGetReq req){
 
@@ -859,4 +985,5 @@ public class ReviewService {
             return count != null && count > 0;
         }
 
-}
+
+    }

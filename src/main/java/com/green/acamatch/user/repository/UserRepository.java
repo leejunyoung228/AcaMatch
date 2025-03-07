@@ -71,4 +71,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // userId로 user_role 조회하는 메서드
     @Query("SELECT u.userRole FROM User u WHERE u.userId = :userId")
     UserRole findRoleByUserId(@Param("userId") Long userId);
+
 }

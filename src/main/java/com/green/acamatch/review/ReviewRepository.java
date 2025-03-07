@@ -19,4 +19,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     boolean existsByJoinClass_AcaClass_ClassIdAndUser_UserId(Long classId, Long userId);
 
     Integer countReviewsByJoinClass_AcaClass_ClassIdAndUser_UserId(Long classId, Long userId);
+
+    List<Review> findByJoinClass_AcaClass_Academy_AcaIdAndUser_UserId(Long acaId, Long userId);
 }
