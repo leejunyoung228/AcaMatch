@@ -2,6 +2,7 @@ package com.green.acamatch.reports;
 
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.entity.reports.ActionType;
+import com.green.acamatch.entity.reports.ReportsType;
 import com.green.acamatch.reports.model.PostReportsReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.annotations.Delete;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("reports")
@@ -46,5 +52,15 @@ public class ReportsController {
                 .resultMessage("취소 완료")
                 .resultData(result)
                 .build();
+    }
+
+    @GetMapping("reportsTypes")
+    public List<Map<String, String>> getClassTypes() {
+        return Arrays.stream(ReportsType.values())
+                .map(type -> Map.of(
+                        "name", type.name(),
+                        "description", type.getDescription()
+                ))
+                .collect(Collectors.toList());
     }
 }
