@@ -48,4 +48,7 @@ public class GetAcademyCostInfoByCostId {
 
     @Schema(title = "결제 시에 발행된 partnerOrderId")
     private String partnerOrderId;
+
+    @Schema(title = "상품 이름")
+    private String productName;
 }

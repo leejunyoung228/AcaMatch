@@ -11,9 +11,11 @@ import com.green.acamatch.entity.academy.PremiumAcademy;
 import com.green.acamatch.entity.academyCost.AcademyCost;
 import com.green.acamatch.entity.academyCost.Book;
 import com.green.acamatch.entity.academyCost.Product;
+import com.green.acamatch.entity.academyCost.Refund;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
+import com.green.acamatch.refund.RefundRepository;
 import com.green.acamatch.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,7 @@ public class KakaoPayService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final AcademyRepository academyRepository;
+    private final RefundRepository refundRepository;
     private RestTemplate restTemplate = new RestTemplate();
     private final AcademyCostMapper academyCostMapper;
     private final PremiumService premiumService;
@@ -328,24 +331,12 @@ public class KakaoPayService {
         long userId = result.getUserId();
         String partnerOrderId = result.getPartnerOrderId();  // 저장된 주문번호 가져오기
 
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("cid", payProperties.getCid());
-        parameters.put("tid", tid);
-        parameters.put("partner_order_id", partnerOrderId);  // 올바른 주문번호 사용
-        parameters.put("partner_user_id", String.valueOf(userId));
-        parameters.put("pg_token", pgToken);
-
-        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
-
-        KakaoApproveResponse approveResponse = restTemplate.postForObject(
-                "https://open-api.kakaopay.com/online/v1/payment/approve",
-                requestEntity,
-                KakaoApproveResponse.class);
-
-        // 결제 완료 후 상태 변경 로직 유지
         List<AcademyCost> costs = academyCostRepository.findByTId(TId);
         for (AcademyCost cost : costs) {
             cost.setCost_status(2);
+            if (cost.getProductId() != null && cost.getProductId().getProductId() == 1) {
+                cost.setStatus(1);
+            }
             academyCostRepository.save(cost);
 
             if(cost.getAcademyId() != null){
@@ -376,7 +367,62 @@ public class KakaoPayService {
             }
         }
 
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("cid", payProperties.getCid());
+        parameters.put("tid", tid);
+        parameters.put("partner_order_id", partnerOrderId);  // 올바른 주문번호 사용
+        parameters.put("partner_user_id", String.valueOf(userId));
+        parameters.put("pg_token", pgToken);
+
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
+
+        KakaoApproveResponse approveResponse = restTemplate.postForObject(
+                "https://open-api.kakaopay.com/online/v1/payment/approve",
+                requestEntity,
+                KakaoApproveResponse.class);
+
+        // 결제 완료 후 상태 변경 로직 유지
         return approveResponse;
+    }
+
+    /**
+     * 결제 환불
+     */
+    public KakaoCancelResponse kakaoCancel(KakaoCancelReq req) {
+        Refund refund = new Refund();
+        refund.setTid(req.getTid());
+        refund.setRefundComment(req.getRefundComment());
+        refund.setRefundStatus(1);
+        refund.setAcademyCost(req.getCostId());
+        refundRepository.save(refund);
+
+
+        // 카카오페이 요청
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("cid", payProperties.getCid());
+        parameters.put("tid", req.getTid());
+        parameters.put("cancel_amount", "2200");
+        parameters.put("cancel_tax_free_amount", "0");
+        parameters.put("cancel_vat_amount", "0");
+
+        // 파라미터, 헤더
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
+
+        // 외부에 보낼 url
+        RestTemplate restTemplate = new RestTemplate();
+
+        KakaoCancelResponse cancelResponse = restTemplate.postForObject(
+                "https://open-api.kakaopay.com/online/v1/payment/cancel",
+                requestEntity,
+                KakaoCancelResponse.class);
+
+        System.out.println();
+        System.out.println();
+        System.out.println(cancelResponse);
+        System.out.println();
+        System.out.println();
+
+        return cancelResponse;
     }
 
 
