@@ -6,6 +6,7 @@ import com.green.acamatch.entity.like.LikeIds;
 import com.green.acamatch.entity.popUp.PopUp;
 import com.green.acamatch.like.dto.AcademyLikedUsersDto;
 import com.green.acamatch.like.dto.LikedAcademyDto;
+import com.green.acamatch.like.dto.LikedUserDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,10 +28,19 @@ public interface LikeRepository extends JpaRepository<Like, LikeIds> {
 
     @Query("SELECT new com.green.acamatch.like.dto.AcademyLikedUsersDto(" +
             "a.acaId, a.acaName, " +
-            "(SELECT COUNT(l) FROM Like l WHERE l.academy.acaId = a.acaId)) " +
+            "(SELECT COUNT(l) FROM Like l WHERE l.academy.acaId = a.acaId)) " +  // 좋아요 개수
             "FROM Academy a " +
             "WHERE a.acaId IN :academyIds")
     List<AcademyLikedUsersDto> findAllOwnedAcademyLikes(@Param("academyIds") List<Long> academyIds);
+
+    @Query("SELECT new com.green.acamatch.like.dto.LikedUserDto(" +
+            "l.academy.acaId, u.userId, u.userPic, u.nickName, " +
+            "(SELECT COUNT(l2) FROM Like l2 WHERE l2.academy.acaId = l.academy.acaId)) " +
+            "FROM Like l " +
+            "JOIN l.user u " +
+            "WHERE l.academy.acaId = :academyId")
+    List<LikedUserDto> findLikedUsersByAcademyId(@Param("academyId") Long academyId);
+
 
 
     @Query("SELECT new com.green.acamatch.like.dto.AcademyLikedUsersDto(" +
