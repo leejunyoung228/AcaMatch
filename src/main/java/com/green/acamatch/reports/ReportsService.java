@@ -52,6 +52,11 @@ public class ReportsService {
         reports.setActionType(actionType);
         reports.setExposureEndDate(reports.getUpdatedAt().plusDays(actionType.getDurationDays()));
         reportsRepository.save(reports);
+        if(reports.getReview() != null){
+            Review review = reviewRepository.findById(reports.getReview().getReviewId()).orElse(null);
+            review.setBanReview(1);
+            reviewRepository.save(review);
+        }
         return 1;
     }
 
