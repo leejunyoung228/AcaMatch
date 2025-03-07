@@ -952,9 +952,7 @@ public class ReviewImageService {
     }
 
 
-    /**
-     * 새로운 리뷰 파일 저장 (중복 방지 포함)
-     */
+    // 새로운 리뷰 파일 저장 (중복 방지 포함)
     private void saveNewReviewFiles(Review review, List<MultipartFile> files) {
         // 기존 파일 경로 가져오기 (DB에서 조회)
         List<String> existingFilePaths = reviewPicRepository.findFilePathsByReview(review.getReviewId());
