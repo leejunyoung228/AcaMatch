@@ -177,7 +177,9 @@ public class AcademyService {
             AcademyPic academyPic = new AcademyPic();
             academyPic.setAcademyPicIds(academyPicIds);
             academyPic.setAcademy(academy);
-            picList.add(academyPic);
+            //picList.add(academyPic);
+            academyPicRepository.save(academyPic);
+
             try {
                 myFileUtils.transferTo(pic, filePath);
             } catch (IOException e) {
@@ -186,7 +188,7 @@ public class AcademyService {
                 throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
             }
         }
-        academyPicRepository.saveAll(picList);
+        //academyPicRepository.saveAll(picList);
 
 
 
@@ -217,7 +219,8 @@ public class AcademyService {
                 (req.getAddress() == null || req.getAddress().trim().isEmpty()) &&
                 (req.getDetailAddress() == null || req.getDetailAddress().trim().isEmpty()) &&
                 (req.getPostNum() == null || req.getPostNum().trim().isEmpty()) &&
-                (req.getTagNameList() == null || req.getTagNameList().isEmpty()))
+                (req.getTagNameList() == null || req.getTagNameList().isEmpty()) &&
+                (pics == null || pics.isEmpty()))
         {
             throw new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION);
         }
@@ -258,32 +261,13 @@ public class AcademyService {
         if (req.getLat() != null) academy.setLat(req.getLat());
         if (req.getLon() != null) academy.setLon(req.getLon());
 
-        //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
-        KakaoMapAddress kakaoMapAddressImp = KakaoApiExample.addressSearchMain(req.getAddress());
-
-        // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
-        Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
-        kakaoMapAddressImp.setCityId(cityPk);
-        // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
-        Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
-        kakaoMapAddressImp.setStreetId(streetPk);
-        // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
-        Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
-
-        req.setDongId(dongPk);
-
-
-        //기본주소를 통해 위도, 경도 가져오는 api 메소드 호출
-        KakaoMapAddress kakaoMapAddressXY = KakaoApiExample.addressXY(req.getAddress());
-        req.setLon(kakaoMapAddressXY.getLongitude());
-        req.setLat(kakaoMapAddressXY.getLatitude());
 
 
         //학원사진수정
         if (pics != null && !pics.isEmpty()) {
             academyPicRepository.deleteAcademyPicsByAcaId(acaId);
             String middlePath = String.format(academyConst.getAcademyPicFilePath(), acaId);
-            myFileUtils.deleteFolder(middlePath, false);
+            myFileUtils.deleteFolder(middlePath, true);
             myFileUtils.makeFolders(middlePath);
 
 
@@ -300,6 +284,7 @@ public class AcademyService {
                 academyPicIds.setAcaPic(savedPicName);
 
                 AcademyPic academyPic = new AcademyPic();
+                academyPic.setAcademy(academy);
                 academyPic.setAcademyPicIds(academyPicIds);
                 academyPicRepository.save(academyPic);
                 /*academyPic.setAcademyPicIds(academyPicIds);
@@ -310,7 +295,7 @@ public class AcademyService {
                     myFileUtils.transferTo(pic, filePath);
                 } catch (IOException e) {
                     String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                    myFileUtils.deleteFolder(delFolderPath, false);
+                    myFileUtils.deleteFolder(delFolderPath, true);
                     throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
                 }
             }
