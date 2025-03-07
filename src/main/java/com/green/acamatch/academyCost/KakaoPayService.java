@@ -399,34 +399,54 @@ public class KakaoPayService {
         parameters.put("cid", payProperties.getCid());
         parameters.put("tid", req.getTid());
 
-        AcademyCost academyCost1 = academyCostRepository.findById(Long.valueOf(req.getCostId())).orElse(null);
-        Refund refund = refundRepository.findByCostId(academyCost1);
+        AcademyCost academyCost = academyCostRepository.findById(Long.valueOf(req.getCostId()))
+                .orElseThrow(() -> new RuntimeException("AcademyCost not found"));
+
+        Refund refund = refundRepository.findByCostId(academyCost);
+        if (refund == null) {
+            throw new RuntimeException("Refund record not found");
+        }
+
         refund.setRefundStatus(1);
+        refund.setUpdatedAt(LocalDate.now()); // LocalDateTime 사용 (정확한 시간 기록)
         refundRepository.save(refund);
 
-        AcademyCost academyCost = academyCostRepository.findById(Long.valueOf(req.getCostId())).orElse(null);
         int price = academyCost.getPrice();
-        Product product = productRepository.findById(academyCost.getProductId().getProductId()).orElse(null);
-        if(product.getClassId() != null){
-            AcaClass acaClass = classRepository.findById(product.getClassId().getClassId()).orElse(null);
+        Product product = productRepository.findById(academyCost.getProductId().getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (product.getClassId() != null) {
+            AcaClass acaClass = classRepository.findById(product.getClassId().getClassId())
+                    .orElseThrow(() -> new RuntimeException("Class not found"));
+
             LocalDate startDate = acaClass.getStartDate();
             LocalDate endDate = acaClass.getEndDate();
+            LocalDate refundDate = refund.getCreatedAt(); // 환불 신청 날짜
+
+            // 날짜 차이 계산
             long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
-            LocalDate refundDate = refund.getCreatedAt();
-            long classBetween = ChronoUnit.DAYS.between(refundDate, startDate);
-            double refundClass = classBetween / daysBetween;
-            if(refundClass <= 0){
+            long classBetween = ChronoUnit.DAYS.between(startDate, refundDate); // 수업 시작일부터 환불 신청일까지
+
+            // 수업 시작 전에 환불한 경우, 전액 환불
+            if (classBetween < 0) {
                 parameters.put("cancel_amount", String.format("%d", price));
             }
-            else if(refundClass <= 33.3) {
-                parameters.put("cancel_amount", String.format("%f", price / 0.66));
+
+            // 비율 계산 (double로 변환하여 소수점 유지)
+            double refundRatio = (double) classBetween / daysBetween * 100;
+            int cancelAmount;
+            if (refundRatio <= 0) {
+                parameters.put("cancel_amount", String.format("%d", price)); // 전액 환불
+            } else if (refundRatio <= 33.3) {
+                cancelAmount = price * 2 / 3;
+                parameters.put("cancel_amount", String.format("%d", cancelAmount)); // 2/3 환불
+            } else if (refundRatio <= 50.0) {  // ✅ "<" 대신 "<=" 사용
+                cancelAmount = price / 2;
+                parameters.put("cancel_amount", String.format("%d", cancelAmount)); // 1/2 환불
+            } else {  // ✅ 이제 50 이상이면 여기에 포함됨
+                parameters.put("cancel_amount", "1"); // 환불 불가
             }
-            else if(refundClass >= 33.3 && refundClass < 50.0){
-                parameters.put("cancel_amount", String.format("%f", price/0.5));
-            }
-            else if(refundClass >= 50.0){
-                parameters.put("cancel_amount", String.format("%d", 0));
-            }
+
         }
         parameters.put("cancel_tax_free_amount", "0");
         parameters.put("cancel_vat_amount", "0");
