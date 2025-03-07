@@ -257,6 +257,11 @@
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
         WHERE A.aca_id = #{acaId}
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
     </select>
 
     <!-- 학원 태그 리스트 불러오기 -->
@@ -303,10 +308,16 @@
         A.address,
         U.name,
         AP.aca_pic,
-        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
+        IFNULL(RC.reportsCount, 0) AS reportsCount  -- 신고 수가 없으면 0으로 처리
         FROM academy A
         JOIN academy_pic AP ON A.aca_id = AP.aca_id
         JOIN User U ON A.user_id = U.user_id
+        LEFT JOIN (
+        SELECT R.aca_id, COUNT(R.report_id) AS reportsCount
+        FROM reports R
+        GROUP BY R.aca_id
+        ) RC ON A.aca_id = RC.aca_id  -- 학원별 신고 개수를 LEFT JOIN
         WHERE A.user_id = #{signedUserId}
         GROUP BY A.aca_id;
     </select>
@@ -340,6 +351,11 @@
         ) G ON G.aca_id = A.aca_id
         WHERE 1 = 1
         AND A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
         AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
         <if test="tagName != null and tagName != ''">
@@ -808,6 +824,11 @@
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
         AND A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         ORDER BY R.reviewId DESC;
     </select>
 
@@ -857,6 +878,11 @@
         ) G
         ON G.aca_id = A.aca_id
         WHERE A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         GROUP BY A.aca_id
         ORDER BY RAND()
         LIMIT 0, 5
@@ -904,6 +930,11 @@
         FROM academy A
         WHERE A.premium = 1
         AND A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         ORDER BY RAND()
         LIMIT 0, #{size}
         ), all_academies AS (
@@ -959,6 +990,11 @@
         ) G ON G.aca_id = A.aca_id
         WHERE A.premium = 0  -- 일반 학원 필터링
         AND A.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        )
         GROUP BY A.aca_id
         )
 
