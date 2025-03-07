@@ -11,10 +11,10 @@ public class LikedUserDto {
     private Long userId;
     private String userPic;
     private String nickName;
-    private Integer academyAllLikeCount;
+    private Long academyAllLikeCount;
 
-    // 생성자 추가
-    public LikedUserDto(Long acaId, Long userId, String userPic, String nickName, Integer academyAllLikeCount) {
+    // 올바른 생성자 추가
+    public LikedUserDto(Long acaId, Long userId, String userPic, String nickName, Long academyAllLikeCount) {
         this.acaId = acaId;
         this.userId = userId;
         this.userPic = userPic;
@@ -22,3 +22,4 @@ public class LikedUserDto {
         this.academyAllLikeCount = academyAllLikeCount;
     }
 }
+
