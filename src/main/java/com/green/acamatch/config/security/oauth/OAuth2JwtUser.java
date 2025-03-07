@@ -11,7 +11,7 @@ public class OAuth2JwtUser extends JwtUser {
     private final String email;
     private final String nickName;
     private final String pic;
-    private final SignInProviderType signInProviderType; // ✅ SNS 제공자 추가
+    private final SignInProviderType signInProviderType; // SNS 제공자 추가
     private boolean needMoreData;
 
     public OAuth2JwtUser(String email, String nickName, String pic, long signedUserId,
@@ -21,7 +21,7 @@ public class OAuth2JwtUser extends JwtUser {
         this.nickName = nickName;
         this.pic = pic;
         this.needMoreData = needMoreData;
-        this.signInProviderType = signInProviderType; // ✅ 추가
+        this.signInProviderType = signInProviderType; // 추가
     }
 
     // 회원가입이 완료된 경우 needMoreData 값을 false로 변경하는 메서드

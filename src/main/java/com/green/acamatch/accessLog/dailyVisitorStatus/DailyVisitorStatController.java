@@ -18,6 +18,7 @@ public class DailyVisitorStatController {
 
     private final DailyVisitorStatService dailyVisitorStatService;
     private final MonthlyVisitorStatRepository monthlyVisitorStatRepository;
+    private final VisitorStatsScheduler visitorStatsScheduler;
 
 
     @PostMapping("/track")
@@ -60,5 +61,11 @@ public class DailyVisitorStatController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/test-aggregate-monthly")
+    public ResponseEntity<String> testAggregateMonthly() {
+        visitorStatsScheduler.aggregateMonthlyStats();
+        return ResponseEntity.ok("월간 통계 강제 집계 완료!");
     }
 }
