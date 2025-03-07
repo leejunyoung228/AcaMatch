@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 
@@ -513,7 +514,7 @@ public class ReviewImageService {
 
         // 학원 존재 여부 확인
         List<Long> classIds = mapper.findClassIdByAcaId(req.getAcaId()); // acaId 기준으로 classId 조회
-        log.info("📌 학원(acaId: {})에 속한 클래스 ID 리스트: {}", req.getAcaId(), classIds);
+        log.info(" 학원(acaId: {})에 속한 클래스 ID 리스트: {}", req.getAcaId(), classIds);
 
         if (classIds.isEmpty()) {
             userMessage.setMessage("해당 학원에 등록된 수업이 없습니다.");
@@ -910,7 +911,7 @@ public class ReviewImageService {
 
     // 미디어 파일 저장
     private void saveReviewFiles(Review newReview, List<MultipartFile> files) {
-        String middlePath = String.format("reviews/%s", newReview.getReviewId());
+        String middlePath = String.format("reviews/%s", newReview.getReviewId()); // 리뷰 ID 포함한 폴더 구조 유지
 
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) {
@@ -929,21 +930,34 @@ public class ReviewImageService {
 
             // 파일 저장
             String savedFileName = myFileUtils.makeRandomFileName(file);
+
+            // 혹시라도 전체 경로가 저장될 수 있으므로 파일명만 강제 추출
+            savedFileName = Paths.get(savedFileName).getFileName().toString();
+            if (savedFileName.contains("/")) {
+                savedFileName = savedFileName.substring(savedFileName.lastIndexOf("/") + 1);
+            }
+            if (savedFileName.contains("\\")) {
+                savedFileName = savedFileName.substring(savedFileName.lastIndexOf("\\") + 1);
+            }
+
             String fullPath = filePath + savedFileName;
 
             try {
-                myFileUtils.transferTo(file, fullPath);
+                myFileUtils.transferTo(file, fullPath); // 실제 파일 저장
             } catch (IOException e) {
                 String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
                 myFileUtils.deleteFolder(delFolderPath, true);
                 throw new CustomException(CommonErrorCode.FILE_UPLOAD_FAILED);
             }
 
-            // ReviewPic 저장
+            // ReviewPic 저장 (파일명만 저장)
             ReviewPic reviewPic = new ReviewPic();
             ReviewPicIds reviewPicIds = new ReviewPicIds();
             reviewPicIds.setReviewId(newReview.getReviewId());
-            reviewPicIds.setReviewPic(fullPath);
+
+            log.debug("최종 저장되는 파일명 (DB에 저장될 값): {}", savedFileName); // 확인용 로그
+
+            reviewPicIds.setReviewPic(savedFileName); // 파일명만 저장
             reviewPic.setReviewPicIds(reviewPicIds);
             reviewPic.setReview(newReview);
 
@@ -953,13 +967,20 @@ public class ReviewImageService {
 
 
     // 새로운 리뷰 파일 저장 (중복 방지 포함)
+
     private void saveNewReviewFiles(Review review, List<MultipartFile> files) {
-        // 기존 파일 경로 가져오기 (DB에서 조회)
-        List<String> existingFilePaths = reviewPicRepository.findFilePathsByReview(review.getReviewId());
+        // 기존 저장된 파일명 가져오기 (DB에서 조회)
+        List<String> existingFileNames = reviewPicRepository.findFilePathsByReview(review.getReviewId());
+
+        // 새로운 파일이 없으면 기존 파일 유지 (아무 작업도 하지 않음)
+        if (files == null || files.isEmpty()) {
+            log.info("새로운 파일이 없으므로 기존 파일 유지");
+            return;
+        }
 
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) {
-                continue;
+                continue; // 빈 파일 무시
             }
 
             // 파일 유형 확인
@@ -969,39 +990,45 @@ public class ReviewImageService {
                 return;
             }
 
-            String middlePath = String.format("reviews/%s", review.getReviewId());
+            // 저장할 폴더 경로 (리뷰 ID 없이 파일 유형에 맞게 저장)
             String fileCategory = fileType.startsWith("image") ? "images" : "videos";
-            String filePath = String.format("%s/%s/", middlePath, fileCategory);
-            myFileUtils.makeFolders(filePath);
+            myFileUtils.makeFolders(fileCategory); // 폴더 생성
 
-            // 새로운 파일을 저장할 경로 생성
+            // 랜덤 파일명 생성 (파일명만 저장)
             String savedFileName = myFileUtils.makeRandomFileName(file);
-            String fullPath = filePath + savedFileName;
+            savedFileName = Paths.get(savedFileName).getFileName().toString();
 
-            // 중복 파일 체크 (이미 DB에 존재하는 경우 저장하지 않음)
-            if (existingFilePaths.contains(fullPath)) {
-                log.info("이미 존재하는 파일: {}", fullPath);
+            // 중복 파일 체크 (이미 DB에 저장된 파일명이 있으면 스킵)
+            if (existingFileNames.contains(savedFileName)) {
+                log.info("이미 존재하는 파일: {}", savedFileName);
                 continue;
             }
 
             try {
-                myFileUtils.transferTo(file, fullPath);
+                // 실제 파일을 서버에 저장 (파일명만 사용)
+                String fullSavePath = fileCategory + "/" + savedFileName;
+                myFileUtils.transferTo(file, fullSavePath);
             } catch (IOException e) {
                 userMessage.setMessage("파일 업로드에 실패했습니다.");
                 return;
             }
 
-            // ReviewPic 저장
+            // ReviewPic 엔티티에 "파일명만" 저장 (기존 리뷰 유지)
             ReviewPic reviewPic = new ReviewPic();
             ReviewPicIds reviewPicIds = new ReviewPicIds();
             reviewPicIds.setReviewId(review.getReviewId());
-            reviewPicIds.setReviewPic(fullPath);
+
+            log.debug("최종 저장되는 파일명 (DB에 저장될 값): {}", savedFileName); // 확인용 로그
+
+            reviewPicIds.setReviewPic(savedFileName); // 파일명만 저장!
             reviewPic.setReviewPicIds(reviewPicIds);
             reviewPic.setReview(review);
 
             reviewPicRepository.save(reviewPic);
         }
     }
+
+
 
 
 }

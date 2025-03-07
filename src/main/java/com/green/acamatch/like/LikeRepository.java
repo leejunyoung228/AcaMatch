@@ -35,11 +35,12 @@ public interface LikeRepository extends JpaRepository<Like, LikeIds> {
 
     @Query("SELECT new com.green.acamatch.like.dto.LikedUserDto(" +
             "l.academy.acaId, u.userId, u.userPic, u.nickName, " +
-            "(SELECT COUNT(l2) FROM Like l2 WHERE l2.academy.acaId = l.academy.acaId)) " +
+            "CAST((SELECT COUNT(l2) FROM Like l2 WHERE l2.academy.acaId = l.academy.acaId) AS long)) " +
             "FROM Like l " +
             "JOIN l.user u " +
             "WHERE l.academy.acaId = :academyId")
     List<LikedUserDto> findLikedUsersByAcademyId(@Param("academyId") Long academyId);
+
 
 
 
