@@ -636,6 +636,11 @@
             <result property="banReview" column="banReview"/>
             <result property="roleType" column="roleType"/>
             <result property="joinClassId" column="joinClassId"/>
+            <collection property="reviewPics" ofType="com.green.acamatch.academy.model.HB.ReviewPicDto" javaType="ArrayList" notNullColumn="reviewId">
+                <result property="reviewId" column="reviewId"/>
+                <result property="reviewPic" column="review_pic"/>
+            </collection>
+
         </collection>
         <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
             <result property="bookId" column="bookId"/>
@@ -663,8 +668,10 @@
         C.class_name AS reviewClassName,
         B.join_class_id AS reviewjoin_classId,
         C.aca_id,
-        C.class_id
+        C.class_id,
+        RP.`review_pic`
         FROM review A
+        LEFT JOIN review_pic RP ON A.review_id = RP.review_id
         JOIN join_class B ON A.join_class_id = B.join_class_id
         JOIN aca_class C ON B.class_id = C.class_id
         JOIN user D ON B.user_id = D.user_id
@@ -809,7 +816,8 @@
         COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
         COALESCE(R.reviewClassName, '') AS reviewClassName,
         COALESCE(R.banReview, 0) AS banReview,
-        COALESCE(R.joinClassId, 0) AS joinClassId
+        COALESCE(R.joinClassId, 0) AS joinClassId,
+        COALESCE(R.`review_pic`, '') AS review_pic
 
         FROM academy A
         JOIN academy_pic AP
@@ -828,6 +836,12 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        )
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r1
+        WHERE r1.review_id = R.reviewId
+        AND (r1.exposure_end_date IS NULL OR r1.exposure_end_date > NOW())
         )
         ORDER BY R.reviewId DESC;
     </select>
