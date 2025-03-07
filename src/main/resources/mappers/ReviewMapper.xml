@@ -164,6 +164,7 @@
         r.star AS star,
         r.created_at AS createdAt,
         r.review_id AS reviewId,
+        r.ban_review AS banReview,
         (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
         JOIN join_class j ON r.join_class_id = j.join_class_id
@@ -190,6 +191,7 @@
         r.star AS star,
         r.created_at AS createdAt,
         r.review_id AS reviewId,
+        r.ban_review AS banReview,
         (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
         JOIN join_class j ON r.join_class_id = j.join_class_id
@@ -230,6 +232,7 @@
             u.user_pic AS writerPic,
             u.nick_name AS writerName,
             r.review_id AS reviewId,
+            r.ban_review AS banReview,
             (SELECT COUNT(*) AS totalReviewCount
             FROM review r
             JOIN join_class j ON r.join_class_id = j.join_class_id
