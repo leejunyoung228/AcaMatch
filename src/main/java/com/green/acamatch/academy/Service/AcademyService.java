@@ -206,6 +206,22 @@ public class AcademyService {
     //학원정보수정
     @Transactional
     public int updAcademy(List<MultipartFile> pics, AcademyUpdateReq req) {
+        //아무것도 입력안했을 때 예외처리.
+        if ((pics == null || pics.toString().trim().isEmpty()) &&
+                (req.getAcaName() == null || req.getAcaName().trim().isEmpty()) &&
+                (req.getAcaPhone() == null || req.getAcaPhone().trim().isEmpty()) &&
+                (req.getComment() == null || req.getComment().trim().isEmpty()) &&
+                (req.getTeacherNum() == null) && // int 타입은 null 체크 불필요
+                (req.getOpenTime() == null) &&
+                (req.getCloseTime() == null) &&
+                (req.getAddress() == null || req.getAddress().trim().isEmpty()) &&
+                (req.getDetailAddress() == null || req.getDetailAddress().trim().isEmpty()) &&
+                (req.getPostNum() == null || req.getPostNum().trim().isEmpty()) &&
+                (req.getTagNameList() == null || req.getTagNameList().isEmpty()))
+        {
+            throw new CustomException(AcademyException.MISSING_UPDATE_FILED_EXCEPTION);
+        }
+
         Academy academy = academyRepository.findById(req.getAcaId()).orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
         long acaId = academy.getAcaId();
 
@@ -215,13 +231,52 @@ public class AcademyService {
         if (req.getTeacherNum() != null) academy.setTeacherNum(req.getTeacherNum());
         if (req.getOpenTime() != null) academy.setOpenTime(req.getOpenTime());
         if (req.getCloseTime() != null) academy.setCloseTime(req.getCloseTime());
-        if (req.getAddress() != null) academy.setAddress(req.getAddress());
+        if (req.getAddress() != null) {
+            academy.setAddress(req.getAddress());
+            //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
+            KakaoMapAddress kakaoMapAddressImp = KakaoApiExample.addressSearchMain(req.getAddress());
+
+            // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
+            Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
+            kakaoMapAddressImp.setCityId(cityPk);
+            // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
+            Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
+            kakaoMapAddressImp.setStreetId(streetPk);
+            // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+            Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
+            academy.setDongId(dongPk);
+
+            //기본주소를 통해 위도, 경도 가져오는 api 메소드 호출
+            KakaoMapAddress kakaoMapAddressXY = KakaoApiExample.addressXY(req.getAddress());
+            academy.setLon(kakaoMapAddressXY.getLongitude());
+            academy.setLat(kakaoMapAddressXY.getLatitude());
+        }
         if (req.getDetailAddress() != null) academy.setDetailAddress(req.getDetailAddress());
         if (req.getPostNum() != null) academy.setPostNum(req.getPostNum());
         if (req.getAcaAgree() != null) academy.setAcaAgree(req.getAcaAgree());
         if (req.getPremium() != null) academy.setPremium(req.getPremium());
         if (req.getLat() != null) academy.setLat(req.getLat());
         if (req.getLon() != null) academy.setLon(req.getLon());
+
+        //기본주소를 통해 지번(동)이름 가져오는 api 메소드 호출
+        KakaoMapAddress kakaoMapAddressImp = KakaoApiExample.addressSearchMain(req.getAddress());
+
+        // 가져온 지번(시) 이름과 매칭되는 시 pk 번호를 select
+        Long cityPk = academyMapper.selAddressCity(kakaoMapAddressImp);
+        kakaoMapAddressImp.setCityId(cityPk);
+        // 가져온 지번(구) 이름과 매칭되는 구 pk 번호를 select
+        Long streetPk = academyMapper.selAddressStreet(kakaoMapAddressImp);
+        kakaoMapAddressImp.setStreetId(streetPk);
+        // 가져온 지번(동) 이름과 매칭되는 동 pk 번호를 select
+        Long dongPk = academyMapper.selAddressDong(kakaoMapAddressImp);
+
+        req.setDongId(dongPk);
+
+
+        //기본주소를 통해 위도, 경도 가져오는 api 메소드 호출
+        KakaoMapAddress kakaoMapAddressXY = KakaoApiExample.addressXY(req.getAddress());
+        req.setLon(kakaoMapAddressXY.getLongitude());
+        req.setLat(kakaoMapAddressXY.getLatitude());
 
 
         //학원사진수정
@@ -269,6 +324,7 @@ public class AcademyService {
         ;
 
         academyMessage.setMessage("학원정보수정이 완료되었습니다.");
+
         academyRepository.save(academy);
         return 1;
     }
