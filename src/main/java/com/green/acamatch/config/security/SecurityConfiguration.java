@@ -47,6 +47,7 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.DELETE, "/api/review/academy").hasRole(UserRole.ACADEMY.name())
                                 .requestMatchers(HttpMethod.GET, "/api/review/my-academy").hasAnyRole(UserRole.ACADEMY.name())
                                 .requestMatchers("/api/academy").hasRole(UserRole.ACADEMY.name())
+                                .requestMatchers(HttpMethod.POST, "/api/visitor/track").permitAll()
                                 .anyRequest().permitAll()
                 )
                 .oauth2Login( oauth2 -> oauth2.authorizationEndpoint( auth -> auth.baseUri( globalOauth2.getBaseUri() )
