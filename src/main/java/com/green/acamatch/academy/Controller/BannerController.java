@@ -6,6 +6,7 @@ import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kotlinx.serialization.Required;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -85,6 +86,16 @@ public class BannerController {
         return ResultResponse.<List<BannerGetRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(res)
+                .build();
+    }
+
+    @PutMapping("pic")
+    @Operation(summary = "배너 사진 수정")
+    public ResultResponse<Integer> updBanner(@RequestPart MultipartFile pic, @RequestPart BannerUpdateReq req) {
+        int result = bannerService.updBanner(pic, req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(result)
                 .build();
     }
 
