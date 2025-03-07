@@ -641,10 +641,6 @@ public class ReviewService {
 
 
 
-
-
-
-
 //    // 리뷰 삭제 (학원 관계자)
 //    @Transactional
 //    public int deleteReviewByAcademy(ReviewDelMyacademyReq req) {

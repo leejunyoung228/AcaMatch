@@ -16,13 +16,13 @@ import java.util.List;
 @Repository
 public interface LikeRepository extends JpaRepository<Like, LikeIds> {
 
-    @Query("SELECT new com.green.acamatch.like.dto.LikedAcademyDto(" +
-            "a.acaId, a.acaName, " +
-            "(SELECT COUNT(l2) FROM Like l2 WHERE l2.likeIds.userId = :userId), " +
-            "(SELECT COUNT(l3) FROM Like l3 WHERE l3.academy.acaId = a.acaId)) " +
-            "FROM Like l JOIN l.academy a " +
-            "WHERE l.likeIds.userId = :userId")
-    List<LikedAcademyDto> findLikedAcademiesByUserId(@Param("userId") Long userId);
+    @Query("SELECT new com.green.acamatch.like.dto.LikedAcademyDto("
+            + "a.acaId, a.acaName, "
+            + "(SELECT COUNT(1) FROM Like l WHERE l.likeIds.userId = :userId AND l.likeIds.acaId = a.acaId), "
+            + "(SELECT COUNT(1) FROM Like l WHERE l.likeIds.acaId = a.acaId)) "
+            + "FROM Academy a WHERE a.acaId IN :academyIds")
+    List<LikedAcademyDto> findLikedAcademiesByUserId(@Param("userId") Long userId, @Param("academyIds") List<Long> academyIds);
+
 
 
     @Query("SELECT new com.green.acamatch.like.dto.AcademyLikedUsersDto(" +
@@ -39,4 +39,8 @@ public interface LikeRepository extends JpaRepository<Like, LikeIds> {
             "WHERE a.acaId IN :academyIds " +
             "GROUP BY a.acaId, a.acaName")
     List<AcademyLikedUsersDto> findAcademiesWithLikeCounts(@Param("academyIds") List<Long> academyIds);
+
+    @Query("SELECT l.likeIds.acaId FROM Like l WHERE l.likeIds.userId = :userId")
+    List<Long> findLikedAcademyIdsByUserId(@Param("userId") Long userId);
+
 }
