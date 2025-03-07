@@ -55,7 +55,7 @@ public class DailyVisitorStatController {
         System.out.println("월간 방문자 통계 조회 요청: " + yearMonth);
 
         YearMonth targetMonth = YearMonth.parse(yearMonth);
-        Optional<MonthlyVisitorStat> monthlyStat = monthlyVisitorStatRepository.findByMonth(targetMonth);
+        Optional<MonthlyVisitorStat> monthlyStat = monthlyVisitorStatRepository.findFirstByMonthOrderByIdDesc(targetMonth);
 
         if (monthlyStat.isPresent()) {
             Map<String, Object> response = new HashMap<>();
