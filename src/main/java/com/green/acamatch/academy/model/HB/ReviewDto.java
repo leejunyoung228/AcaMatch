@@ -1,10 +1,10 @@
 package com.green.acamatch.academy.model.HB;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,5 +20,6 @@ public class ReviewDto {
     private int banReview;
     private String roleType;
     private long joinClassId;
+    private List<ReviewPicDto> reviewPics;
 }
 

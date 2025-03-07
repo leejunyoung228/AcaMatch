@@ -8,7 +8,7 @@
     <select id="isUserAuthorOfReview">
         SELECT COUNT(*)
         FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
+        JOIN join_class j ON r.join_class_id = j.join_class_id
         WHERE j.user_id = #{userId}
         AND r.review_id IN
         <foreach collection="reviewIds" item="reviewId" open="(" separator="," close=")">
@@ -19,7 +19,7 @@
     <!-- join_class_id 존재여부 -->
     <select id="isValidJoinClassId">
         SELECT COUNT(*)
-        FROM joinclass
+        FROM join_class
         WHERE join_class_id = #{joinClassId};
     </select>
 
@@ -33,7 +33,7 @@
     <!-- 수업 참여 인증 여부 확인 -->
     <select id="checkEnrollment">
         SELECT COUNT(*)
-        FROM joinclass
+        FROM join_class
         WHERE class_id = #{classId}
         AND user_id = #{userId}
         AND certification = 1;
@@ -45,11 +45,11 @@
         INSERT INTO review (join_class_id, comment, star)
         VALUES (
         (SELECT j.join_class_id
-        FROM joinclass j
+        FROM join_class j
         WHERE j.user_id = #{userId}
         AND j.class_id IN (
         SELECT c.class_id
-        FROM class c
+        FROM aca_class c
         WHERE c.aca_id = #{acaId}
         )
         LIMIT 1),
@@ -65,10 +65,10 @@
         WHERE review_id = (
         SELECT review_id
         FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
+        JOIN join_class j ON r.join_class_id = j.join_class_id
         WHERE j.class_id IN (
         SELECT class_id
-        FROM class
+        FROM aca_class
         WHERE aca_id = #{acaId}
         )
         AND j.user_id = #{userId}
@@ -80,8 +80,8 @@
     <!-- 특정 유저가 특정 수업(join_class_id)에 대한 리뷰를 이미 작성했는지 확인 -->
     <select id="checkExistingReview">
         SELECT COUNT(*) FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
-        JOIN class c ON j.class_id = c.class_id
+        JOIN join_class j ON r.join_class_id = j.join_class_id
+        JOIN aca_class c ON j.class_id = c.class_id
         WHERE c.aca_id = #{acaId}
         AND j.user_id = #{userId}
     </select>
@@ -91,8 +91,8 @@
     <delete id="deleteReviewByAcademy">
         DELETE r
         FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
-        JOIN class c ON j.class_id = c.class_id
+        JOIN join_class j ON r.join_class_id = j.join_class_id
+        JOIN aca_class c ON j.class_id = c.class_id
         WHERE r.review_id = #{reviewId}
         AND c.aca_id = #{acaId}
     </delete>
@@ -115,7 +115,7 @@
 
     <select id="checkClassExists">
         SELECT COUNT(*)
-        FROM class
+        FROM aca_class
         WHERE class_id = #{classId};
     </select>
 
@@ -133,18 +133,18 @@
         JOIN user u ON a.user_id = u.user_id
         WHERE a.aca_id = #{acaId}
         AND u.user_id = #{userId}
-        AND u.role_id = 3;
+        AND u.user_role = 3;
     </select>
 
     <!-- 학원 ID와 리뷰 ID 간의 연관성 확인 -->
     <select id="isReviewLinkedToAcademy">
         SELECT COUNT(*)
         FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
+        JOIN join_class j ON r.join_class_id = j.join_class_id
         WHERE r.join_class_id = #{joinClassId}
         AND j.class_id IN (
         SELECT class_id
-        FROM class
+        FROM aca_class
         WHERE aca_id = #{acaId}
         );
     </select>
@@ -166,8 +166,8 @@
         r.review_id AS reviewId,
         (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
-        JOIN class c ON j.class_id = c.class_id
+        JOIN join_class j ON r.join_class_id = j.join_class_id
+        JOIN aca_class c ON j.class_id = c.class_id
         LEFT JOIN academy a ON c.aca_id = a.aca_id
         JOIN user u ON j.user_id = u.user_id
         WHERE a.user_id = #{userId}
@@ -192,8 +192,8 @@
         r.review_id AS reviewId,
         (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
-        JOIN class c ON j.class_id = c.class_id
+        JOIN join_class j ON r.join_class_id = j.join_class_id
+        JOIN aca_class c ON j.class_id = c.class_id
         JOIN academy a ON c.aca_id = a.aca_id
         JOIN user u ON j.user_id = u.user_id
         WHERE a.aca_id = #{acaId}
@@ -232,14 +232,14 @@
             r.review_id AS reviewId,
             (SELECT COUNT(*) AS totalReviewCount
             FROM review r
-            JOIN joinclass j ON r.join_class_id = j.join_class_id
+            JOIN join_class j ON r.join_class_id = j.join_class_id
             WHERE j.user_id = #{userId}) AS myReviewCount
             FROM
             review r
             JOIN
-            joinclass j ON r.join_class_id = j.join_class_id
+            join_class j ON r.join_class_id = j.join_class_id
             JOIN
-            class c ON j.class_id = c.class_id
+            aca_class c ON j.class_id = c.class_id
             JOIN
             academy a ON c.aca_id = a.aca_id
             JOIN
@@ -265,41 +265,41 @@
     <!-- classId와 userId로 joinClassId 찾기 -->
     <select id="findJoinClassIdByAcademyAndUser">
         SELECT j.join_class_id
-        FROM joinclass j
-        JOIN class c ON j.class_id = c.class_id
+        FROM join_class j
+        JOIN aca_class c ON j.class_id = c.class_id
         WHERE c.aca_id = #{acaId}
         AND j.user_id = #{userId}
         AND certification = 1;
     </select>
 
     <select id="findClassIdByAcaId">
-        SELECT class_id FROM class WHERE aca_id = #{acaId};
+        SELECT class_id FROM aca_class WHERE aca_id = #{acaId};
     </select>
 
     <select id="findAcademyIdByReviewId">
         SELECT c.aca_id
         FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
-        JOIN class c ON j.class_id = c.class_id
+        JOIN join_class j ON r.join_class_id = j.join_class_id
+        JOIN aca_class c ON j.class_id = c.class_id
         WHERE r.review_id = #{reviewId}
     </select>
 
     <select id="getReviewIdsByAcaIdAndUser">
         SELECT r.review_id
         FROM review r
-        JOIN joinclass j ON r.join_class_id = j.join_class_id
-        JOIN class c ON j.class_id = c.class_id
+        JOIN join_class j ON r.join_class_id = j.join_class_id
+        JOIN aca_class c ON j.class_id = c.class_id
         WHERE c.aca_id = #{acaId}
         AND j.user_id = #{userId}
         AND r.join_class_id IN (
         SELECT j2.join_class_id
-        FROM joinclass j2
+        FROM join_class j2
         WHERE j2.user_id = #{userId}
         );
     </select>
     <select id="checkEnrollmentByClassIds">
         SELECT COUNT(*)
-        FROM joinclass
+        FROM join_class
         WHERE class_id IN
         <foreach collection="classIds" item="classId" open="(" separator="," close=")">
             #{classId}

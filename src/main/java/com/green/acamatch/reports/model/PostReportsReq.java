@@ -17,6 +17,9 @@ public class PostReportsReq {
     @Schema(title = "신고 당한 학원 PK", description = "학원이 신고 당했다면 이걸로 하시면 됩니다.")
     private Long acaId;
 
+    @Schema(title = "신고 당한 리뷰 PK", description = "리뷰가 신고 당했다면 이걸로 하시면 됩니다.")
+    private Long reviewId;
+
     @Schema(title = "신고 사유")
     private ReportsType reportsType;
 }
