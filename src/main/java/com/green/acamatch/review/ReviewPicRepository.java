@@ -20,7 +20,6 @@ public interface ReviewPicRepository extends JpaRepository<ReviewPic, ReviewPicI
     void deleteByReview(Review review);
 
 
-    // 특정 리뷰에 속한 모든 파일 경로 가져오기
     @Query("SELECT rp.reviewPicIds.reviewPic FROM ReviewPic rp WHERE rp.reviewPicIds.reviewId = :reviewId")
     List<String> findFilePathsByReview(@Param("reviewId") Long reviewId);
 
