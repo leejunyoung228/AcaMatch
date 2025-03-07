@@ -2,6 +2,7 @@ package com.green.acamatch.reports;
 
 import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.entity.academy.Academy;
+import com.green.acamatch.entity.reports.ActionType;
 import com.green.acamatch.entity.reports.Reports;
 import com.green.acamatch.entity.reports.ReportsType;
 import com.green.acamatch.entity.user.User;
@@ -35,6 +36,20 @@ public class ReportsService {
         reports.setProcessingStatus(0);
         reports.setReportsType(req.getReportsType());
         reportsRepository.save(reports);
+        return 1;
+    }
+
+    public int updateReports(long reportsId, ActionType actionType){
+        Reports reports = reportsRepository.findById(reportsId).orElse(null);
+        reports.setProcessingStatus(1);
+        reports.setActionType(actionType);
+        reportsRepository.save(reports);
+        return 1;
+    }
+
+    public int deleteReports(long reportsId){
+        Reports reports = reportsRepository.findById(reportsId).orElse(null);
+        reportsRepository.delete(reports);
         return 1;
     }
 }
