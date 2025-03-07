@@ -9,6 +9,7 @@ import com.green.acamatch.entity.like.LikeIds;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.like.dto.AcademyLikedUsersDto;
 import com.green.acamatch.like.dto.LikedAcademyDto;
+import com.green.acamatch.like.dto.LikedUserDto;
 import com.green.acamatch.like.model.*;
 import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -162,27 +163,26 @@ public class LikeService {
      * 학원 관계자가 소유한 모든 학원의 좋아요 유저 목록 조회
      */
     public List<AcademyLikedUsersDto> getAllOwnedAcademyLikes(AcaLikedUserGetReq req) {
-        Long userId = AuthenticationFacade.getSignedUserId();
-
-        // userId가 없으면 예외 처리
-        if (userId == null) {
-            throw new CustomException(ManagerErrorCode.UNAUTHORIZED_ACCESS);
-        }
+        long userId = AuthenticationFacade.getSignedUserId();
+        log.debug("현재 로그인한 유저 ID: {}", userId);
 
         // 학원 관계자인지 확인
         List<Long> ownedAcademyIds = getOwnedAcademyIds(userId);
-
-        if (ownedAcademyIds == null || ownedAcademyIds.isEmpty()) {
+        if (ownedAcademyIds.isEmpty()) {
+            log.warn("학원 관계자가 아님 → 조회 불가: userId={}", userId);
             throw new CustomException(ReviewErrorCode.NOT_ACADEMY_MANAGER);
         }
 
-        // 검증 완료 후 요청 실행
-        req.setUserId(userId);
-
-        // 학원이 존재하는 경우에만 쿼리 실행
+        // 학원 정보 조회
         List<AcademyLikedUsersDto> likedAcademies = likeRepository.findAllOwnedAcademyLikes(ownedAcademyIds);
 
-        if (likedAcademies == null || likedAcademies.isEmpty()) {
+        // 각 학원마다 likedUsers 추가
+        for (AcademyLikedUsersDto dto : likedAcademies) {
+            List<LikedUserDto> likedUsers = likeRepository.findLikedUsersByAcademyId(dto.getAcaId());
+            dto.setLikedUsers(likedUsers); // likedUsers 추가
+        }
+
+        if (likedAcademies.isEmpty()) {
             userMessage.setMessage("소유한 학원에서 좋아요한 유저가 없습니다.");
             return Collections.emptyList();
         }
