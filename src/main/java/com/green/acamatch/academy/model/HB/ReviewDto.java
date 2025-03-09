@@ -27,6 +27,7 @@ public class ReviewDto {
     private int banReview;
     private Integer roleType; // Integer 타입으로 변경 (필요 시 ENUM으로 변경 가능)
     private long joinClassId;
+    private long classId;
 
     // 기본적으로 빈 리스트로 초기화하여 NullPointerException 방지
     private List<ReviewPicDto> reviewPics = new ArrayList<>();
