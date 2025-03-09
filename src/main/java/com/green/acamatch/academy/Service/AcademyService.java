@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static kotlin.reflect.jvm.internal.impl.builtins.StandardNames.FqNames.iterator;
@@ -709,22 +710,37 @@ public class AcademyService {
     }
 
     //학원 상세 모든 정보 보기
+    @Transactional
     public GetAcademyDetailRes getAcademyDetail(GetAcademyDetailReq p) {
+        // 학원 상세 정보 조회
         GetAcademyDetailRes res = academyMapper.getAcademyWithClasses(p);
 
         if (res == null) {
             academyMessage.setMessage("상세 정보 불러오기 실패");
-            return null;
+            return new GetAcademyDetailRes(); // 빈 객체 반환
         }
 
-        if (res.getClasses() == null || res.getClasses().isEmpty()) {
-            res.setClasses(res.getClasses()); // classes 필드를 아예 제거 (필요 시 JSON 직렬화 시 무시 가능)
+        // 클래스 정보가 없을 경우 빈 리스트로 설정
+        if (res.getClasses() == null) {
+            res.setClasses(Collections.emptyList());
         }
+
+        // 일반 리뷰 및 미디어 포함 리뷰 조회
+        List<GeneralReviewDto> generalReviews = academyMapper.getGeneralReviews(p);
+        List<MediaReviewDto> mediaReviews = academyMapper.getMediaReviews(p);
+
+        res.setGeneralReviews(generalReviews);
+        res.setMediaReviews(mediaReviews);
+
+        // 리뷰 개수 계산
+        int generalReviewCount = generalReviews.size();
+        int mediaReviewCount = mediaReviews.size();
+        res.setGeneralReviewCount(generalReviewCount);
+        res.setMediaReviewCount(mediaReviewCount);
+        res.setReviewCount(generalReviewCount + mediaReviewCount); // 총 리뷰 개수 설정
 
         academyMessage.setMessage("상세 정보 불러오기 성공");
         return res;
-
-
     }
 
 
