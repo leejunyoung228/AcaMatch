@@ -6,6 +6,9 @@ import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
 import com.green.acamatch.entity.tag.Tag;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -65,6 +68,10 @@ public interface AcademyMapper {
     int postToSearch(Integer tagId);
 
     GetAcademyDetailRes getAcademyWithClasses(GetAcademyDetailReq p);
+    
+    List<GeneralReviewDto> getGeneralReviews(GetAcademyDetailReq p);
+
+    List<MediaReviewDto> getMediaReviews(GetAcademyDetailReq p);
 
     List<GetAcademyRandomRes> getAcademyListRandom();
 
