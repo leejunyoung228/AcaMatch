@@ -837,6 +837,7 @@
         <result property="reviewUserId" column="reviewUserId"/>
         <result property="reviewUserNickName" column="reviewUserNickName"/>
         <result property="reviewClassName" column="reviewClassName"/>
+        <result property="writerPic" column="writerPic"/>
         <result property="joinClassId" column="joinClassId"/>
         <result property="banReview" column="banReview"/>
     </resultMap>
@@ -852,6 +853,7 @@
             A.join_class_id AS joinClassId,
             B.user_id AS reviewUserId,
             D.nick_name AS reviewUserNickName,
+            D.user_pic AS writerPic,
             C.class_name AS reviewClassName,
             C.aca_id,
             C.class_id
@@ -876,6 +878,7 @@
         <result property="reviewUserId" column="reviewUserId"/>
         <result property="reviewUserNickName" column="reviewUserNickName"/>
         <result property="reviewClassName" column="reviewClassName"/>
+        <result property="writerPic" column="writerPic"/>
         <result property="joinClassId" column="joinClassId"/>
         <result property="banReview" column="banReview"/>
         <result property="reviewPics" column="reviewPics" typeHandler="com.green.acamatch.config.model.StringToListTypeHandler"/>  <!-- String -> List 변환 -->
@@ -894,21 +897,23 @@
         A.join_class_id AS joinClassId,
         B.user_id AS reviewUserId,
         D.nick_name AS reviewUserNickName,
+        D.user_pic AS writerPic,  -- 작성자 프로필 사진 추가
         C.class_name AS reviewClassName,
         C.aca_id,
         C.class_id,
-        GROUP_CONCAT(DISTINCT RP.review_pic ORDER BY RP.review_pic ASC SEPARATOR ',') AS reviewPics  -- 쉼표 구분된 문자열로 변환
+        GROUP_CONCAT(DISTINCT RP.review_pic ORDER BY RP.review_pic ASC SEPARATOR ',') AS reviewPics
         FROM review A
         JOIN join_class B ON A.join_class_id = B.join_class_id
         JOIN aca_class C ON B.class_id = C.class_id
-        JOIN user D ON B.user_id = D.user_id
+        JOIN user D ON B.user_id = D.user_id  -- `user_pic`을 가져오는 JOIN 추가
         JOIN review_pic RP ON A.review_id = RP.review_id
         WHERE C.aca_id = #{acaId}
-        GROUP BY A.review_id  -- reviewId 기준으로 그룹화
+        GROUP BY A.review_id, D.user_pic  -- `user_pic`도 GROUP BY 해야 함
         )
         SELECT * FROM MediaReviews
         ORDER BY reviewId DESC
         LIMIT #{mediaStartIdx}, #{size};
+
     </select>
 
 

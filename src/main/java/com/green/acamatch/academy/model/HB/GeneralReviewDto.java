@@ -1,5 +1,6 @@
 package com.green.acamatch.academy.model.HB;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,4 +17,6 @@ public class GeneralReviewDto {
     private String reviewClassName;
     private long joinClassId;
     private int banReview;
+    private String writerPic;
+
 }
