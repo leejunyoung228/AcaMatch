@@ -623,25 +623,7 @@
             <result property="classCategoryName" column="classCategoryName"/>
             <result property="userCertification" column="userCertification"/>
         </collection>
-<!--        &lt;!&ndash; 리뷰 정보 매핑 (하위 리스트) &ndash;&gt;-->
-<!--        <collection property="reviews" ofType="com.green.acamatch.academy.model.HB.ReviewDto" javaType="ArrayList" notNullColumn="reviewId">-->
-<!--            <result property="comment" column="reviewComment"/>-->
-<!--            <result property="star" column="reviewStar"/>-->
-<!--            <result property="reviewId" column="reviewId"/>-->
-<!--            <result property="createdAt" column="reviewCreatedAt"/>-->
-<!--            <result property="updatedAt" column="reviewUpdatedAt"/>-->
-<!--            <result property="userId" column="reviewUserId"/>-->
-<!--            <result property="nickName" column="reviewUserNickName"/>-->
-<!--            <result property="className" column="reviewClassName"/>-->
-<!--            <result property="banReview" column="banReview"/>-->
-<!--            <result property="roleType" column="roleType"/>-->
-<!--            <result property="joinClassId" column="joinClassId"/>-->
-<!--            <collection property="reviewPics" ofType="com.green.acamatch.academy.model.HB.ReviewPicDto" javaType="ArrayList" notNullColumn="reviewId">-->
-<!--                <result property="reviewId" column="reviewId"/>-->
-<!--                <result property="reviewPic" column="review_pic"/>-->
-<!--            </collection>-->
 
-<!--        </collection>-->
         <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
             <result property="bookId" column="bookId"/>
             <result property="bookName" column="bookName"/>
@@ -826,8 +808,8 @@
         WHERE r.aca_id = A.aca_id
         )
         LIMIT #{startIdx}, #{size};
-
     </select>
+
     <resultMap id="GeneralReviewResultMap" type="com.green.acamatch.academy.model.HB.GeneralReviewDto">
         <id property="reviewId" column="reviewId"/>
         <result property="reviewComment" column="reviewComment"/>
@@ -840,34 +822,37 @@
         <result property="writerPic" column="writerPic"/>
         <result property="joinClassId" column="joinClassId"/>
         <result property="banReview" column="banReview"/>
+        <result property="classId" column="classId"/>
     </resultMap>
-        <select id="getGeneralReviews" resultMap="GeneralReviewResultMap">
-            WITH GeneralReviews AS (
-            SELECT
-            A.comment AS reviewComment,
-            A.star AS reviewStar,
-            A.created_at AS reviewCreatedAt,
-            A.updated_at AS reviewUpdatedAt,
-            A.review_id AS reviewId,
-            A.ban_review AS banReview,
-            A.join_class_id AS joinClassId,
-            B.user_id AS reviewUserId,
-            D.nick_name AS reviewUserNickName,
-            D.user_pic AS writerPic,
-            C.class_name AS reviewClassName,
-            C.aca_id,
-            C.class_id
-            FROM review A
-            JOIN join_class B ON A.join_class_id = B.join_class_id
-            JOIN aca_class C ON B.class_id = C.class_id
-            JOIN user D ON B.user_id = D.user_id
-            LEFT JOIN review_pic RP ON A.review_id = RP.review_id
-            WHERE C.aca_id = #{acaId} AND RP.review_id IS NULL
-            )
-            SELECT * FROM GeneralReviews  -- 메인 쿼리 추가!
-            ORDER BY reviewId DESC
-            LIMIT #{generalStartIdx}, #{size};
-        </select>
+
+    <select id="getGeneralReviews" resultMap="GeneralReviewResultMap">
+        WITH GeneralReviews AS (
+        SELECT
+        A.comment AS reviewComment,
+        A.star AS reviewStar,
+        A.created_at AS reviewCreatedAt,
+        A.updated_at AS reviewUpdatedAt,
+        A.review_id AS reviewId,
+        A.ban_review AS banReview,
+        A.join_class_id AS joinClassId,
+        B.user_id AS reviewUserId,
+        D.nick_name AS reviewUserNickName,
+        D.user_pic AS writerPic,
+        C.class_name AS reviewClassName,
+        C.aca_id,
+        B.class_id AS classId  -- join_class의 class_id 사용
+        FROM review A
+        JOIN join_class B ON A.join_class_id = B.join_class_id
+        JOIN aca_class C ON B.class_id = C.class_id  -- INNER JOIN으로 변경
+        JOIN user D ON B.user_id = D.user_id
+        LEFT JOIN review_pic RP ON A.review_id = RP.review_id
+        WHERE C.aca_id = #{acaId} AND RP.review_id IS NULL
+        )
+        SELECT * FROM GeneralReviews
+        ORDER BY reviewId DESC
+        LIMIT #{generalStartIdx}, #{size};
+    </select>
+
 
     <resultMap id="MediaReviewResultMap" type="com.green.acamatch.academy.model.HB.MediaReviewDto">
         <id property="reviewId" column="reviewId"/>
@@ -881,6 +866,7 @@
         <result property="writerPic" column="writerPic"/>
         <result property="joinClassId" column="joinClassId"/>
         <result property="banReview" column="banReview"/>
+        <result property="classId" column="classId"/>
         <result property="reviewPics" column="reviewPics" typeHandler="com.green.acamatch.config.model.StringToListTypeHandler"/>  <!-- String -> List 변환 -->
     </resultMap>
 
@@ -897,24 +883,24 @@
         A.join_class_id AS joinClassId,
         B.user_id AS reviewUserId,
         D.nick_name AS reviewUserNickName,
-        D.user_pic AS writerPic,  -- 작성자 프로필 사진 추가
+        D.user_pic AS writerPic,
         C.class_name AS reviewClassName,
         C.aca_id,
-        C.class_id,
+        B.class_id AS classId,
         GROUP_CONCAT(DISTINCT RP.review_pic ORDER BY RP.review_pic ASC SEPARATOR ',') AS reviewPics
         FROM review A
         JOIN join_class B ON A.join_class_id = B.join_class_id
         JOIN aca_class C ON B.class_id = C.class_id
-        JOIN user D ON B.user_id = D.user_id  -- `user_pic`을 가져오는 JOIN 추가
+        JOIN user D ON B.user_id = D.user_id
         JOIN review_pic RP ON A.review_id = RP.review_id
         WHERE C.aca_id = #{acaId}
-        GROUP BY A.review_id, D.user_pic  -- `user_pic`도 GROUP BY 해야 함
+        GROUP BY A.review_id, D.user_pic, B.class_id
         )
         SELECT * FROM MediaReviews
         ORDER BY reviewId DESC
         LIMIT #{mediaStartIdx}, #{size};
-
     </select>
+
 
 
 

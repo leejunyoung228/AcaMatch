@@ -18,5 +18,6 @@ public class GeneralReviewDto {
     private long joinClassId;
     private int banReview;
     private String writerPic;
+    private long classId;
 
 }

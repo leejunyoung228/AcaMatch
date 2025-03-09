@@ -25,4 +25,5 @@ public class MediaReviewDto {
     private int banReview;
     private List<String> reviewPics;
     private String writerPic;
+    private long classId;
 }
