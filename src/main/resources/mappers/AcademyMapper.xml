@@ -960,7 +960,7 @@
         )
         GROUP BY A.aca_id
         ORDER BY RAND()
-        LIMIT 0, 100
+        LIMIT 0, 5
     </select>
 
     <select id="getAcademyListByStudent">
