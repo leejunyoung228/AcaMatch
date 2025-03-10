@@ -46,20 +46,17 @@ public class StudentGradeService {
     private final GradeRepository gradeRepository;
     private final MyFileUtils myFileUtils;
     private final JoinClassRepository joinClassRepository;
-    private final ClassRepository classRepository;
-    private final UserRepository userRepository;
     private final ExamRepository examRepository;
     private final EmailConst emailConst;
 
-    @Value("${file.directory}")
+    @Value("${excel.path}")
     private String filePath;
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public String exportToExcel(Long examId) {
-        Path excelFilePath = Paths.get(filePath, "student_grades/studentGrade.xlsx");
+        Path excelFilePath = Paths.get(filePath, "/student_grades/studentGrade.xlsx");
         log.info("Excel file path: {}", excelFilePath);
         myFileUtils.makeFolders(excelFilePath.getParent().toString());
-
         try {
             Files.createDirectories(excelFilePath.getParent());
         } catch (IOException e) {
@@ -157,7 +154,7 @@ public class StudentGradeService {
             log.info("엑셀 파일 저장 경로 : {}", excelFilePath);
             Resource fileResource  = new FileSystemResource(excelFilePath.toFile());
 
-            String url = String.format("%s/xlsx/student_grades/studentGrade.xlsx", emailConst.getBaseUrl());
+            String url = String.format("%s/xlsx/student_grades/studentGrade.xlsx", emailConst.getBaseUrl(), examId);
             return url;
 
         } catch (Exception e) {
