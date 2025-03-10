@@ -629,6 +629,7 @@
             <result property="classDay" column="classDay"/>
             <result property="classCategoryName" column="classCategoryName"/>
             <result property="userCertification" column="userCertification"/>
+            <result property="productId" column="productId"/>
         </collection>
 
         <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
@@ -694,12 +695,14 @@
         C.price AS classPrice,
         GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,  -- 요일 리스트
         GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
-        C.aca_id
+        C.aca_id,
+        P.product_id AS productId
         FROM aca_class C
         LEFT JOIN class_weekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
         LEFT JOIN class_category CC ON C.class_id = CC.class_id
         LEFT JOIN category CAT ON CC.category_id = CAT.category_id
+        LEFT JOIN product P ON C.class_id = P.class_id
         GROUP BY C.class_id
         ),
         UserCertification AS (
@@ -775,6 +778,7 @@
         COALESCE(AC.classPrice, 0) AS classPrice,
         COALESCE(AC.classDay, '') AS classDay,
         COALESCE(AC.classCategoryName, '') AS classCategoryName,
+        COALESCE(AC.productId, 0) AS productId,
 
         COALESCE(BC.bookId, 0) AS bookId,
         COALESCE(BC.bookName, '') AS bookName,
