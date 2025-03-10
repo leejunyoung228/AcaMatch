@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AcademyRepository extends JpaRepository<Academy, Long> {
@@ -54,7 +55,7 @@ public interface AcademyRepository extends JpaRepository<Academy, Long> {
     @Query(" update Academy a set a.premium = 0 where a.acaId =:acaId ")
     int updateAcademyPremiumEndByAcaId(Long acaId);
 
-    //학원정도삭제
+    //학원정보삭제
     @Transactional
     @Modifying
     @Query(" delete from Academy a where a.acaId=:acaId and a.user.userId=:userId")
@@ -72,4 +73,9 @@ public interface AcademyRepository extends JpaRepository<Academy, Long> {
     List<Long> findOwnedAcademyIdsByUserId(@Param("userId") Long userId);
 
 
+    @Query("SELECT COUNT(a) > 0 FROM Academy a WHERE a.acaId = :acaId AND a.user.userId = :userId")
+    boolean isUserOwnerOfAcademy(@Param("acaId") Long acaId, @Param("userId") Long userId);
+
+    @Query("SELECT ac.academy.acaId FROM AcaClass ac WHERE ac.classId = :classId")
+    Optional<Long> findAcaIdByClassId(@Param("classId") Long classId);
 }
