@@ -11,6 +11,9 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Tag(name = "선생님 관리", description = "선생님 등록, 수정, 삭제")
 @RestController
 @RequestMapping("teacher")
@@ -30,17 +33,17 @@ public class TeacherController {
 
     @Operation(summary = "선생님 정보 불러오기")
     @GetMapping
-    public ResultResponse<TeacherInfoGetRes> getTeacherInfo(@ModelAttribute @ParameterObject TeacherInfoGetReq p) {
-        TeacherInfoGetRes result = teacherService.getTeacherInfo(p);
+    public ResultResponse<List<TeacherInfoGetRes>>getTeacherInfo(@ModelAttribute @ParameterObject TeacherInfoGetReq p) {
+        List<TeacherInfoGetRes> result = teacherService.getTeacherInfo(p);
         try {
-            return ResultResponse.<TeacherInfoGetRes>builder()
+            return ResultResponse.<List<TeacherInfoGetRes>>builder()
                     .resultMessage("선생님 정보 불러오기 성공")
                     .resultData(result)
                     .build();
         }catch (CustomException e) {
-           return ResultResponse.<TeacherInfoGetRes>builder()
+           return ResultResponse.<List<TeacherInfoGetRes>>builder()
                     .resultMessage(e.getMessage())
-                    .resultData(null)
+                    .resultData(new ArrayList<>())
                     .build();
         }
     }

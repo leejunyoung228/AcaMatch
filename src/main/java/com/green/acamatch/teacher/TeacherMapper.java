@@ -4,7 +4,9 @@ import com.green.acamatch.teacher.model.TeacherInfoGetReq;
 import com.green.acamatch.teacher.model.TeacherInfoGetRes;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface TeacherMapper {
-    TeacherInfoGetRes getTeacherInfo(TeacherInfoGetReq p);
+    List<TeacherInfoGetRes> getTeacherInfo(TeacherInfoGetReq p);
 }
