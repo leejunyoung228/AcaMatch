@@ -161,6 +161,12 @@
         LEFT JOIN `tag` g
         ON c.tag_id = g.tag_id
         WHERE b.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
+        )
         GROUP BY a.aca_id
         ORDER BY like_count DESC
         LIMIT #{startIdx}, #{size}
@@ -355,6 +361,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
         AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
@@ -802,11 +809,6 @@
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
         AND A.aca_agree = 1
-        AND NOT EXISTS (
-        SELECT 1
-        FROM reports r
-        WHERE r.aca_id = A.aca_id
-        )
         LIMIT #{startIdx}, #{size};
     </select>
 
@@ -954,10 +956,11 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         GROUP BY A.aca_id
         ORDER BY RAND()
-        LIMIT 0, 5
+        LIMIT 0, 100
     </select>
 
     <select id="getAcademyListByStudent">
@@ -1006,6 +1009,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         ORDER BY RAND()
         LIMIT 0, #{size}
@@ -1066,6 +1070,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         GROUP BY A.aca_id
         )
@@ -1157,6 +1162,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         GROUP BY A.aca_id
         ORDER BY distance ASC
