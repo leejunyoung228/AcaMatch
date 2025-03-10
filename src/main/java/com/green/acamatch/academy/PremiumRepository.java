@@ -32,8 +32,8 @@ public interface PremiumRepository extends JpaRepository<PremiumAcademy, Long> {
     int updateDateByAcaId(@Param("acaId") Long acaId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     //프리미엄 학원 조회
-    @Query("SELECT new com.green.acamatch.academy.premium.model.PremiumGetRes(a.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, c.bannerType, a.createdAt) " +
-            "from PremiumAcademy a join Academy b on a.acaId = b.acaId left join Banner c on a.acaId = c.acaId")
+    @Query(" SELECT new com.green.acamatch.academy.premium.model.PremiumGetRes(b.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, c.bannerType, a.createdAt) " +
+            "from PremiumAcademy as a join Academy as b on a.acaId = b.acaId left join Banner as c on a.acaId = c.acaId")
     List<PremiumGetRes> findAllByPremium();
 
     //프리미엄 학원 삭제
