@@ -20,6 +20,7 @@ import com.green.acamatch.entity.banner.Banner;
 import com.green.acamatch.entity.banner.BannerPic;
 import com.green.acamatch.entity.banner.BannerPicIds;
 import com.green.acamatch.entity.myenum.BannerPosition;
+import kotlinx.serialization.StringFormat;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.service.RequestBodyService;
@@ -211,54 +212,45 @@ public class BannerService {
 
     //배너 사진 수정
     @Transactional
-    public int updBanner(MultipartFile pic, BannerUpdateReq req) {
-        Optional<BannerPic> bannerPicOptional = bannerPicRepository.findById(req.getAcaId());
+    public int updBannerPic(MultipartFile pic, BannerUpdateReq req) {
+        Optional<Banner> bannerOptional = bannerRepository.findById(req.getAcaId());
 
-        if(!bannerPicOptional.isPresent()) {
+        if(!bannerOptional.isPresent()) {
             throw new CustomException(AcademyException.NOT_FOUND_BANNER);
         }
-        BannerPic bannerPic = bannerPicOptional.get();
-
-        //배너사진을 하나도 넣지 않았을때 예외처리
-        /*if(pic == null ) {
-            throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
-        }*/
 
         Long acaId = req.getAcaId();
 
         //배너 사진 저장
         String middlePath = String.format(academyConst.getBannerPicFilePath(), acaId);
-        myFileUtils.deleteFolder(String.format("%s/%s", myFileUtils.getUploadPath(), middlePath), true);
+        String bannerPicName = myFileUtils.makeRandomFileName(pic);
 
-        String BannerPicName = myFileUtils.makeRandomFileName(pic);
 
         String filePath;
         if(req.getBannerPosition() == 1) {
-            filePath = String.format("%s/%s/%s", middlePath, "top", BannerPicName);
+            filePath = String.format("%s/%s/%s", middlePath, "top", bannerPicName);
+            myFileUtils.deleteFolder(String.format("%s/%s", middlePath, "top"), true);
             myFileUtils.makeFolders(filePath);
         } else if(req.getBannerPosition() == 2) {
-            filePath = String.format("%s/%s/%s", middlePath, "bottom", BannerPicName);
+            filePath = String.format("%s/%s/%s", middlePath, "bottom", bannerPicName);
+            myFileUtils.deleteFolder(String.format("%s/%s", middlePath, "bottom"), true);
             myFileUtils.makeFolders(filePath);
         } else if(req.getBannerPosition() == 4) {
-            filePath = String.format("%s/%s/%s", middlePath, "right", BannerPicName);
+            filePath = String.format("%s/%s/%s", middlePath, "right", bannerPicName);
+            myFileUtils.deleteFolder(String.format("%s/%s", middlePath, "right"), true);
             myFileUtils.makeFolders(filePath);
         } else {
             throw new CustomException(AcademyException.NOT_FOUND_BANNER);
         }
-        BannerPicIds bannerPicIds = new BannerPicIds();
-        bannerPicIds.setAcaId(acaId);
-        bannerPicIds.setBannerPic(BannerPicName);
 
-        bannerPic.setBannerPicIds(bannerPicIds);
-        //bannerPicRepository.save(bannerPic);
 
-        bannerPicRepository.updateBannerPicByAcaIdAndBannerPosition(acaId, req.getBannerPosition(), BannerPicName);
+        bannerPicRepository.updateBannerPicByAcaIdAndBannerPosition(acaId, req.getBannerPosition(), bannerPicName);
 
             try {
                 myFileUtils.transferTo(pic, filePath);
             } catch (IOException e) {
-                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                myFileUtils.deleteFolder(delFolderPath, true);
+                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), filePath);
+                myFileUtils.deleteFolder(filePath, true);
                 throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
             }
 

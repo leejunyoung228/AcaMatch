@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -18,4 +19,6 @@ public class BannerPicIds implements Serializable {
 
     @Column(length = 50)
     private String bannerPic;
+
+
 }

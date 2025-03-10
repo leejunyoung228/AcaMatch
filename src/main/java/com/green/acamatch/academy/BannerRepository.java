@@ -40,6 +40,9 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
     @Query("select new com.green.acamatch.academy.banner.model.BannerGetRes(a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow )FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId ORDER BY b.bannerPosition ASC")
     List<BannerGetRes> findAllBanner();
 
+    //배너 존재 선택
+
+
     //배너 사진 없으면 배너 데이터 삭제
     @Transactional
     @Modifying

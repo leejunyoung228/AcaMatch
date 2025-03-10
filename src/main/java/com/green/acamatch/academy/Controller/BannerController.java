@@ -91,8 +91,8 @@ public class BannerController {
 
     @PutMapping("pic")
     @Operation(summary = "배너 사진 수정")
-    public ResultResponse<Integer> updBanner(@RequestPart(required = false) MultipartFile pic, @RequestPart BannerUpdateReq req) {
-        bannerService.updBanner(pic, req);
+    public ResultResponse<Integer> updBanner(@RequestPart MultipartFile pic, @RequestPart BannerUpdateReq req) {
+        bannerService.updBannerPic(pic, req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(1)
