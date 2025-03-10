@@ -6,9 +6,6 @@ file:
   directory: /home/download/image
 
 spring:
-  web:
-    resources:
-      static-locations: file:/C:/Users/Administrator/Downloads/student_grades/
   datasource:
       url: jdbc:log4jdbc:mariadb://192.168.0.144/db_even_last_3
       username: even_last_3
