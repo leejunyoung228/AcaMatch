@@ -58,10 +58,18 @@ public class TeacherService {
 
     public List<TeacherInfoGetRes> getTeacherInfo(TeacherInfoGetReq p) {
             List<TeacherInfoGetRes> result = teacherMapper.getTeacherInfo(p);
-            if(result == null) {
+            if(result == null || result.isEmpty()) {
                 throw new CustomException(TeacherErrorCode.NOT_FOUND_TEACHER);
             }
             return result;
+    }
+
+    public List<TeacherListGetRes> getTeacherList(TeacherListGetReq p) {
+        List<TeacherListGetRes> result = teacherMapper.getTeacherList(p);
+        if(result == null || result.isEmpty()) {
+            throw new CustomException(TeacherErrorCode.NOT_FOUND_TEACHER);
+        }
+        return result;
     }
 
     public Integer updateTeacher(TeacherPutReq p) {
@@ -77,12 +85,7 @@ public class TeacherService {
                 throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
             }
 
-            if(p.getTeacherAgree() < 0) {
-                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
-            }
-
             teacher.setTeacherComment(p.getTeacherComment());
-            teacher.setTeacherAgree(p.getTeacherAgree());
             teacherRepository.save(teacher);
 
             return 1;

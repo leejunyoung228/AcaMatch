@@ -11,6 +11,19 @@
         ON A.class_id = C.class_id
         LEFT JOIN academy D
         ON C.aca_id = D.aca_id
-        WHERE A.user_id = #{userId}
+        WHERE A.user_id = #{userId} AND A.teacher_agree = 1
+    </select>
+
+    <select id="getTeacherList">
+        SELECT A.user_id, A.class_id, B.user_pic, B.name, B.birth, B.phone, B.nick_name, B.email, D.aca_name, C.class_name
+        ,A.teacher_comment, A.teacher_agree
+        FROM teacher A
+        INNER JOIN `user` B
+        ON A.user_id = B.user_id
+        INNER JOIN aca_class C
+        ON A.class_id = C.class_id
+        INNER JOIN academy D
+        ON C.aca_id = D.aca_id
+        WHERE D.aca_id = #{acaId}
     </select>
 </mapper>
