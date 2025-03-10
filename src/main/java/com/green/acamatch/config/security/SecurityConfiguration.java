@@ -37,7 +37,7 @@ public class SecurityConfiguration {
                 .addFilterBefore(new TokenAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(req ->
                         req.requestMatchers("/ws/**").permitAll()
-                                .requestMatchers("/api/review/academy").hasRole("ADMIN")
+                                .requestMatchers("/api/review/academy").hasAnyRole("ADMIN", "ACADEMY")
                                 .requestMatchers("/api/user", "/api/chat", "/api/chat/**","/api/user/log-out",  "/api/review/user")
                                 .authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/user/relationship/list/**")
