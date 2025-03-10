@@ -28,11 +28,11 @@ public interface BannerPicRepository extends JpaRepository<BannerPic, Long> {
     @Query(" select COUNT(a) as countBannerPic from BannerPic a WHERE a.bannerPicIds.acaId = :acaId")
     Long countById(@Param("acaId") Long acaId);
 
-    /*//배너 사진 수정
+    //배너 사진 수정
     @Transactional
     @Modifying
-    @Query(" update BannerPic a set a.bannerPicIds.bannerPic =:bannerPic where a.banner.acaId =:acaId and a.bannerPosition =:bannerPosition ")
-    int updateBannerPicByAcaIdAndBannerPosition(Long acaId, int bannerPosition, String bannerPic);*/
+    @Query(" update BannerPic a set a.bannerPicIds.bannerPic =:bannerPic where a.bannerPicIds.acaId =:acaId and a.bannerPosition =:bannerPosition ")
+    int updateBannerPicByAcaIdAndBannerPosition(@Param("acaId") Long acaId, @Param("bannerPosition") int bannerPosition, @Param("bannerPic") String bannerPic);
 
     //배너 사진 하나씩 삭제
     @Transactional

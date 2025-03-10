@@ -220,9 +220,9 @@ public class BannerService {
         BannerPic bannerPic = bannerPicOptional.get();
 
         //배너사진을 하나도 넣지 않았을때 예외처리
-        if(pic == null ) {
+        /*if(pic == null ) {
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
-        }
+        }*/
 
         Long acaId = req.getAcaId();
 
@@ -250,9 +250,9 @@ public class BannerService {
         bannerPicIds.setBannerPic(BannerPicName);
 
         bannerPic.setBannerPicIds(bannerPicIds);
-        bannerPicRepository.save(bannerPic);
+        //bannerPicRepository.save(bannerPic);
 
-        //bannerPicRepository.updateBannerPicByAcaIdAndBannerPosition(acaId, req.getBannerPosition(), BannerPicName);
+        bannerPicRepository.updateBannerPicByAcaIdAndBannerPosition(acaId, req.getBannerPosition(), BannerPicName);
 
             try {
                 myFileUtils.transferTo(pic, filePath);
