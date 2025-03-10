@@ -9,23 +9,19 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class StudentsGradeDto {
-    private Long classId;
-    private Long userId;
+    private long joinClassId;
+    private long classId;
+    private long userId;
     private String name;
     private Long examId;
     private String examName;
     private LocalDate examDate;
     private Long gradeId;
-    private Integer examType;
+    private int examType;
     private Integer score;
     private Integer pass;
     private Integer processingStatus;
-
-    public StudentsGradeDto(long classId, long userId, String name,
-                            long examId, String examName, LocalDate examDate,
-                            long gradeId, Integer score, Integer pass, Integer processingStatus) {
-    }
 }

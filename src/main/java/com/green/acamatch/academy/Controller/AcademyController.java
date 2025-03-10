@@ -151,6 +151,12 @@ public class AcademyController {
     @Operation(summary = "학원 상세 모든 정보 불러오기")
     public ResultResponse<GetAcademyDetailRes> getAcademyDetail(@ParameterObject @ModelAttribute GetAcademyDetailReq p) {
         GetAcademyDetailRes res = academyService.getAcademyDetail(p);
+
+        // `null`이 반환될 경우 빈 객체로 설정
+        if (res == null) {
+            res = new GetAcademyDetailRes();
+        }
+
         return ResultResponse.<GetAcademyDetailRes>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(res)

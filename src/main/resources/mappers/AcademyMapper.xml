@@ -623,25 +623,7 @@
             <result property="classCategoryName" column="classCategoryName"/>
             <result property="userCertification" column="userCertification"/>
         </collection>
-        <!-- 리뷰 정보 매핑 (하위 리스트) -->
-        <collection property="reviews" ofType="com.green.acamatch.academy.model.HB.ReviewDto" javaType="ArrayList" notNullColumn="reviewId">
-            <result property="comment" column="reviewComment"/>
-            <result property="star" column="reviewStar"/>
-            <result property="reviewId" column="reviewId"/>
-            <result property="createdAt" column="reviewCreatedAt"/>
-            <result property="updatedAt" column="reviewUpdatedAt"/>
-            <result property="userId" column="reviewUserId"/>
-            <result property="nickName" column="reviewUserNickName"/>
-            <result property="className" column="reviewClassName"/>
-            <result property="banReview" column="banReview"/>
-            <result property="roleType" column="roleType"/>
-            <result property="joinClassId" column="joinClassId"/>
-            <collection property="reviewPics" ofType="com.green.acamatch.academy.model.HB.ReviewPicDto" javaType="ArrayList" notNullColumn="reviewId">
-                <result property="reviewId" column="reviewId"/>
-                <result property="reviewPic" column="review_pic"/>
-            </collection>
 
-        </collection>
         <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
             <result property="bookId" column="bookId"/>
             <result property="bookName" column="bookName"/>
@@ -748,18 +730,21 @@
         GROUP BY AT.aca_id
         ),
         BookByClass AS (
-        SELECT B.book_id AS bookId,
+        SELECT
+        B.book_id AS bookId,
         B.book_name AS bookName,
         B.book_amount AS bookAmount,
         B.book_comment AS bookComment,
         B.book_pic AS bookPic,
         B.book_price AS bookPrice,
         B.manager,
-        B.class_id AS classId
+        B.class_id AS classId,
+        AC.aca_id  -- 학원 ID 추가
         FROM Book B
-        JOIN aca_class AC
-        ON B.class_id = AC.class_id
+        JOIN aca_class AC ON B.class_id = AC.class_id
+        WHERE AC.aca_id = #{acaId}  -- 특정 학원의 책만 가져오기
         )
+        -- 최신 리뷰 관련 부분 제거
         SELECT
         A.aca_id,
         A.aca_name,
@@ -772,7 +757,7 @@
         AP.aca_pic,
         AT.tagName,
 
-        -- 클래스별 정보 (클래스가 없으면 NULL 대신 기본값)
+        -- 클래스별 정보
         COALESCE(AC.classId, 0) AS classId,
         COALESCE(AC.className, '') AS className,
         COALESCE(AC.classComment, '') AS classComment,
@@ -804,29 +789,14 @@
         COALESCE(UC.isCertified, 0) AS userCertification,
 
         -- 해당 유저의 좋아요 여부 (학원 또는 클래스에 대한 좋아요)
-        COALESCE(UL.isLiked, 0) AS isLiked,
-
-        -- 최신 리뷰 정보 (클래스별로)
-        COALESCE(R.reviewComment, '') AS reviewComment,
-        COALESCE(R.reviewStar, 0) AS reviewStar,
-        COALESCE(R.reviewCreatedAt, '') AS reviewCreatedAt,
-        COALESCE(R.reviewUpdatedAt, '') AS reviewUpdatedAt,
-        COALESCE(R.reviewId, 0) AS reviewId,
-        COALESCE(R.reviewUserId, 0) AS reviewUserId,
-        COALESCE(R.reviewUserNickName, '') AS reviewUserNickName,
-        COALESCE(R.reviewClassName, '') AS reviewClassName,
-        COALESCE(R.banReview, 0) AS banReview,
-        COALESCE(R.joinClassId, 0) AS joinClassId,
-        COALESCE(R.`review_pic`, '') AS review_pic
+        COALESCE(UL.isLiked, 0) AS isLiked
 
         FROM academy A
-        JOIN academy_pic AP
-        ON A.aca_id = AP.aca_id
-        LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id  -- 학원의 모든 클래스 JOIN
-        LEFT JOIN LatestReviews R ON R.aca_id = AC.aca_id  -- 클래스별 최신 리뷰 1개만 선택
+        JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id
         LEFT JOIN BookByClass BC ON AC.classId = BC.classId
-        LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId  -- 클래스별 별점 평균 및 리뷰 개수
-        LEFT JOIN UserCertification UC ON UC.class_id = AC.classId  -- 유저의 클래스별 수강 여부
+        LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId
+        LEFT JOIN UserCertification UC ON UC.class_id = AC.classId
         LEFT JOIN AcademyTag AT ON A.aca_id = AT.aca_id
         LEFT JOIN UserLikes UL ON UL.aca_id = A.aca_id
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
@@ -837,14 +807,102 @@
         FROM reports r
         WHERE r.aca_id = A.aca_id
         )
-        AND NOT EXISTS (
-        SELECT 1
-        FROM reports r1
-        WHERE r1.review_id = R.reviewId
-        AND (r1.exposure_end_date IS NULL OR r1.exposure_end_date > NOW())
-        )
-        ORDER BY R.reviewId DESC;
+        LIMIT #{startIdx}, #{size};
     </select>
+
+    <resultMap id="GeneralReviewResultMap" type="com.green.acamatch.academy.model.HB.GeneralReviewDto">
+        <id property="reviewId" column="reviewId"/>
+        <result property="reviewComment" column="reviewComment"/>
+        <result property="reviewStar" column="reviewStar"/>
+        <result property="reviewCreatedAt" column="reviewCreatedAt"/>
+        <result property="reviewUpdatedAt" column="reviewUpdatedAt"/>
+        <result property="reviewUserId" column="reviewUserId"/>
+        <result property="reviewUserNickName" column="reviewUserNickName"/>
+        <result property="reviewClassName" column="reviewClassName"/>
+        <result property="writerPic" column="writerPic"/>
+        <result property="joinClassId" column="joinClassId"/>
+        <result property="banReview" column="banReview"/>
+        <result property="classId" column="classId"/>
+    </resultMap>
+
+    <select id="getGeneralReviews" resultMap="GeneralReviewResultMap">
+        WITH GeneralReviews AS (
+        SELECT
+        A.comment AS reviewComment,
+        A.star AS reviewStar,
+        A.created_at AS reviewCreatedAt,
+        A.updated_at AS reviewUpdatedAt,
+        A.review_id AS reviewId,
+        A.ban_review AS banReview,
+        A.join_class_id AS joinClassId,
+        B.user_id AS reviewUserId,
+        D.nick_name AS reviewUserNickName,
+        D.user_pic AS writerPic,
+        C.class_name AS reviewClassName,
+        C.aca_id,
+        B.class_id AS classId  -- join_class의 class_id 사용
+        FROM review A
+        JOIN join_class B ON A.join_class_id = B.join_class_id
+        JOIN aca_class C ON B.class_id = C.class_id  -- INNER JOIN으로 변경
+        JOIN user D ON B.user_id = D.user_id
+        LEFT JOIN review_pic RP ON A.review_id = RP.review_id
+        WHERE C.aca_id = #{acaId} AND RP.review_id IS NULL
+        )
+        SELECT * FROM GeneralReviews
+        ORDER BY reviewId DESC
+        LIMIT #{generalStartIdx}, #{size};
+    </select>
+
+
+    <resultMap id="MediaReviewResultMap" type="com.green.acamatch.academy.model.HB.MediaReviewDto">
+        <id property="reviewId" column="reviewId"/>
+        <result property="reviewComment" column="reviewComment"/>
+        <result property="reviewStar" column="reviewStar"/>
+        <result property="reviewCreatedAt" column="reviewCreatedAt"/>
+        <result property="reviewUpdatedAt" column="reviewUpdatedAt"/>
+        <result property="reviewUserId" column="reviewUserId"/>
+        <result property="reviewUserNickName" column="reviewUserNickName"/>
+        <result property="reviewClassName" column="reviewClassName"/>
+        <result property="writerPic" column="writerPic"/>
+        <result property="joinClassId" column="joinClassId"/>
+        <result property="banReview" column="banReview"/>
+        <result property="classId" column="classId"/>
+        <result property="reviewPics" column="reviewPics" typeHandler="com.green.acamatch.config.model.StringToListTypeHandler"/>  <!-- String -> List 변환 -->
+    </resultMap>
+
+
+    <select id="getMediaReviews" resultMap="MediaReviewResultMap">
+        WITH MediaReviews AS (
+        SELECT
+        A.comment AS reviewComment,
+        A.star AS reviewStar,
+        A.created_at AS reviewCreatedAt,
+        A.updated_at AS reviewUpdatedAt,
+        A.review_id AS reviewId,
+        A.ban_review AS banReview,
+        A.join_class_id AS joinClassId,
+        B.user_id AS reviewUserId,
+        D.nick_name AS reviewUserNickName,
+        D.user_pic AS writerPic,
+        C.class_name AS reviewClassName,
+        C.aca_id,
+        B.class_id AS classId,
+        GROUP_CONCAT(DISTINCT RP.review_pic ORDER BY RP.review_pic ASC SEPARATOR ',') AS reviewPics
+        FROM review A
+        JOIN join_class B ON A.join_class_id = B.join_class_id
+        JOIN aca_class C ON B.class_id = C.class_id
+        JOIN user D ON B.user_id = D.user_id
+        JOIN review_pic RP ON A.review_id = RP.review_id
+        WHERE C.aca_id = #{acaId}
+        GROUP BY A.review_id, D.user_pic, B.class_id
+        )
+        SELECT * FROM MediaReviews
+        ORDER BY reviewId DESC
+        LIMIT #{mediaStartIdx}, #{size};
+    </select>
+
+
+
 
     <resultMap id="randomResultMap" type = "com.green.acamatch.academy.model.HB.GetAcademyRandomRes">
         <id property="acaId" column="acaId" />

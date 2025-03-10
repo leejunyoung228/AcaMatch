@@ -26,10 +26,10 @@ public class Grade {
     private Exam exam;
 
     @Column
-    private int score;
+    private Integer score;
 
     @Column
-    private int pass;
+    private Integer pass;
 
     @Column(nullable = false)
     private LocalDate examDate;

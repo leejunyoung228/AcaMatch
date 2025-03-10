@@ -42,4 +42,7 @@ public class MyReviewDto {
     @Schema(title = "리뷰 ID", description = "리뷰의 고유 PK", example = "1")
     private Long reviewId;
 
+    @Schema(title = "밴 여부", description = "밴을 먹은 리뷰 여부")
+    private int banReview;
+
 }
