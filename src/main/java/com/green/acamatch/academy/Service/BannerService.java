@@ -220,9 +220,9 @@ public class BannerService {
         BannerPic bannerPic = bannerPicOptional.get();
 
         //배너사진을 하나도 넣지 않았을때 예외처리
-        if(pic == null ) {
+        /*if(pic == null ) {
             throw new CustomException(AcademyException.MISSING_REQUIRED_FILED_EXCEPTION);
-        }
+        }*/
 
         Long acaId = req.getAcaId();
 
