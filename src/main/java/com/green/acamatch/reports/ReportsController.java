@@ -3,6 +3,7 @@ package com.green.acamatch.reports;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.entity.reports.ActionType;
 import com.green.acamatch.entity.reports.ReportsType;
+import com.green.acamatch.reports.model.GetUserListRes;
 import com.green.acamatch.reports.model.PostReportsReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -62,5 +63,15 @@ public class ReportsController {
                         "description", type.getDescription()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("getUserList")
+    @Operation(summary = "신고 당한 유저 리스트 불러오기")
+    public ResultResponse<List<GetUserListRes>> getUserList(){
+        List<GetUserListRes> userList = reportsService.getUserList();
+        return ResultResponse.<List<GetUserListRes>>builder()
+                .resultMessage("출력 성공")
+                .resultData(userList)
+                .build();
     }
 }

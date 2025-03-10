@@ -7,6 +7,7 @@ import com.green.acamatch.entity.reports.Reports;
 import com.green.acamatch.entity.reports.ReportsType;
 import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.reports.model.GetUserListRes;
 import com.green.acamatch.reports.model.PostReportsReq;
 import com.green.acamatch.review.ReviewRepository;
 import com.green.acamatch.user.repository.UserRepository;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -64,5 +66,10 @@ public class ReportsService {
         Reports reports = reportsRepository.findById(reportsId).orElse(null);
         reportsRepository.delete(reports);
         return 1;
+    }
+
+    public List<GetUserListRes> getUserList(){
+        List<GetUserListRes> userList = reportsMapper.getUserList();
+        return userList;
     }
 }

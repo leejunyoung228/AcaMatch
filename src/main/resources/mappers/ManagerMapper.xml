@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.acamatch.manager.ManagerMapper">
+    <select id="getAcademyCount">
+        SELECT
+        DATE(created_at) AS register_date,  -- 날짜별 그룹화 (날짜만 가져오기)
+        COUNT(*) AS academyCount           -- 해당 날짜에 등록된 학원 수
+        FROM academy
+        <if test="month == '이번달'">
+            WHERE year(created_at) = YEAR(NOW())
+            AND MONTH(created_at) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
+        </if>
+        <if test="month == '지난달'">
+            WHERE YEAR(created_at) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
+            AND MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
+        </if>
+        GROUP BY register_date
+        ORDER BY register_date
+    </select>
+    <select id="getUserCount">
+        SELECT
+        DATE(created_at) AS register_date,  -- 날짜별 그룹화 (날짜만 가져오기)
+        COUNT(*) AS userCount           -- 해당 날짜에 등록된 학원 수
+        FROM user
+        <if test="month == '지난달'">
+            WHERE YEAR(created_at) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
+            AND MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
+        </if>
+        <if test="month == '이번달'">
+            WHERE year(created_at) = YEAR(NOW())
+            AND MONTH(created_at) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
+        </if>
+        GROUP BY register_date
+        ORDER BY register_date;
+    </select>
+    <select id="getAcademyCostCount">
+        SELECT
+        DATE(created_at) AS register_date,  -- 날짜별 그룹화 (날짜만 가져오기)
+        COUNT(*) AS academyCostCount           -- 해당 날짜에 등록된 학원 수
+        FROM academy_cost
+        <if test="month == '지난달'">
+            WHERE YEAR(created_at) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
+            AND MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
+        </if>
+        <if test="month == '이번달'">
+            WHERE year(created_at) = YEAR(NOW())
+            AND MONTH(created_at) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
+        </if>
+        GROUP BY register_date
+        ORDER BY register_date;
+    </select>
+</mapper>
