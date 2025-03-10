@@ -59,10 +59,11 @@ public class ReviewController {
     @DeleteMapping("/academy")
     @Operation(
             summary = "학원 관계자 리뷰 삭제",
-            description = "학원 관계자가 본인의 학원 리뷰를 삭제합니다."
+            description = "학원 관계자가 본인의 학원 리뷰를 삭제합니다. 사이트 관리자도 이 API로 특정 리뷰를 삭제 할 수 있습니다." +
+                    "여기서 입력하는 userId는 학원 관계자 본인의 유저 아이디여야 합니다. (학원 관계자 검증)"
     )
     public ResultResponse<Integer> deleteReviewByAcademy(@RequestBody ReviewDelMyacademyReq req) {
-        int result = service.deleteReviewByAcademy(req); // 0 또는 1 반환
+        int result = service.deleteReviewByAcademyAndAdmin(req); // 0 또는 1 반환
         return ResultResponse.<Integer>builder()
                 .resultMessage(userMessage.getMessage()) // 서비스에서 설정된 메시지 사용
                 .resultData(result)

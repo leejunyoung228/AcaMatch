@@ -4,10 +4,10 @@ import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.user.User;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,4 +44,7 @@ public interface ClassRepository extends JpaRepository<AcaClass, Long> {
     Optional<AcaClass> findById(Long classId);
 
     List<AcaClass> findByAcademy_AcaId(Long acaId);
+
+    @Query("SELECT ac.academy.acaId FROM AcaClass ac WHERE ac.classId = :classId")
+    Optional<Long> findAcaIdByClassId(@Param("classId") Long classId);
 }

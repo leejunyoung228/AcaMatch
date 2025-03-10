@@ -49,4 +49,17 @@ public interface JoinClassRepository extends JpaRepository<JoinClass, Long> {
     boolean existsByAcaClassInAndUser_UserId(List<AcaClass> acaClasses, Long userId);
 
 
+    @Query("SELECT jc.acaClass.classId FROM JoinClass jc WHERE jc.acaClass.academy.acaId = :acaId")
+    List<Long> findClassIdsByAcaId(@Param("acaId") Long acaId);
+
+    @Query("SELECT ac.academy.acaId FROM AcaClass ac WHERE ac.classId = :classId")
+    Optional<Long> findAcaIdByClassId(@Param("classId") Long classId);
+
+    @Query("SELECT COUNT(jc) > 0 FROM JoinClass jc WHERE jc.acaClass.classId = :classId AND jc.acaClass.academy.acaId = :acaId")
+    boolean existsByClassIdAndAcademyId(@Param("classId") Long classId, @Param("acaId") Long acaId);
+
+    @Query("SELECT COUNT(jc) > 0 FROM JoinClass jc WHERE jc.acaClass.classId = :classId AND jc.user.userId = :userId")
+    boolean existsByClassIdAndUserId (@Param("classId") Long classId, @Param("userId")Long userId);
+
+
 }

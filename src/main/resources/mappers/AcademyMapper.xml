@@ -161,6 +161,12 @@
         LEFT JOIN `tag` g
         ON c.tag_id = g.tag_id
         WHERE b.aca_agree = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM reports r
+        WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
+        )
         GROUP BY a.aca_id
         ORDER BY like_count DESC
         LIMIT #{startIdx}, #{size}
@@ -355,6 +361,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
         AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
@@ -622,6 +629,7 @@
             <result property="classDay" column="classDay"/>
             <result property="classCategoryName" column="classCategoryName"/>
             <result property="userCertification" column="userCertification"/>
+            <result property="productId" column="productId"/>
         </collection>
 
         <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
@@ -687,12 +695,14 @@
         C.price AS classPrice,
         GROUP_CONCAT(DISTINCT W.`day` ORDER BY W.`day_id` ASC SEPARATOR ', ') AS classDay,  -- 요일 리스트
         GROUP_CONCAT(DISTINCT CAT.category_name ORDER BY CAT.category_name ASC SEPARATOR ', ') AS classCategoryName,
-        C.aca_id
+        C.aca_id,
+        P.product_id AS productId
         FROM aca_class C
         LEFT JOIN class_weekdays CW ON C.class_id = CW.class_id
         LEFT JOIN weekdays W ON CW.day_id = W.day_id
         LEFT JOIN class_category CC ON C.class_id = CC.class_id
         LEFT JOIN category CAT ON CC.category_id = CAT.category_id
+        LEFT JOIN product P ON C.class_id = P.class_id
         GROUP BY C.class_id
         ),
         UserCertification AS (
@@ -768,6 +778,7 @@
         COALESCE(AC.classPrice, 0) AS classPrice,
         COALESCE(AC.classDay, '') AS classDay,
         COALESCE(AC.classCategoryName, '') AS classCategoryName,
+        COALESCE(AC.productId, 0) AS productId,
 
         COALESCE(BC.bookId, 0) AS bookId,
         COALESCE(BC.bookName, '') AS bookName,
@@ -802,11 +813,6 @@
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
         AND A.aca_agree = 1
-        AND NOT EXISTS (
-        SELECT 1
-        FROM reports r
-        WHERE r.aca_id = A.aca_id
-        )
         LIMIT #{startIdx}, #{size};
     </select>
 
@@ -954,6 +960,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         GROUP BY A.aca_id
         ORDER BY RAND()
@@ -1006,6 +1013,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         ORDER BY RAND()
         LIMIT 0, #{size}
@@ -1066,6 +1074,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         GROUP BY A.aca_id
         )
@@ -1091,7 +1100,8 @@
         SELECT A.aca_name, AP.aca_pic,
         A.aca_id,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
-        A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id, U.name
+        A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id, U.name,
+        IFNULL(RC.reportsCount, 0) AS reportsCount
         FROM academy A
         LEFT JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
@@ -1101,6 +1111,11 @@
         ON A.aca_id = AC.aca_id
         LEFT JOIN exam E
         ON AC.class_id = E.class_id
+        LEFT JOIN (
+        SELECT R.aca_id, COUNT(R.report_id) AS reportsCount
+        FROM reports R
+        GROUP BY R.aca_id
+        ) RC ON A.aca_id = RC.aca_id
         <where>
             <if test=" acaName != null and acaName != '' ">
                 AND A.aca_name like CONCAT('%', #{acaName}, '%')
@@ -1157,6 +1172,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
+        AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
         GROUP BY A.aca_id
         ORDER BY distance ASC

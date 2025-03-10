@@ -20,7 +20,7 @@ public class AttendanceController {
     private final AttendanceService attendanceService;
 
     @PostMapping
-    @Operation(summary = "출석부 등록", description = "출석, 지각, 결석, 조퇴")
+    @Operation(summary = "출석부 등록", description = "출석, 지각, 결석, 조퇴 - 입력시 한글로 적어야합니다.")
     public ResultResponse<Integer> postAttendance(@RequestBody AttendancePostReq p) {
         Integer result = attendanceService.postAttendance(p);
         return ResultResponse.<Integer>builder()
