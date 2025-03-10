@@ -2,6 +2,8 @@ package com.green.acamatch.review;
 
 import com.green.acamatch.acaClass.ClassRepository;
 import com.green.acamatch.academy.AcademyRepository;
+import com.green.acamatch.academy.model.HB.GeneralReviewDto;
+import com.green.acamatch.academy.model.HB.MediaReviewDto;
 import com.green.acamatch.accessLog.dailyVisitorStatus.CustomUserDetails;
 import com.green.acamatch.config.exception.*;
 import com.green.acamatch.config.jwt.JwtUser;
@@ -15,6 +17,7 @@ import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
+import com.green.acamatch.review.dto.ReviewResponseDto;
 import com.green.acamatch.review.model.*;
 import com.green.acamatch.user.repository.RelationshipRepository;
 import com.green.acamatch.user.repository.UserRepository;
@@ -113,79 +116,59 @@ public class ReviewService {
 
     @Transactional
     public int createReview(@Valid ReviewPostReqForParent req) {
-        long requestUserId = req.getUserId();
-        long jwtUserId = validateAuthenticatedUser(requestUserId);  // 인증된 사용자 검증
+        long jwtUserId = validateAuthenticatedUser(); // JWT 인증된 사용자 ID 가져오기
+        Long requestUserId = req.getUserId();
 
-        // 본인 계정 검증
+        // 사용자 ID 검증
+        if (requestUserId == null || requestUserId == 0L) {
+            userMessage.setMessage("잘못된 요청입니다. 유효한 사용자 ID가 필요합니다.");
+            return 0;
+        }
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
             return 0;
         }
 
-
-        // 사용자 존재 여부 확인
-        validateUserExists(requestUserId);
-
-        // 수업 등록 여부 확인
-        if (joinClassRepository.findStudentsByClassId(req.getClassId()).isEmpty()) {
-            userMessage.setMessage("해당 수업에 등록된 학생이 아닙니다.");
+        // 유효한 학생인지 검증
+        if (!userRepository.existsByUserIdAndUserRole(requestUserId, UserRole.STUDENT)) {
+            userMessage.setMessage("리뷰를 작성할 권한이 없습니다. 학생 계정으로 로그인해주세요.");
             return 0;
         }
 
-        // 중복 리뷰 작성 방지
-        if (reviewRepository.existsByJoinClass_AcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId)) {
+        // 해당 유저가 실제로 해당 수업을 수강했는지 검증
+        JoinClass joinClass = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId)
+                .orElseThrow(() -> {
+                    userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다. 수강한 후 리뷰를 작성할 수 있습니다.");
+                    return new CustomException(ReviewErrorCode.CLASS_NOT_FOUND);
+                });
+
+        //  중복 리뷰 작성 방지
+        if (reviewRepository.existsByJoinClass(joinClass)) {
             userMessage.setMessage("이미 해당 학원에 대한 리뷰를 작성하셨습니다.");
             return 0;
         }
 
-        // 리뷰 작성자 검증 (학생 또는 학부모)
-        User reviewWriter;
-        if (isStudent(requestUserId)) {
-            reviewWriter = userRepository.findByUserId(requestUserId)
-                    .orElseThrow(() -> new CustomException(ReviewErrorCode.INVALID_USER));
-        } else {
-            if (req.getStudentId() == null) {
-                userMessage.setMessage("유효하지 않은 학생 정보입니다.");
-                return 0;
-            }
-
-            Relationship relationship = relationshipRepository.findByParentUserIdAndStudentUserIdAndCertification(
-                            requestUserId, req.getStudentId(), req.getCertification())
-                    .orElseThrow(() -> new CustomException(ReviewErrorCode.NOT_STUDENT_PARENT));
-
-            reviewWriter = relationship.getParent();
+        // 사용자 정보 조회
+        User reviewWriter = joinClass.getUser(); // `join_class.user_id` 강제 적용
+        if (reviewWriter == null) {
+            userMessage.setMessage("유효하지 않은 사용자입니다.");
+            return 0;
         }
 
-        // 학원 수업 정보 조회
-        AcaClass acaClass = acaClassRepository.findById(req.getClassId())
-                .orElseThrow(() -> new CustomException(ReviewErrorCode.CLASS_NOT_FOUND));
-
-        User user = userRepository.findById(requestUserId)
-                .orElseThrow(() -> new CustomException(ReviewErrorCode.INVALID_USER));
-
-        // JoinClass 조회
-        JoinClass joinClass = joinClassRepository.findByAcaClassAndUser(acaClass, user)
-                .orElseThrow(() -> {
-                    userMessage.setMessage("해당 수업을 찾을 수 없습니다.");
-                    return new CustomException(ReviewErrorCode.CLASS_NOT_FOUND);
-                });
-
-        // 별점 유효성 검사 (null 불가, 1~5 범위 유지)
-        if (req.getStar() == null || req.getStar() < 1 || req.getStar() > 5) {
+        // 별점 범위 검증
+        if (req.getStar() < 1 || req.getStar() > 5) {
             userMessage.setMessage("별점은 1~5 사이의 값이어야 합니다.");
             return 0;
         }
 
-        // 댓글 유효성 검사 (null이면 빈 문자열 설정)
-        if (req.getComment() == null || req.getComment().trim().isEmpty()) {
-            req.setComment("");
-        }
+        // 댓글 기본값 처리
+        String comment = req.getComment() == null ? "" : req.getComment().trim();
 
-        // 새로운 리뷰 객체 생성 및 저장
+        // 리뷰 저장
         Review newReview = new Review();
         newReview.setUser(reviewWriter);
         newReview.setJoinClass(joinClass);
-        newReview.setComment(req.getComment());
+        newReview.setComment(comment);
         newReview.setStar(req.getStar());
         newReview.setBanReview(0); // 기본값 0 설정
 
@@ -194,6 +177,8 @@ public class ReviewService {
         userMessage.setMessage("리뷰가 성공적으로 등록되었습니다.");
         return 1;
     }
+
+
 
 
 //    // 리뷰 등록
@@ -811,40 +796,50 @@ public class ReviewService {
     }
 
 
-    /**
-     * 본인이 작성한 리뷰 목록 조회
-     */
+    // 본인이 작성한 리뷰 목록 조회
+
     @Transactional
-    public List<MyReviewDto> getReviewsByUserId(MyReviewGetReq req) {
+    public ReviewResponseDto getReviewsByUserId(MyReviewGetReq req) {
         long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
         long requestUserId = req.getUserId();
 
-        // 1. 본인 계정 검증
+        // 본인 계정 검증
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 작성한 리뷰 리스트를 볼 수 있습니다.");
-            return Collections.emptyList();
+            return new ReviewResponseDto(); // 빈 객체 반환
         }
-        validateUserExists(req.getUserId());
 
+        // 유저 존재 여부 확인
+        validateUserExists(req.getUserId());
         if (mapper.checkUserExists(req.getUserId()) == 0) {
             userMessage.setMessage("유효하지 않은 유저 ID입니다.");
-            return Collections.emptyList();
+            return new ReviewResponseDto();
         }
 
         if (!isAuthorizedUser(req.getUserId())) {
-            return Collections.emptyList();  //  인증되지 않은 요청이면 빈 리스트 반환
+            return new ReviewResponseDto(); // 인증되지 않은 요청이면 빈 객체 반환
         }
-        //  유저 존재 여부 확인 (추가)
 
-        List<MyReviewDto> reviews = mapper.getReviewsByUserId(req);
-        if (reviews.isEmpty()) {
-            userMessage.setMessage("작성한 리뷰가 없습니다.");
-            return Collections.emptyList();
-        }
+        // 일반 리뷰 & 미디어 포함 리뷰 조회
+        List<GeneralReviewDto> generalReviews = mapper.getGeneralReviews(req);
+        List<MediaReviewDto> mediaReviews = mapper.getMediaReviews(req);
+
+        // 새로운 DTO 객체 생성
+        ReviewResponseDto res = new ReviewResponseDto();
+        res.setGeneralReviews(generalReviews);
+        res.setMediaReviews(mediaReviews);
+
+        // 리뷰 개수 계산
+        int generalReviewCount = generalReviews.size();
+        int mediaReviewCount = mediaReviews.size();
+        res.setGeneralReviewCount(generalReviewCount);
+        res.setMediaReviewCount(mediaReviewCount);
+        res.setReviewCount(generalReviewCount + mediaReviewCount); // 총 리뷰 개수 설정
 
         userMessage.setMessage("작성한 리뷰 목록 조회가 완료되었습니다.");
-        return reviews;
+        return res;
     }
+
 
     // 공개 학원 리뷰 조회 (로그인 필요 없음)
 

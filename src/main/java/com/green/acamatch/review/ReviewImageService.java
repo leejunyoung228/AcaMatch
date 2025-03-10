@@ -81,18 +81,16 @@ public class ReviewImageService {
         return userRepository.existsByUserIdAndUserRole(userId, UserRole.STUDENT);
     }
 
-
     @Transactional
-    public int createReview(ReviewPostReqForParent req, List<MultipartFile> files) {
-        long jwtUserId = validateAuthenticatedUser();
-        Long requestUserId = req.getUserId();
+    public int createReview(@Valid ReviewPostReqForParent req, List<MultipartFile> files) {
+        long jwtUserId = validateAuthenticatedUser();  // JWT 토큰에서 인증된 사용자 ID 가져오기
 
-        // 본인 계정 검증
+        // 사용자 ID 검증
+        Long requestUserId = req.getUserId();
         if (requestUserId == null || requestUserId == 0L) {
             userMessage.setMessage("잘못된 요청입니다. 유효한 사용자 ID가 필요합니다.");
             return 0;
         }
-
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
             return 0;
@@ -101,31 +99,26 @@ public class ReviewImageService {
         // 유효한 학생 또는 학부모인지 검증
         List<UserRole> validRoles = Arrays.asList(UserRole.STUDENT, UserRole.PARENT);
         boolean isValidUser = userRepository.existsByUserIdAndUserRoleIn(requestUserId, validRoles);
-
         if (!isValidUser) {
             userMessage.setMessage("리뷰를 작성할 권한이 없습니다. 학생 또는 학부모 계정으로 로그인해주세요.");
             return 0;
         }
 
-        Long targetUserId = requestUserId;
+        // 해당 유저가 실제로 해당 수업을 수강했는지 검증
+        JoinClass joinClass = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId)
+                .orElseThrow(() -> {
+                    userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다. 수강한 후 리뷰를 작성할 수 있습니다.");
+                    return new CustomException(ReviewErrorCode.CLASS_NOT_FOUND);
+                });
 
-        // 기존 리뷰 확인
-        if (reviewRepository.existsByJoinClass_AcaClass_ClassIdAndUser_UserId(req.getClassId(), targetUserId)) {
+        // 중복 리뷰 작성 방지
+        if (reviewRepository.existsByJoinClass(joinClass)) {
             userMessage.setMessage("이미 해당 학원에 대한 리뷰를 작성하셨습니다.");
             return 0;
         }
 
-        // JoinClass 조회 (사용자가 수업을 수강했는지 확인)
-        JoinClass joinClass = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), targetUserId)
-                .orElse(null);
-
-        if (joinClass == null) {
-            userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다. 수강한 후 리뷰를 작성할 수 있습니다.");
-            return 0;
-        }
-
         // 사용자 정보 조회
-        User reviewWriter = userRepository.findById(targetUserId).orElse(null);
+        User reviewWriter = joinClass.getUser(); //`join_class.user_id` 강제 적용
         if (reviewWriter == null) {
             userMessage.setMessage("유효하지 않은 사용자입니다.");
             return 0;
@@ -137,26 +130,20 @@ public class ReviewImageService {
             return 0;
         }
 
-        // 댓글이 없을 경우 빈 문자열로 설정
-        if (req.getComment() == null || req.getComment().trim().isEmpty()) {
-            req.setComment("");
-        }
+        // 댓글 기본값 처리
+        String comment = req.getComment() == null ? "" : req.getComment().trim();
 
         // 리뷰 저장
         Review newReview = new Review();
-        newReview.setUser(reviewWriter);
+        newReview.setUser(reviewWriter);  //`join_class.user_id`를 강제로 사용
         newReview.setJoinClass(joinClass);
-        newReview.setComment(req.getComment());
+        newReview.setComment(comment);
         newReview.setStar(req.getStar());
         newReview.setBanReview(0); // 기본값 0 설정
 
-        int rowsInserted = reviewRepository.save(newReview) != null ? 1 : 0;
-        if (rowsInserted == 0) {
-            userMessage.setMessage("리뷰 등록에 실패했습니다.");
-            return 0;
-        }
+        reviewRepository.save(newReview);
 
-        // 파일 업로드 처리
+        //  미디어 파일 저장
         if (files != null && !files.isEmpty()) {
             saveReviewFiles(newReview, files);
         }
@@ -164,6 +151,7 @@ public class ReviewImageService {
         userMessage.setMessage("리뷰가 성공적으로 등록되었습니다.");
         return 1;
     }
+
 
 
 
