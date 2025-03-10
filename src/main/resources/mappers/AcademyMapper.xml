@@ -381,7 +381,7 @@
             JOIN class_category CC ON CL.class_id = CC.class_id
             WHERE CC.category_id IN
             <foreach collection="categoryIds" item="CId" open="(" close=")" separator=",">
-                1
+                #{CId}
             </foreach>
             ))
         </if>
