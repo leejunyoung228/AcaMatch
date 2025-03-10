@@ -16,6 +16,4 @@ public class TeacherPutReq {
     private long userId;
     @Schema(title = "선생님 소개")
     private String teacherComment;
-    @Schema(title = "선생님 동의 여부 (0=미동의, 1=동의)", example = "0")
-    private int teacherAgree;
 }

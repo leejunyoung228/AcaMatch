@@ -147,6 +147,8 @@ public class PopUpService {
             }
 
             popUp.setTitle(p.getTitle());
+            popUp.setStartDate(popUp.getStartDate());
+            popUp.setEndDate(popUp.getEndDate());
             popUp.setPopUpShow(p.getPopUpShow());
             popUp.setPopUpType(p.getPopUpType());
 
