@@ -1,13 +1,16 @@
 package com.green.acamatch.review;
 
+import com.green.acamatch.academy.model.HB.GetAcademyDetailReq;
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
+import com.green.acamatch.review.dto.ReviewResponseDto;
 import com.green.acamatch.review.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -129,17 +132,21 @@ public class ReviewController {
             summary = "본인이 작성한 리뷰 목록 조회",
             description = "특정 사용자가 본인이 작성한 리뷰 목록을 불러옵니다."
     )
-    public ResultResponse<List<MyReviewDto>> getReviewsByUser(
-            @RequestParam long userId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        MyReviewGetReq req = new MyReviewGetReq(page, size); // 페이징 정보를 포함한 요청 객체 생성
-        req.setUserId(userId); // 유저 ID 설정
-        List<MyReviewDto> reviews = service.getReviewsByUserId(req); // 서비스 호출
-        return ResultResponse.<List<MyReviewDto>>builder()
+    public ResultResponse<ReviewResponseDto> getReviewsByUser(
+            @ParameterObject @ModelAttribute MyReviewGetReq p) {
+
+        // 페이징 정보를 포함한 요청 객체 생성
+        MyReviewGetReq req = new MyReviewGetReq(p.getPage(), p.getSize(), p.getUserId(), p.getGeneralStartIdx(), p.getMediaStartIdx());
+        req.setUserId(p.getUserId()); // 유저 ID 설정
+
+        // `ReviewResponseDto` 반환하도록 변경
+        ReviewResponseDto reviewResponse = service.getReviewsByUserId(req);
+
+        return ResultResponse.<ReviewResponseDto>builder()
                 .resultMessage(userMessage.getMessage()) // 사용자 메시지 반환
-                .resultData(reviews) // 리뷰 데이터 반환
+                .resultData(reviewResponse) // 개수 정보 포함된 DTO 반환
                 .build();
     }
+
 
 }

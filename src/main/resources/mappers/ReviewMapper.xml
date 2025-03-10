@@ -312,4 +312,90 @@
     </select>
 
 
+    <resultMap id="GeneralReviewResultMap" type="com.green.acamatch.academy.model.HB.GeneralReviewDto">
+        <id property="reviewId" column="reviewId"/>
+        <result property="reviewComment" column="reviewComment"/>
+        <result property="reviewStar" column="reviewStar"/>
+        <result property="reviewCreatedAt" column="reviewCreatedAt"/>
+        <result property="reviewUpdatedAt" column="reviewUpdatedAt"/>
+        <result property="reviewUserId" column="reviewUserId"/>
+        <result property="reviewUserNickName" column="reviewUserNickName"/>
+        <result property="reviewClassName" column="reviewClassName"/>
+        <result property="writerPic" column="writerPic"/>
+        <result property="joinClassId" column="joinClassId"/>
+        <result property="banReview" column="banReview"/>
+        <result property="classId" column="classId"/>
+    </resultMap>
+
+    <select id="getGeneralReviews" resultMap="GeneralReviewResultMap">
+        SELECT
+        A.comment AS reviewComment,
+        A.star AS reviewStar,
+        A.created_at AS reviewCreatedAt,
+        A.updated_at AS reviewUpdatedAt,
+        A.review_id AS reviewId,
+        A.ban_review AS banReview,
+        A.join_class_id AS joinClassId,
+        B.user_id AS reviewUserId,
+        D.nick_name AS reviewUserNickName,
+        D.user_pic AS writerPic,
+        C.class_name AS reviewClassName,
+        B.class_id AS classId
+        FROM review A
+        JOIN join_class B ON A.join_class_id = B.join_class_id
+        JOIN aca_class C ON B.class_id = C.class_id
+        JOIN user D ON B.user_id = D.user_id
+        LEFT JOIN review_pic RP ON A.review_id = RP.review_id
+        WHERE B.user_id = #{userId} AND RP.review_id IS NULL
+        ORDER BY A.review_id DESC
+        LIMIT #{generalStartIdx}, #{size};
+    </select>
+
+    <resultMap id="MediaReviewResultMap" type="com.green.acamatch.academy.model.HB.MediaReviewDto">
+        <id property="reviewId" column="reviewId"/>
+        <result property="reviewComment" column="reviewComment"/>
+        <result property="reviewStar" column="reviewStar"/>
+        <result property="reviewCreatedAt" column="reviewCreatedAt"/>
+        <result property="reviewUpdatedAt" column="reviewUpdatedAt"/>
+        <result property="reviewUserId" column="reviewUserId"/>
+        <result property="reviewUserNickName" column="reviewUserNickName"/>
+        <result property="reviewClassName" column="reviewClassName"/>
+        <result property="writerPic" column="writerPic"/>
+        <result property="joinClassId" column="joinClassId"/>
+        <result property="banReview" column="banReview"/>
+        <result property="classId" column="classId"/>
+        <result property="reviewPics" column="reviewPics" typeHandler="com.green.acamatch.config.model.StringToListTypeHandler"/>
+    </resultMap>
+
+    <select id="getMediaReviews" resultMap="MediaReviewResultMap">
+        SELECT
+        A.comment AS reviewComment,
+        A.star AS reviewStar,
+        A.created_at AS reviewCreatedAt,
+        A.updated_at AS reviewUpdatedAt,
+        A.review_id AS reviewId,
+        A.ban_review AS banReview,
+        A.join_class_id AS joinClassId,
+        B.user_id AS reviewUserId,
+        D.nick_name AS reviewUserNickName,
+        D.user_pic AS writerPic,
+        C.class_name AS reviewClassName,
+        B.class_id AS classId,
+        GROUP_CONCAT(DISTINCT RP.review_pic ORDER BY RP.review_pic ASC SEPARATOR ',') AS reviewPics
+        FROM review A
+        JOIN join_class B ON A.join_class_id = B.join_class_id
+        JOIN aca_class C ON B.class_id = C.class_id
+        JOIN user D ON B.user_id = D.user_id
+        JOIN review_pic RP ON A.review_id = RP.review_id
+        WHERE B.user_id = #{userId}
+        GROUP BY
+        A.review_id, D.user_pic, B.class_id,
+        A.comment, A.star, A.created_at, A.updated_at, A.ban_review,
+        A.join_class_id, B.user_id, C.class_name
+        ORDER BY A.review_id DESC
+        LIMIT #{mediaStartIdx}, #{size};
+    </select>
+
+
+
 </mapper>

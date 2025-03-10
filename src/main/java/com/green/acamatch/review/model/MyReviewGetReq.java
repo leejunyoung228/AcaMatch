@@ -10,9 +10,18 @@ import lombok.Setter;
 public class MyReviewGetReq extends Paging {
 
     @Schema(title = "유저 ID", description = "리뷰를 조회할 유저 ID", example = "1")
-    private long userId;
+    private Long userId;
 
-    public MyReviewGetReq(Integer page, Integer size) {
+    @Schema(title = "일반 리뷰 페이징 시작 인덱스", example = "0")
+    private Integer generalStartIdx;
+
+    @Schema(title = "미디어 포함 리뷰 페이징 시작 인덱스", example = "0")
+    private Integer mediaStartIdx;
+
+    public MyReviewGetReq(Integer page, Integer size, Long userId, Integer generalStartIdx, Integer mediaStartIdx) {
         super(page, size);
+        this.userId = userId == null ? 0 : userId;
+        this.generalStartIdx = generalStartIdx == null ? 0 : generalStartIdx;
+        this.mediaStartIdx = mediaStartIdx == null ? 0 : mediaStartIdx;
     }
 }

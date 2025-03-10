@@ -1,8 +1,12 @@
 package com.green.acamatch.review.dto;
 
+import com.green.acamatch.academy.model.HB.GeneralReviewDto;
+import com.green.acamatch.academy.model.HB.MediaReviewDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 
 @Getter
@@ -38,6 +42,18 @@ public class MyReviewDto {
 
     @Schema(description = "리뷰의 총 갯수")
     private Integer myReviewCount;
+
+    @Schema(title = "일반 리뷰 개수", example = "100")
+    private Integer generalReviewCount;
+
+    @Schema(title = "미디어 포함 리뷰 개수", example = "50")
+    private Integer mediaReviewCount;
+
+    @Schema(title = "일반 리뷰 (미디어 없는 리뷰)")
+    private List<GeneralReviewDto> generalReviews;
+
+    @Schema(title = "미디어 포함 리뷰 (이미지가 포함된 리뷰)")
+    private List<MediaReviewDto> mediaReviews;
 
     @Schema(title = "리뷰 ID", description = "리뷰의 고유 PK", example = "1")
     private Long reviewId;
