@@ -3,13 +3,13 @@ package com.green.acamatch.academy.Service;
 import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.PremiumRepository;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
-import com.green.acamatch.academy.premium.model.PremiumDeleteReq;
-import com.green.acamatch.academy.premium.model.PremiumGetRes;
-import com.green.acamatch.academy.premium.model.PremiumPostReq;
-import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
+import com.green.acamatch.academy.premium.model.*;
 import com.green.acamatch.entity.academy.PremiumAcademy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,9 +72,16 @@ public class PremiumService {
     }
 
     //프리미엄학원 조회(관리자)
-    public List<PremiumGetRes> getPremium() {
-        List<PremiumGetRes> resList = premiumRepository.findAllByPremium();
+    public List<PremiumGetRes> getPremium(Pageable pageable) {
+        List<PremiumGetRes> resList = premiumRepository.findAllByPremium(pageable);
         academyMessage.setMessage("프리미엄학원을 조회하였습니다.");
+        return resList;
+    }
+
+    //프리미엄학원, 배너타입 조회(관리자)
+    public List<PremiumBannerGetRes> getPremiumBannerType(Pageable pageable) {
+        List<PremiumBannerGetRes> resList = premiumRepository.findAllByPremiumAndBannerType(pageable);
+        academyMessage.setMessage("프리미엄학원과 배너타입을 조회하였습니다.");
         return resList;
     }
 

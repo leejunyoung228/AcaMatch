@@ -2,16 +2,18 @@ package com.green.acamatch.academy.Controller;
 
 import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
-import com.green.acamatch.academy.premium.model.PremiumDeleteReq;
-import com.green.acamatch.academy.premium.model.PremiumGetRes;
-import com.green.acamatch.academy.premium.model.PremiumPostReq;
-import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
+import com.green.acamatch.academy.premium.model.*;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.entity.academy.PremiumAcademy;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,12 +49,32 @@ public class PremiumController {
                 .build();
     }
 
-    //프리미엄학원조회
+    //프리미엄 학원 조회
     @GetMapping
     @Operation(summary = "프리미엄학원 조회")
-    public ResultResponse<List<PremiumGetRes>> getPremiumAcademy() {
-        List<PremiumGetRes> resList = premiumService.getPremium();
+    public ResultResponse<List<PremiumGetRes>> getPremiumAcademy(@RequestParam("page") int page,
+                                                                 @RequestParam("size") int size) {
+
+        Pageable pageable = PageRequest.of(page-1, size);
+        // Pageable에서 sort 제외하고 데이터를 처리
+
+        List<PremiumGetRes> resList = premiumService.getPremium(pageable);
         return ResultResponse.<List<PremiumGetRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+    //프리미엄,배너타입학원조회
+    @GetMapping("bannerType")
+    @Operation(summary = "프리미엄학원, 배너타입 조회")
+    public ResultResponse<List<PremiumBannerGetRes>> getPremiumBannerTypeAcademy(@RequestParam("page") int page,
+                                                                                 @RequestParam("size") int size) {
+
+        Pageable pageable = PageRequest.of(page-1, size);
+
+        List<PremiumBannerGetRes> resList = premiumService.getPremiumBannerType(pageable);
+        return ResultResponse.<List<PremiumBannerGetRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(resList)
                 .build();
