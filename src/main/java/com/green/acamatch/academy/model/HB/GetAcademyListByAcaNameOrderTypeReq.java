@@ -21,4 +21,7 @@ public class GetAcademyListByAcaNameOrderTypeReq {
 
     @Schema(title = "종료일", example = "2025-03-31")
     private String endDate;
+
+    @Schema(title = "학원 PK")
+    private Long acaId;
 }
