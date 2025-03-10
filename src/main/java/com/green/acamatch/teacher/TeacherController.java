@@ -1,10 +1,9 @@
 
 package com.green.acamatch.teacher;
 
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.teacher.model.TeacherDelReq;
-import com.green.acamatch.teacher.model.TeacherPostReq;
-import com.green.acamatch.teacher.model.TeacherPutReq;
+import com.green.acamatch.teacher.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +26,23 @@ public class TeacherController {
                 .resultMessage(result == 1 ? "선생님 등록 성공" : "선생님 등록 실패")
                 .resultData(result)
                 .build();
+    }
+
+    @Operation(summary = "선생님 정보 불러오기")
+    @GetMapping
+    public ResultResponse<TeacherInfoGetRes> getTeacherInfo(@ModelAttribute @ParameterObject TeacherInfoGetReq p) {
+        TeacherInfoGetRes result = teacherService.getTeacherInfo(p);
+        try {
+            return ResultResponse.<TeacherInfoGetRes>builder()
+                    .resultMessage("선생님 정보 불러오기 성공")
+                    .resultData(result)
+                    .build();
+        }catch (CustomException e) {
+           return ResultResponse.<TeacherInfoGetRes>builder()
+                    .resultMessage(e.getMessage())
+                    .resultData(null)
+                    .build();
+        }
     }
 
     @Operation(summary = "선생님 정보 수정하기")
