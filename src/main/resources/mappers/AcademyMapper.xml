@@ -263,11 +263,6 @@
         JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
         WHERE A.aca_id = #{acaId}
-        AND NOT EXISTS (
-        SELECT 1
-        FROM reports r
-        WHERE r.aca_id = A.aca_id
-        )
     </select>
 
     <!-- 학원 태그 리스트 불러오기 -->
@@ -1211,6 +1206,9 @@
             </if>
             <if test="endDate != null and endDate != ''">
                 AND AC.created_at &lt;= #{endDate}
+            </if>
+            <if test="acaId != null">
+                AND A.aca_id = #{acaId}
             </if>
         </where>
     </select>
