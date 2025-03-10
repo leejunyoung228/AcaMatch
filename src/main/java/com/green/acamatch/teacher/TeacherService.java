@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TeacherService {
@@ -54,8 +56,8 @@ public class TeacherService {
         return 1;
     }
 
-    public TeacherInfoGetRes getTeacherInfo(TeacherInfoGetReq p) {
-            TeacherInfoGetRes result = teacherMapper.getTeacherInfo(p);
+    public List<TeacherInfoGetRes> getTeacherInfo(TeacherInfoGetReq p) {
+            List<TeacherInfoGetRes> result = teacherMapper.getTeacherInfo(p);
             if(result == null) {
                 throw new CustomException(TeacherErrorCode.NOT_FOUND_TEACHER);
             }
