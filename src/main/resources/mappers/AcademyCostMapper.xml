@@ -35,58 +35,32 @@
         where book_id = #{bookId}
     </select>
     <select id="getSettlementList">
-        SELECT IFNULL(A1.aca_id, A2.aca_id) AS acaId,
-        IFNULL(A1.aca_name, A2.aca_name) AS acaName,
-        IFNULL(A1.address, A2.address) AS address,
-        IFNULL(AP1.aca_pic, AP2.aca_pic) AS acaPic,
-        AC.updated_at AS updatedAt,
-        AC.price - AC.fee AS price, AC.status,
-        AC.created_at AS createdAt,
-        AC.cost_id,
-        TC.totalCount
-        FROM academy_cost AC
-        JOIN product P ON AC.product_id = P.product_id
-        LEFT JOIN book B ON P.book_id = B.book_id
-        LEFT JOIN aca_class C1 ON P.class_id = C1.class_id
-        LEFT JOIN aca_class C2 ON B.class_id = C2.class_id
-        LEFT JOIN academy A1 ON C1.aca_id = A1.aca_id
-        LEFT JOIN academy A2 ON C2.aca_id = A2.aca_id
-        LEFT JOIN academy_pic AP1 ON A1.aca_id = AP1.aca_id
-        LEFT JOIN academy_pic AP2 ON A2.aca_id = AP2.aca_id
-        LEFT JOIN
-        (
-        SELECT COUNT(AC.cost_id) AS totalCount, AC.cost_id
-        FROM academy_cost AC
+        SELECT
+        A.aca_id,
+        A.aca_name,
+        AP.aca_pic,
+        A.address,
+        SUM(AC.price) AS total_price,   -- 학원별 총 결제 금액
+        MAX(AC.status) AS latest_status -- 최근 결제 상태
+        FROM academy A
+        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        JOIN aca_class C ON A.aca_id = C.aca_id
+        JOIN book B ON C.class_id = B.class_id
+        JOIN product P ON B.book_id = P.book_id
+        JOIN academy_cost AC ON P.product_id = AC.product_id
         <where>
-            AC.product_id != 1
-            AND AC.cost_status = 2
-            <if test=" status != null ">
-                AND AC.status = #{status}
+            <if test="status != null">
+                AND AC.`status` = #{status}
             </if>
-            <if test=" year != null and year != '' ">
+            <if test="year != null">
                 AND YEAR(AC.created_at) = #{year}
             </if>
-            <if test=" month != null and month != '' ">
+            <if test="month != null">
                 AND MONTH(AC.created_at) = #{month}
             </if>
         </where>
-        ) TC
-        ON AC.cost_id = TC.cost_id
-        <where>
-            P.product_id != 1
-            AND AC.cost_status = 2
-            <if test=" status != null ">
-                AND AC.status = #{status}
-            </if>
-            <if test=" year != null and year != '' ">
-                AND YEAR(AC.created_at) = #{year}
-            </if>
-            <if test=" month != null and month != '' ">
-                AND MONTH(AC.created_at) = #{month}
-            </if>
-        </where>
-        GROUP BY cost_id
-        LIMIT #{startIdx}, #{size}
+        GROUP BY A.aca_id
+        ORDER BY total_price DESC;
     </select>
     <select id="getAcademyCostInfoByCostId">
         SELECT AC.*, U.name, P.product_name
