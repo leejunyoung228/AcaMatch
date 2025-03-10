@@ -3,6 +3,9 @@ package com.green.acamatch.manager;
 import com.green.acamatch.acaClass.AcaClassService;
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.manager.model.GetAcademyCostCountRes;
+import com.green.acamatch.manager.model.GetAcademyCountRes;
+import com.green.acamatch.manager.model.GetUserCountRes;
 import com.green.acamatch.sms.SmsService;
 import com.green.acamatch.sms.model.SmsRequest;
 import com.green.acamatch.user.UserUtils;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,6 +23,7 @@ public class ManagerService {
     private final SmsService smsService;
     private final AcaClassService acaClassService;
     private final UserUtils userUtils;
+    private final ManagerMapper managerMapper;
 
     // 특정 수업의 학생들에게 출석 알림 문자 발송
     public void sendAttendanceNotificationByClass(Long senderId, Long classId, String message) {
@@ -46,5 +51,20 @@ public class ManagerService {
 
             smsService.sendSms(smsRequest, senderId);  // 올바른 인자 전달
         }
+    }
+
+    public List<GetAcademyCountRes> getAcademyCount(String month){
+        List<GetAcademyCountRes> res = managerMapper.getAcademyCount(month);
+        return res;
+    }
+
+    public List<GetUserCountRes> getUserCount(String month){
+        List<GetUserCountRes> res = managerMapper.getUserCount(month);
+        return res;
+    }
+
+    public List<GetAcademyCostCountRes> getAcademyCostCount(String month){
+        List<GetAcademyCostCountRes> res = managerMapper.getAcademyCostCount(month);
+        return res;
     }
 }

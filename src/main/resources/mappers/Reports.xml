@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.acamatch.reports.ReportsMapper">
+    <select id="getUserList">
+        SELECT U.email, U.name, R.reports_type, R.processing_status, COUNT(R.report_id) AS reportCount
+        FROM reports R
+        JOIN user U ON R.reported_user_id = u.user_id
+        GROUP BY U.user_id
+    </select>
+</mapper>

@@ -27,6 +27,7 @@ public class StudentGradeController {
     private final StudentGradeService studentGradeService;
 
     // 1. 성적 엑셀 파일로 내보내기 (GET 요청)
+
     @GetMapping("/export")
     @Operation(summary = "엑셀 파일로 내보내기")
     public ResultResponse<String  > exportToExcel(@RequestParam("examId") Long examId) {

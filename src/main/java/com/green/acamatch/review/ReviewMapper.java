@@ -1,5 +1,8 @@
 package com.green.acamatch.review;
 
+import com.green.acamatch.academy.model.HB.GeneralReviewDto;
+import com.green.acamatch.academy.model.HB.GetAcademyDetailReq;
+import com.green.acamatch.academy.model.HB.MediaReviewDto;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.model.*;
@@ -79,6 +82,10 @@ public interface ReviewMapper {
 
     // 조회된 리뷰 ID 목록을 기반으로 리뷰 삭제
     int deleteReviewByReviewId(List<Integer> reviewIds);
+
+    List<GeneralReviewDto> getGeneralReviews(MyReviewGetReq p);
+
+    List<MediaReviewDto> getMediaReviews(MyReviewGetReq p);
 
 
 }

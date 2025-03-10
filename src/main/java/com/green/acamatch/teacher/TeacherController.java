@@ -48,6 +48,23 @@ public class TeacherController {
         }
     }
 
+    @Operation(summary = "선생님 승인 정보 불러오기")
+    @GetMapping("Agree")
+    public ResultResponse<List<TeacherListGetRes>>getTeacherList(@ModelAttribute @ParameterObject TeacherListGetReq p) {
+        List<TeacherListGetRes> result = teacherService.getTeacherList(p);
+        try {
+            return ResultResponse.<List<TeacherListGetRes>>builder()
+                    .resultMessage("수업 신청한 선생님 불러오기 성공")
+                    .resultData(result)
+                    .build();
+        }catch (CustomException e) {
+            return ResultResponse.<List<TeacherListGetRes>>builder()
+                    .resultMessage("수업 신청한 선생님 불러오기 실패")
+                    .resultData(new ArrayList<>())
+                    .build();
+        }
+    }
+
     @Operation(summary = "선생님 정보 수정하기")
     @PutMapping
     public ResultResponse<Integer> updateTeacher(@ModelAttribute @ParameterObject TeacherPutReq p) {
