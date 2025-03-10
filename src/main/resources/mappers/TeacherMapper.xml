@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.green.acamatch.teacher.TeacherMapper">
+    <select id="getTeacherInfo">
+        SELECT A.user_id, A.class_id, D.aca_id, B.user_pic, B.name, B.phone, B.nick_name, B.email, D.aca_name, C.class_name
+        FROM teacher A
+        INNER JOIN `user` B
+        ON A.user_id = B.user_id
+        LEFT JOIN aca_class C
+        ON A.class_id = C.class_id
+        LEFT JOIN academy D
+        ON C.aca_id = D.aca_id
+        WHERE A.user_id = #{userId}
+    </select>
+</mapper>

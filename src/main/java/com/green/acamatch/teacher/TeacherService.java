@@ -8,9 +8,7 @@ import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.manager.TeacherIds;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.teacher.model.TeacherDelReq;
-import com.green.acamatch.teacher.model.TeacherPostReq;
-import com.green.acamatch.teacher.model.TeacherPutReq;
+import com.green.acamatch.teacher.model.*;
 import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +52,14 @@ public class TeacherService {
         teacherRepository.save(teacher);
 
         return 1;
+    }
+
+    public TeacherInfoGetRes getTeacherInfo(TeacherInfoGetReq p) {
+            TeacherInfoGetRes result = teacherMapper.getTeacherInfo(p);
+            if(result == null) {
+                throw new CustomException(TeacherErrorCode.NOT_FOUND_TEACHER);
+            }
+            return result;
     }
 
     public Integer updateTeacher(TeacherPutReq p) {
