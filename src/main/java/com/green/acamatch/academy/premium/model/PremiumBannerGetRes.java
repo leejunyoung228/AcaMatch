@@ -1,9 +1,6 @@
 package com.green.acamatch.academy.premium.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,25 +9,27 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class PremiumGetRes {
+public class PremiumBannerGetRes {
     private Long acaId;
     private String acaName;
     private LocalDate startDate;
     private LocalDate endDate;
     private int preCheck;
+    private Integer bannerType;
     private LocalDateTime createdAt;
 
     // **생성자 추가 (JPA가 new 키워드로 객체를 생성할 때 필요함)**
-    public PremiumGetRes(Long acaId, String acaName, LocalDate startDate, LocalDate endDate,
-                               int preCheck, LocalDateTime createdAt) {
+    public PremiumBannerGetRes(Long acaId, String acaName, LocalDate startDate, LocalDate endDate,
+                               int preCheck, Integer bannerType, LocalDateTime createdAt) {
         this.acaId = acaId;
         this.acaName = acaName;
         this.startDate = startDate;
         this.endDate = endDate;
         this.preCheck = preCheck;
+        this.bannerType = bannerType;
         this.createdAt = createdAt;
     }
 
     // 기본 생성자 추가 (JPA가 리플렉션을 사용할 때 필요함)
-    public PremiumGetRes() {}
+    public PremiumBannerGetRes() {}
 }

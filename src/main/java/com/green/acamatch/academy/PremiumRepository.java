@@ -1,7 +1,11 @@
 package com.green.acamatch.academy;
 
+import com.green.acamatch.academy.premium.model.PremiumBannerGetRes;
 import com.green.acamatch.academy.premium.model.PremiumGetRes;
 import com.green.acamatch.entity.academy.PremiumAcademy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,9 +36,17 @@ public interface PremiumRepository extends JpaRepository<PremiumAcademy, Long> {
     int updateDateByAcaId(@Param("acaId") Long acaId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     //프리미엄 학원 조회
-    @Query(" SELECT new com.green.acamatch.academy.premium.model.PremiumGetRes(b.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, c.bannerType, a.createdAt) " +
-            "from PremiumAcademy as a join Academy as b on a.acaId = b.acaId left join Banner as c on a.acaId = c.acaId")
-    List<PremiumGetRes> findAllByPremium();
+    @Query(" SELECT new com.green.acamatch.academy.premium.model.PremiumGetRes(b.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, a.createdAt) " +
+            "from PremiumAcademy as a join Academy as b on a.acaId = b.acaId order by a.createdAt")
+    List<PremiumGetRes> findAllByPremium(Pageable pageable);
+
+    //프리미엄 학원 조회(배너포함)
+    @Query("SELECT new com.green.acamatch.academy.premium.model.PremiumBannerGetRes(" +
+            "b.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, c.bannerType, a.createdAt) " +
+            "FROM PremiumAcademy a " +
+            "JOIN Academy b ON a.acaId = b.acaId " +
+            "LEFT JOIN Banner c ON a.acaId = c.acaId order by a.createdAt")
+    List<PremiumBannerGetRes> findAllByPremiumAndBannerType(Pageable pageable);
 
     //프리미엄 학원 삭제
     @Transactional
