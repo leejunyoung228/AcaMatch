@@ -90,5 +90,6 @@ public interface ReviewMapper {
                                              @Param("signedUserId") Long signedUserId,
                                              @Param("size") int size);
 
+        int totalMediaReviewCount (Long signedUserId);
 
 }

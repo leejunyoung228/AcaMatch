@@ -18,7 +18,7 @@ public class MediaReviewDto {
     private int reviewStar;
     private String reviewCreatedAt;
     private String reviewUpdatedAt;
-    private int reviewUserId;
+    private Long reviewUserId;
     private String reviewUserNickName;
     private String reviewClassName;
     private int joinClassId;

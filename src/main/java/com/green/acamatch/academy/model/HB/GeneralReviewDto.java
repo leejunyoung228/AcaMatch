@@ -12,7 +12,7 @@ public class GeneralReviewDto {
     private int reviewStar;
     private String reviewCreatedAt;
     private String reviewUpdatedAt;
-    private long reviewUserId;
+    private Long reviewUserId;
     private String reviewUserNickName;
     private String reviewClassName;
     private long joinClassId;
