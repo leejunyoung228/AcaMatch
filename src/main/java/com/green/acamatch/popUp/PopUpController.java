@@ -38,7 +38,7 @@ public class PopUpController {
     }
 
     @GetMapping
-    @Operation(summary = "팝업 리스트 가져오기")
+    @Operation(summary = "팝업 리스트 가져오기/ pop_up_show : 0(비활성) 1(활성) 2(endDate가 지난 팝업)")
     public ResultResponse<List<PopUpGetDto>> getPopUpList(@ParameterObject @ModelAttribute PopUpGetReq p) {
         try {
             List<PopUpGetDto> result = popUpService.getPopUpList(p);
