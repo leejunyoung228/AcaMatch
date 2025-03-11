@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kotlinx.serialization.Required;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,10 +71,10 @@ public class BannerController {
 
     @GetMapping
     @Operation(summary = "프리미엄학원의 배너 조회")
-    public ResultResponse<List<BannerGetRes>> getBanner(BannerGetReq req) {
+    public ResultResponse<List<BannerOneAcademyGetRes>> getBanner(BannerGetReq req) {
 
-        List<BannerGetRes> res = bannerService.getBanner(req.getAcaId());
-        return ResultResponse.<List<BannerGetRes>>builder()
+        List<BannerOneAcademyGetRes> res = bannerService.getBanner(req.getAcaId());
+        return ResultResponse.<List<BannerOneAcademyGetRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(res)
                 .build();
@@ -80,9 +82,11 @@ public class BannerController {
 
     @GetMapping("all")
     @Operation(summary = "모든 프리미엄학원 배너 조회 ")
-    public ResultResponse<List<BannerGetRes>> getBannerAll() {
+    public ResultResponse<List<BannerGetRes>> getBannerAll(@RequestParam int page, @RequestParam int size) {
 
-        List<BannerGetRes> res = bannerService.getBannerAll();
+        Pageable pageable = PageRequest.of(page-1, size);
+
+        List<BannerGetRes> res = bannerService.getBannerAll(pageable);
         return ResultResponse.<List<BannerGetRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(res)

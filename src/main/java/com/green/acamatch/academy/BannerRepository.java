@@ -2,9 +2,11 @@ package com.green.acamatch.academy;
 
 import com.green.acamatch.academy.banner.model.BannerByPositionGetRes;
 import com.green.acamatch.academy.banner.model.BannerGetRes;
+import com.green.acamatch.academy.banner.model.BannerOneAcademyGetRes;
 import com.green.acamatch.entity.academy.AcademyPic;
 import com.green.acamatch.entity.academy.AcademyPicIds;
 import com.green.acamatch.entity.banner.Banner;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -33,12 +35,14 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
     List<BannerByPositionGetRes> findBannerByPosition( Long acaId, int bannerPosition);
 
     //학원 하나에 전체 배너 조회
-    @Query("select new com.green.acamatch.academy.banner.model.BannerGetRes(a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow )FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId WHERE a.acaId= :acaId ORDER BY b.bannerPosition ASC")
-    List<BannerGetRes> findBanner(Long acaId);
+    @Query("select new com.green.acamatch.academy.banner.model.BannerOneAcademyGetRes(a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow) FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId WHERE a.acaId= :acaId ORDER BY b.bannerPosition ASC")
+    List<BannerOneAcademyGetRes> findBanner(Long acaId);
 
-    //요청없이 모든 배너 조회
-    @Query("select new com.green.acamatch.academy.banner.model.BannerGetRes(a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow )FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId ORDER BY b.bannerPosition ASC")
-    List<BannerGetRes> findAllBanner();
+    //페이징 모든 배너 조회
+    @Query("select new com.green.acamatch.academy.banner.model.BannerGetRes(a.acaId, a.acaName, a.bannerType, a.startDate, a.endDate,b.bannerPicIds.bannerPic, b.bannerPosition, b.bannerShow, " +
+            "(SELECT COUNT(p) as countBanner FROM PremiumAcademy p)) " +
+            "FROM Banner a JOIN BannerPic b ON a.acaId = b.banner.acaId ORDER BY b.bannerPosition ASC")
+    List<BannerGetRes> findAllBanner(Pageable pageable);
 
     //배너 존재 선택
 

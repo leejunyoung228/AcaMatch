@@ -5,10 +5,7 @@ import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.BannerPicRepository;
 import com.green.acamatch.academy.BannerRepository;
 import com.green.acamatch.academy.PremiumRepository;
-import com.green.acamatch.academy.banner.model.BannerByPositionGetRes;
-import com.green.acamatch.academy.banner.model.BannerGetRes;
-import com.green.acamatch.academy.banner.model.BannerPostReq;
-import com.green.acamatch.academy.banner.model.BannerUpdateReq;
+import com.green.acamatch.academy.banner.model.*;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.constant.AcademyConst;
@@ -24,6 +21,7 @@ import kotlinx.serialization.StringFormat;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.service.RequestBodyService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -195,16 +193,16 @@ public class BannerService {
 
     //특정 프리미엄학원의 배너 조회
     @Transactional
-    public List<BannerGetRes> getBanner(Long acaId) {
-        List<BannerGetRes> res = bannerRepository.findBanner(acaId);
+    public List<BannerOneAcademyGetRes> getBanner(Long acaId) {
+        List<BannerOneAcademyGetRes> res = bannerRepository.findBanner(acaId);
         academyMessage.setMessage("%d번, acaId" + " 프리미엄학원의 배너가 조회되었습니다.");
         return res;
     }
 
     //프리미엄 학원의 모든 배너 조회
     @Transactional
-    public List<BannerGetRes> getBannerAll() {
-        List<BannerGetRes> res = bannerRepository.findAllBanner();
+    public List<BannerGetRes> getBannerAll(Pageable pageable) {
+        List<BannerGetRes> res = bannerRepository.findAllBanner(pageable);
         academyMessage.setMessage("프리미엄학원의 모든 배너가 조회되었습니다.");
         return res;
     }
