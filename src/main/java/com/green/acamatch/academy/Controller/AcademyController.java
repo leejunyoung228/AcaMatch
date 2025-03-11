@@ -128,7 +128,7 @@ public class AcademyController {
     }
 
     @GetMapping("getAcademyListByUserId")
-    @Operation(summary = "signedUserId를 입력받아 그 유저가 등록한 학원 리스트 불러오기")
+    @Operation(summary = "signedUserId를 입력받아 그 유저가 등록한 학원 리스트 불러오기", description = "premium이 0이면 일반학원, 1이면 프리미엄 학원입니다.")
     public ResultResponse<List<GetAcademyListByUserIdRes>> getAcademyListByUserId(@ParameterObject @ModelAttribute GetAcademyListByUserIdReq p) {
         List<GetAcademyListByUserIdRes> list = academyService.getAcademyListByUserId(p);
         return ResultResponse.<List<GetAcademyListByUserIdRes>>builder()

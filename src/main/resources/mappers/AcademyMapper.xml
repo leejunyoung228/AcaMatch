@@ -309,6 +309,7 @@
         A.address,
         U.name,
         AP.aca_pic,
+        A.premium,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         IFNULL(RC.reportsCount, 0) AS reportsCount  -- 신고 수가 없으면 0으로 처리
         FROM academy A

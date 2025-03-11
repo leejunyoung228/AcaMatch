@@ -37,7 +37,8 @@
     <select id="getSettlementList">
         SELECT A.aca_id, A.aca_name, AP.aca_pic, A.address,
         SUM(AC.price) AS totalPrice, MAX(AC.`status`) AS latestStatus,
-        COUNT(*) OVER() AS totalCount
+        COUNT(*) OVER() AS totalCount,
+        GROUP_CONCAT(AC.cost_id ORDER BY AC.created_at DESC) AS costIds
         FROM product P
         LEFT JOIN aca_class C ON P.class_id = C.class_id
         LEFT JOIN book B ON P.book_id = B.book_id

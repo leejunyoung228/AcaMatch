@@ -27,4 +27,7 @@ public class GetSettlementListRes {
 
     @Schema(title = "총 검색된 수")
     private int totalCount;
+
+    @Schema(title = "결제 PK들")
+    private String costIds;
 }
