@@ -128,8 +128,8 @@ public class PopUpService {
                 throw new CustomException(popUpErrorCode.FAIL_TO_UPD);
             }
 
-            // popUpShow와 popUpType이 0도 허용되도록 변경 (2 이상이면 오류)
-            if (p.getPopUpShow() >= 2 || p.getPopUpType() >= 2) {
+            // popUpShow와 popUpType이 0도 허용되도록 변경
+            if (p.getPopUpShow() >= 3 || p.getPopUpType() >= 2) {
                 throw new CustomException(popUpErrorCode.FAIL_TO_UPD);
             }
 
