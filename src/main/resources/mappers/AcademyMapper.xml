@@ -1179,17 +1179,22 @@
         WHERE aca_name like CONCAT('%', #{acaName}, '%')
     </select>
     <select id="getAcademyListByAcaNameOrderType">
-        SELECT
+        SELECT A.aca_id,
         A.aca_name,
         A.comment,
         AP.aca_pic,
         AC.created_at,
         AC.price,
+        AC.cost_status,
         U.name,
-        AC.cost_status
-        FROM academy A
+        AC.cost_id,
+        COUNT(*) OVER() AS totalCount
+        FROM product P
+        LEFT JOIN aca_class C ON P.class_id = C.class_id
+        LEFT JOIN book B ON P.book_id = B.book_id
+        JOIN academy_cost AC ON P.product_id = AC.product_id
+        JOIN academy A ON A.aca_id = C.class_id
         LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
-        JOIN academy_cost AC ON A.aca_id = AC.aca_id
         JOIN user U ON AC.user_id = U.user_id
         <where>
             <if test="acaName != null and acaName != ''">
@@ -1211,6 +1216,8 @@
                 AND A.aca_id = #{acaId}
             </if>
         </where>
+        ORDER BY AC.created_at DESC
+        LIMIT #{startIdx}, #{size}
     </select>
     <select id="getAcademyListByAcaNameAndDate">
     </select>

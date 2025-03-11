@@ -27,4 +27,7 @@ public class GetAcademyListByAcaNameOrderTypeRes {
 
     @Schema(title = "결제 상태", description = "0이면 결제 대기, 1이면 결제 완료")
     private int costStatus;
+
+    @Schema(title = "결제 PK")
+    private Long costId;
 }
