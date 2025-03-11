@@ -464,35 +464,40 @@ public class ReviewImageService {
             return failedToDelete;
         }
 
+        // 환경설정에서 가져온 파일 기본 경로
+        String basePath = filePathConfig.getUploadDir();
+
         for (String fileName : deletedFiles) {
-            Optional<ReviewPic> reviewPicOpt = reviewPicRepository.findByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
+            Optional<ReviewPic> reviewPicOpt = reviewPicRepository
+                    .findByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
 
             if (reviewPicOpt.isPresent()) {
-                String fullPath = "D:\\2024-02\\download\\greengram_ver3\\reviews\\20\\images\\" + fileName;
+                // 동적으로 파일 경로 생성
+                String fullPath = Paths.get(basePath, String.valueOf(reviewId), "images", fileName).toString();
                 File file = new File(fullPath);
 
                 if (!file.exists()) {
-                    log.error("삭제할 파일이 존재하지 않습니다: " + fullPath);
+                    log.error("삭제할 파일이 존재하지 않음: {}", fullPath);
                     failedToDelete.add(fileName);
                     continue;
                 }
 
                 if (!file.canWrite()) {
-                    log.error("파일을 삭제할 권한이 없습니다: " + fullPath);
+                    log.error("파일을 삭제할 권한 없음: {}", fullPath);
                     failedToDelete.add(fileName);
                     continue;
                 }
 
                 boolean deleted = file.delete();
                 if (!deleted) {
-                    log.error("파일 삭제 실패: " + fullPath);
+                    log.error("파일 삭제 실패: {}", fullPath);
                     failedToDelete.add(fileName);
                 } else {
                     reviewPicRepository.deleteByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
-                    log.info("파일 삭제 성공: " + fullPath);
+                    log.info("파일 삭제 성공: {}", fullPath);
                 }
             } else {
-                log.warn("삭제할 파일이 DB에 존재하지 않습니다: " + fileName);
+                log.warn("삭제할 파일이 DB에 존재하지 않음: {}", fileName);
             }
         }
         return failedToDelete;
