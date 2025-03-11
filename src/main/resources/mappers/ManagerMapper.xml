@@ -2,36 +2,68 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.green.acamatch.manager.ManagerMapper">
     <select id="getAcademyCount">
+        WITH RECURSIVE date_series AS (
+        -- 1. 검색 기준이 "이번달"이면 이번 달 1일부터, "지난달"이면 지난달 1일부터 설정
         SELECT
-        DATE(created_at) AS register_date,  -- 날짜별 그룹화 (날짜만 가져오기)
-        COUNT(*) AS academyCount           -- 해당 날짜에 등록된 학원 수
-        FROM academy
         <if test="month == '이번달'">
-            WHERE year(created_at) = YEAR(NOW())
-            AND MONTH(created_at) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
+            DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), '%Y-%m-%d')
         </if>
         <if test="month == '지난달'">
-            WHERE YEAR(created_at) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
-            AND MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
+            DATE_FORMAT(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), INTERVAL 1 MONTH), '%Y-%m-%d')
         </if>
-        GROUP BY register_date
-        ORDER BY register_date
+        AS register_date
+        UNION ALL
+        -- 2. 하루씩 증가
+        SELECT DATE_ADD(register_date, INTERVAL 1 DAY)
+        FROM date_series
+        WHERE register_date &lt;
+        <if test="month == '이번달'">
+            CURDATE()  -- 이번 달은 오늘까지
+        </if>
+        <if test="month == '지난달'">
+            LAST_DAY(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))  -- 지난 달은 해당 월의 마지막 날까지
+        </if>
+        )
+
+        SELECT
+        ds.register_date,  -- 날짜 리스트
+        (SELECT COUNT(*) FROM academy) AS totalAcademyCount -- 현재까지 등록된 모든 학원 수
+        FROM date_series ds
+        LEFT JOIN academy a ON DATE(a.created_at) = ds.register_date
+        GROUP BY ds.register_date
+        ORDER BY ds.register_date;
     </select>
     <select id="getUserCount">
+        WITH RECURSIVE date_series AS (
+        -- 1. 검색 기준이 "이번달"이면 이번 달 1일부터, "지난달"이면 지난달 1일부터 설정
         SELECT
-        DATE(created_at) AS register_date,  -- 날짜별 그룹화 (날짜만 가져오기)
-        COUNT(*) AS userCount           -- 해당 날짜에 등록된 학원 수
-        FROM user
-        <if test="month == '지난달'">
-            WHERE YEAR(created_at) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
-            AND MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
-        </if>
         <if test="month == '이번달'">
-            WHERE year(created_at) = YEAR(NOW())
-            AND MONTH(created_at) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
+            DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), '%Y-%m-%d')
         </if>
-        GROUP BY register_date
-        ORDER BY register_date;
+        <if test="month == '지난달'">
+            DATE_FORMAT(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), INTERVAL 1 MONTH), '%Y-%m-%d')
+        </if>
+        AS register_date
+        UNION ALL
+        -- 2. 하루씩 증가
+        SELECT DATE_ADD(register_date, INTERVAL 1 DAY)
+        FROM date_series
+        WHERE register_date &lt;
+        <if test="month == '이번달'">
+            CURDATE()  -- 이번 달은 오늘까지
+        </if>
+        <if test="month == '지난달'">
+            LAST_DAY(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))  -- 지난 달은 해당 월의 마지막 날까지
+        </if>
+        )
+
+        SELECT
+        ds.register_date,  -- 날짜 리스트
+        (SELECT COUNT(*) FROM user) AS totalUserCount -- 현재까지 등록된 모든 학원 수
+        FROM date_series ds
+        LEFT JOIN user u ON DATE(u.created_at) = ds.register_date
+        GROUP BY ds.register_date
+        ORDER BY ds.register_date;
     </select>
     <select id="getAcademyCostCount">
         SELECT

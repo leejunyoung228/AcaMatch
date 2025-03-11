@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class GetUserCountRes {
     private String registerDate;
-    private int userCount;
+    private int totalUserCount;
 }
