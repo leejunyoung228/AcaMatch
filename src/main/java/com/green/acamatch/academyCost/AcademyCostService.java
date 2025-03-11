@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +33,7 @@ public class AcademyCostService {
         return academyCostMapper.getAcademyCostInfoByCostId(costId);
     }
 
-    public int updateStatus(Long costId) {
+    public int updateStatuses(String costIds) {
         LocalDate today = LocalDate.now();
         int lastDayOfMonth = today.lengthOfMonth(); // 해당 월의 마지막 날짜 가져오기
 
@@ -40,19 +42,31 @@ public class AcademyCostService {
             return 0;
         }
 
-        AcademyCost academyCost = academyCostRepository.findById(costId).orElse(null);
+        // String을 List<Long>으로 변환
+        List<Long> costIdList = Arrays.stream(costIds.split(","))
+                .map(String::trim) // 공백 제거
+                .map(Long::parseLong) // Long 타입 변환
+                .collect(Collectors.toList());
 
-        if (academyCost == null) {
-            academyCostMessage.setMessage("해당 정산 정보를 찾을 수 없습니다.");
+        // 처리할 데이터가 없으면 반환
+        if (costIdList.isEmpty()) {
+            academyCostMessage.setMessage("정산할 내역이 없습니다.");
             return 0;
         }
 
-        academyCost.setStatus(1);
-        academyCost.setUpdatedAt(LocalDateTime.now());
-        academyCostRepository.save(academyCost);
+        // 모든 costId 처리
+        for (Long costId : costIdList) {
+            AcademyCost academyCost = academyCostRepository.findById(costId).orElse(null);
+            if (academyCost != null) {
+                academyCost.setStatus(1);
+                academyCost.setUpdatedAt(LocalDateTime.now());
+                academyCostRepository.save(academyCost);
+            }
+        }
 
         academyCostMessage.setMessage("정산이 완료되었습니다.");
         return 1;
     }
+
 
 }
