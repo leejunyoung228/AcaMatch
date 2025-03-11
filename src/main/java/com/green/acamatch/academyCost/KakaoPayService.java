@@ -382,26 +382,6 @@ public class KakaoPayService {
                     bookRepository.save(book);
                 }
             }
-
-            if(product.getClassId() != null){
-                User user = userRepository.findByUserId(userId).orElse(null);
-                AcaClass acaClass = classRepository.findById(product.getClassId().getClassId()).orElse(null);
-
-                try{
-                    if(joinClassRepository.existsJoinClass(acaClass.getClassId(), user.getUserId()) != null){
-                        throw new IllegalArgumentException("이미 수강 신청하였습니다.");
-                    }
-                    JoinClass joinClass1 = new JoinClass();
-                    joinClass1.setAcaClass(product.getClassId());
-                    joinClass1.setUser(user);
-                    joinClass1.setRegistrationDate(LocalDate.now());
-                    joinClass1.setCertification(0);
-                    joinClassRepository.save(joinClass1);
-                }catch (CustomException e){
-                    e.printStackTrace();
-                }
-
-            }
         }
 
         Map<String, String> parameters = new HashMap<>();
