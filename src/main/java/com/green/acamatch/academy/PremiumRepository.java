@@ -37,16 +37,17 @@ public interface PremiumRepository extends JpaRepository<PremiumAcademy, Long> {
 
     //프리미엄 학원 조회
     @Query("SELECT new com.green.acamatch.academy.premium.model.PremiumGetRes(" +
-            "a.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, a.createdAt, COUNT(*)) " +
+            "a.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, a.createdAt, " +
+            "(SELECT COUNT(p) as countPremium FROM PremiumAcademy p) ) " + // 전체 개수를 가져오는 서브쿼리
             "FROM PremiumAcademy a " +
             "JOIN Academy b ON a.acaId = b.acaId " +
-            "GROUP BY b.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, a.createdAt " +
             "ORDER BY a.createdAt")
     List<PremiumGetRes> findAllByPremium(Pageable pageable);
 
     //프리미엄 학원 조회(배너포함)
     @Query("SELECT new com.green.acamatch.academy.premium.model.PremiumBannerGetRes(" +
-            "b.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, c.bannerType, a.createdAt, COUNT(distinct a.acaId)) " +
+            "b.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, c.bannerType, a.createdAt, " +
+            "(SELECT COUNT(p) as countPremium FROM PremiumAcademy p) ) " +
             "FROM PremiumAcademy a " +
             "JOIN Academy b ON a.acaId = b.acaId " +
             "LEFT JOIN Banner c ON a.acaId = c.acaId " +
