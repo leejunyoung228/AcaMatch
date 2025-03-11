@@ -9,6 +9,7 @@ import com.green.acamatch.entity.popUp.PopUp;
 import com.green.acamatch.popUp.model.*;
 import com.nimbusds.jose.util.IntegerUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -30,48 +31,46 @@ public class PopUpService {
     private final MyFileUtils myFileUtils;
     private final UserMessage userMessage;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public int PostPopUp(MultipartFile pic, PopUpPostReq p) {
-        PopUp popUp = new PopUp();
-        popUp.setTitle(p.getTitle());
-        popUp.setComment(p.getComment());
-        popUp.setStartDate(p.getStartDate());
-        popUp.setEndDate(p.getEndDate());
-        popUp.setPopUpShow(p.getPopUpShow());
-        popUp.setPopUpType(p.getPopUpType());
-
-        popUpRepository.save(popUp);
-
         try {
             if (p.getComment() == null && pic == null) {
                 throw new CustomException(popUpErrorCode.COMMENT_OR_PHOTO_REQUIRED); // 예외 처리
 
-            } else if (p.getComment() != null && pic != null) {
+            }
+            if (p.getComment() != null && pic != null) {
                 throw new CustomException(popUpErrorCode.COMMENT_OR_PHOTO_REQUIRED);
+            }
 
-            } else if (pic != null) {
+            PopUp popUp = new PopUp();
+            popUp.setTitle(p.getTitle());
+            popUp.setComment(p.getComment());
+            popUp.setStartDate(p.getStartDate());
+            popUp.setEndDate(p.getEndDate());
+            popUp.setPopUpShow(p.getPopUpShow());
+            popUp.setPopUpType(p.getPopUpType());
 
-                long popUpId = popUp.getPopUpId();
+            popUp = popUpRepository.save(popUp);
+            long popUpId = popUp.getPopUpId();
 
+            if (pic != null && !pic.isEmpty()) {
                 String middlePath = String.format("popUp/%d", popUpId);
                 myFileUtils.makeFolders(middlePath);
 
-                String savedPicName = pic != null ? myFileUtils.makeRandomFileName(pic) : null;
+                String savedPicName = myFileUtils.makeRandomFileName(pic);
                 String filePath = String.format("%s/%s", middlePath, savedPicName);
 
                 try {
                     myFileUtils.transferTo(pic, filePath);
                     popUp.setPopUpPic(savedPicName);
-
-                    popUpRepository.save(popUp);
-
                 } catch (IOException e) {
-                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                    myFileUtils.deleteFolder(delFolderPath, true);
+                    myFileUtils.deleteFolder(middlePath, true);
+                    popUpRepository.delete(popUp);
                     log.error("파일 저장 실패: " + e.getMessage());
                     throw new CustomException(AcademyException.PHOTO_SAVE_FAILED);
                 }
             }
+            popUpRepository.save(popUp);
             return 1;
         } catch (CustomException e) {
             log.error("에러 발생: " + e.getMessage()); // 에러를 로깅;
@@ -82,11 +81,11 @@ public class PopUpService {
     public List<PopUpGetDto> getPopUpList(PopUpGetReq p) {
         try {
             List<PopUpGetDto> result = popUpMapper.getPopUpList(p);
-            if(result == null || result.isEmpty()) {
+            if (result == null || result.isEmpty()) {
                 throw new CustomException(popUpErrorCode.POPUP_NOT_FOUND);
             }
             return result;
-        }catch (CustomException e) {
+        } catch (CustomException e) {
             e.printStackTrace();
             return null;
         }
@@ -95,11 +94,11 @@ public class PopUpService {
     public List<PopUpGetDto> getPopUpDetail(PopUpGetDetailReq p) {
         try {
             List<PopUpGetDto> result = popUpMapper.getPopUpDetail(p);
-            if(result == null || result.isEmpty()) {
+            if (result == null || result.isEmpty()) {
                 throw new CustomException(popUpErrorCode.POPUP_NOT_FOUND);
             }
             return result;
-        }catch (CustomException e) {
+        } catch (CustomException e) {
             e.printStackTrace();
             return null;
         }
@@ -108,11 +107,11 @@ public class PopUpService {
     public List<PopUpGetShowRes> getPopUpShow() {
         try {
             List<PopUpGetShowRes> result = popUpMapper.getPopUpShow();
-            if(result == null || result.isEmpty()) {
+            if (result == null || result.isEmpty()) {
                 throw new CustomException(popUpErrorCode.POPUP_NOT_FOUND);
             }
             return result;
-        }catch (CustomException e) {
+        } catch (CustomException e) {
             e.printStackTrace();
             return null;
         }
@@ -137,6 +136,7 @@ public class PopUpService {
             boolean hasComment = p.getComment() != null && !p.getComment().isEmpty();
             boolean hasPic = pic != null && !pic.isEmpty();
 
+            // comment나 pic 중 하나는 필수 (단, 기존 popUpPic이 있다면 예외 발생 X)
             if (!hasComment && !hasPic && popUp.getPopUpPic() == null) {
                 throw new CustomException(popUpErrorCode.COMMENT_OR_PHOTO_REQUIRED);
             }
@@ -147,14 +147,16 @@ public class PopUpService {
             }
 
             popUp.setTitle(p.getTitle());
-            popUp.setStartDate(popUp.getStartDate());
-            popUp.setEndDate(popUp.getEndDate());
+            popUp.setStartDate(p.getStartDate());
+            popUp.setEndDate(p.getEndDate());
             popUp.setPopUpShow(p.getPopUpShow());
             popUp.setPopUpType(p.getPopUpType());
 
+            String middlePath = String.format("popUp/%d", popUp.getPopUpId());
+
+            // Comment가 들어오면 기존 이미지 삭제하고 Comment 저장
             if (hasComment) {
-                if(popUp.getPopUpPic() != null) {
-                    String middlePath = String.format("popUp/%d", popUp.getPopUpId());
+                if (popUp.getPopUpPic() != null) {
                     myFileUtils.deleteFolder(middlePath, true);
 
                 }
@@ -162,11 +164,8 @@ public class PopUpService {
                 popUp.setPopUpPic(null);
             }
 
-            //기존 이미지 유지 로직 추가
-            if (hasPic) {
-                long popUpId = popUp.getPopUpId();
-                String middlePath = String.format("popUp/%d", popUpId);
-
+            // 새로운 이미지가 들어오면 기존 이미지 삭제 후 저장
+            else if (hasPic) {
                 myFileUtils.deleteFolder(middlePath, true);
                 myFileUtils.makeFolders(middlePath);
 
@@ -182,8 +181,10 @@ public class PopUpService {
                     throw new CustomException(popUpErrorCode.FAIL_TO_UPD);
                 }
             }
+
             popUpRepository.save(popUp);
             return 1;
+
         } catch (CustomException e) {
             return 0;
         }
