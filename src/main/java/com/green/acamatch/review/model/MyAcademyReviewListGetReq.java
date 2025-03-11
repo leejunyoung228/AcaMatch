@@ -21,7 +21,7 @@ public class MyAcademyReviewListGetReq extends Paging {
         super(page, size);
     }
     public Long getAcaId() {
-        return acaId != null ? acaId : 0L; // ✅ acaId가 null이면 0L 반환 (SQL에서 처리 가능)
+        return acaId != null ? acaId : 0L; // acaId가 null이면 0L 반환 (SQL에서 처리 가능)
     }
 }
 

@@ -155,7 +155,7 @@
         SELECT
         c.class_id AS classId,
         c.class_name AS className,
-        a.aca_id AS acaId,
+        c.aca_id AS acaId,
         a.aca_name AS acaName,
         u.user_id AS userId,
         u.nick_name AS writerName,
@@ -171,7 +171,7 @@
         JOIN aca_class c ON j.class_id = c.class_id
         LEFT JOIN academy a ON c.aca_id = a.aca_id
         JOIN user u ON j.user_id = u.user_id
-        WHERE a.user_id = #{userId}
+        WHERE a.user_id = #{userId} AND c.aca_id = #{acaId}
         ORDER BY r.review_id DESC
         LIMIT #{startIdx}, #{size}
     </select>
