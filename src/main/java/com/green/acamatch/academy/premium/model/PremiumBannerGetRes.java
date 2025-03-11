@@ -17,10 +17,11 @@ public class PremiumBannerGetRes {
     private int preCheck;
     private Integer bannerType;
     private LocalDateTime createdAt;
+    private Long countPremium;
 
     // **생성자 추가 (JPA가 new 키워드로 객체를 생성할 때 필요함)**
     public PremiumBannerGetRes(Long acaId, String acaName, LocalDate startDate, LocalDate endDate,
-                               int preCheck, Integer bannerType, LocalDateTime createdAt) {
+                               int preCheck, Integer bannerType, LocalDateTime createdAt, Long countPremium) {
         this.acaId = acaId;
         this.acaName = acaName;
         this.startDate = startDate;
@@ -28,6 +29,7 @@ public class PremiumBannerGetRes {
         this.preCheck = preCheck;
         this.bannerType = bannerType;
         this.createdAt = createdAt;
+        this.countPremium = countPremium;
     }
 
     // 기본 생성자 추가 (JPA가 리플렉션을 사용할 때 필요함)

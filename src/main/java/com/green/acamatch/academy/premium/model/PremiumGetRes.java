@@ -19,16 +19,18 @@ public class PremiumGetRes {
     private LocalDate endDate;
     private int preCheck;
     private LocalDateTime createdAt;
+    private Long countPremium;
 
     // **생성자 추가 (JPA가 new 키워드로 객체를 생성할 때 필요함)**
     public PremiumGetRes(Long acaId, String acaName, LocalDate startDate, LocalDate endDate,
-                               int preCheck, LocalDateTime createdAt) {
+                               int preCheck, LocalDateTime createdAt, Long countPremium) {
         this.acaId = acaId;
         this.acaName = acaName;
         this.startDate = startDate;
         this.endDate = endDate;
         this.preCheck = preCheck;
         this.createdAt = createdAt;
+        this.countPremium = countPremium;
     }
 
     // 기본 생성자 추가 (JPA가 리플렉션을 사용할 때 필요함)
