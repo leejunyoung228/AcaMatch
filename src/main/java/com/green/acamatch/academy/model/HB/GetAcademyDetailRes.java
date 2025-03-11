@@ -63,11 +63,11 @@ public class GetAcademyDetailRes {
     @Schema(title = "미디어 포함 리뷰 개수", example = "50")
     private Integer mediaReviewCount;
 
-    @Schema(title = "일반 리뷰 (미디어 없는 리뷰)")
-    private List<GeneralReviewDto> generalReviews;
-
-    @Schema(title = "미디어 포함 리뷰 (이미지가 포함된 리뷰)")
-    private List<MediaReviewDto> mediaReviews;
+//    @Schema(title = "일반 리뷰 (미디어 없는 리뷰)")
+//    private List<GeneralReviewDto> generalReviews;
+//
+//    @Schema(title = "미디어 포함 리뷰 (이미지가 포함된 리뷰)")
+//    private List<MediaReviewDto> mediaReviews;
 
 //    @Schema(title = "전체 리뷰 리스트 (일반 리뷰 + 미디어 포함 리뷰)")
 //    private List<ReviewDto> reviews;

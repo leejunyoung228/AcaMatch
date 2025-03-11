@@ -1,7 +1,6 @@
 package com.green.acamatch.review;
 
 import com.green.acamatch.academy.model.HB.GeneralReviewDto;
-import com.green.acamatch.academy.model.HB.GetAcademyDetailReq;
 import com.green.acamatch.academy.model.HB.MediaReviewDto;
 import com.green.acamatch.review.dto.MyReviewDto;
 import com.green.acamatch.review.dto.ReviewDto;
@@ -54,7 +53,7 @@ public interface ReviewMapper {
     List<ReviewDto> getMyAcademyReviews(MyAcademyReviewListGetReq req);
 
     // 본인이 작성한 리뷰 조회
-    List<MyReviewDto> getReviewsByUserId(MyReviewGetReq req);
+    List<MyReviewDto> getReviewsByUserId(MyMediaReviewGetReq req);
 
     // 학원 상세 페이지에서 학원의 리뷰 목록 조회
     List<ReviewDto> getAcademyReviewsForPublic(ReviewListGetReq req);
@@ -83,9 +82,13 @@ public interface ReviewMapper {
     // 조회된 리뷰 ID 목록을 기반으로 리뷰 삭제
     int deleteReviewByReviewId(List<Integer> reviewIds);
 
-    List<GeneralReviewDto> getGeneralReviews(MyReviewGetReq p);
+        List<GeneralReviewDto> getGeneralReviews(@Param("generalStartIdx") int generalStartIdx,
+                                                 @Param("signedUserId") Long signedUserId,
+                                                 @Param("size") int size);
 
-    List<MediaReviewDto> getMediaReviews(MyReviewGetReq p);
+        List<MediaReviewDto> getMediaReviews(@Param("mediaStartIdx") int mediaStartIdx,
+                                             @Param("signedUserId") Long signedUserId,
+                                             @Param("size") int size);
 
 
 }

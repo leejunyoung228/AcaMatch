@@ -19,5 +19,5 @@ public class GeneralReviewDto {
     private int banReview;
     private String writerPic;
     private long classId;
-
+    private int totalGeneralReviewCount;
 }

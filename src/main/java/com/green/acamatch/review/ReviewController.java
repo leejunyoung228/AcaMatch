@@ -1,9 +1,9 @@
 package com.green.acamatch.review;
 
-import com.green.acamatch.academy.model.HB.GetAcademyDetailReq;
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.review.dto.MyReviewDto;
+import com.green.acamatch.review.dto.GeneralReviewResponseDto;
+import com.green.acamatch.review.dto.MediaReviewResponseDto;
 import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.dto.ReviewResponseDto;
 import com.green.acamatch.review.model.*;
@@ -55,7 +55,6 @@ public class ReviewController {
                 .resultData(result)
                 .build();
     }
-
 
 
     // 학원 관계자 리뷰 삭제
@@ -127,26 +126,30 @@ public class ReviewController {
     }
 
     // 본인이 작성한 리뷰 목록 조회
-    @GetMapping("/user")
-    @Operation(
-            summary = "본인이 작성한 리뷰 목록 조회",
-            description = "특정 사용자가 본인이 작성한 리뷰 목록을 불러옵니다."
-    )
-    public ResultResponse<ReviewResponseDto> getReviewsByUser(
-            @ParameterObject @ModelAttribute MyReviewGetReq p) {
+    @GetMapping("/user/my-media")
+    @Operation(summary = "본인이 작성한 미디어 리뷰 조회", description = "로그인한 사용자가 작성한 미디어 리뷰 목록을 가져옵니다.mediaStartIdx 기본 값은 0")
+    public ResultResponse<MediaReviewResponseDto> getUserMediaReviews(
+            @ParameterObject @ModelAttribute MyMediaReviewGetReq req) {
 
-        // 페이징 정보를 포함한 요청 객체 생성
-        MyReviewGetReq req = new MyReviewGetReq(p.getPage(), p.getSize(), p.getUserId(), p.getGeneralStartIdx(), p.getMediaStartIdx());
-        req.setUserId(p.getUserId()); // 유저 ID 설정
 
-        // `ReviewResponseDto` 반환하도록 변경
-        ReviewResponseDto reviewResponse = service.getReviewsByUserId(req);
+        MediaReviewResponseDto response = service.getUserMediaReviews(req);
 
-        return ResultResponse.<ReviewResponseDto>builder()
-                .resultMessage(userMessage.getMessage()) // 사용자 메시지 반환
-                .resultData(reviewResponse) // 개수 정보 포함된 DTO 반환
+        return ResultResponse.<MediaReviewResponseDto>builder()
+                .resultMessage("사용자의 미디어 리뷰 목록 조회 성공")
+                .resultData(response)
                 .build();
     }
 
+    @GetMapping("/user/my-general")
+    @Operation(summary = "본인이 작성한 일반 리뷰 조회", description = "로그인한 사용자가 작성한 일반 리뷰 목록을 가져옵니다. generalStartIdx 기본 값은 0")
+    public ResultResponse<GeneralReviewResponseDto> getUserGeneralReviews(
+            @ParameterObject @ModelAttribute MyGeneralReviewGetReq req) {
 
+        GeneralReviewResponseDto response = service.getUserGeneralReviews(req);
+
+        return ResultResponse.<GeneralReviewResponseDto>builder()
+                .resultMessage("사용자의 일반 리뷰 목록 조회 성공")
+                .resultData(response)
+                .build();
+    }
 }

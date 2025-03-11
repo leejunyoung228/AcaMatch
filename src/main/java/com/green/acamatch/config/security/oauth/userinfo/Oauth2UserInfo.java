@@ -15,5 +15,5 @@ public abstract class Oauth2UserInfo {
     public abstract String getId(); //유일값 리턴 용도로 쓸 메소드
     public abstract String getName(); //이름 리턴 용도로 쓸 메소드
     public abstract String getEmail(); //이메일 리턴 용도로 쓸 메소드
-    public abstract String getProfileImageUrl(); //프로파일 사진 URL 리턴 용도로 쓸 메소드
+//    public abstract String getProfileImageUrl(); //프로파일 사진 URL 리턴 용도로 쓸 메소드
 }

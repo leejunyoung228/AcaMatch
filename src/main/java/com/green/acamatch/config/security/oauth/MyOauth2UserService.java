@@ -68,7 +68,7 @@ public class MyOauth2UserService extends DefaultOAuth2UserService {
                 user = new User();
                 user.setEmail(oauth2UserInfo.getEmail());
                 user.setPhone("");
-                user.setUserPic(oauth2UserInfo.getProfileImageUrl());
+//                user.setUserPic(oauth2UserInfo.getProfileImageUrl());
                 user.setUserRole(UserRole.NOT_SELECTED);
                 user.setUpw("");
                 user.setBirth(LocalDate.now());

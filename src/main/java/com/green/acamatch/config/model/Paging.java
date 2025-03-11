@@ -11,14 +11,24 @@ import lombok.ToString;
 public class Paging {
     private final static int DEFAULT_PAGE = 1;
     private final static int DEFAULT_PAGE_SIZE = 20;
+
     @Positive
     @Schema(example = "1", description = "Selected Page")
     private int page;
+
     @Positive
     @Schema(example = "30", description = "item count per page")
     private int size;
+
     @JsonIgnore
     private int startIdx;
+
+    // 기본 생성자 추가
+    public Paging() {
+        this.page = DEFAULT_PAGE;
+        this.size = DEFAULT_PAGE_SIZE;
+        this.startIdx = (this.page - 1) * this.size;
+    }
 
     public Paging(Integer page, Integer size) {
         this.page = (page == null || page < 1) ? DEFAULT_PAGE : page;
