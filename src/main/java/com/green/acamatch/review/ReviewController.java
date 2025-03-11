@@ -109,21 +109,21 @@ public class ReviewController {
     }
 
 
-    // 학원 상세페이지에서 리뷰 조회
-    @GetMapping("/academy")
-    @Operation(summary = "학원 리뷰 조회", description = "특정 학원의 상세페이지 리뷰를 조회합니다.")
-    public ResultResponse<List<ReviewDto>> getAcademyReviewsForPublic(
-            @RequestParam long acaId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        ReviewListGetReq req = new ReviewListGetReq(page, size);
-        req.setAcaId(acaId); // acaId 설정
-        List<ReviewDto> reviews = service.getAcademyReviewsForPublic(req);
-        return ResultResponse.<List<ReviewDto>>builder()
-                .resultMessage("리뷰 조회 성공")
-                .resultData(reviews)
-                .build();
-    }
+//    // 학원 상세페이지에서 리뷰 조회
+//    @GetMapping("/public-academy")
+//    @Operation(summary = "학원 리뷰 조회", description = "특정 학원의 상세페이지 리뷰를 조회합니다.")
+//    public ResultResponse<List<ReviewDto>> getAcademyReviewsForPublic(
+//            @RequestParam long acaId,
+//            @RequestParam(defaultValue = "1") int page,
+//            @RequestParam(defaultValue = "20") int size) {
+//        ReviewListGetReq req = new ReviewListGetReq(page, size);
+//        req.setAcaId(acaId); // acaId 설정
+//        List<ReviewDto> reviews = service.getAcademyReviewsForPublic(req);
+//        return ResultResponse.<List<ReviewDto>>builder()
+//                .resultMessage("리뷰 조회 성공")
+//                .resultData(reviews)
+//                .build();
+//    }
 
     // 본인이 작성한 리뷰 목록 조회
     @GetMapping("/user/my-media")

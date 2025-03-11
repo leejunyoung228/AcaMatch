@@ -829,6 +829,7 @@ public class ReviewService {
         return response;
     }
 
+
     @Transactional
     public MediaReviewResponseDto getUserMediaReviews(MyMediaReviewGetReq req) {
 
@@ -863,23 +864,24 @@ public class ReviewService {
 
 
 
+//
+//
+//    // 공개 학원 리뷰 조회 (로그인 필요 없음)
+//
+//    @Transactional
+//    public List<ReviewDto> getAcademyReviewsForPublic(ReviewListGetReq req) {
+//        validateAcademy(req.getAcaId());
+//
+//        List<ReviewDto> reviews = mapper.getAcademyReviewsForPublic(req);
+//        if (reviews.isEmpty()) {
+//            userMessage.setMessage("리뷰가 존재하지 않습니다.");
+//            return Collections.emptyList();
+//        }
+//
+//        userMessage.setMessage("리뷰 조회가 완료되었습니다.");
+//        return reviews;
+//    }
 
-
-    // 공개 학원 리뷰 조회 (로그인 필요 없음)
-
-    @Transactional
-    public List<ReviewDto> getAcademyReviewsForPublic(ReviewListGetReq req) {
-        validateAcademy(req.getAcaId());
-
-        List<ReviewDto> reviews = mapper.getAcademyReviewsForPublic(req);
-        if (reviews.isEmpty()) {
-            userMessage.setMessage("리뷰가 존재하지 않습니다.");
-            return Collections.emptyList();
-        }
-
-        userMessage.setMessage("리뷰 조회가 완료되었습니다.");
-        return reviews;
-    }
 
     /**
      * 로그인된 사용자 검증 (로그인 안 했으면 예외 발생)
