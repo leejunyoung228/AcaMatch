@@ -77,7 +77,7 @@ public class ReviewService {
         }
 
         Object principal = auth.getPrincipal();
-        log.debug("Principal 정보: {}", principal);
+        log.debug("Principal 정보: {}", principal.getClass().getName());  // 타입 확인 로그 추가
 
         if (principal instanceof JwtUser) {
             log.debug("JWT에서 추출한 userId: {}", ((JwtUser) principal).getSignedUserId());
@@ -85,11 +85,19 @@ public class ReviewService {
         } else if (principal instanceof CustomUserDetails) {
             log.debug("CustomUserDetails에서 추출한 userId: {}", ((CustomUserDetails) principal).getUserId());
             return ((CustomUserDetails) principal).getUserId();
+        } else if (principal instanceof String) {
+            try {
+                return Long.parseLong((String) principal); // String인 경우 숫자로 변환
+            } catch (NumberFormatException e) {
+                log.error("String principal을 Long으로 변환하는 중 오류 발생: {}", principal);
+                throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+            }
         }
 
         log.warn("userId를 찾을 수 없음");
         throw new CustomException(UserErrorCode.USER_NOT_FOUND);
     }
+
 
 
     /**
@@ -112,6 +120,7 @@ public class ReviewService {
 
     @Transactional
     public int createReview(@Valid ReviewPostReqForParent req) {
+
         long jwtUserId = validateAuthenticatedUser(); // JWT 인증된 사용자 ID 가져오기
         Long requestUserId = req.getUserId();
 
@@ -798,19 +807,17 @@ public class ReviewService {
     public GeneralReviewResponseDto getUserGeneralReviews(MyGeneralReviewGetReq req) {
 
         long jwtUserId = validateAuthenticatedUser(); // JWT 인증된 사용자 ID 가져오기
+
         Long requestUserId = req.getSignedUserId();
 
         // 사용자 ID 검증
         if (requestUserId == null || requestUserId == 0L) {
             userMessage.setMessage("잘못된 요청입니다. 유효한 사용자 ID가 필요합니다.");
+            throw new CustomException(ReviewErrorCode.INVALID_USER);
         }
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
-        }
-
-        // 본인 확인
-        if (mapper.checkUserExists(req.getSignedUserId()) == 0) {
-            throw new IllegalArgumentException("유효하지 않은 유저 ID입니다.");
+            throw new CustomException(ReviewErrorCode.UNAUTHENTICATED_USER);
         }
 
         // 일반 리뷰 조회
@@ -824,22 +831,31 @@ public class ReviewService {
 
     @Transactional
     public MediaReviewResponseDto getUserMediaReviews(MyMediaReviewGetReq req) {
+
         long jwtUserId = validateAuthenticatedUser(); // JWT 인증된 사용자 ID 가져오기
+
         Long requestUserId = req.getSignedUserId();
 
         // 사용자 ID 검증
         if (requestUserId == null || requestUserId == 0L) {
             userMessage.setMessage("잘못된 요청입니다. 유효한 사용자 ID가 필요합니다.");
+            throw new CustomException(ReviewErrorCode.INVALID_USER);
         }
         if (jwtUserId != requestUserId) {
             userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
+            throw new CustomException(ReviewErrorCode.UNAUTHENTICATED_USER);
         }
 
-        // 미디어 리뷰 조회
+
+        // 미디어 리뷰 목록 조회 (LIMIT 적용)
         List<MediaReviewDto> mediaReviews = mapper.getMediaReviews(req.getMediaStartIndx(), req.getSignedUserId(), req.getSize());
+
+        // 전체 개수 조회 (LIMIT 없이)
+        int totalMediaReviewCount = mapper.totalMediaReviewCount(req.getSignedUserId());
 
         MediaReviewResponseDto response = new MediaReviewResponseDto();
         response.setMediaReviews(mediaReviews);
+        response.setTotalMediaReviewCount(totalMediaReviewCount);  // 전체 개수 반영
 
         return response;
     }

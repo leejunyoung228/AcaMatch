@@ -701,7 +701,7 @@
         MediaReviewCount AS (
         SELECT
         C.aca_id,
-        COUNT(A.review_id) AS mediaReviewCount
+        COUNT(DISTINCT A.review_id) AS mediaReviewCount
         FROM review A
         JOIN join_class B ON A.join_class_id = B.join_class_id
         JOIN aca_class C ON B.class_id = C.class_id
@@ -925,7 +925,7 @@
         C.class_name AS reviewClassName,
         B.class_id AS classId,
         GROUP_CONCAT(DISTINCT RP.review_pic ORDER BY RP.review_pic ASC SEPARATOR ',') AS reviewPics,
-        (SELECT COUNT(*)
+        (SELECT COUNT(DISTINCT A2.review_id)
         FROM review A2
         JOIN join_class B2 ON A2.join_class_id = B2.join_class_id
         JOIN aca_class C2 ON B2.class_id = C2.class_id
