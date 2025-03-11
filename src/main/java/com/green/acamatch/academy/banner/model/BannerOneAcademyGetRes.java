@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class BannerGetRes {
+public class BannerOneAcademyGetRes {
     private Long acaId;
     private String acaName;
     private int bannerType;
@@ -19,6 +19,4 @@ public class BannerGetRes {
     private String bannerPic;
     private int bannerPosition;
     private int bannerShow;
-
-    private Long countBanner;
 }
