@@ -42,15 +42,15 @@ class ExamControllerTest {
     ExamService examService;
 
     final long CLASS_ID_2 = 2L;
-    final long SUBJECT_ID_6 = 6L;
-    final String BASE_URL = "/api/subject";
+    final long EXAM_ID_6 = 6L;
+    final String BASE_URL = "/api/exam";
 
     @Test
     @DisplayName("시험 이름 등록 테스트")
     void postSubject() throws Exception {
         ExamPostReq givenParam = new ExamPostReq();
         givenParam.setClassId(CLASS_ID_2);
-        givenParam.setExamId(SUBJECT_ID_6);
+        givenParam.setExamId(EXAM_ID_6);
         givenParam.setExamName("2회 국어 모의고사");
         givenParam.setExamType(0);
 
@@ -64,7 +64,7 @@ class ExamControllerTest {
 
         ResultResponse res = ResultResponse.<Long>builder()
                 .resultMessage("시험 회차 등록에 성공하였습니다.")
-                .resultData(SUBJECT_ID_6)
+                .resultData(EXAM_ID_6)
                 .build();
 
         String expectedResJson = objectMapper.writeValueAsString(res);
