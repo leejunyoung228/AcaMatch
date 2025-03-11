@@ -35,19 +35,15 @@
         where book_id = #{bookId}
     </select>
     <select id="getSettlementList">
-        SELECT
-        A.aca_id,
-        A.aca_name,
-        AP.aca_pic,
-        A.address,
-        SUM(AC.price) AS total_price,   -- 학원별 총 결제 금액
-        MAX(AC.status) AS latest_status -- 최근 결제 상태
-        FROM academy A
-        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
-        JOIN aca_class C ON A.aca_id = C.aca_id
-        JOIN book B ON C.class_id = B.class_id
-        JOIN product P ON B.book_id = P.book_id
+        SELECT A.aca_id, A.aca_name, AP.aca_pic, A.address,
+        SUM(AC.price) AS totalPrice, MAX(AC.`status`) AS latestStatus,
+        COUNT(*) OVER() AS totalCount
+        FROM product P
+        LEFT JOIN aca_class C ON P.class_id = C.class_id
+        LEFT JOIN book B ON P.book_id = B.book_id
         JOIN academy_cost AC ON P.product_id = AC.product_id
+        JOIN academy A ON A.aca_id = C.class_id
+        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
         <where>
             <if test="status != null">
                 AND AC.`status` = #{status}
@@ -60,7 +56,8 @@
             </if>
         </where>
         GROUP BY A.aca_id
-        ORDER BY total_price DESC;
+        ORDER BY AC.created_at DESC
+        LIMIT #{startIdx}, #{size};
     </select>
     <select id="getAcademyCostInfoByCostId">
         SELECT AC.*, U.name, P.product_name
