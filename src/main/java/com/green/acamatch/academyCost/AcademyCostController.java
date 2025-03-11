@@ -19,6 +19,7 @@ import java.util.List;
 @Tag(name = "결제")
 public class AcademyCostController {
     private final AcademyCostService academyCostService;
+    private final AcademyCostMessage academyCostMessage;
 
     @GetMapping("getAcademyCostInfoByMonth")
     @Operation(summary = "사이트 관리자가 월 수익 보기")
@@ -53,7 +54,7 @@ public class AcademyCostController {
     public ResultResponse<Integer> updateStatus(@PathVariable Long costId) {
         int result = academyCostService.updateStatus(costId);
         return ResultResponse.<Integer>builder()
-                .resultMessage("정산 처리 완료")
+                .resultMessage(academyCostMessage.getMessage())
                 .resultData(result)
                 .build();
     }
