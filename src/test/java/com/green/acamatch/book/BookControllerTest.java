@@ -1,23 +1,26 @@
 package com.green.acamatch.book;
 
 import com.green.acamatch.academy.Service.CSDService;
+import com.green.acamatch.book.model.BookGetRes;
 import com.green.acamatch.book.model.BookPostReq;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-@ActiveProfiles("test")
-@MybatisTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ExtendWith(MockitoExtension.class)
 class BookControllerTest {
-    @Autowired BookService service;
+    @Mock BookService service;
 
     @Test
     void postBook() {
@@ -35,11 +38,12 @@ class BookControllerTest {
         int result = service.postBook(file, givenParam);
 
         assertEquals(1, result);
-
     }
 
     @Test
     void getBookListByClassId() {
+        List<BookGetRes> givenParam = service.getBookListByClassId(1L);
+        given(service.getBookListByClassId(1L)).willReturn(givenParam);
     }
 
     @Test

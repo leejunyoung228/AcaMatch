@@ -266,9 +266,9 @@ public class KakaoPayService {
             if(productN.getClassId() != null){
                 User user = userRepository.findByUserId(req.getUserId()).orElse(null);
                 AcaClass acaClass = classRepository.findById(productN.getClassId().getClassId()).orElse(null);
-
+                Long result = joinClassRepository.existsJoinClass(acaClass.getClassId(), user.getUserId());
                 try{
-                    if(joinClassRepository.existsJoinClass(acaClass.getClassId(), user.getUserId()) != null){
+                    if(result == 1){
                         throw new IllegalArgumentException("이미 수강 신청하였습니다.");
                     }
                     JoinClass joinClass1 = new JoinClass();
