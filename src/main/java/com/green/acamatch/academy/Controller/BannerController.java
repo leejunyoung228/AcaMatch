@@ -6,6 +6,7 @@ import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import kotlinx.serialization.Required;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -104,9 +105,19 @@ public class BannerController {
     }
 
     @DeleteMapping
-    @Operation(summary = "배너 삭제")
+    @Operation(summary = "배너 개별 삭제")
     public ResultResponse<Integer> delBanner(BannerDeleteReq req) {
         bannerService.delBanner(req.getAcaId(), req.getBannerPosition());
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(1)
+                .build();
+    }
+
+    @DeleteMapping("all")
+    @Operation(summary = "배너신청취소 - 배너전체삭제")
+    public ResultResponse<Integer> delAllBanner(BannerAllDeleteReq req) {
+        bannerService.delAllBanner(req.getAcaId());
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(1)

@@ -10,10 +10,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class BannerDeleteReq {
+public class BannerAllDeleteReq {
     @Schema(title = "학원pk")
     private Long acaId;
-
-    @Schema(title = "배너 포지션", description = "1 or 2 or 3 or 4")
-    private int bannerPosition;
 }

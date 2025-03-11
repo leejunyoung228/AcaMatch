@@ -53,4 +53,10 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
     @Query(" delete from Banner a where a.acaId =:acaId ")
     int deleteBannerByAcaId(Long acaId);
 
+    //배너 신청취소 - 배너 전체 삭제
+    @Transactional
+    @Modifying
+    @Query(" delete from Banner a where a.acaId =:acaId")
+    int deleteAllBannerByAcaId(Long acaId);
+
 }

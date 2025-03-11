@@ -269,4 +269,13 @@ public class BannerService {
         academyMessage.setMessage("배너가 삭제되었습니다.");
         return 1;
     }
+
+    //배너 신청취소 - 배너전체삭제
+    @Transactional
+    public int delAllBanner(Long acaId) {
+    bannerRepository.deleteAllBannerByAcaId(acaId);
+
+    academyMessage.setMessage("배너신청이 취소되었습니다.");
+    return 1;
+    }
 }
