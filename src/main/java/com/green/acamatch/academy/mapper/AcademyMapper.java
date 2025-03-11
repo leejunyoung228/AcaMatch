@@ -17,11 +17,14 @@ public interface AcademyMapper {
 
     List<SelTagDto> selTagDtoList(SelTagReq req);
 
-    int insAcaTag(long acaId, List<Long>tagIdList);
+    int insAcaTag(long acaId, List<Long> tagIdList);
+
     int delAcaTag(long acaId);
 
     Long selAddressCity(KakaoMapAddress kakaoMapAddress);
+
     Long selAddressStreet(KakaoMapAddress kakaoMapAddress);
+
     Long selAddressDong(KakaoMapAddress kakaoMapAddress);
 
     int insAcademy(AcademyPostReq req);
@@ -29,15 +32,17 @@ public interface AcademyMapper {
     int updAcademy(AcademyUpdateReq req);
 
     AcademyUpdatesGetRes getAcademyAddress(long acaId);
+
     int delAcademy(long acaId, long userId);
 
     List<AcademyBestLikeGetRes> getAcademyBest(AcademySelOrderByLikeReq req);
+
     AcademyBestLikeGetRes selAcademyCount();
+
     AcademyBestLikeGetRes selAcademyLikeCount();
 
 
-
-// ---------------------------------------------------------------
+    // ---------------------------------------------------------------
     //동과 태그를 입력받아 학원 리스트 불러오기
     List<GetAcademyRes> getAcademy(GetAcademyReq p);
 
@@ -68,10 +73,10 @@ public interface AcademyMapper {
     int postToSearch(Integer tagId);
 
     GetAcademyDetailRes getAcademyWithClasses(GetAcademyDetailReq p);
-    
-    List<GeneralReviewDto> getGeneralReviews(GetAcademyDetailReq p);
 
-    List<MediaReviewDto> getMediaReviews(GetAcademyDetailReq p);
+    List<GeneralReviewDto> getGeneralReviews(GetAcademyGeneralReview p);
+
+    List<MediaReviewDto> getMediaReviews(GetAcademyMediaReview p);
 
     List<GetAcademyRandomRes> getAcademyListRandom();
 
@@ -94,4 +99,19 @@ public interface AcademyMapper {
     List<GetAcademyListByAcaNameOrderTypeRes> getAcademyListByAcaNameOrderType(GetAcademyListByAcaNameOrderTypeReq p);
 
     List<GetSearchInfoRes> getSearchInfo(String week);
+
+    // 일반 리뷰 개수 가져오기
+    int countGeneralReviews(@Param("acaId") Long acaId);
+
+    int countMediaReviews(@Param("acaId") Long acaId);
+
+
+    List<GeneralReviewDto> getGeneralReviews(@Param("generalStartIdx") int generalStartIdx,
+                                             @Param("acaId") Long acaId,
+                                             @Param("size") int size);
+
+    List<MediaReviewDto> getMediaReviews(@Param("mediaStartIdx") int mediaStartIdx,
+                                         @Param("acaId") Long acaId,
+                                         @Param("size") int size);
 }
+

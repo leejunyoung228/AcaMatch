@@ -12,10 +12,10 @@ import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.entity.review.Review;
-import com.green.acamatch.entity.user.Relationship;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
-import com.green.acamatch.review.dto.MyReviewDto;
+import com.green.acamatch.review.dto.GeneralReviewResponseDto;
+import com.green.acamatch.review.dto.MediaReviewResponseDto;
 import com.green.acamatch.review.dto.ReviewDto;
 import com.green.acamatch.review.dto.ReviewResponseDto;
 import com.green.acamatch.review.model.*;
@@ -24,11 +24,9 @@ import com.green.acamatch.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -36,8 +34,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
-
-import javax.management.relation.Role;
 
 
 @Service
@@ -799,46 +795,58 @@ public class ReviewService {
     // 본인이 작성한 리뷰 목록 조회
 
     @Transactional
-    public ReviewResponseDto getReviewsByUserId(MyReviewGetReq req) {
-        long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
-        long requestUserId = req.getUserId();
+    public GeneralReviewResponseDto getUserGeneralReviews(MyGeneralReviewGetReq req) {
 
-        // 본인 계정 검증
+        long jwtUserId = validateAuthenticatedUser(); // JWT 인증된 사용자 ID 가져오기
+        Long requestUserId = req.getSignedUserId();
+
+        // 사용자 ID 검증
+        if (requestUserId == null || requestUserId == 0L) {
+            userMessage.setMessage("잘못된 요청입니다. 유효한 사용자 ID가 필요합니다.");
+        }
         if (jwtUserId != requestUserId) {
-            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 작성한 리뷰 리스트를 볼 수 있습니다.");
-            return new ReviewResponseDto(); // 빈 객체 반환
+            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
         }
 
-        // 유저 존재 여부 확인
-        validateUserExists(req.getUserId());
-        if (mapper.checkUserExists(req.getUserId()) == 0) {
-            userMessage.setMessage("유효하지 않은 유저 ID입니다.");
-            return new ReviewResponseDto();
+        // 본인 확인
+        if (mapper.checkUserExists(req.getSignedUserId()) == 0) {
+            throw new IllegalArgumentException("유효하지 않은 유저 ID입니다.");
         }
 
-        if (!isAuthorizedUser(req.getUserId())) {
-            return new ReviewResponseDto(); // 인증되지 않은 요청이면 빈 객체 반환
-        }
+        // 일반 리뷰 조회
+        List<GeneralReviewDto> generalReviews = mapper.getGeneralReviews(req.getGeneralStartIndx(), requestUserId, req.getSize());
 
-        // 일반 리뷰 & 미디어 포함 리뷰 조회
-        List<GeneralReviewDto> generalReviews = mapper.getGeneralReviews(req);
-        List<MediaReviewDto> mediaReviews = mapper.getMediaReviews(req);
+        GeneralReviewResponseDto response = new GeneralReviewResponseDto();
+        response.setGeneralReviews(generalReviews);
 
-        // 새로운 DTO 객체 생성
-        ReviewResponseDto res = new ReviewResponseDto();
-        res.setGeneralReviews(generalReviews);
-        res.setMediaReviews(mediaReviews);
-
-        // 리뷰 개수 계산
-        int generalReviewCount = generalReviews.size();
-        int mediaReviewCount = mediaReviews.size();
-        res.setGeneralReviewCount(generalReviewCount);
-        res.setMediaReviewCount(mediaReviewCount);
-        res.setReviewCount(generalReviewCount + mediaReviewCount); // 총 리뷰 개수 설정
-
-        userMessage.setMessage("작성한 리뷰 목록 조회가 완료되었습니다.");
-        return res;
+        return response;
     }
+
+    @Transactional
+    public MediaReviewResponseDto getUserMediaReviews(MyMediaReviewGetReq req) {
+        long jwtUserId = validateAuthenticatedUser(); // JWT 인증된 사용자 ID 가져오기
+        Long requestUserId = req.getSignedUserId();
+
+        // 사용자 ID 검증
+        if (requestUserId == null || requestUserId == 0L) {
+            userMessage.setMessage("잘못된 요청입니다. 유효한 사용자 ID가 필요합니다.");
+        }
+        if (jwtUserId != requestUserId) {
+            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 등록할 수 있습니다.");
+        }
+
+        // 미디어 리뷰 조회
+        List<MediaReviewDto> mediaReviews = mapper.getMediaReviews(req.getMediaStartIndx(), req.getSignedUserId(), req.getSize());
+
+        MediaReviewResponseDto response = new MediaReviewResponseDto();
+        response.setMediaReviews(mediaReviews);
+
+        return response;
+    }
+
+
+
+
 
 
     // 공개 학원 리뷰 조회 (로그인 필요 없음)
@@ -1005,7 +1013,6 @@ public class ReviewService {
                 .map(user -> user.getUserRole().isAdmin()) // UserRole의 isAdmin() 활용
                 .orElse(false);
     }
-
 
 
 }

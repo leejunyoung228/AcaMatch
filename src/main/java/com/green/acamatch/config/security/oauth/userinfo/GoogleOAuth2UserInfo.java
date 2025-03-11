@@ -22,9 +22,9 @@ public class GoogleOAuth2UserInfo extends Oauth2UserInfo {
         return attributes.get("email").toString();
     }
 
-    @Override
-    public String getProfileImageUrl() {
-        return attributes.get("picture").toString();
-    }
+//    @Override
+//    public String getProfileImageUrl() {
+//        return attributes.get("picture").toString();
+//    }
 
 }

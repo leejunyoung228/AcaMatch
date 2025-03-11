@@ -24,6 +24,10 @@ import com.green.acamatch.entity.tag.Search;
 import com.green.acamatch.entity.tag.Tag;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.reports.ReportsRepository;
+import com.green.acamatch.review.ReviewMapper;
+import com.green.acamatch.review.ReviewService;
+import com.green.acamatch.review.dto.GeneralReviewResponseDto;
+import com.green.acamatch.review.dto.MediaReviewResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,6 +57,8 @@ public class AcademyService {
     private final AcademyTagRepository academyTagRepository;
     private final TagRepository tagRepository;
     private final ReportsRepository reportsRepository;
+    private final ReviewMapper reviewMapper;
+    private final ReviewService reviewService;
 
 
     //학원정보등록
@@ -724,24 +730,51 @@ public class AcademyService {
         if (res.getClasses() == null) {
             res.setClasses(Collections.emptyList());
         }
-
-        // 일반 리뷰 및 미디어 포함 리뷰 조회
-        List<GeneralReviewDto> generalReviews = academyMapper.getGeneralReviews(p);
-        List<MediaReviewDto> mediaReviews = academyMapper.getMediaReviews(p);
-
-        res.setGeneralReviews(generalReviews);
-        res.setMediaReviews(mediaReviews);
-
-        // 리뷰 개수 계산
-        int generalReviewCount = generalReviews.size();
-        int mediaReviewCount = mediaReviews.size();
-        res.setGeneralReviewCount(generalReviewCount);
-        res.setMediaReviewCount(mediaReviewCount);
-        res.setReviewCount(generalReviewCount + mediaReviewCount); // 총 리뷰 개수 설정
-
         academyMessage.setMessage("상세 정보 불러오기 성공");
         return res;
     }
+
+
+    @Transactional
+    public GeneralReviewResponseDto getGeneralReviews(GetAcademyGeneralReview p) {
+        List<GeneralReviewDto> generalReviews = academyMapper.getGeneralReviews(
+                p.getGeneralStartIndx(),  // 시작 인덱스
+                p.getAcaId(),             // 학원 PK
+                p.getSize()               // 페이지 크기
+        );
+
+        int totalGeneralReviewCount = generalReviews.isEmpty() ? 0 : generalReviews.get(0).getTotalGeneralReviewCount();
+
+        GeneralReviewResponseDto response = new GeneralReviewResponseDto();
+        response.setGeneralReviews(generalReviews);
+        response.setTotalGeneralReviewCount(totalGeneralReviewCount);
+
+        return response;
+    }
+
+    @Transactional
+    public MediaReviewResponseDto getMediaReviews(GetAcademyMediaReview p) {
+        List<MediaReviewDto> mediaReviews = academyMapper.getMediaReviews(
+                p.getMediaStartIndx(),   // 시작 인덱스
+                p.getAcaId(),            // 학원 PK
+                p.getSize()              // 페이지 크기
+        );
+
+        int totalMediaReviewCount = mediaReviews.isEmpty() ? 0 : mediaReviews.get(0).getTotalMediaReviewCount();
+
+        MediaReviewResponseDto response = new MediaReviewResponseDto();
+        response.setMediaReviews(mediaReviews);
+        response.setTotalMediaReviewCount(totalMediaReviewCount);
+
+        return response;
+    }
+
+
+
+
+
+
+
 
 
     public List<GetAcademyRandomRes> generateRandomAcademyList() {

@@ -26,4 +26,5 @@ public class MediaReviewDto {
     private List<String> reviewPics;
     private String writerPic;
     private long classId;
+    private int totalMediaReviewCount;
 }

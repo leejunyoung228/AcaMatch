@@ -4,13 +4,11 @@ import com.green.acamatch.acaClass.ClassRepository;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.exception.*;
 import com.green.acamatch.config.security.AuthenticationFacade;
-import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.review.ReviewPic;
 import com.green.acamatch.entity.review.ReviewPicIds;
-import com.green.acamatch.entity.user.Relationship;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
 import com.green.acamatch.review.dto.MyReviewDto;
@@ -718,23 +716,23 @@ public class ReviewImageService {
          * 본인이 작성한 리뷰 목록 조회
          */
         @Transactional
-        public List<MyReviewDto> getReviewsByUserId (MyReviewGetReq req){
+        public List<MyReviewDto> getReviewsByUserId (MyMediaReviewGetReq req){
             long jwtUserId = validateAuthenticatedUser(); // JWT에서 가져온 유저 ID 검증
-            long requestUserId = req.getUserId();
+            long requestUserId = req.getSignedUserId();
 
             // 1. 본인 계정 검증
             if (jwtUserId != requestUserId) {
                 userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 작성한 리뷰 리스트를 볼 수 있습니다.");
                 return Collections.emptyList();
             }
-            validateUserExists(req.getUserId());
+            validateUserExists(req.getSignedUserId());
 
-            if (mapper.checkUserExists(req.getUserId()) == 0) {
+            if (mapper.checkUserExists(req.getSignedUserId()) == 0) {
                 userMessage.setMessage("유효하지 않은 유저 ID입니다.");
                 return Collections.emptyList();
             }
 
-            if (!isAuthorizedUser(req.getUserId())) {
+            if (!isAuthorizedUser(req.getSignedUserId())) {
                 return Collections.emptyList();  //  인증되지 않은 요청이면 빈 리스트 반환
             }
             //  유저 존재 여부 확인 (추가)

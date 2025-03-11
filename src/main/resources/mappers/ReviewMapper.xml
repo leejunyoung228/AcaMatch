@@ -311,7 +311,6 @@
         AND certification = 1;
     </select>
 
-
     <resultMap id="GeneralReviewResultMap" type="com.green.acamatch.academy.model.HB.GeneralReviewDto">
         <id property="reviewId" column="reviewId"/>
         <result property="reviewComment" column="reviewComment"/>
@@ -340,13 +339,19 @@
         D.nick_name AS reviewUserNickName,
         D.user_pic AS writerPic,
         C.class_name AS reviewClassName,
-        B.class_id AS classId
+        B.class_id AS classId,
+        (SELECT COUNT(*)
+        FROM review A2
+        JOIN join_class B2 ON A2.join_class_id = B2.join_class_id
+        JOIN aca_class C2 ON B2.class_id = C2.class_id
+        LEFT JOIN review_pic RP2 ON A2.review_id = RP2.review_id
+        WHERE C2.aca_id = #{acaId} AND RP2.review_id IS NULL) AS totalGeneralReviewCount
         FROM review A
         JOIN join_class B ON A.join_class_id = B.join_class_id
         JOIN aca_class C ON B.class_id = C.class_id
         JOIN user D ON B.user_id = D.user_id
         LEFT JOIN review_pic RP ON A.review_id = RP.review_id
-        WHERE B.user_id = #{userId} AND RP.review_id IS NULL
+        WHERE C.aca_id = #{acaId} AND RP.review_id IS NULL
         ORDER BY A.review_id DESC
         LIMIT #{generalStartIdx}, #{size};
     </select>
@@ -364,8 +369,9 @@
         <result property="joinClassId" column="joinClassId"/>
         <result property="banReview" column="banReview"/>
         <result property="classId" column="classId"/>
-        <result property="reviewPics" column="reviewPics" typeHandler="com.green.acamatch.config.model.StringToListTypeHandler"/>
+        <result property="reviewPics" column="reviewPics" typeHandler="com.green.acamatch.config.model.StringToListTypeHandler"/>  <!-- String -> List 변환 -->
     </resultMap>
+
 
     <select id="getMediaReviews" resultMap="MediaReviewResultMap">
         SELECT
@@ -381,17 +387,20 @@
         D.user_pic AS writerPic,
         C.class_name AS reviewClassName,
         B.class_id AS classId,
-        GROUP_CONCAT(DISTINCT RP.review_pic ORDER BY RP.review_pic ASC SEPARATOR ',') AS reviewPics
+        GROUP_CONCAT(DISTINCT RP.review_pic ORDER BY RP.review_pic ASC SEPARATOR ',') AS reviewPics,
+        (SELECT COUNT(*)
+        FROM review A2
+        JOIN join_class B2 ON A2.join_class_id = B2.join_class_id
+        JOIN aca_class C2 ON B2.class_id = C2.class_id
+        JOIN review_pic RP2 ON A2.review_id = RP2.review_id
+        WHERE C2.aca_id = #{acaId}) AS totalMediaReviewCount
         FROM review A
         JOIN join_class B ON A.join_class_id = B.join_class_id
         JOIN aca_class C ON B.class_id = C.class_id
         JOIN user D ON B.user_id = D.user_id
         JOIN review_pic RP ON A.review_id = RP.review_id
-        WHERE B.user_id = #{userId}
-        GROUP BY
-        A.review_id, D.user_pic, B.class_id,
-        A.comment, A.star, A.created_at, A.updated_at, A.ban_review,
-        A.join_class_id, B.user_id, C.class_name
+        WHERE C.aca_id = #{acaId}
+        GROUP BY A.review_id, D.user_pic, B.class_id
         ORDER BY A.review_id DESC
         LIMIT #{mediaStartIdx}, #{size};
     </select>
