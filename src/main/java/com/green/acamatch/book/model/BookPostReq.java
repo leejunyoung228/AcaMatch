@@ -1,11 +1,13 @@
 package com.green.acamatch.book.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 public class BookPostReq {
     @Schema(title = "책 이름", example = "책1")
     private String bookName;

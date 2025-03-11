@@ -32,11 +32,6 @@ constant:
   api-const:
     api-key: sk-svcacct-cypWCFbSA26kot7wBIEeiYgB_z1JKWr-UgnLrzROTJ-DJAt9ng5LCLFCi7K8HN9qYoNzIcT3BlbkFJmAfc2cveEr_hfhnfSSdZbbUyDSU-ZXN1tVdYDiU8junu5C90Y9-gz11upsLEmpF7qfIboA
 
-  kakaoPay-const:
-    approval-url:
-    fail-url:
-    cancel-url:
-
   info-const:
     title: AcaMatch
     description: AcaMatch
