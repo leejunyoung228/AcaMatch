@@ -30,4 +30,10 @@ public interface AcademyCostRepository extends JpaRepository<AcademyCost, Long> 
 
         @Query("SELECT a FROM AcademyCost a WHERE a.tId = :tId")
         List<AcademyCost> findByTId(@Param("tId") String tId);
+
+        @Modifying
+        @Transactional
+        @Query("DELETE FROM AcademyCost ac WHERE ac.cost_status = 0 AND ac.createdAt < :timeLimit")
+        int deleteExpiredPayments(@Param("timeLimit") LocalDateTime timeLimit);
+
 }

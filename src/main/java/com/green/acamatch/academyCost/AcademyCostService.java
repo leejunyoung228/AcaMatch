@@ -8,8 +8,11 @@ import com.green.acamatch.entity.academyCost.AcademyCost;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,10 +38,12 @@ public class AcademyCostService {
 
     public int updateStatuses(String costIds) {
         LocalDate today = LocalDate.now();
-        int lastDayOfMonth = today.lengthOfMonth(); // 해당 월의 마지막 날짜 가져오기
+        YearMonth currentMonth = YearMonth.from(today); // 현재 월
+        LocalDate firstDayOfNextMonth = currentMonth.plusMonths(1).atDay(1); // 다음 달 1일
 
-        if (today.getDayOfMonth() != lastDayOfMonth) {
-            academyCostMessage.setMessage("정산 기간이 아닙니다.");
+        // 정산 가능 기간: 이번 달 마지막 날부터 다음 달 1일까지
+        if (today.isBefore(currentMonth.atEndOfMonth()) || today.isAfter(firstDayOfNextMonth.minusDays(1))) {
+            academyCostMessage.setMessage("정산 가능 기간이 아닙니다.");
             return 0;
         }
 
@@ -67,6 +72,8 @@ public class AcademyCostService {
         academyCostMessage.setMessage("정산이 완료되었습니다.");
         return 1;
     }
+
+
 
 
 }
