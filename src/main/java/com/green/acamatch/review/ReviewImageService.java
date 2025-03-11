@@ -104,11 +104,12 @@ public class ReviewImageService {
 
         // 해당 유저가 실제로 해당 수업을 수강했는지 검증
         JoinClass joinClass = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId)
+                .stream()
+                .findFirst()
                 .orElseThrow(() -> {
                     userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다. 수강한 후 리뷰를 작성할 수 있습니다.");
                     return new CustomException(ReviewErrorCode.CLASS_NOT_FOUND);
                 });
-
         // 중복 리뷰 작성 방지
         if (reviewRepository.existsByJoinClass(joinClass)) {
             userMessage.setMessage("이미 해당 학원에 대한 리뷰를 작성하셨습니다.");

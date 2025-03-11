@@ -2,6 +2,7 @@ package com.green.acamatch.joinClass;
 
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.joinClass.JoinClass;
+import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,8 +26,9 @@ public interface JoinClassRepository extends JpaRepository<JoinClass, Long> {
     boolean existsByAcaClassAndUser(AcaClass acaClass, User user);
 
 
-    Optional<JoinClass> findByAcaClass_ClassIdAndUser_UserId(Long classId, Long userId);
+//    Optional<JoinClass> findByAcaClass_ClassIdAndUser_UserId(Long classId, Long userId);
 
+    List<JoinClass> findByAcaClass_ClassIdAndUser_UserId(Long classId, Long userId);
 
 //    @Query("SELECT COUNT(j) > 0 FROM JoinClass j " +
 //            "LEFT JOIN Relationship r ON j.user.userId = r.student.userId " +

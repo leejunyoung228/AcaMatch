@@ -28,4 +28,14 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     int deleteByReviewIdAndClassId(@Param("reviewId") Long reviewId, @Param("classId") Long classId);
 
     boolean existsByJoinClass( @Param("joinClassId") JoinClass joinClassId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.joinClass.joinClassId = :joinClassId AND r.user.userId = :userId")
+    int countUserReviews(@Param("joinClassId") Long joinClassId, @Param("userId") Long userId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.joinClass = :joinClass")
+    int countByJoinClass(@Param("joinClass") JoinClass joinClass);
+
+
+
+
 }
