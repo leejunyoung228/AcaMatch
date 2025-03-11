@@ -22,11 +22,24 @@ public class MyFileUtils {
 
     public String makeFolders(String path) {
         File file = new File(uploadPath, path);
+
         if (!file.exists()) {
-            file.mkdirs();
+            boolean isCreated = file.mkdirs(); // 폴더 생성
+            if (!isCreated) {
+                log.error("폴더 생성 실패: {}", file.getAbsolutePath());
+                throw new RuntimeException("폴더 생성 실패: " + file.getAbsolutePath());
+            }
         }
+
+        if (!file.exists() || !file.isDirectory()) {
+            log.error("폴더 생성 확인 실패: {}", file.getAbsolutePath());
+            throw new RuntimeException("폴더 생성 확인 실패: " + file.getAbsolutePath());
+        }
+
+        log.info("폴더 생성 완료: {}", file.getAbsolutePath());
         return file.getAbsolutePath();
     }
+
 
     public String getExt(String fileName) {
         int lastIdx = fileName.lastIndexOf(".");
@@ -76,6 +89,18 @@ public class MyFileUtils {
 
     public void transferTo(MultipartFile mf, String path) throws IOException {
         File file = new File(uploadPath, path);
+
+        // 파일 저장 전 폴더 확인 및 생성
+        File parentDir = file.getParentFile();
+        if (!parentDir.exists()) {
+            boolean created = parentDir.mkdirs();
+            if (!created) {
+                log.error("폴더 생성 실패: {}", parentDir.getAbsolutePath());
+                throw new IOException("폴더 생성 실패: " + parentDir.getAbsolutePath());
+            }
+        }
+
+        // 파일 저장
         mf.transferTo(file);
     }
 
