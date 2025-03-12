@@ -3,6 +3,8 @@ package com.green.acamatch.book;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.acamatch.book.model.BookGetRes;
 import com.green.acamatch.book.model.BookPostReq;
+import com.green.acamatch.config.GlobalOauth2;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
@@ -32,15 +34,22 @@ class BookControllerTest {
     @Autowired ObjectMapper objectMapper; //JSON사용
     @Autowired MockMvc mockMvc; //요청(보내고)-응답(받기) 처리
     @MockitoBean BookService service; //가짜 객체를 만들고 빈등록한다.
+    @MockitoBean BookMessage bookMessage;
+    @MockitoBean GlobalOauth2 globalOauth2;
 
     final String BASE_URL = "/api/book";
-    BookPostReq req = new BookPostReq();
+    BookPostReq req;
     MultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test".getBytes());
     BookTestCommon common;
+
+    @BeforeEach
+    void setUp() {
+        common = new BookTestCommon(objectMapper, bookMessage);
+        BookPostReq req = common.getGivenParam();
+    }
+
     @Test
     void postBook() throws Exception {
-        given(service.postBook(file, req)).willReturn(1);
-
         postBook(1);
     }
 

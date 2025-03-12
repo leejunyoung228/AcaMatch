@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 
 @Nested
 @ExtendWith(MockitoExtension.class)
-class BookServiceTest1 {
+class BookServiceTest {
     @Mock BookService service;
     @Mock BookRepository repository;
 
