@@ -74,6 +74,17 @@ public class TeacherController {
                 .resultData(result)
                 .build();
     }
+
+    @Operation(summary = "선생님 승인여부 수정하기")
+    @PutMapping("/agree")
+    public ResultResponse<Integer> updateTeacherAgree(@ModelAttribute @ParameterObject TeacherAgreePutReq p) {
+        Integer result = teacherService.updateTeacherAgree(p);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(result == 1? "승인여부 수정 성공" : "승인여부 수정 실패")
+                .resultData(result)
+                .build();
+    }
+
     @Operation(summary = "선생님 삭제하기")
     @DeleteMapping
     public ResultResponse<Integer> deleteTeacher(@ModelAttribute @ParameterObject TeacherDelReq p) {

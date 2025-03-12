@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class BookTestCommon {
     final ObjectMapper objectMapper;
+    final BookMessage bookMessage;
 
     MultiValueMap<String, String> getParameter(MultipartFile file, BookPostReq req) {
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>(1);
@@ -33,7 +34,7 @@ public class BookTestCommon {
 
     String getExpectedResJson(int result) throws Exception {
         ResultResponse expectedRes = ResultResponse.<Integer>builder()
-                .resultMessage("책 등록 성공")
+                .resultMessage(bookMessage.getMessage())
                 .resultData(result)
                 .build();
         return objectMapper.writeValueAsString(expectedRes);
