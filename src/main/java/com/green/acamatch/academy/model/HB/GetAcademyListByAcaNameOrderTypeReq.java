@@ -23,6 +23,9 @@ public class GetAcademyListByAcaNameOrderTypeReq extends Paging {
     @Schema(title = "학원 PK")
     private Long acaId;
 
+    @Schema(title = "유저 PK", description = "학원 관계자 입장에서 쓰실때만 넣으시면 됩니다!")
+    private Long userId;
+
     public GetAcademyListByAcaNameOrderTypeReq(Integer page, Integer size) {
         super(page, size);
     }
