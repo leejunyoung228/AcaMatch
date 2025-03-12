@@ -243,22 +243,29 @@ public class ReviewImageService {
             return failedToDelete;
         }
 
-        String basePath = filePathConfig.getUploadDir(); // 설정값 가져오기
+        String basePath = filePathConfig.getUploadDir();
+
         for (String fileName : deletedFiles) {
-            Optional<ReviewPic> reviewPicOpt = reviewPicRepository.findByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
+            Optional<ReviewPic> reviewPicOpt = reviewPicRepository
+                    .findByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
 
             if (reviewPicOpt.isPresent()) {
-                String fullPath = Paths.get(basePath, String.valueOf(reviewId), "images", fileName).toString();
+                // 저장할 때와 동일한 방식으로 경로 생성
+                String fileCategory = fileName.endsWith(".mp4") || fileName.endsWith(".mov") ? "videos" : "images";
+                String fullPath = Paths.get(basePath, fileCategory, fileName).toString();
+
+                log.info("삭제 시도 경로: {}", fullPath); // 삭제하려는 경로 로그 추가
+
                 File file = new File(fullPath);
 
                 if (!file.exists()) {
                     log.error("삭제할 파일이 존재하지 않음: {}", fullPath);
-                    failedToDelete.add(fileName);
+                    reviewPicRepository.deleteByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
                     continue;
                 }
 
                 if (!file.canWrite()) {
-                    log.error("파일을 삭제할 권한 없음: {}", fullPath);
+                    log.error("파일 삭제 권한 없음: {}", fullPath);
                     failedToDelete.add(fileName);
                     continue;
                 }
