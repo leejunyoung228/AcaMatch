@@ -81,23 +81,4 @@
         GROUP BY register_date
         ORDER BY register_date;
     </select>
-
-    <select id="getAcademyCostExcel">
-        WITH RECURSIVE dates AS (
-        -- 1. 첫 번째 등록일의 월 1일을 시작일로 설정
-        SELECT DATE_FORMAT(MIN(a.created_at), '%Y-%m-01') AS date
-        FROM academy a
-        UNION ALL
-        -- 2. 하루씩 증가
-        SELECT DATE_ADD(date, INTERVAL 1 DAY)
-        FROM dates
-        LIMIT 10000  -- 생성할 최대 날짜 수 제한 (범위 설정) )
-        SELECT d.date AS day,
-        COUNT(a.aca_id) AS academy_count
-        FROM dates d
-        LEFT JOIN academy a
-        ON DATE(a.created_at) = d.date
-        GROUP BY d.date
-        ORDER BY d.date
-    </select>
 </mapper>

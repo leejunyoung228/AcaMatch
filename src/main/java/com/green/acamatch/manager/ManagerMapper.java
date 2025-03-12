@@ -1,6 +1,5 @@
 package com.green.acamatch.manager;
 
-import com.green.acamatch.excel.model.DashBoardDto;
 import com.green.acamatch.manager.model.GetAcademyCostCountRes;
 import com.green.acamatch.manager.model.GetAcademyCountRes;
 import com.green.acamatch.manager.model.GetUserCountRes;
@@ -13,6 +12,4 @@ public interface ManagerMapper {
     List<GetAcademyCountRes> getAcademyCount(String month);
     List<GetUserCountRes> getUserCount(String month);
     List<GetAcademyCostCountRes> getAcademyCostCount(String month);
-
-    List<DashBoardDto> getAcademyCostExcel(String startMonth);
 }

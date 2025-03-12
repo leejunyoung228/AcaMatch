@@ -54,7 +54,7 @@ public class StudentGradeService {
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public String exportToExcel(Long examId) {
-        Path excelFilePath = Paths.get(filePath, "/student_grades/studentGrade.xlsx");
+        Path excelFilePath = Paths.get(filePath, "student_grades","studentGrade.xlsx");
         log.info("Excel file path: {}", excelFilePath);
         myFileUtils.makeFolders(excelFilePath.getParent().toString());
         try {
