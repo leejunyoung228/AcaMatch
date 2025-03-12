@@ -360,6 +360,15 @@ public class KakaoPayService {
                     bookRepository.save(book);
                 }
             }
+            User user = userRepository.findByUserId(cost.getUserId()).orElse(null);
+            if (product != null && product.getClassId() != null) {
+                JoinClass joinclass = new JoinClass();
+                joinclass.setUser(user);
+                joinclass.setAcaClass(product.getClassId());
+                joinclass.setCertification(0);
+                joinclass.setRegistrationDate(LocalDate.now());
+                joinClassRepository.save(joinclass);
+            }
         }
 
         Map<String, String> parameters = new HashMap<>();
