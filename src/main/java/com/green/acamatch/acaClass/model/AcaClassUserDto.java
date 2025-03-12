@@ -17,4 +17,6 @@ public class AcaClassUserDto {
     private String phone;
     @Schema(title = "회원 생년월일")
     private String birth;
+
+    private long joinClassId;
 }
