@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.green.acamatch.academy.mapper.PremiumMapper">
+
+    <!--프리미엄조회, 배너존재하는거 (학원관계자)-->
+    <select id="getPremiumBannerExist" resultType="com.green.acamatch.academy.premium.model.PremiumBannerExistGetRes">
+        SELECT b.aca_id, b.aca_name, a.start_date, a.end_date, a.pre_check, c.banner_type, a.created_at
+        , (select COUNT(*)
+        FROM premium_academy a
+        JOIN academy b
+        ON a.aca_id = b.aca_id
+        left JOIN banner c
+        ON a.aca_id = c.aca_id
+        WHERE c.banner_type IS NOT NULL
+        AND b.user_id = #{userId}) AS count_premium
+
+        FROM premium_academy a
+        JOIN academy b
+        ON a.aca_id = b.aca_id
+        left JOIN banner c
+        ON a.aca_id = c.aca_id
+        WHERE c.banner_type IS NOT NULL
+        AND b.user_id = #{userId}
+        Limit #{startIdx}, #{size}
+    </select>
+
+</mapper>
