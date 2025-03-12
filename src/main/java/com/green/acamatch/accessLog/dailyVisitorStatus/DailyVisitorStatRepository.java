@@ -85,6 +85,10 @@ public interface DailyVisitorStatRepository extends JpaRepository<DailyVisitorSt
     @Query("SELECT COUNT(DISTINCT dvs.ipAddress) FROM DailyVisitorStat dvs " +
             "WHERE dvs.user IS NULL AND dvs.visitDate BETWEEN :startDate AND :endDate")
     long countNonMemberVisitorsForWeek(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    // 전체 누적 방문자 수 조회
+    @Query("SELECT COUNT(DISTINCT d.ipAddress) FROM DailyVisitorStat d")
+    long countTotalVisitors();
 }
 
 

@@ -145,4 +145,11 @@ public class DailyVisitorStatService {
         return visitorStats;
     }
 
+    // 전체 누적 방문자 수 조회
+    @Transactional(readOnly = true)
+    public long getTotalVisitors() {
+        return dailyVisitorStatRepository.countTotalVisitors();
+    }
+
+
 }
