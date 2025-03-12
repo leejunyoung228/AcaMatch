@@ -260,28 +260,6 @@ public class KakaoPayService {
                 itemNames.append(", ");
             }
             itemNames.append(product.getProductName()).append(" x").append(quantity);
-
-
-            Product productN = productRepository.findById(productId).orElse(null);
-            if(productN.getClassId() != null){
-                User user = userRepository.findByUserId(req.getUserId()).orElse(null);
-                AcaClass acaClass = classRepository.findById(productN.getClassId().getClassId()).orElse(null);
-                Long result = joinClassRepository.existsJoinClass(acaClass.getClassId(), user.getUserId());
-                try{
-                    if(result == 1){
-                        throw new IllegalArgumentException("이미 수강 신청하였습니다.");
-                    }
-                    JoinClass joinClass1 = new JoinClass();
-                    joinClass1.setAcaClass(productN.getClassId());
-                    joinClass1.setUser(user);
-                    joinClass1.setRegistrationDate(LocalDate.now());
-                    joinClass1.setCertification(0);
-                    joinClassRepository.save(joinClass1);
-                }catch (CustomException e){
-                    e.printStackTrace();
-                }
-
-            }
         }
 
         parameters.put("cid", payProperties.getCid());
@@ -382,25 +360,14 @@ public class KakaoPayService {
                     bookRepository.save(book);
                 }
             }
-
-            if(product.getClassId() != null){
-                User user = userRepository.findByUserId(userId).orElse(null);
-                AcaClass acaClass = classRepository.findById(product.getClassId().getClassId()).orElse(null);
-
-                try{
-                    if(joinClassRepository.existsJoinClass(acaClass.getClassId(), user.getUserId()) != null){
-                        throw new IllegalArgumentException("이미 수강 신청하였습니다.");
-                    }
-                    JoinClass joinClass1 = new JoinClass();
-                    joinClass1.setAcaClass(product.getClassId());
-                    joinClass1.setUser(user);
-                    joinClass1.setRegistrationDate(LocalDate.now());
-                    joinClass1.setCertification(0);
-                    joinClassRepository.save(joinClass1);
-                }catch (CustomException e){
-                    e.printStackTrace();
-                }
-
+            User user = userRepository.findByUserId(cost.getUserId()).orElse(null);
+            if (product != null && product.getClassId() != null) {
+                JoinClass joinclass = new JoinClass();
+                joinclass.setUser(user);
+                joinclass.setAcaClass(product.getClassId());
+                joinclass.setCertification(0);
+                joinclass.setRegistrationDate(LocalDate.now());
+                joinClassRepository.save(joinclass);
             }
         }
 
@@ -417,6 +384,8 @@ public class KakaoPayService {
                 "https://open-api.kakaopay.com/online/v1/payment/approve",
                 requestEntity,
                 KakaoApproveResponse.class);
+
+
 
         // 결제 완료 후 상태 변경 로직 유지
         return approveResponse;

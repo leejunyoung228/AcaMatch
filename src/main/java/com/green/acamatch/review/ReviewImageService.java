@@ -1,6 +1,7 @@
 package com.green.acamatch.review;
 
 import com.green.acamatch.acaClass.ClassRepository;
+import com.green.acamatch.config.FilePathConfig;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.exception.*;
 import com.green.acamatch.config.security.AuthenticationFacade;
@@ -20,10 +21,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
@@ -43,7 +47,31 @@ public class ReviewImageService {
     private final ClassRepository acaClassRepository;
     private final ReviewPicRepository reviewPicRepository;
     private final MyFileUtils myFileUtils;
+    private final FilePathConfig filePathConfig;
 
+//    // 모든 필드를 포함 생성자
+//    public ReviewImageService(
+//            ReviewMapper mapper,
+//            UserMessage userMessage,
+//            RelationshipRepository relationshipRepository,
+//            ReviewRepository reviewRepository,
+//            UserRepository userRepository,
+//            JoinClassRepository joinClassRepository,
+//            ClassRepository acaClassRepository,
+//            ReviewPicRepository reviewPicRepository,
+//            MyFileUtils myFileUtils,
+//            FilePathConfig filePathConfig) {
+//        this.mapper = mapper;
+//        this.userMessage = userMessage;
+//        this.relationshipRepository = relationshipRepository;
+//        this.reviewRepository = reviewRepository;
+//        this.userRepository = userRepository;
+//        this.joinClassRepository = joinClassRepository;
+//        this.acaClassRepository = acaClassRepository;
+//        this.reviewPicRepository = reviewPicRepository;
+//        this.myFileUtils = myFileUtils;
+//        this.filePathConfig = filePathConfig;
+//    }
 
     /**
      * 리뷰 서비스에서 로그인된 사용자 검증
@@ -60,6 +88,7 @@ public class ReviewImageService {
         }
         return jwtUserId;
     }
+
 
     /**
      * JWT userId와 요청 userId 비교
@@ -104,11 +133,12 @@ public class ReviewImageService {
 
         // 해당 유저가 실제로 해당 수업을 수강했는지 검증
         JoinClass joinClass = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId)
+                .stream()
+                .findFirst()
                 .orElseThrow(() -> {
                     userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다. 수강한 후 리뷰를 작성할 수 있습니다.");
                     return new CustomException(ReviewErrorCode.CLASS_NOT_FOUND);
                 });
-
         // 중복 리뷰 작성 방지
         if (reviewRepository.existsByJoinClass(joinClass)) {
             userMessage.setMessage("이미 해당 학원에 대한 리뷰를 작성하셨습니다.");
@@ -152,229 +182,6 @@ public class ReviewImageService {
 
 
 
-
-//    @Transactional
-//    public int createReview(ReviewPostReqForParent req, List<MultipartFile> files) {
-//        long jwtUserId = validateAuthenticatedUser();
-//        Long requestUserId = req.getUserId();
-//
-//        if (requestUserId == null || requestUserId == 0L) {
-//            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
-//        }
-//
-//        if (jwtUserId != requestUserId) {
-//            throw new CustomException(ReviewErrorCode.INVALID_USER);
-//        }
-//
-//        validateUserExists(requestUserId);
-//
-//        if (joinClassRepository.findStudentsByClassId(req.getClassId()).isEmpty()) {
-//            throw new CustomException(ReviewErrorCode. STUDENT_NOT_IN_CLASS);
-//        }
-//
-//        if (!userRepository.existsByUserId(requestUserId)) {
-//            throw new CustomException(ReviewErrorCode.INVALID_USER);
-//        }
-//
-//        if (reviewRepository.existsByJoinClass_AcaClass_ClassIdAndUser_UserId(req.getClassId(), req.getUserId())) {
-//            throw new CustomException(ReviewErrorCode.CONFLICT_REVIEW_ALREADY_EXISTS);
-//        }
-//
-//        User reviewWriter = userRepository.findById(requestUserId)
-//                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-//
-//        JoinClass joinClass = joinClassRepository.findById(req.getClassId())
-//                .orElseThrow(() -> new CustomException(ManagerErrorCode.CLASS_NOT_FOUND));
-//
-//        if (req.getStar() < 1 || req.getStar() > 5) {
-//            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
-//        }
-//
-//        if (req.getComment() == null || req.getComment().trim().isEmpty()) {
-//            req.setComment("");
-//        }
-//
-//        // 리뷰 저장
-//        Review newReview = new Review();
-//        newReview.setUser(reviewWriter);
-//        newReview.setJoinClass(joinClass);
-//        newReview.setComment(req.getComment());
-//        newReview.setStar(req.getStar());
-//        newReview.setBanReview(0); // 기본값 0 설정
-//
-//        reviewRepository.save(newReview);
-//
-//        // 파일이 하나도 없을 경우 예외 발생
-//        if (files == null || files.isEmpty()) {
-//            throw new CustomException(CommonErrorCode.MISSING_REQUIRED_FILED_EXCEPTION);
-//        }
-//
-//        // 파일 저장 로직
-//        String middlePath = String.format("reviews/%s", newReview.getReviewId());
-//
-//        for (MultipartFile file : files) {
-//            if (file == null || file.isEmpty()) {
-//                throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
-//            }
-//
-//            // 파일 유형 구분
-//            String fileType = file.getContentType();
-//            if (fileType == null) {
-//                throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
-//            }
-//
-//            String fileCategory = fileType.startsWith("image") ? "images" : "videos";
-//            String filePath = String.format("%s/%s/", middlePath, fileCategory);
-//            myFileUtils.makeFolders(filePath);
-//
-//            // 파일 저장
-//            String savedFileName = myFileUtils.makeRandomFileName(file);
-//            String fullPath = filePath + savedFileName;
-//
-//            try {
-//                myFileUtils.transferTo(file, fullPath);
-//            } catch (IOException e) {
-//                String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-//                myFileUtils.deleteFolder(delFolderPath, true);
-//                throw new CustomException(CommonErrorCode.FILE_UPLOAD_FAILED);
-//            }
-//
-//            // ReviewPic 저장 (NULL 방지)
-//            ReviewPic reviewPic = new ReviewPic();
-//            reviewPic.setReview(newReview);
-//            reviewPic.getReviewPicIds().setReviewPic(fullPath);
-//
-//            reviewPicRepository.save(reviewPic);
-//        }
-//
-//        return 1;
-//    }
-
-
-//    @Transactional
-//    public int createReview(ReviewPostReqForParent req, List<MultipartFile> files) {
-//        long jwtUserId = validateAuthenticatedUser();
-//        Long requestUserId = req.getUserId();
-//
-//        if (requestUserId == null || requestUserId == 0L) {
-//            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
-//        }
-//
-//        if (jwtUserId != requestUserId) {
-//            throw new CustomException(ReviewErrorCode.INVALID_USER);
-//        }
-//
-//        // 학생(1) 또는 부모(2) 검증
-//        List<UserRole> validRoles = Arrays.asList(UserRole.STUDENT, UserRole.PARENT);
-//        boolean isValidUser = userRepository.existsByUserIdAndUserRoleIn(requestUserId, validRoles);
-//
-//        if (!isValidUser) {
-//            throw new CustomException(ReviewErrorCode.INVALID_USER);
-//        }
-//
-////        User reviewWriter;
-//        Long targetUserId = requestUserId; // 기본값: 본인이 직접 작성
-//
-////        // 부모(`user_role=2`)가 로그인한 경우 보호자 인증 확인 후 `targetUserId` 설정
-////        if (userRepository.findRoleByUserId(requestUserId) == UserRole.PARENT) {
-////            if (req.getStudentId() == null) {
-////                throw new CustomException(ReviewErrorCode.INVALID_USER);
-////            }
-////
-////            // 보호자-학생 관계 검증
-////            Relationship relationship = relationshipRepository.findByParentUserIdAndStudentUserIdAndCertification(
-////                            requestUserId, req.getStudentId(), req.getCertification())
-////                    .orElseThrow(() -> new CustomException(ReviewErrorCode.UNAUTHORIZED_PARENT));
-////
-////            targetUserId = req.getStudentId();
-////        }
-////
-////        // 부모가 대신 작성하는 경우에도 학생이 수업을 수강한 기록이 있는지 확인
-////        if (!joinClassRepository.existsByClassAndStudentOrParent(req.getClassId(), targetUserId)) {
-////            throw new CustomException(ReviewErrorCode.STUDENT_NOT_IN_CLASS);
-////        }
-////
-////        // 부모가 대신 작성할 경우에도 `reviewWriter`는 학생으로 설정
-////        reviewWriter = userRepository.findById(targetUserId)
-////                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-//
-//        // 기존 리뷰가 존재하는지 확인
-//        if (reviewRepository.existsByJoinClass_AcaClass_ClassIdAndUser_UserId(req.getClassId(), targetUserId)) {
-//            throw new CustomException(ReviewErrorCode.CONFLICT_REVIEW_ALREADY_EXISTS);
-//        }
-//
-//        // JoinClass 조회
-//        JoinClass joinClass = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), targetUserId)
-//                .orElseThrow(() -> new CustomException(ManagerErrorCode.CLASS_NOT_FOUND));
-//
-//        if (req.getStar() < 1 || req.getStar() > 5) {
-//            throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
-//        }
-//
-//        if (req.getComment() == null || req.getComment().trim().isEmpty()) {
-//            req.setComment("");
-//        }
-//
-//        // 리뷰 저장
-//        Review newReview = new Review();
-////        newReview.setUser(reviewWriter);
-//        newReview.setJoinClass(joinClass);
-//        newReview.setComment(req.getComment());
-//        newReview.setStar(req.getStar());
-//        newReview.setBanReview(0); // 기본값 0 설정
-//
-//        reviewRepository.save(newReview);
-//
-//        // 파일 저장 로직
-//        if (files != null && !files.isEmpty()) {
-//            String middlePath = String.format("reviews/%s", newReview.getReviewId());
-//
-//            for (MultipartFile file : files) {
-//                if (file == null || file.isEmpty()) {
-//                    continue; // 빈 파일은 무시
-//                }
-//
-//                // 파일 유형 구분
-//                String fileType = file.getContentType();
-//                if (fileType == null) {
-//                    throw new CustomException(CommonErrorCode.INVALID_PARAMETER);
-//                }
-//
-//                String fileCategory = fileType.startsWith("image") ? "images" : "videos";
-//                String filePath = String.format("%s/%s/", middlePath, fileCategory);
-//                myFileUtils.makeFolders(filePath);
-//
-//                // 파일 저장
-//                String savedFileName = myFileUtils.makeRandomFileName(file);
-//                String fullPath = filePath + savedFileName;
-//
-//                try {
-//                    myFileUtils.transferTo(file, fullPath);
-//                } catch (IOException e) {
-//                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-//                    myFileUtils.deleteFolder(delFolderPath, true);
-//                    throw new CustomException(CommonErrorCode.FILE_UPLOAD_FAILED);
-//                }
-//
-//                // ReviewPic 저장
-//                ReviewPic reviewPic = new ReviewPic();
-//                ReviewPicIds reviewPicIds = new ReviewPicIds();
-//                reviewPicIds.setReviewId(newReview.getReviewId());
-//                reviewPicIds.setReviewPic(fullPath);
-//                reviewPic.setReviewPicIds(reviewPicIds);
-//                reviewPic.setReview(newReview);
-//
-//                reviewPicRepository.save(reviewPic);
-//            }
-//        }
-//
-//        return 1;
-//    }
-
-
-
-
-    // 리뷰 수정
     @Transactional
     public int updateReviewWithFiles(@Valid ReviewUpdateReq req, List<MultipartFile> files, List<String> deletedFiles) {
         long jwtUserId = validateAuthenticatedUser();
@@ -400,50 +207,8 @@ public class ReviewImageService {
                 return 0;
             }
 
-            // 학원 등록 여부 검증 (수강 기록 확인)
-            boolean acaExists = joinClassRepository.existsByAcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId);
-            if (!acaExists) {
-                userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다.");
-                return 0;
-            }
-
-            // 별점 유지 (null이면 기존 값 유지)
-            if (req.getStar() != null) {
-                if (req.getStar() < 1 || req.getStar() > 5) {
-                    userMessage.setMessage("별점은 1~5 사이의 값이어야 합니다.");
-                    return 0;
-                }
-                existingReview.setStar(req.getStar());
-            }
-
-            // 댓글 유지 (null이면 기존 값 유지)
-            if (req.getComment() != null) {
-                existingReview.setComment(req.getComment());
-            }
-            reviewRepository.save(existingReview);
-
-            // 기존 파일 삭제 처리 (삭제 요청이 있는 경우)
-            List<String> failedToDelete = new ArrayList<>();
-            if (deletedFiles != null && !deletedFiles.isEmpty()) {
-                for (String filePath : deletedFiles) {
-                    Optional<ReviewPic> reviewPicOpt = reviewPicRepository.findByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(
-                            existingReview.getReviewId(), filePath);
-
-                    if (reviewPicOpt.isPresent()) {
-                        reviewPicRepository.deleteByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(
-                                existingReview.getReviewId(), filePath);
-
-                        // 실제 파일 삭제 (실패 시 리스트에 추가)
-                        boolean deleted = myFileUtils.deleteFile(filePath);
-                        if (!deleted) {
-                            failedToDelete.add(filePath);
-                        }
-                    } else {
-                        userMessage.setMessage("삭제할 파일을 찾을 수 없습니다: " + filePath);
-                        return 0;
-                    }
-                }
-            }
+            // 기존 파일 삭제 처리
+            List<String> failedToDelete = deleteReviewFiles(existingReview.getReviewId(), deletedFiles);
 
             // 일부 파일 삭제 실패 예외 처리
             if (!failedToDelete.isEmpty()) {
@@ -451,14 +216,14 @@ public class ReviewImageService {
                 return 0;
             }
 
-            // 최소 1개 사진 유지 검사 (삭제 후 사진이 없는 경우 방지)
+            // 최소 1개 사진 유지 검사
             long remainingImageCount = reviewPicRepository.countByReviewPicIds_ReviewId(existingReview.getReviewId());
             if (remainingImageCount == 0 && (files == null || files.isEmpty())) {
                 userMessage.setMessage("이미지 리뷰에는 최소 1개의 사진이 필요합니다.");
                 return 0;
             }
 
-            // 새로운 파일 추가 처리 (중복 방지)
+            // 새로운 파일 추가
             if (files != null && !files.isEmpty()) {
                 saveNewReviewFiles(existingReview, files);
             }
@@ -471,6 +236,54 @@ public class ReviewImageService {
         }
     }
 
+    private List<String> deleteReviewFiles(long reviewId, List<String> deletedFiles) {
+        List<String> failedToDelete = new ArrayList<>();
+
+        if (deletedFiles == null || deletedFiles.isEmpty()) {
+            return failedToDelete;
+        }
+
+        String basePath = filePathConfig.getUploadDir();
+
+        for (String fileName : deletedFiles) {
+            Optional<ReviewPic> reviewPicOpt = reviewPicRepository
+                    .findByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
+
+            if (reviewPicOpt.isPresent()) {
+                // 저장할 때와 동일한 방식으로 경로 생성
+                String fileCategory = fileName.endsWith(".mp4") || fileName.endsWith(".mov") ? "videos" : "images";
+                String fullPath = Paths.get(basePath, fileCategory, fileName).toString();
+
+                log.info("삭제 시도 경로: {}", fullPath); // 삭제하려는 경로 로그 추가
+
+                File file = new File(fullPath);
+
+                if (!file.exists()) {
+                    log.error("삭제할 파일이 존재하지 않음: {}", fullPath);
+                    reviewPicRepository.deleteByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
+                    continue;
+                }
+
+                if (!file.canWrite()) {
+                    log.error("파일 삭제 권한 없음: {}", fullPath);
+                    failedToDelete.add(fileName);
+                    continue;
+                }
+
+                boolean deleted = file.delete();
+                if (!deleted) {
+                    log.error("파일 삭제 실패: {}", fullPath);
+                    failedToDelete.add(fileName);
+                } else {
+                    reviewPicRepository.deleteByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
+                    log.info("파일 삭제 성공: {}", fullPath);
+                }
+            } else {
+                log.warn("삭제할 파일이 DB에 존재하지 않음: {}", fileName);
+            }
+        }
+        return failedToDelete;
+    }
 
 
     //  리뷰 삭제 (작성자 본인)
@@ -548,6 +361,8 @@ public class ReviewImageService {
         userMessage.setMessage("리뷰 삭제가 완료되었습니다.");
         return 1;
     }
+
+
     /**
      * 리뷰 삭제 (학원 관계자)
      */
@@ -954,11 +769,10 @@ public class ReviewImageService {
 
     // 새로운 리뷰 파일 저장 (중복 방지 포함)
 
-    private void saveNewReviewFiles(Review review, List<MultipartFile> files) {
-        // 기존 저장된 파일명 가져오기 (DB에서 조회)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveNewReviewFiles(Review review, List<MultipartFile> files) {
         List<String> existingFileNames = reviewPicRepository.findFilePathsByReview(review.getReviewId());
 
-        // 새로운 파일이 없으면 기존 파일 유지 (아무 작업도 하지 않음)
         if (files == null || files.isEmpty()) {
             log.info("새로운 파일이 없으므로 기존 파일 유지");
             return;
@@ -966,54 +780,43 @@ public class ReviewImageService {
 
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) {
-                continue; // 빈 파일 무시
+                continue;
             }
 
-            // 파일 유형 확인
             String fileType = file.getContentType();
             if (fileType == null) {
-                userMessage.setMessage("유효하지 않은 파일 형식입니다.");
-                return;
+                log.warn("유효하지 않은 파일 형식");
+                continue;
             }
 
-            // 저장할 폴더 경로 (리뷰 ID 없이 파일 유형에 맞게 저장)
             String fileCategory = fileType.startsWith("image") ? "images" : "videos";
-            myFileUtils.makeFolders(fileCategory); // 폴더 생성
+            myFileUtils.makeFolders(fileCategory);
 
-            // 랜덤 파일명 생성 (파일명만 저장)
             String savedFileName = myFileUtils.makeRandomFileName(file);
             savedFileName = Paths.get(savedFileName).getFileName().toString();
 
-            // 중복 파일 체크 (이미 DB에 저장된 파일명이 있으면 스킵)
             if (existingFileNames.contains(savedFileName)) {
                 log.info("이미 존재하는 파일: {}", savedFileName);
                 continue;
             }
 
             try {
-                // 실제 파일을 서버에 저장 (파일명만 사용)
                 String fullSavePath = fileCategory + "/" + savedFileName;
                 myFileUtils.transferTo(file, fullSavePath);
+
+                ReviewPic reviewPic = new ReviewPic();
+                ReviewPicIds reviewPicIds = new ReviewPicIds();
+                reviewPicIds.setReviewId(review.getReviewId());
+                reviewPicIds.setReviewPic(savedFileName);
+                reviewPic.setReviewPicIds(reviewPicIds);
+                reviewPic.setReview(review);
+
+                reviewPicRepository.save(reviewPic);
             } catch (IOException e) {
-                userMessage.setMessage("파일 업로드에 실패했습니다.");
-                return;
+                log.error("파일 업로드 실패: {}", e.getMessage());
             }
-
-            // ReviewPic 엔티티에 "파일명만" 저장 (기존 리뷰 유지)
-            ReviewPic reviewPic = new ReviewPic();
-            ReviewPicIds reviewPicIds = new ReviewPicIds();
-            reviewPicIds.setReviewId(review.getReviewId());
-
-            log.debug("최종 저장되는 파일명 (DB에 저장될 값): {}", savedFileName); // 확인용 로그
-
-            reviewPicIds.setReviewPic(savedFileName); // 파일명만 저장!
-            reviewPic.setReviewPicIds(reviewPicIds);
-            reviewPic.setReview(review);
-
-            reviewPicRepository.save(reviewPic);
         }
     }
-
 
 
 

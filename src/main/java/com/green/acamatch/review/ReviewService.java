@@ -141,11 +141,15 @@ public class ReviewService {
         }
 
         // 해당 유저가 실제로 해당 수업을 수강했는지 검증
-        JoinClass joinClass = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId)
-                .orElseThrow(() -> {
-                    userMessage.setMessage("해당 학원의 수업을 수강한 기록이 없습니다. 수강한 후 리뷰를 작성할 수 있습니다.");
-                    return new CustomException(ReviewErrorCode.CLASS_NOT_FOUND);
-                });
+        List<JoinClass> joinClasses = joinClassRepository.findByAcaClass_ClassIdAndUser_UserId(req.getClassId(), requestUserId);
+
+        if (joinClasses.isEmpty()) {
+            throw new CustomException(ReviewErrorCode.STUDENT_NOT_IN_CLASS);
+        }
+
+        // 필요한 경우 첫 번째 데이터 사용
+        JoinClass joinClass = joinClasses.get(0);
+
 
         //  중복 리뷰 작성 방지
         if (reviewRepository.existsByJoinClass(joinClass)) {

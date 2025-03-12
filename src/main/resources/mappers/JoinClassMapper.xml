@@ -44,9 +44,9 @@
     ON C.aca_id = D.aca_id
     LEFT JOIN relationship E
     ON A.user_id = E.student_id
-    WHERE E.parent_id = #{parentId}
-    OR A.user_id = #{studentId}
-    GROUP BY C.aca_id, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
+        WHERE (E.parent_id = #{parentId} OR #{parentId} IS NULL)
+        OR (A.user_id = #{studentId} OR #{studentId} IS NULL)
+        GROUP BY C.aca_id, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
     LIMIT #{startIdx}, #{size}
     </select>
 
