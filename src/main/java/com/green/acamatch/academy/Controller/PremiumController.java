@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -77,6 +78,19 @@ public class PremiumController {
         return ResultResponse.<List<PremiumBannerGetRes>>builder()
                 .resultMessage(academyMessage.getMessage())
                 .resultData(resList)
+                .build();
+    }
+
+    //프리미언학원조회(배너신청이 되어있는)(학원관계자 시점)
+    @GetMapping("bannerExist")
+    @Operation(summary = "배너가 신청되어있는 프리미엄학원 조회 (학원관계자 시점)")
+    public ResultResponse<List<PremiumBannerExistGetRes>> getPremiumBannerExist(@ParameterObject @ModelAttribute PremiumBannerExistGetReq req) {
+
+        List<PremiumBannerExistGetRes> resList = premiumService.getPremiumBannerExist(req);
+
+        return ResultResponse.<List<PremiumBannerExistGetRes>>builder()
+                .resultMessage(resList == null ? "배너신청한 프리미엄학원이 없습니다." : academyMessage.getMessage())
+                .resultData(resList == null ? null : resList)
                 .build();
     }
 

@@ -2,6 +2,8 @@ package com.green.acamatch.academy.Service;
 
 import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.PremiumRepository;
+import com.green.acamatch.academy.mapper.AcademyMapper;
+import com.green.acamatch.academy.mapper.PremiumMapper;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.academy.premium.model.*;
 import com.green.acamatch.entity.academy.PremiumAcademy;
@@ -26,6 +28,7 @@ public class PremiumService {
     private final AcademyMessage academyMessage;
     private final PremiumRepository premiumRepository;
     private final AcademyRepository academyRepository;
+    private final PremiumMapper premiumMapper;
 
 
     //프리미엄학원 신청(학원관계자)
@@ -82,6 +85,14 @@ public class PremiumService {
     public List<PremiumBannerGetRes> getPremiumBannerType(Pageable pageable) {
         List<PremiumBannerGetRes> resList = premiumRepository.findAllByPremiumAndBannerType(pageable);
         academyMessage.setMessage("프리미엄학원과 배너타입을 조회하였습니다.");
+        return resList;
+    }
+
+    //프리미엄학원 배너 존재하는거 조회 (학원관계자)
+    public List<PremiumBannerExistGetRes> getPremiumBannerExist(PremiumBannerExistGetReq req) {
+        List<PremiumBannerExistGetRes> resList = premiumMapper.getPremiumBannerExist(req);
+
+        academyMessage.setMessage("배너신청을 한 프리미엄학원 조회 성공");
         return resList;
     }
 

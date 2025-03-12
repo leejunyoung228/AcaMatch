@@ -103,7 +103,7 @@ public class DailyVisitorStatController {
 
 
     // 전체 누적 방문자 수 조회 API
-    @Operation(summary = "누적 방문자 통계", description = "누적된  고유 IP 방문자 수를 반환합니다.")
+    @Operation(summary = "누적 방문자 통계", description = "누적된 방문한 고유 IP 방문자 수를 반환합니다.")
     @GetMapping("/total-visitors")
     public ResponseEntity<Map<String, Object>> getTotalVisitors() {
         long totalVisitors = dailyVisitorStatService.getTotalVisitors();

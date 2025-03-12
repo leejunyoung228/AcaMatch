@@ -2,6 +2,8 @@ package com.green.acamatch.academy.mapper;
 
 import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
+import com.green.acamatch.academy.premium.model.PremiumBannerExistGetReq;
+import com.green.acamatch.academy.premium.model.PremiumBannerExistGetRes;
 import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
 import com.green.acamatch.entity.tag.Tag;
@@ -40,6 +42,7 @@ public interface AcademyMapper {
     AcademyBestLikeGetRes selAcademyCount();
 
     AcademyBestLikeGetRes selAcademyLikeCount();
+
 
 
     // ---------------------------------------------------------------
