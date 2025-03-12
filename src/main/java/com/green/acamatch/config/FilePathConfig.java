@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("prod") // prod 환경에서만 활성화
+@Profile({"prod", "dev"}) // 활성화
 public class FilePathConfig {
 
     @Value("${file.directory}")
