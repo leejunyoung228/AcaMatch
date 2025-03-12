@@ -46,7 +46,7 @@ public class PremiumController {
         int result = premiumService.updPremium(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result)
+                .resultData(1)
                 .build();
     }
 
