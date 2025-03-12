@@ -49,7 +49,7 @@ public class DailyVisitorStatController {
     }
 
     // 특정 월의 방문자 통계 조회
-    @Operation(summary = "월간 방문자 통계 조회", description = "특정 연-월(YYYY-MM)에 대한 방문자 통계를 조회합니다.")
+    @Operation(summary = "(안 쓸 것 같음)월간 방문자 통계 조회", description = "특정 연-월(YYYY-MM)에 대한 방문자 통계를 조회합니다.")
     @GetMapping("/monthly-stats")
     public ResponseEntity<Map<String, Object>> getMonthlyStats(@RequestParam String yearMonth) {
         System.out.println("월간 방문자 통계 조회 요청: " + yearMonth);
@@ -67,11 +67,37 @@ public class DailyVisitorStatController {
         }
     }
 
-    @Operation(summary = "월간 방문자 통계 강제 집계",
+    @Operation(summary = "(안 쓸 것 같음)월간 방문자 통계 강제 집계",
             description = "관리자용 API로, 강제로 월간 방문자 통계를 집계합니다.")
     @PostMapping("/test-aggregate-monthly")
     public ResponseEntity<String> testAggregateMonthly() {
         visitorStatsScheduler.aggregateMonthlyStats();
         return ResponseEntity.ok("월간 통계 강제 집계 완료!");
+    }
+
+
+    @Operation(summary = "대시보드 방문자 통계", description = "이번 주 & 저번 주 방문자 통계를 반환합니다. 0이면 이번 주, 1이면 저번 주")
+    @GetMapping("/weekly-visitors")
+    public ResponseEntity<Map<String, Object>> getWeeklyVisitors(@RequestParam(defaultValue = "0") int weeksAgo) {
+        Map<String, Long> visitorStats = dailyVisitorStatService.countVisitorsForWeek(weeksAgo);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("weeklyVisitors", visitorStats);
+        response.put("status", "success");
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(summary = "오늘 방문자 통계", description = "오늘 방문한 고유 IP 방문자 수를 반환합니다.")
+    @GetMapping("/today-visitors")
+    public ResponseEntity<Map<String, Object>> getTodayVisitors() {
+        Map<String, Long> visitorStats = dailyVisitorStatService.countVisitorsForToday();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("todayVisitors", visitorStats);
+        response.put("status", "success");
+
+        return ResponseEntity.ok(response);
     }
 }

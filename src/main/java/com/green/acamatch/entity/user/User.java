@@ -46,4 +46,8 @@ public class User extends UpdatedAt {
 
     @Column()
     private String userPic;
+
+    public User(Long userId) {
+        this.userId = userId;
+    }
 }

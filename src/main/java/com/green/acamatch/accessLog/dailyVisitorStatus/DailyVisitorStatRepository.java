@@ -47,5 +47,44 @@ public interface DailyVisitorStatRepository extends JpaRepository<DailyVisitorSt
             @Param("ipAddress") String ipAddress,
             @Param("userId") Long userId
     );
+
+    @Query("SELECT COUNT(DISTINCT d.ipAddress) FROM DailyVisitorStat d WHERE d.visitDate BETWEEN :startDate AND :endDate")
+    Long countDistinctByVisitDateBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    // 오늘 방문한 고유 방문자 수 조회
+    @Query("SELECT COUNT(DISTINCT d.ipAddress) FROM DailyVisitorStat d WHERE d.visitDate = :visitDate")
+    long countDistinctByVisitDate(@Param("visitDate") LocalDate visitDate);
+
+
+    // 로그인한 사용자의 방문 기록 조회 (userId 기준)
+    @Query("SELECT d FROM DailyVisitorStat d WHERE d.visitDate = :visitDate AND d.user.userId = :userId")
+    Optional<DailyVisitorStat> findByVisitDateAndUserId(@Param("visitDate") LocalDate visitDate, @Param("userId") Long userId);
+
+    // 비로그인 사용자의 방문 기록 조회 (IP 기준)
+    @Query("SELECT d FROM DailyVisitorStat d WHERE d.visitDate = :visitDate AND d.ipAddress = :ipAddress")
+    Optional<DailyVisitorStat> findByVisitDateAndIpAddress(@Param("visitDate") LocalDate visitDate, @Param("ipAddress") String ipAddress);
+
+    @Query("SELECT d FROM DailyVisitorStat d WHERE d.visitDate = :visitDate AND d.user.userId = :userId ORDER BY d.lastVisit DESC")
+    List<DailyVisitorStat> findAllByVisitDateAndUserId(@Param("visitDate") LocalDate visitDate, @Param("userId") Long userId);
+
+    @Query("SELECT d FROM DailyVisitorStat d WHERE d.visitDate = :visitDate AND d.ipAddress = :ipAddress ORDER BY d.lastVisit DESC")
+    List<DailyVisitorStat> findAllByVisitDateAndIpAddress(@Param("visitDate") LocalDate visitDate, @Param("ipAddress") String ipAddress);
+
+    @Query("SELECT COUNT(DISTINCT dvs.ipAddress) FROM DailyVisitorStat dvs WHERE dvs.visitDate = :today AND dvs.user IS NOT NULL")
+    long countMemberVisitorsForToday(@Param("today") LocalDate today);
+
+    @Query("SELECT COUNT(DISTINCT dvs.ipAddress) FROM DailyVisitorStat dvs WHERE dvs.visitDate = :today AND dvs.user IS NULL")
+    long countNonMemberVisitorsForToday(@Param("today") LocalDate today);
+
+    // 회원 방문자 수 (user_id가 NULL이 아닌 경우)
+    @Query("SELECT COUNT(DISTINCT dvs.ipAddress) FROM DailyVisitorStat dvs " +
+            "WHERE dvs.user IS NOT NULL AND dvs.visitDate BETWEEN :startDate AND :endDate")
+    long countMemberVisitorsForWeek(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    // 비회원 방문자 수 (user_id가 NULL인 경우)
+    @Query("SELECT COUNT(DISTINCT dvs.ipAddress) FROM DailyVisitorStat dvs " +
+            "WHERE dvs.user IS NULL AND dvs.visitDate BETWEEN :startDate AND :endDate")
+    long countNonMemberVisitorsForWeek(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }
+
 
