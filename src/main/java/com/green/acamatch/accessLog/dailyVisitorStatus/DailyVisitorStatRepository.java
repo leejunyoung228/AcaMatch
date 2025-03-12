@@ -86,9 +86,26 @@ public interface DailyVisitorStatRepository extends JpaRepository<DailyVisitorSt
             "WHERE dvs.user IS NULL AND dvs.visitDate BETWEEN :startDate AND :endDate")
     long countNonMemberVisitorsForWeek(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    // 전체 누적 방문자 수 조회
-    @Query("SELECT COUNT(DISTINCT d.ipAddress) FROM DailyVisitorStat d")
+    // 30분 내 방문을 제외한 "오늘의 방문자 수" 조회
+    @Query("SELECT COUNT(DISTINCT d.ipAddress) FROM DailyVisitorStat d WHERE d.visitDate = :today AND d.lastVisit >= :timeLimit")
+    long countTodayVisitors(@Param("today") LocalDate today, @Param("timeLimit") LocalDateTime timeLimit);
+
+    // 회원 방문자 수 조회 (30분 내 재방문 제외)
+    @Query("SELECT COUNT(DISTINCT d.ipAddress) FROM DailyVisitorStat d WHERE d.visitDate = :today AND d.user IS NOT NULL AND d.lastVisit >= :timeLimit")
+    long countTodayMemberVisitors(@Param("today") LocalDate today, @Param("timeLimit") LocalDateTime timeLimit);
+
+    // 비회원 방문자 수 조회 (30분 내 재방문 제외)
+    @Query("SELECT COUNT(DISTINCT d.ipAddress) FROM DailyVisitorStat d WHERE d.visitDate = :today AND d.user IS NULL AND d.lastVisit >= :timeLimit")
+    long countTodayGuestVisitors(@Param("today") LocalDate today, @Param("timeLimit") LocalDateTime timeLimit);
+
+    // 누적 방문자 수 조회 (30분 단위 중복 제외)
+    // 30분 단위 방문자 중복 제거하여 누적 방문자 수 조회
+    @Query(value = "SELECT COUNT(*) FROM ( " +
+            "SELECT DISTINCT d.ip_address, DATE_FORMAT(d.last_visit, '%Y-%m-%d %H:%i') " +
+            "FROM daily_visitor_stat d) AS unique_visitors",
+            nativeQuery = true)
     long countTotalVisitors();
+
 }
 
 
