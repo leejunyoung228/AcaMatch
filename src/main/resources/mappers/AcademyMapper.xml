@@ -1218,7 +1218,7 @@
     <select id="getAcademyListByAcaNameOrderType">
         SELECT A.aca_id,
         A.aca_name,
-        A.comment,
+        IFNULL(B.book_name, C.class_name) AS `classOrBookName`,
         AP.aca_pic,
         AC.created_at,
         AC.price,
@@ -1239,9 +1239,6 @@
             </if>
             <if test="orderType != null and orderType != ''">
                 AND AC.order_type = #{orderType}
-            </if>
-            <if test="userName != null and userName != ''">
-                AND U.user_name LIKE CONCAT('%', #{userName}, '%')
             </if>
             <if test="startDate != null and startDate != ''">
                 AND AC.created_at &gt;= #{startDate}
