@@ -1,43 +1,47 @@
 package com.green.acamatch.book;
 
-import com.green.acamatch.academy.Service.CSDService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.acamatch.book.model.BookGetRes;
 import com.green.acamatch.book.model.BookPostReq;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-@ExtendWith(MockitoExtension.class)
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(
+        controllers = BookController.class
+        , excludeAutoConfiguration = { SecurityAutoConfiguration.class, OAuth2ClientAutoConfiguration.class }
+)
 class BookControllerTest {
-    @Mock BookService service;
+    @Autowired ObjectMapper objectMapper; //JSON사용
+    @Autowired MockMvc mockMvc; //요청(보내고)-응답(받기) 처리
+    @MockitoBean BookService service; //가짜 객체를 만들고 빈등록한다.
 
+    final String BASE_URL = "/api/book";
+    BookPostReq req = new BookPostReq();
+    MultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test".getBytes());
+    BookTestCommon common;
     @Test
-    void postBook() {
-        BookPostReq givenParam = new BookPostReq();
-        givenParam.setBookName("테스트 1");
-        givenParam.setBookComment("책 설명");
-        givenParam.setBookAmount(100);
-        givenParam.setBookPrice(10000);
-        givenParam.setManager("테스트 매니저");
-        givenParam.setClassId(1L);
-        MultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test".getBytes());
+    void postBook() throws Exception {
+        given(service.postBook(file, req)).willReturn(1);
 
-        given(service.postBook(file, givenParam)).willReturn(1);
-
-        int result = service.postBook(file, givenParam);
-
-        assertEquals(1, result);
+        postBook(1);
     }
 
     @Test
@@ -60,5 +64,19 @@ class BookControllerTest {
 
     @Test
     void getBookInfo() {
+    }
+
+    private void postBook(final int result) throws Exception {
+        given(service.postBook(file, req)).willReturn(1);
+
+        ResultActions resultActions = mockMvc.perform(  get(BASE_URL).queryParams(common.getParameter(file, req))  );
+
+        String expectedResJson = common.getExpectedResJson(result);
+        resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResJson));
+
+
+        verify(service).postBook(file, req);
     }
 }
