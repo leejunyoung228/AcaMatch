@@ -95,6 +95,27 @@ public class TeacherService {
         return 0;
     }
 
+    public Integer updateTeacherAgree(TeacherAgreePutReq p) {
+        try {
+            TeacherIds teacherIds = new TeacherIds(p.getClassId(), p.getUserId());
+            teacherIds.setClassId(p.getClassId());
+            teacherIds.setUserId(p.getUserId());
+
+            Teacher teacher = teacherRepository.findById(teacherIds).orElseThrow(()
+                    -> new CustomException(TeacherErrorCode.NOT_FOUND_TEACHER));
+
+            if (p.getTeacherAgree() < 0) {
+                throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
+            }
+            teacher.setTeacherAgree(p.getTeacherAgree());
+            teacherRepository.save(teacher);
+            return 1;
+        } catch (CustomException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     @Transactional
     public Integer deleteTeacher(TeacherDelReq p) {
         try {

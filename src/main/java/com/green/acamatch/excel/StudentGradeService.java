@@ -34,6 +34,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class StudentGradeService {
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public String exportToExcel(Long examId) {
-        Path excelFilePath = Paths.get(filePath, "student_grades","studentGrade.xlsx");
+        Path excelFilePath = Paths.get(filePath, "/student_grades/studentGrade.xlsx");
         log.info("Excel file path: {}", excelFilePath);
         myFileUtils.makeFolders(excelFilePath.getParent().toString());
         try {
@@ -62,6 +63,20 @@ public class StudentGradeService {
         } catch (IOException e) {
             log.error("디렉터리 생성 실패", e);
             throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        // 파일이 존재하는지 확인하고 이름을 변경
+        File excelFile = excelFilePath.toFile();
+        if (excelFile.exists()) {
+            int counter = 1;
+            String newFileName;
+            // 파일 이름에 (1), (2) 등을 붙여서 새로운 파일 경로 설정
+            do {
+                newFileName = String.format("studentGrade(%d).xlsx", counter);
+                excelFilePath = Paths.get(filePath, "student_grades", newFileName);
+                excelFile = excelFilePath.toFile();
+                counter++;
+            } while (excelFile.exists()); // 파일이 존재하는 동안 계속 이름을 바꾼다.
         }
 
         List<Object[]> result = gradeRepository.findExamGradeByExamId(examId);
@@ -151,10 +166,13 @@ public class StudentGradeService {
             }
 
             workbook.write(fos);
-            log.info("엑셀 파일 저장 경로 : {}", excelFilePath);
-            Resource fileResource  = new FileSystemResource(excelFilePath.toFile());
 
-            String url = String.format("%s/xlsx/student_grades/studentGrade.xlsx", emailConst.getBaseUrl(), examId);
+            // 엑셀 파일이 저장될 폴더와 이름을 확인
+            log.info("엑셀 파일 저장 경로: {}", excelFilePath);
+
+            // 생성된 파일이 저장된 폴더에 대한 URL 경로 설정 (URL 경로를 정확히 설정)
+            String url = String.format("%s/xlsx/student_grades/studentGrade.xlsx", emailConst.getBaseUrl());
+            log.info("엑셀 파일 다운로드 URL: {}", url);
             return url;
 
         } catch (Exception e) {
