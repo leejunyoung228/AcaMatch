@@ -3,22 +3,30 @@ package com.green.acamatch.accessLog.dailyVisitorStatus;
 import com.green.acamatch.config.jwt.JwtUser;
 import com.green.acamatch.entity.dailyVisitorStatus.DailyVisitorStat;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DailyVisitorStatService {
 
     private final DailyVisitorStatRepository dailyVisitorStatRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void saveOrUpdateVisitor(String sessionId, String ipAddress) {
@@ -55,17 +63,24 @@ public class DailyVisitorStatService {
             newStat.setVisitCount(1);
             newStat.setLastVisit(now);
 
-            // userId가 존재하는 경우, 실제 User 객체 조회 후 설정 (userRepository 필요)
+            // 여기서 User를 영속 상태로 변경 (해결 핵심 부분)
             if (userId != null) {
-                User user = new User();
-                user.setUserId(userId);
-                newStat.setUser(user);
+                User user = userRepository.findById(userId).orElse(null);
+
+                if (user == null) {
+                    user = new User();
+                    user.setUserId(userId);
+                    user = userRepository.save(user);  // DB에 저장 후 사용
+                }
+
+                newStat.setUser(user);  // 영속 상태의 User를 설정
             }
 
             dailyVisitorStatRepository.save(newStat);
             System.out.println("새로운 방문자 기록 저장 완료!");
         }
     }
+
 
 
 
@@ -97,5 +112,37 @@ public class DailyVisitorStatService {
         return dailyVisitorStatRepository.findRecentVisitors(thirtyMinutesAgo).size();
     }
 
+
+
+    // 이번 주 & 저번 주 방문자 통계 조회
+    public Map<String, Long> countVisitorsForWeek(int weeksAgo) {
+        LocalDate startOfWeek = LocalDate.now().minusWeeks(weeksAgo).with(DayOfWeek.MONDAY);
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        long memberVisitors = dailyVisitorStatRepository.countMemberVisitorsForWeek(startOfWeek, endOfWeek);
+        long nonMemberVisitors = dailyVisitorStatRepository.countNonMemberVisitorsForWeek(startOfWeek, endOfWeek);
+
+        Map<String, Long> visitorStats = new HashMap<>();
+        visitorStats.put("memberVisitors", memberVisitors);
+        visitorStats.put("nonMemberVisitors", nonMemberVisitors);
+        visitorStats.put("totalVisitors", memberVisitors + nonMemberVisitors);
+
+        return visitorStats;
+    }
+
+    //오늘 방문자 수 조회 (고유 IP 기준)
+    public Map<String, Long> countVisitorsForToday() {
+        LocalDate today = LocalDate.now();
+
+        long memberVisitors = dailyVisitorStatRepository.countMemberVisitorsForToday(today);
+        long nonMemberVisitors = dailyVisitorStatRepository.countNonMemberVisitorsForToday(today);
+
+        Map<String, Long> visitorStats = new HashMap<>();
+        visitorStats.put("memberVisitors", memberVisitors);
+        visitorStats.put("nonMemberVisitors", nonMemberVisitors);
+        visitorStats.put("totalVisitors", memberVisitors + nonMemberVisitors); // 총 방문자 수도 반환
+
+        return visitorStats;
+    }
 
 }
