@@ -70,4 +70,7 @@ public interface PremiumRepository extends JpaRepository<PremiumAcademy, Long> {
     @Modifying
     @Query(" delete from PremiumAcademy a where a.endDate <= :now")
     int deletePremiumAcademyByEndDate(@Param("now") LocalDate now);
+
+
+
 }

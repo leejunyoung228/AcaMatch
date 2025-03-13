@@ -3,51 +3,51 @@ package com.green.acamatch.accessLog.dailyVisitorStatus;
 import com.green.acamatch.config.jwt.JwtUser;
 import com.green.acamatch.entity.dailyVisitorStatus.DailyVisitorStat;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DailyVisitorStatService {
 
     private final DailyVisitorStatRepository dailyVisitorStatRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void saveOrUpdateVisitor(String sessionId, String ipAddress) {
-        System.out.println("DailyVisitorStatService 실행됨! Session ID: " + sessionId + ", IP: " + ipAddress);
-
         Long userId = getCurrentUserId();
-        System.out.println("로그인한 사용자 ID: " + userId);
-
         LocalDate today = LocalDate.now();
         LocalDateTime now = LocalDateTime.now();
 
-        // 기존 방문 기록 조회
         Optional<DailyVisitorStat> existingRecord =
                 dailyVisitorStatRepository.findByVisitDateAndSessionIdAndIpAddressAndUser(today, sessionId, ipAddress, userId);
 
         if (existingRecord.isPresent()) {
             DailyVisitorStat stat = existingRecord.get();
-            LocalDateTime lastVisit = stat.getLastVisit(); // 기존 lastVisit 값 저장
+            LocalDateTime lastVisit = stat.getLastVisit();
             stat.setLastVisit(now);
 
-            if (lastVisit.plusMinutes(30).isBefore(now)) {  // 기존 방문 시간과 현재 시간 비교
+            if (lastVisit.plusMinutes(30).isBefore(now)) {
                 stat.setVisitCount(stat.getVisitCount() + 1);
-                System.out.println("방문 횟수 증가: " + stat.getVisitCount());
-            } else {
-                System.out.println("동일 방문자 - 30분 내 방문으로 방문 수 증가 안 함.");
             }
-            dailyVisitorStatRepository.save(stat);
+
+            dailyVisitorStatRepository.saveAndFlush(stat);
         } else {
-            // 새로운 방문 기록 생성
             DailyVisitorStat newStat = new DailyVisitorStat();
             newStat.setVisitDate(today);
             newStat.setSessionId(sessionId);
@@ -55,17 +55,20 @@ public class DailyVisitorStatService {
             newStat.setVisitCount(1);
             newStat.setLastVisit(now);
 
-            // userId가 존재하는 경우, 실제 User 객체 조회 후 설정 (userRepository 필요)
             if (userId != null) {
-                User user = new User();
-                user.setUserId(userId);
+                User user = userRepository.findById(userId).orElse(null);
+
+                if (user != null) {
+                    user = userRepository.saveAndFlush(user);  // `merge()`를 사용
+                }
+
                 newStat.setUser(user);
             }
 
-            dailyVisitorStatRepository.save(newStat);
-            System.out.println("새로운 방문자 기록 저장 완료!");
+            dailyVisitorStatRepository.saveAndFlush(newStat);
         }
     }
+
 
 
 
@@ -95,6 +98,90 @@ public class DailyVisitorStatService {
         System.out.println("최근 방문자 조회 기준 시간: " + thirtyMinutesAgo);
 
         return dailyVisitorStatRepository.findRecentVisitors(thirtyMinutesAgo).size();
+    }
+
+
+
+    // 이번 주 & 저번 주 방문자 통계 조회
+    public Map<String, Long> countVisitorsForWeek(int weeksAgo) {
+        LocalDate startOfWeek = LocalDate.now().minusWeeks(weeksAgo).with(DayOfWeek.MONDAY);
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        long memberVisitors = dailyVisitorStatRepository.countMemberVisitorsForWeek(startOfWeek, endOfWeek);
+        long nonMemberVisitors = dailyVisitorStatRepository.countNonMemberVisitorsForWeek(startOfWeek, endOfWeek);
+
+        Map<String, Long> visitorStats = new HashMap<>();
+        visitorStats.put("memberVisitors", memberVisitors);
+        visitorStats.put("nonMemberVisitors", nonMemberVisitors);
+        visitorStats.put("totalVisitors", memberVisitors + nonMemberVisitors);
+
+        return visitorStats;
+    }
+
+    //오늘 방문자 수 조회 (고유 IP 기준)
+    public Map<String, Long> countVisitorsForToday() {
+        LocalDate today = LocalDate.now();
+
+        long memberVisitors = dailyVisitorStatRepository.countMemberVisitorsForToday(today);
+        long nonMemberVisitors = dailyVisitorStatRepository.countNonMemberVisitorsForToday(today);
+
+        Map<String, Long> visitorStats = new HashMap<>();
+        visitorStats.put("memberVisitors", memberVisitors);
+        visitorStats.put("nonMemberVisitors", nonMemberVisitors);
+        visitorStats.put("totalVisitors", memberVisitors + nonMemberVisitors); // 총 방문자 수도 반환
+
+        return visitorStats;
+    }
+
+    // 오늘 방문자 수 조회 (30분 내 재방문 제외)
+    @Transactional(readOnly = true)
+    public long getTodayVisitors() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime timeLimit = LocalDateTime.now().minusMinutes(30);
+        return dailyVisitorStatRepository.countTodayVisitors(today, timeLimit);
+    }
+
+    // 오늘 회원 방문자 수 조회
+    @Transactional(readOnly = true)
+    public long getTodayMemberVisitors() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime timeLimit = LocalDateTime.now().minusMinutes(30);
+        return dailyVisitorStatRepository.countTodayMemberVisitors(today, timeLimit);
+    }
+
+    // 오늘 비회원 방문자 수 조회
+    @Transactional(readOnly = true)
+    public long getTodayGuestVisitors() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime timeLimit = LocalDateTime.now().minusMinutes(30);
+        return dailyVisitorStatRepository.countTodayGuestVisitors(today, timeLimit);
+    }
+
+    // 누적 방문자 수 조회 (30분 단위 중복 제외)
+    @Transactional(readOnly = true)
+    public Map<String, Long> getTotalVisitorStats() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime timeLimit = LocalDateTime.now().minusMinutes(30);
+
+        long totalVisitors = dailyVisitorStatRepository.countTotalVisitors();
+        long todayVisitors = dailyVisitorStatRepository.countTodayVisitors(today, timeLimit);
+        long todayMemberVisitors = dailyVisitorStatRepository.countTodayMemberVisitors(today, timeLimit);
+        long todayGuestVisitors = dailyVisitorStatRepository.countTodayGuestVisitors(today, timeLimit);
+
+        // JSON 응답 형식으로 반환
+        Map<String, Long> visitorStats = new HashMap<>();
+        visitorStats.put("totalVisitors", totalVisitors);
+        visitorStats.put("todayVisitors", todayVisitors);
+        visitorStats.put("todayMemberVisitors", todayMemberVisitors);
+        visitorStats.put("todayGuestVisitors", todayGuestVisitors);
+
+        return visitorStats;
+    }
+
+
+    @Transactional(readOnly = true)
+    public long getTotalVisitors() {
+        return dailyVisitorStatRepository.countTotalVisitors();
     }
 
 
