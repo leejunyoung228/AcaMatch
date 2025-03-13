@@ -81,4 +81,46 @@
         GROUP BY register_date
         ORDER BY register_date;
     </select>
+    <select id="getAcademyCostByUserId">
+        SELECT DISTINCT DATE(AC.created_at) AS paymentDate,
+        COUNT(*) AS paymentCount
+        FROM academy A
+        JOIN user U ON A.user_id = U.user_id
+        JOIN aca_class C ON A.aca_id = C.aca_id
+        JOIN book B ON A.aca_id = B.aca_id
+        JOIN product P ON B.book_id = P.book_id OR C.class_id = P.class_id
+        JOIN academy_cost AC ON P.product_id = AC.product_id
+        <if test="month == '지난달'">
+            WHERE A.user_id = #{userId}
+            AND YEAR(AC.created_at) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
+            AND MONTH(AC.created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
+        </if>
+        <if test="month == '이번달'">
+            WHERE A.user_id = #{userId}
+            AND year(AC.created_at) = YEAR(NOW())
+            AND MONTH(AC.created_at) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
+        </if>
+        AND P.product_id != 1
+        GROUP BY AC.cost_id
+        ORDER BY paymentDate;
+    </select>
+    <select id="getUserCountByUserId">
+        SELECT DISTINCT DATE(JC.registration_date) AS paymentDate,
+        COUNT(*) AS paymentCount
+        FROM academy A
+        JOIN aca_class C ON A.aca_id = C.aca_id
+        JOIN join_class JC ON C.class_id = JC.class_Id
+        <if test="month == '지난달'">
+            WHERE A.user_id = #{userId}
+            AND YEAR(JC.registration_date) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
+            AND MONTH(JC.registration_date) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
+        </if>
+        <if test="month == '이번달'">
+            WHERE A.user_id = #{userId}
+            AND year(JC.registration_date) = YEAR(NOW())
+            AND MONTH(JC.registration_date) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
+        </if>
+        GROUP BY paymentDate
+        ORDER BY paymentDate;
+    </select>
 </mapper>

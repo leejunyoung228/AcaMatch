@@ -1216,62 +1216,36 @@
         WHERE aca_name like CONCAT('%', #{acaName}, '%')
     </select>
     <select id="getAcademyListByAcaNameOrderType">
-        SELECT A.aca_id,
-        A.aca_name,
+        SELECT
+        IFNULL(A.aca_id, A1.aca_id) AS aca_id,
+        IFNULL(A.aca_name, A1.aca_name) AS aca_name,
         IFNULL(B.book_name, C.class_name) AS `classOrBookName`,
-        AP.aca_pic,
+        IFNULL(AP.aca_pic, AP1.aca_pic) AS aca_pic,
         AC.created_at,
         AC.price,
         AC.cost_status,
         U.name,
         AC.cost_id,
         COUNT(*) OVER() AS totalCount
-        FROM product P
+        FROM academy_cost AC
+        JOIN product P ON AC.product_id = P.product_id
         LEFT JOIN aca_class C ON P.class_id = C.class_id
         LEFT JOIN book B ON P.book_id = B.book_id
-        JOIN academy_cost AC ON P.product_id = AC.product_id
-        JOIN academy A ON A.aca_id = C.class_id
-        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy A ON C.aca_id = A.aca_id
+        LEFT JOIN academy A1 ON B.aca_id = A1.aca_id
+        LEFT JOIN (
+        SELECT aca_id, MIN(aca_pic) AS aca_pic
+        FROM academy_pic
+        GROUP BY aca_id
+        ) AP ON A.aca_id = AP.aca_id -- 학원당 대표 사진 1개만 가져오기
+        LEFT JOIN (
+        SELECT aca_id, MIN(aca_pic) AS aca_pic
+        FROM academy_pic
+        GROUP BY aca_id
+        ) AP1 ON A1.aca_id = AP1.aca_id -- 학원당 대표 사진 1개만 가져오기
         JOIN user U ON AC.user_id = U.user_id
         <where>
-            <if test="acaName != null and acaName != ''">
-                AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
-            </if>
-            <if test="orderType != null and orderType != ''">
-                AND AC.order_type = #{orderType}
-            </if>
-            <if test="startDate != null and startDate != ''">
-                AND AC.created_at &gt;= #{startDate}
-            </if>
-            <if test="endDate != null and endDate != ''">
-                AND AC.created_at &lt;= #{endDate}
-            </if>
-            <if test="acaId != null">
-                AND A.aca_id = #{acaId}
-            </if>
-        </where>
-        ORDER BY AC.created_at DESC
-        LIMIT #{startIdx}, #{size}
-    </select>
-    <select id="getAcademyListByAcaNameOrderTypeByUserId">
-        SELECT A.aca_id,
-        A.aca_name,
-        IFNULL(B.book_name, C.class_name) AS `classOrBookName`,
-        AP.aca_pic,
-        AC.created_at,
-        AC.price,
-        AC.cost_status,
-        U.name,
-        AC.cost_id,
-        COUNT(*) OVER() AS totalCount
-        FROM product P
-        LEFT JOIN aca_class C ON P.class_id = C.class_id
-        LEFT JOIN book B ON P.book_id = B.book_id
-        JOIN academy_cost AC ON P.product_id = AC.product_id
-        JOIN academy A ON A.aca_id = C.class_id
-        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
-        JOIN user U ON AC.user_id = U.user_id
-        <where>
+            AND AC.product_id != 1
             <if test="acaName != null and acaName != ''">
                 AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
             </if>

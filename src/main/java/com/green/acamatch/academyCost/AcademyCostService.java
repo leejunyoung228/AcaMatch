@@ -36,11 +36,12 @@ public class AcademyCostService {
 
     public int updateStatuses(String costIds) {
         LocalDate today = LocalDate.now();
-        YearMonth currentMonth = YearMonth.from(today); // 현재 월
+        YearMonth currentMonth = YearMonth.from(today); // 이번 달
+        LocalDate firstDayOfThisMonth = currentMonth.atDay(1); // 이번 달 1일
         LocalDate firstDayOfNextMonth = currentMonth.plusMonths(1).atDay(1); // 다음 달 1일
 
-        // 정산 가능 기간: 이번 달 마지막 날부터 다음 달 1일까지
-        if (today.isBefore(currentMonth.atEndOfMonth()) || today.isAfter(firstDayOfNextMonth.minusDays(1))) {
+        // 정산 가능 기간: 이번 달(1일~말일) 동안만 가능
+        if (today.isBefore(firstDayOfThisMonth) || today.isAfter(firstDayOfNextMonth.minusDays(1))) {
             academyCostMessage.setMessage("정산 가능 기간이 아닙니다.");
             return 0;
         }
@@ -61,6 +62,17 @@ public class AcademyCostService {
         for (Long costId : costIdList) {
             AcademyCost academyCost = academyCostRepository.findById(costId).orElse(null);
             if (academyCost != null) {
+                // 결제한 달 가져오기
+                LocalDate createdAt = academyCost.getCreatedAt().toLocalDate();
+                YearMonth paymentMonth = YearMonth.from(createdAt); // 결제한 월
+
+                // 같은 달이면 정산 불가
+                if (paymentMonth.equals(currentMonth)) {
+                    academyCostMessage.setMessage("이번 달 결제 내역은 정산할 수 없습니다.");
+                    return 0;
+                }
+
+                // 정산 가능하면 상태 업데이트
                 academyCost.setStatus(1);
                 academyCost.setUpdatedAt(LocalDateTime.now());
                 academyCostRepository.save(academyCost);
@@ -70,8 +82,4 @@ public class AcademyCostService {
         academyCostMessage.setMessage("정산이 완료되었습니다.");
         return 1;
     }
-
-
-
-
 }

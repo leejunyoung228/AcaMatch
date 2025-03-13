@@ -1,6 +1,7 @@
 package com.green.acamatch.entity.academyCost;
 
 import com.green.acamatch.entity.acaClass.AcaClass;
+import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.datetime.CreatedAt;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,6 +18,10 @@ public class Book extends CreatedAt {
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
     private AcaClass classId;
+
+    @ManyToOne
+    @JoinColumn(name = "aca_id")
+    private Academy academyId;
 
     private String bookPic;
 
