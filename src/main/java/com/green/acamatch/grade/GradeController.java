@@ -30,7 +30,7 @@ public class GradeController {
     }
 
     @GetMapping
-    @Operation(summary = "수강생 한 명의 시험 점수 가져오기/  안 쓰는 것 같아요.")
+    @Operation(summary = "수강생 한 명의 시험 점수 가져오기")
     public ResultResponse<List<GradeGetDto>> selGradeScore(@ModelAttribute @ParameterObject GradeGetReq p) {
         List<GradeGetDto> result = service.selGradeScore(p);
         return ResultResponse.<List<GradeGetDto>>builder()
