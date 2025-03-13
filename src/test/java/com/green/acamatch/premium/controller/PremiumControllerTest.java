@@ -8,9 +8,13 @@ import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
 import com.green.acamatch.config.GlobalOauth2;
 import com.green.acamatch.config.constant.JwtConst;
 import com.green.acamatch.config.model.ResultResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -21,51 +25,53 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(
-        controllers = PremiumController.class
-        , excludeAutoConfiguration = SecurityAutoConfiguration.class
-)
+
 class PremiumControllerTest {
 
-    @Autowired
-     MockMvc mockMvc;
+    private MockMvc mockMvc;
 
-    @MockitoBean
-     PremiumService premiumService;
+    @Mock
+    private PremiumService premiumService;
 
-    @MockitoBean
-    AcademyMessage academyMessage;
+    @Mock
+    private AcademyMessage academyMessage;
 
-    @MockitoBean
-    JwtConst jwtConst;
+    @InjectMocks
+    private PremiumController premiumController;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(premiumController).build();
+    }
 
     @Test
-    @DisplayName("프리미엄 승인 - 성공")
     void putPremiumCheck_Success() throws Exception {
         // given
-        PremiumUpdateReq request = new PremiumUpdateReq();
-        request.setAcaId(1L);
-        request.setPreCheck(1);
+        PremiumUpdateReq req = new PremiumUpdateReq();
+        req.setAcaId(1L);
+        req.setPreCheck(1);
 
-        given(premiumService.updPremium(any())).willReturn(1);
-        given(academyMessage.getMessage()).willReturn("프리미엄 학원이 승인되었습니다.");
+        // Mocking service and message
+        when(premiumService.updPremium(req)).thenReturn(1);
+        when(academyMessage.getMessage()).thenReturn("승인 성공");
 
         // when & then
         mockMvc.perform(put("/academy/premium")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .contentType("application/json")
+                        .content("{\"acaId\": 1, \"preCheck\": 1}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultMessage").value("프리미엄 학원이 승인되었습니다."))
+                .andExpect(jsonPath("$.resultMessage").value("승인 성공"))
                 .andExpect(jsonPath("$.resultData").value(1));
     }
 }
