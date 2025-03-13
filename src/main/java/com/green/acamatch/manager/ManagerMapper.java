@@ -8,8 +8,13 @@ import java.util.List;
 @Mapper
 public interface ManagerMapper {
     List<GetAcademyCountRes> getAcademyCount(String month);
+
     List<GetUserCountRes> getUserCount(String month);
+
     List<GetAcademyCostCountRes> getAcademyCostCount(String month);
+
     List<GetAcademyCostByUserIdRes> getAcademyCostByUserId(GetAcademyCostByUserIdReq req);
+
     List<GetUserCountByUserIdRes> getUserCountByUserId(GetUserCountByUserIdReq req);
+}
 
