@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.acamatch.book.model.BookGetRes;
 import com.green.acamatch.book.model.BookPostReq;
 import com.green.acamatch.config.GlobalOauth2;
+import com.green.acamatch.config.model.ResultResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,19 +41,39 @@ class BookControllerTest {
     @MockitoBean GlobalOauth2 globalOauth2;
 
     final String BASE_URL = "/api/book";
-    BookPostReq req;
-    MultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test".getBytes());
-    BookTestCommon common;
-
-    @BeforeEach
-    void setUp() {
-        common = new BookTestCommon(objectMapper, bookMessage);
-        BookPostReq req = common.getGivenParam();
-    }
 
     @Test
     void postBook() throws Exception {
-        postBook(1);
+        BookPostReq req = new BookPostReq();
+        req.setBookName("asd");
+        req.setBookAmount(1);
+        req.setBookPrice(1);
+        req.setBookComment("asd");
+        req.setManager("asd");
+        req.setClassId(1L);
+        req.setAcaId(1L);
+
+        MultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test".getBytes());
+
+        given(service.postBook(file, req)).willReturn(1);
+
+        String paramJson = objectMapper.writeValueAsString(req);
+
+        ResultActions resultActions = mockMvc.perform( post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+                                                                     .content(paramJson));
+
+        ResultResponse res = ResultResponse.<Integer>builder()
+                .resultMessage(bookMessage.getMessage())
+                .resultData(1)
+                .build();
+
+        String expectedJson = objectMapper.writeValueAsString(res);
+
+        resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedJson));
+
+        verify(service).postBook(file, req);
     }
 
     @Test
@@ -73,19 +96,5 @@ class BookControllerTest {
 
     @Test
     void getBookInfo() {
-    }
-
-    private void postBook(final int result) throws Exception {
-        given(service.postBook(file, req)).willReturn(1);
-
-        ResultActions resultActions = mockMvc.perform(  get(BASE_URL).queryParams(common.getParameter(file, req))  );
-
-        String expectedResJson = common.getExpectedResJson(result);
-        resultActions.andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().json(expectedResJson));
-
-
-        verify(service).postBook(file, req);
     }
 }
