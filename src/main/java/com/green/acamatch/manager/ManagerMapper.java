@@ -12,4 +12,4 @@ public interface ManagerMapper {
     List<GetAcademyCostCountRes> getAcademyCostCount(String month);
     List<GetAcademyCostByUserIdRes> getAcademyCostByUserId(GetAcademyCostByUserIdReq req);
     List<GetUserCountByUserIdRes> getUserCountByUserId(GetUserCountByUserIdReq req);
-}
+
