@@ -3,9 +3,7 @@ package com.green.acamatch.manager;
 import com.green.acamatch.acaClass.AcaClassService;
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.manager.model.GetAcademyCostCountRes;
-import com.green.acamatch.manager.model.GetAcademyCountRes;
-import com.green.acamatch.manager.model.GetUserCountRes;
+import com.green.acamatch.manager.model.*;
 import com.green.acamatch.sms.SmsService;
 import com.green.acamatch.sms.model.SmsRequest;
 import com.green.acamatch.user.UserUtils;
@@ -64,6 +62,16 @@ public class ManagerService {
 
     public List<GetAcademyCostCountRes> getAcademyCostCount(String month){
         List<GetAcademyCostCountRes> res = managerMapper.getAcademyCostCount(month);
+        return res;
+    }
+
+    public List<GetAcademyCostByUserIdRes> getAcademyCostByUserId(GetAcademyCostByUserIdReq req){
+        List<GetAcademyCostByUserIdRes> res = managerMapper.getAcademyCostByUserId(req);
+        return res;
+    }
+
+    public List<GetUserCountByUserIdRes> getUserCountByUserId(GetUserCountByUserIdReq req){
+        List<GetUserCountByUserIdRes> res = managerMapper.getUserCountByUserId(req);
         return res;
     }
 }
