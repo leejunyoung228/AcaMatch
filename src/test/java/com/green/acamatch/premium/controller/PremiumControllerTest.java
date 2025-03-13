@@ -6,12 +6,11 @@ import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
 import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
 import com.green.acamatch.config.GlobalOauth2;
+import com.green.acamatch.config.constant.JwtConst;
 import com.green.acamatch.config.model.ResultResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -19,64 +18,54 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(
-        controllers = PremiumController.class,
-        excludeAutoConfiguration = { SecurityAutoConfiguration.class, OAuth2ClientAutoConfiguration.class }
+        controllers = PremiumController.class
+        , excludeAutoConfiguration = SecurityAutoConfiguration.class
 )
-@Import(GlobalOauth2.class)
-@ExtendWith(MockitoExtension.class) // 추가
 class PremiumControllerTest {
 
     @Autowired
-    ObjectMapper objectMapper;
+     MockMvc mockMvc;
 
-    @Autowired
-    MockMvc mockMvc;
+    @MockitoBean
+     PremiumService premiumService;
 
-    @Mock // `@MockBean` 대신 사용
-    PremiumService premiumService;
-
-    @Mock
+    @MockitoBean
     AcademyMessage academyMessage;
 
-    final String BASE_URL = "/api/academy/premium";
+    @MockitoBean
+    JwtConst jwtConst;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    @DisplayName("프리미엄 승인")
-    void putPremiumCheck() throws Exception {
-        PremiumUpdateReq givenParam = new PremiumUpdateReq();
-        givenParam.setAcaId(29L);
-        givenParam.setPreCheck(1);
+    @DisplayName("프리미엄 승인 - 성공")
+    void putPremiumCheck_Success() throws Exception {
+        // given
+        PremiumUpdateReq request = new PremiumUpdateReq();
+        request.setAcaId(1L);
+        request.setPreCheck(1);
 
-        when(premiumService.updPremium(givenParam)).thenReturn(1); // `given` 대신 `when` 사용
+        given(premiumService.updPremium(any())).willReturn(1);
+        given(academyMessage.getMessage()).willReturn("프리미엄 학원이 승인되었습니다.");
 
-        String paramJson = objectMapper.writeValueAsString(givenParam);
-
-        ResultActions resultActions = mockMvc.perform(put(BASE_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(paramJson));
-
-        ResultResponse<Integer> res = ResultResponse.<Integer>builder()
-                .resultMessage("프리미엄 승인 완료")
-                .resultData(1)
-                .build();
-        String expectedResJson = objectMapper.writeValueAsString(res);
-
-        resultActions.andDo(print())
+        // when & then
+        mockMvc.perform(put("/academy/premium")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().json(expectedResJson));
-
-        verify(premiumService).updPremium(givenParam);
+                .andExpect(jsonPath("$.resultMessage").value("프리미엄 학원이 승인되었습니다."))
+                .andExpect(jsonPath("$.resultData").value(1));
     }
 }
