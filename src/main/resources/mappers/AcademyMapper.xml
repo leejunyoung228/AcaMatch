@@ -1184,6 +1184,7 @@
         A.address,
         A.detail_address,
         A.post_num,
+        COUNT(*) OVER() AS totalCount,
         IFNULL(`AS`.starAvg, 0) AS starAvg,
         IFNULL(GROUP_CONCAT(DISTINCT T.tag_name ORDER BY T.tag_id SEPARATOR ', '), '') AS tagNames,
         IFNULL(LC.likeCount, 0) AS likeCount,
