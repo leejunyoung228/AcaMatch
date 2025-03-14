@@ -4,9 +4,63 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.green.acamatch.menuOut.MenuOutMapper">
+
+    <!--depth 1: 학원전체조회-->
     <select id="getAcademyAll">
         SELECT aca_id, aca_name
         FROM academy
+        ORDER BY aca_id
     </select>
+
+    <!--depth 2: 학원당 수업목록조회-->
+    <select id="getAcaClass">
+        SELECT a.aca_id, b.aca_name, a.class_id, a.class_name
+        FROM aca_class a
+        join academy b
+        on a.aca_id = b.aca_id
+        WHERE a.aca_id = #{acaId}
+        ORDER BY class_id
+    </select>
+
+    <!--depth 3: 학원 클래스 내 교재 목록조회 -->
+    <select id="getAcaClassBook">
+        SELECT a.aca_id, b.aca_name, a.class_id, c.class_name, a.book_id, a.book_name
+        FROM book a
+        join academy b
+        on a.aca_id = b.aca_id
+        join aca_class c
+        on a.class_id = c.class_id
+        WHERE a.aca_id = #{acaId}
+        AND a.class_id = #{classId}
+        ORDER BY book_id
+    </select>
+
+    <!-- 뎁스 3 : 학원 -> 강좌 -> 테스트 목록 -->
+    <select id="getExamList">
+        SELECT A.aca_id, A.aca_name, B.class_id, B.class_name, C.exam_id, C.exam_name
+        FROM academy A
+        INNER JOIN aca_class B
+        ON A.aca_id = B.aca_id
+        INNER JOIN exam C
+        ON B.class_id = C.class_id
+        WHERE A.aca_id = #{acaId} AND B.class_id = #{classId}
+    </select>
+
+    <!-- 뎁스 4-->
+    <select id="getExamUser">
+        SELECT C.aca_id, C.aca_name, B.class_id, B.class_name, E.exam_id, E.exam_name, A.join_class_id, D.name
+        FROM join_class A
+        INNER JOIN aca_class B
+        ON A.class_id = B.class_id
+        INNER JOIN academy C
+        ON B.aca_id = C.aca_id
+        INNER JOIN `user` D
+        ON A.user_id = D.user_id
+        INNER JOIN exam E
+        ON B.class_id = E.class_id
+        WHERE C.aca_id = #{acaId} AND B.class_id = #{classId} AND E.exam_id = #{examId}
+    </select>
+
+
 
 </mapper>
