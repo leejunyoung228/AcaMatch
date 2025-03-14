@@ -16,7 +16,7 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
     Long existsGrade(@Param("joinClassId")Long joinClassId, @Param("examId") Long examId);
 
 
-    @Query("SELECT B.joinClassId, D.classId, B.user.userId, A.name, D.examId, D.examName, E.examDate, E.gradeId, D.examType," +
+    @Query("SELECT B.joinClassId, A.name, D.examId, D.examName, E.examDate, E.gradeId, D.examType," +
             "CASE WHEN D.examType = 0 THEN E.score ELSE NULL END AS score," +
             "CASE WHEN D.examType != 0 THEN " +
             "CASE WHEN COALESCE(E.pass,0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS pass\n, COALESCE(E.processingStatus,0) AS processing_status\n" +
@@ -31,7 +31,7 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
             "ON D.examId = E.exam.examId\n" +
             "AND B.joinClassId = E.joinClass.joinClassId\n" +
             "WHERE D.examId = :examId\n" +
-            "GROUP BY B.joinClassId, D.classId, B.user.userId, A.name, D.examId, D.examName, E.examDate, E.gradeId, D.examType, E.processingStatus\n" +
-            "ORDER BY A.name\n")
+            "GROUP BY B.joinClassId, A.name, D.examId, D.examName, E.examDate, E.gradeId, D.examType, E.processingStatus\n" +
+            "ORDER BY B.joinClassId\n")
     List<Object[]> findExamGradeByExamId(@Param("examId")Long examId);
 }
