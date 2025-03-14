@@ -2,82 +2,31 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.green.acamatch.manager.ManagerMapper">
     <select id="getAcademyCount">
-        WITH RECURSIVE date_series AS (
-        -- 1. 검색 기준이 "이번달"이면 이번 달 1일부터, "지난달"이면 지난달 1일부터 설정
         SELECT
-        <if test="month == '이번달'">
-            DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), '%Y-%m-%d')
-        </if>
-        <if test="month == '지난달'">
-            DATE_FORMAT(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), INTERVAL 1 MONTH), '%Y-%m-%d')
-        </if>
-        AS register_date
-        UNION ALL
-        -- 2. 하루씩 증가
-        SELECT DATE_ADD(register_date, INTERVAL 1 DAY)
-        FROM date_series
-        WHERE register_date &lt;
-        <if test="month == '이번달'">
-            CURDATE()  -- 이번 달은 오늘까지
-        </if>
-        <if test="month == '지난달'">
-            LAST_DAY(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))  -- 지난 달은 해당 월의 마지막 날까지
-        </if>
-        )
-
-        SELECT
-        ds.register_date,  -- 날짜 리스트
-        (SELECT COUNT(*) FROM academy) AS totalAcademyCount -- 현재까지 등록된 모든 학원 수
-        FROM date_series ds
-        LEFT JOIN academy a ON DATE(a.created_at) = ds.register_date
-        GROUP BY ds.register_date
-        ORDER BY ds.register_date;
+        DATE(A.created_at) AS register_date,
+        COUNT(*) AS totalAcademyCount
+        FROM academy A
+        WHERE YEAR(A.created_at) = #{year}
+        AND MONTH(A.created_at) = #{month}
+        GROUP BY DAY(A.created_at)
+        ORDER BY DAY(A.created_at);
     </select>
     <select id="getUserCount">
-        WITH RECURSIVE date_series AS (
-        -- 1. 검색 기준이 "이번달"이면 이번 달 1일부터, "지난달"이면 지난달 1일부터 설정
-        SELECT
-        <if test="month == '이번달'">
-            DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), '%Y-%m-%d')
-        </if>
-        <if test="month == '지난달'">
-            DATE_FORMAT(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), INTERVAL 1 MONTH), '%Y-%m-%d')
-        </if>
-        AS register_date
-        UNION ALL
-        -- 2. 하루씩 증가
-        SELECT DATE_ADD(register_date, INTERVAL 1 DAY)
-        FROM date_series
-        WHERE register_date &lt;
-        <if test="month == '이번달'">
-            CURDATE()  -- 이번 달은 오늘까지
-        </if>
-        <if test="month == '지난달'">
-            LAST_DAY(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))  -- 지난 달은 해당 월의 마지막 날까지
-        </if>
-        )
-
-        SELECT
-        ds.register_date,  -- 날짜 리스트
-        (SELECT COUNT(*) FROM user) AS totalUserCount -- 현재까지 등록된 모든 학원 수
-        FROM date_series ds
-        LEFT JOIN user u ON DATE(u.created_at) = ds.register_date
-        GROUP BY ds.register_date
-        ORDER BY ds.register_date;
+        SELECT DATE(U.created_at) AS register_date,
+        COUNT(*) AS totalUserCount
+        FROM user U
+        WHERE YEAR(U.created_at) = #{year}
+        AND MONTH(U.created_at) = #{month}
+        GROUP BY DAY(U.created_at)
+        ORDER BY DAY(U.created_at);
     </select>
     <select id="getAcademyCostCount">
         SELECT
-        DATE(created_at) AS register_date,  -- 날짜별 그룹화 (날짜만 가져오기)
-        COUNT(*) AS academyCostCount           -- 해당 날짜에 등록된 학원 수
+        DATE(created_at) AS register_date,
+        COUNT(*) AS academyCostCount
         FROM academy_cost
-        <if test="month == '지난달'">
-            WHERE YEAR(created_at) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
-            AND MONTH(created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
-        </if>
-        <if test="month == '이번달'">
-            WHERE year(created_at) = YEAR(NOW())
-            AND MONTH(created_at) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
-        </if>
+        WHERE year(created_at) = #{year}
+        AND MONTH(created_at) = #{month}
         GROUP BY register_date
         ORDER BY register_date;
     </select>
@@ -85,43 +34,28 @@
         SELECT DISTINCT DATE(AC.created_at) AS paymentDate,
         COUNT(*) AS paymentCount
         FROM academy A
-        JOIN user U ON A.user_id = U.user_id
         JOIN aca_class C ON A.aca_id = C.aca_id
         JOIN book B ON A.aca_id = B.aca_id
         JOIN product P ON B.book_id = P.book_id OR C.class_id = P.class_id
         JOIN academy_cost AC ON P.product_id = AC.product_id
-        <if test="month == '지난달'">
-            WHERE A.user_id = #{userId}
-            AND YEAR(AC.created_at) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
-            AND MONTH(AC.created_at) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
-        </if>
-        <if test="month == '이번달'">
-            WHERE A.user_id = #{userId}
-            AND year(AC.created_at) = YEAR(NOW())
-            AND MONTH(AC.created_at) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
-        </if>
+        WHERE YEAR(AC.created_at) = #{year}
+        AND MONTH(AC.created_at) = #{month}
         AND P.product_id != 1
+        AND A.user_id = #{userId}
         GROUP BY AC.cost_id
         ORDER BY paymentDate;
     </select>
     <select id="getUserCountByUserId">
-        SELECT DISTINCT DATE(JC.registration_date) AS paymentDate,
+        SELECT DATE(JC.registration_date) AS paymentDate,
         COUNT(*) AS paymentCount
         FROM academy A
         JOIN aca_class C ON A.aca_id = C.aca_id
-        JOIN join_class JC ON C.class_id = JC.class_Id
-        <if test="month == '지난달'">
-            WHERE A.user_id = #{userId}
-            AND YEAR(JC.registration_date) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달 연도
-            AND MONTH(JC.registration_date) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))  -- 지난달
-        </if>
-        <if test="month == '이번달'">
-            WHERE A.user_id = #{userId}
-            AND year(JC.registration_date) = YEAR(NOW())
-            AND MONTH(JC.registration_date) = MONTH(NOW())  -- 최근 1개월 데이터만 가져오기
-        </if>
-        GROUP BY paymentDate
-        ORDER BY paymentDate;
+        JOIN join_class JC ON C.class_id = JC.class_id
+        WHERE YEAR(JC.registration_date) = #{year}
+        AND MONTH(JC.registration_date) = #{month}
+        AND A.user_id = #{userId}
+        GROUP BY DATE(JC.registration_date)
+        ORDER BY DATE(JC.registration_date);
     </select>
     <select id="GetUserInfoList">
         SELECT U.name, U.user_pic, U.email, JC.registration_date, A.aca_name, C.class_name,

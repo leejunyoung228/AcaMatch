@@ -28,30 +28,30 @@ public class ManagerController {
                 .build();
     }
 
-    @GetMapping("GetAcademyCount/{month}")
+    @GetMapping("GetAcademyCount")
     @Operation(summary = "월별 등록한 학원 수", description = "이번달, 지난달 넣어서 테스트 해보시면 됩니다.")
-    public ResultResponse<List<GetAcademyCountRes>> getAcademyCount(@PathVariable String month) {
-        List<GetAcademyCountRes> result = managerService.getAcademyCount(month);
+    public ResultResponse<List<GetAcademyCountRes>> getAcademyCount(@ParameterObject GetAcademyCountReq req) {
+        List<GetAcademyCountRes> result = managerService.getAcademyCount(req);
         return ResultResponse.<List<GetAcademyCountRes>>builder()
                 .resultMessage("출력 완료")
                 .resultData(result)
                 .build();
     }
 
-    @GetMapping("GetUserCount/{month}")
+    @GetMapping("GetUserCount")
     @Operation(summary = "월별 등록한 유저 수", description = "이번달, 지난달 넣어서 테스트 해보시면 됩니다.")
-    public ResultResponse<List<GetUserCountRes>> getUserCount(@PathVariable String month) {
-        List<GetUserCountRes> result = managerService.getUserCount(month);
+    public ResultResponse<List<GetUserCountRes>> getUserCount(@ParameterObject GetUserCountReq req) {
+        List<GetUserCountRes> result = managerService.getUserCount(req);
         return ResultResponse.<List<GetUserCountRes>>builder()
                 .resultMessage("출력 완료")
                 .resultData(result)
                 .build();
     }
 
-    @GetMapping("GetAcademyCostCount/{month}")
+    @GetMapping("GetAcademyCostCount")
     @Operation(summary = "월별 결제한 건 수", description = "이번달, 지난달 넣어서 테스트 해보시면 됩니다.")
-    public ResultResponse<List<GetAcademyCostCountRes>> getAcademyCostCount(@PathVariable String month) {
-        List<GetAcademyCostCountRes> result = managerService.getAcademyCostCount(month);
+    public ResultResponse<List<GetAcademyCostCountRes>> getAcademyCostCount(@ParameterObject GetAcademyCostCountReq req) {
+        List<GetAcademyCostCountRes> result = managerService.getAcademyCostCount(req);
         return ResultResponse.<List<GetAcademyCostCountRes>>builder()
                 .resultMessage("출력 완료")
                 .resultData(result)
