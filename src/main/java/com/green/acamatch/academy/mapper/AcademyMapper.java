@@ -102,19 +102,5 @@ public interface AcademyMapper {
     List<GetAcademyListByAcaNameOrderTypeRes> getAcademyListByAcaNameOrderType(GetAcademyListByAcaNameOrderTypeReq p);
 
     List<GetSearchInfoRes> getSearchInfo(String week);
-
-    // 일반 리뷰 개수 가져오기
-    int countGeneralReviews(@Param("acaId") Long acaId);
-
-    int countMediaReviews(@Param("acaId") Long acaId);
-
-
-    List<GeneralReviewDto> getGeneralReviews(@Param("generalStartIdx") int generalStartIdx,
-                                             @Param("acaId") Long acaId,
-                                             @Param("size") int size);
-
-    List<MediaReviewDto> getMediaReviews(@Param("mediaStartIdx") int mediaStartIdx,
-                                         @Param("acaId") Long acaId,
-                                         @Param("size") int size);
 }
 
