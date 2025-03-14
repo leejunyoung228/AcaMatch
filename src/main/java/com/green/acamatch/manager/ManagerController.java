@@ -77,4 +77,14 @@ public class ManagerController {
                 .resultData(result)
                 .build();
     }
+
+    @GetMapping("GetUserInfoList/{userId}")
+    @Operation(summary = "학원 관계자 대시보드에 학생 등록 요청 API")
+    public ResultResponse<List<GetUserInfoListRes>> GetUserInfoList(@PathVariable long userId){
+        List<GetUserInfoListRes> result = managerService.GetUserInfoList(userId);
+        return ResultResponse.<List<GetUserInfoListRes>>builder()
+                .resultMessage("출력 성공")
+                .resultData(result)
+                .build();
+    }
 }

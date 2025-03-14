@@ -22,4 +22,7 @@ public class GetUserListRes {
 
     @Schema(title = "신고 당한 횟수")
     private int reportCount;
+
+    @Schema(title = "신고 PK")
+    private long reportId;
 }

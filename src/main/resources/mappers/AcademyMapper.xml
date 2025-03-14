@@ -320,7 +320,17 @@
         FROM reports R
         GROUP BY R.aca_id
         ) RC ON A.aca_id = RC.aca_id  -- 학원별 신고 개수를 LEFT JOIN
-        WHERE A.user_id = #{signedUserId}
+        <where>
+            <if test="signedUserId != null">
+                AND A.user_id = #{signedUserId}
+            </if>
+            <if test="acaAgree != null">
+                AND A.aca_agree = #{acaAgree}
+            </if>
+            <if test="acaName != null and acaName != '' ">
+                AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
+            </if>
+        </where>
         GROUP BY A.aca_id;
     </select>
 
@@ -1133,7 +1143,8 @@
         A.aca_id,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id, U.name,
-        IFNULL(RC.reportsCount, 0) AS reportsCount
+        IFNULL(RC.reportsCount, 0) AS reportsCount,
+        A.aca_agree
         FROM academy A
         LEFT JOIN academy_pic AP
         ON A.aca_id = AP.aca_id

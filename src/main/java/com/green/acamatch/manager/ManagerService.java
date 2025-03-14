@@ -74,4 +74,9 @@ public class ManagerService {
         List<GetUserCountByUserIdRes> res = managerMapper.getUserCountByUserId(req);
         return res;
     }
+
+    public List<GetUserInfoListRes> GetUserInfoList(long userId){
+        List<GetUserInfoListRes> res = managerMapper.GetUserInfoList(userId);
+        return res;
+    }
 }
