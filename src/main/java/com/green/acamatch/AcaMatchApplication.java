@@ -1,5 +1,6 @@
 package com.green.acamatch;
 
+import com.green.acamatch.config.GlobalOauth2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -14,6 +15,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableWebSocketMessageBroker
+//@EnableConfigurationProperties(GlobalOauth2.class)
 public class AcaMatchApplication {
     public static void main(String[] args) {
         SpringApplication.run(AcaMatchApplication.class, args);

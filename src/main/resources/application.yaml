@@ -141,6 +141,7 @@ spring:
 #  profiles:
 #   active: dev
 
+
   servlet:
     multipart:
       max-file-size: 30MB
@@ -192,7 +193,7 @@ springdoc:
     disabled: true
 
 excel:
-  path: ${EXCEL_FILE_PATH:C:\Users\Administrator\Downloads} #docker에서 excel 파일을 보기위해 추가
+  path: ${EXCEL_FILE_PATH:C:\Users\Administrator\Documents\Downloads} #docker에서 excel 파일을 보기위해 추가
 
 solapi:
   api-key: NCSEUEYMFBLPYBNV

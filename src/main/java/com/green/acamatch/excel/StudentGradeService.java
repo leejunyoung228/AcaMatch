@@ -34,6 +34,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -68,6 +69,20 @@ public class StudentGradeService {
         } catch (IOException e) {
             log.error("디렉터리 생성 실패: {}", excelDirectory, e);
             throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        // 파일이 존재하는지 확인하고 이름을 변경
+        File excelFile = excelFilePath.toFile();
+        if (excelFile.exists()) {
+            int counter = 1;
+            String newFileName;
+            // 파일 이름에 (1), (2) 등을 붙여서 새로운 파일 경로 설정
+            do {
+                newFileName = String.format("studentGrade(%d).xlsx", counter);
+                excelFilePath = Paths.get(filePath, "student_grades", newFileName);
+                excelFile = excelFilePath.toFile();
+                counter++;
+            } while (excelFile.exists()); // 파일이 존재하는 동안 계속 이름을 바꾼다.
         }
 
         List<Object[]> result = gradeRepository.findExamGradeByExamId(examId);

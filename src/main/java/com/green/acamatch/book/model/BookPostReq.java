@@ -24,6 +24,9 @@ public class BookPostReq {
     @Schema(title = "수업 PK", example = "1")
     private Long classId;
 
+    @Schema(title = "수업이 등록된 학원 PK", example = "1")
+    private Long acaId;
+
     @Schema(title = "책 수량", example = "100")
     private int bookAmount;
 }
