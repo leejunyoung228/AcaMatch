@@ -320,7 +320,17 @@
         FROM reports R
         GROUP BY R.aca_id
         ) RC ON A.aca_id = RC.aca_id  -- 학원별 신고 개수를 LEFT JOIN
-        WHERE A.user_id = #{signedUserId}
+        <where>
+            <if test="signedUserId != null">
+                AND A.user_id = #{signedUserId}
+            </if>
+            <if test="acaAgree != null">
+                AND A.aca_agree = #{acaAgree}
+            </if>
+            <if test="acaName != null and acaName != '' ">
+                AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
+            </if>
+        </where>
         GROUP BY A.aca_id;
     </select>
 
