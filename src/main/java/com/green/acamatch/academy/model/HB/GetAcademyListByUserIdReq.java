@@ -11,7 +11,7 @@ public class GetAcademyListByUserIdReq {
     private long signedUserId;
 
     @Schema(title = "학원 승인 여부", description = "학원 승인 여부")
-    private int acaAgree;
+    private Integer acaAgree;
 
     @Schema(title = "학원 이름", description = "학원 이름")
     private String acaName;

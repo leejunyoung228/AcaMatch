@@ -41,4 +41,7 @@ public class GetAcademyListByDistanceRes {
 
     @Schema(title = "학원과 거리")
     private double distance;
+
+    @Schema(title = "총 검색된 수")
+    private int totalCount;
 }
