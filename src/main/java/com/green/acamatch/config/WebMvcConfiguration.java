@@ -32,6 +32,12 @@ class WebMvcConfiguration implements WebMvcConfigurer {
         registry.addResourceHandler("/xlsx/**")
                 .addResourceLocations("file:" + excelPath + "/");
 
+        // 리눅스 환경도 고려하여 /home/uploads 허용
+        registry.addResourceHandler("/pic/**")
+                .addResourceLocations("file:/home/uploads/");
+
+
+
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/").resourceChain(true).addResolver(new PathResourceResolver() {
             @Override
             protected Resource getResource(String resourcePath, Resource location) throws IOException {
