@@ -50,18 +50,18 @@ public class ManagerService {
         }
     }
 
-    public List<GetAcademyCountRes> getAcademyCount(String month){
-        List<GetAcademyCountRes> res = managerMapper.getAcademyCount(month);
+    public List<GetAcademyCountRes> getAcademyCount(GetAcademyCountReq req){
+        List<GetAcademyCountRes> res = managerMapper.getAcademyCount(req);
         return res;
     }
 
-    public List<GetUserCountRes> getUserCount(String month){
-        List<GetUserCountRes> res = managerMapper.getUserCount(month);
+    public List<GetUserCountRes> getUserCount(GetUserCountReq req){
+        List<GetUserCountRes> res = managerMapper.getUserCount(req);
         return res;
     }
 
-    public List<GetAcademyCostCountRes> getAcademyCostCount(String month){
-        List<GetAcademyCostCountRes> res = managerMapper.getAcademyCostCount(month);
+    public List<GetAcademyCostCountRes> getAcademyCostCount(GetAcademyCostCountReq req){
+        List<GetAcademyCostCountRes> res = managerMapper.getAcademyCostCount(req);
         return res;
     }
 
