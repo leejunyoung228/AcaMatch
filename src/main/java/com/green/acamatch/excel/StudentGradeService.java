@@ -54,23 +54,28 @@ public class StudentGradeService {
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public String exportToExcel(Long examId) {
-        Path excelFilePath = Paths.get(filePath, "/student_grades/studentGrade.xlsx");
-        log.info("Excel file path: {}", excelFilePath);
-        myFileUtils.makeFolders(excelFilePath.getParent().toString());
+        // 경로 설정 (OS 호환성 고려)
+        Path excelDirectory = Paths.get(filePath, "student_grades");
+        Path excelFilePath = excelDirectory.resolve("studentGrade.xlsx").toAbsolutePath();
+
+        log.info("Excel 파일 저장 경로: {}", excelFilePath);
+
+        // 폴더 생성 (절대경로 문제 해결)
+        myFileUtils.makeFolders(excelDirectory.toString());
+
         try {
-            Files.createDirectories(excelFilePath.getParent());
+            Files.createDirectories(excelDirectory);
         } catch (IOException e) {
-            log.error("디렉터리 생성 실패", e);
+            log.error("디렉터리 생성 실패: {}", excelDirectory, e);
             throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
         List<Object[]> result = gradeRepository.findExamGradeByExamId(examId);
         List<StudentsGradeDto> studentsGradeDtoList = result.stream().map(row -> {
-            AcaClass acaClass = (AcaClass) row[1];  // AcaClass 객체
+            AcaClass acaClass = (AcaClass) row[1];
 
             Integer score = (row[9] instanceof Number) ? ((Number) row[9]).intValue() : null;
             Integer pass = (row[10] instanceof Number) ? ((Number) row[10]).intValue() : null;
-
             Integer processingStatus = (row[11] instanceof Number) ? ((Number) row[11]).intValue() : 0;
 
             return new StudentsGradeDto(
@@ -99,19 +104,12 @@ public class StudentGradeService {
             int rowIndex = 0;
 
             // 헤더 생성
+            String[] headers = {"JoinClassID", "ClassID", "UserID", "Name", "ExamID", "ExamName", "ExamDate",
+                    "GradeID", "ExamType", "Score", "Pass", "ProcessingStatus"};
             Row headerRow = sheet.createRow(rowIndex++);
-            headerRow.createCell(0).setCellValue("JoinClassID");
-            headerRow.createCell(1).setCellValue("ClassID");
-            headerRow.createCell(2).setCellValue("UserID");
-            headerRow.createCell(3).setCellValue("Name");
-            headerRow.createCell(4).setCellValue("ExamID");
-            headerRow.createCell(5).setCellValue("ExamName");
-            headerRow.createCell(6).setCellValue("ExamDate");
-            headerRow.createCell(7).setCellValue("GradeID");
-            headerRow.createCell(8).setCellValue("ExamType");
-            headerRow.createCell(9).setCellValue("Score");
-            headerRow.createCell(10).setCellValue("Pass");
-            headerRow.createCell(11).setCellValue("ProcessingStatus");
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
 
             // 데이터 추가
             for (StudentsGradeDto grade : studentsGradeDtoList) {
@@ -122,47 +120,30 @@ public class StudentGradeService {
                 row.createCell(3).setCellValue(grade.getName());
                 row.createCell(4).setCellValue(grade.getExamId());
                 row.createCell(5).setCellValue(grade.getExamName());
-                if (grade.getExamDate() != null) {
-                    row.createCell(6).setCellValue(grade.getExamDate().toString());
-                } else {
-                    row.createCell(6).setCellValue("");
-                }
-                if (grade.getGradeId() != null) {
-                    row.createCell(7).setCellValue(grade.getGradeId());
-                } else {
-                    row.createCell(7).setCellValue("");
-                }
+                row.createCell(6).setCellValue(grade.getExamDate() != null ? grade.getExamDate().toString() : "");
+                row.createCell(7).setCellValue(grade.getGradeId() != null ? grade.getGradeId() : 0);
                 row.createCell(8).setCellValue(grade.getExamType());
+
                 if (grade.getExamType() == 0) {
-                    if (grade.getScore() != null) {
-                        row.createCell(9).setCellValue(grade.getScore());
-                    }
+                    row.createCell(9).setCellValue(grade.getScore() != null ? grade.getScore() : 0);
                 } else {
-                    if (grade.getPass() == 1) {
-                        row.createCell(10).setCellValue(grade.getPass());
-                    }
+                    row.createCell(10).setCellValue(grade.getPass() != null ? grade.getPass() : 0);
                 }
-                if (grade.getProcessingStatus() != null) {
-                    row.createCell(11).setCellValue(grade.getProcessingStatus().intValue());
-                } else {
-                    row.createCell(11).setCellValue(0);
-                }
-                log.info("ProcessingStatus: " + grade.getProcessingStatus());
+                row.createCell(11).setCellValue(grade.getProcessingStatus() != null ? grade.getProcessingStatus() : 0);
             }
 
             workbook.write(fos);
-            log.info("엑셀 파일 저장 경로 : {}", excelFilePath);
-            Resource fileResource  = new FileSystemResource(excelFilePath.toFile());
+            log.info("엑셀 파일 생성 완료: {}", excelFilePath);
 
-            String url = String.format("%s/xlsx/student_grades/studentGrade.xlsx", emailConst.getBaseUrl(), examId);
-            return url;
+            // URL 반환 (파일 경로가 아닌 API로 접근할 수 있도록)
+            return String.format("%s/xlsx/student_grades/studentGrade.xlsx", emailConst.getBaseUrl());
 
         } catch (Exception e) {
             log.error("엑셀 파일 생성 중 오류 발생", e);
-            e.printStackTrace();
             throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @Transactional
     public ResultResponse<Integer> importFromExcel(MultipartFile file) {
