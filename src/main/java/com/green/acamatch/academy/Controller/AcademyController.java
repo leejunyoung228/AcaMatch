@@ -2,16 +2,11 @@ package com.green.acamatch.academy.Controller;
 
 import com.green.acamatch.academy.Service.AcademyService;
 import com.green.acamatch.academy.Service.PremiumService;
-import com.green.acamatch.academy.Service.TagService;
 import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
-import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.review.dto.GeneralReviewResponseDto;
-import com.green.acamatch.review.dto.MediaReviewResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -263,32 +258,6 @@ public class AcademyController {
         return ResultResponse.<List<GetSearchInfoRes>>builder()
                 .resultMessage("조회 성공")
                 .resultData(res)
-                .build();
-    }
-
-    @GetMapping("/getGeneralReview")
-    @Operation(summary = "학원의 일반 리뷰 불러오기", description = "사진이 없는 일반 리뷰 불러오기, generalStartIndx 기본값은 0")
-    public ResultResponse<GeneralReviewResponseDto> getGeneralReviews(
-            @ParameterObject @ModelAttribute GetAcademyGeneralReview p) {
-
-        GeneralReviewResponseDto generalReviews = academyService.getGeneralReviews(p);
-
-        return ResultResponse.<GeneralReviewResponseDto>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(generalReviews)
-                .build();
-    }
-
-    @GetMapping("/getMediaReview")
-    @Operation(summary = "학원의 미디어 리뷰(후기) 불러오기", description = "미디어가 있는 리뷰(후기) 불러오기, mediaStartIndx 기본값은 0")
-    public ResultResponse<MediaReviewResponseDto> getMediaReviews(
-            @ParameterObject @ModelAttribute GetAcademyMediaReview p) {
-
-        MediaReviewResponseDto mediaReviews = academyService.getMediaReviews(p);
-
-        return ResultResponse.<MediaReviewResponseDto>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(mediaReviews)
                 .build();
     }
 }
