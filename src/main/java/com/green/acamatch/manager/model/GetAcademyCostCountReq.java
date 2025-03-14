@@ -6,13 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetUserCountByUserIdReq {
+public class GetAcademyCostCountReq {
     @Schema(example = "2025")
     private String year;
 
     @Schema(example = "3")
     private String month;
-
-    @Schema(example = "2")
-    private Long userId;
 }

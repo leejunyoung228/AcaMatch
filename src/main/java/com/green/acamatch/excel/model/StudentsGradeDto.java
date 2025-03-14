@@ -12,13 +12,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentsGradeDto {
-    private long joinClassId;
+    private Long joinClassId;
     private String name;
     private Long examId;
     private String examName;
     private LocalDate examDate;
     private Long gradeId;
-    private int examType;
+    private Integer examType;
     private Integer score;
     private Integer pass;
     private Integer processingStatus;
