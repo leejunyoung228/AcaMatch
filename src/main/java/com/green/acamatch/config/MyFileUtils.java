@@ -24,11 +24,11 @@ public class MyFileUtils {
         File file;
 
         // 절대 경로인지 확인 (Windows: `C:\`, Linux: `/`)
-        if (path.startsWith("C:") || path.startsWith("/") || path.startsWith("\\")) {
-            file = new File(path); // 절대 경로면 그대로 사용
-        } else {
+//        if (path.startsWith("C:") || path.startsWith("/") || path.startsWith("\\")) {
+//            file = new File(path); // 절대 경로면 그대로 사용
+//        } else {
             file = new File(uploadPath, path); // 상대 경로면 기존 방식 유지
-        }
+
 
         if (!file.exists()) {
             boolean isCreated = file.mkdirs();
