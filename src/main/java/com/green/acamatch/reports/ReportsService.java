@@ -51,8 +51,12 @@ public class ReportsService {
     public int updateReports(long reportsId, ActionType actionType){
         Reports reports = reportsRepository.findById(reportsId).orElse(null);
         reports.setProcessingStatus(1);
+        if (actionType != ActionType.no_action) {
+            reports.setExposureEndDate(reports.getUpdatedAt().plusDays(actionType.getDurationDays()));
+        } else {
+            reports.setExposureEndDate(null);
+        }
         reports.setActionType(actionType);
-        reports.setExposureEndDate(reports.getUpdatedAt().plusDays(actionType.getDurationDays()));
         reportsRepository.save(reports);
         if(reports.getReview() != null){
             Review review = reviewRepository.findById(reports.getReview().getReviewId()).orElse(null);
