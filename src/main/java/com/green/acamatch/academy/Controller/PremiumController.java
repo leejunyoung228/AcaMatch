@@ -28,16 +28,7 @@ public class PremiumController {
     private final PremiumService premiumService;
     private final AcademyMessage academyMessage;
 
-    /*//프리미엄학원신청
-    @PostMapping
-    @Operation(summary = "프리미엄 신청")
-    public ResultResponse<Integer> postPremiumAcademy(@RequestBody PremiumPostReq req) {
-        int result = premiumService.insPremium(req);
-        return ResultResponse.<Integer>builder()
-                .resultMessage(academyMessage.getMessage())
-                .resultData(result)
-                .build();
-    }*/
+
 
     //프리미엄승인
     @PutMapping
@@ -46,7 +37,7 @@ public class PremiumController {
         int result = premiumService.updPremium(req);
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyMessage.getMessage())
-                .resultData(result)
+                .resultData(1)
                 .build();
     }
 
@@ -105,3 +96,15 @@ public class PremiumController {
                 .build();
     }
 }
+
+
+/*//프리미엄학원신청
+    @PostMapping
+    @Operation(summary = "프리미엄 신청")
+    public ResultResponse<Integer> postPremiumAcademy(@RequestBody PremiumPostReq req) {
+        int result = premiumService.insPremium(req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(result)
+                .build();
+    }*/
