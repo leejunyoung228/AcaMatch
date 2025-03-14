@@ -55,8 +55,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "u.createdAt AS createdAt, u.updatedAt AS updatedAt, COALESCE(COUNT(r), 0) AS reportsCount " +
             "FROM User u LEFT JOIN Reports r ON u.userId = r.reportedUser.userId " +
             "WHERE (:userId IS NULL OR u.userId = :userId) " +
-            "AND (:name IS NULL OR u.name LIKE %:name%) " +
-            "AND (:nickName IS NULL OR u.nickName LIKE %:nickName%) " +
+            "AND (:name IS NULL OR u.name LIKE CONCAT('%', :name, '%')) " +  // NULL 방지
+            "AND (:nickName IS NULL OR u.nickName LIKE CONCAT('%', :nickName, '%')) " +  // NULL 방지
             "AND (:userRole IS NULL OR u.userRole = :userRole) " +
             "AND u.userId != 1 " +
             "GROUP BY u.userId")
