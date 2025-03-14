@@ -187,19 +187,15 @@ public class ReviewImageService {
         long jwtUserId = validateAuthenticatedUser();
         long requestUserId = req.getUserId();
 
-        try {
-            // 본인 계정 검증
-            if (jwtUserId != requestUserId) {
-                userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 수정할 수 있습니다.");
-                return 0;
-            }
+        if (jwtUserId != requestUserId) {
+            userMessage.setMessage("잘못된 요청입니다. 본인의 계정으로만 리뷰를 수정할 수 있습니다.");
+            return 0;
+        }
 
+        try {
             // 기존 리뷰 조회
             Review existingReview = reviewRepository.findById(req.getReviewId())
-                    .orElseThrow(() -> {
-                        userMessage.setMessage("수정할 리뷰를 찾을 수 없습니다.");
-                        return new CustomException(ReviewErrorCode.INVALID_REVIEW_DATA);
-                    });
+                    .orElseThrow(() -> new CustomException(ReviewErrorCode.INVALID_REVIEW_DATA));
 
             // 리뷰 작성자 검증
             if (!existingReview.getUser().getUserId().equals(requestUserId)) {
@@ -207,10 +203,31 @@ public class ReviewImageService {
                 return 0;
             }
 
+            // 리뷰 정보 업데이트 (별점, 코멘트 수정 반영)
+            boolean isUpdated = false;
+
+            // 별점 값이 null이면 기본값(기존 값 유지)
+            Double newStar = req.getStar() != null ? req.getStar() : existingReview.getStar();
+
+            if (!Objects.equals(existingReview.getStar(), newStar)) {
+                existingReview.setStar(newStar); // 별점 업데이트
+                isUpdated = true;
+            }
+
+            if (!Objects.equals(existingReview.getComment(), req.getComment())) {
+                existingReview.setComment(req.getComment()); // 코멘트 업데이트
+                isUpdated = true;
+            }
+
+            // 변경 사항이 있으면 저장
+            if (isUpdated) {
+                reviewRepository.save(existingReview);
+                reviewRepository.flush(); // 강제 반영 (필요한 경우)
+                log.info("리뷰 내용(별점, 코멘트) 업데이트 완료!");
+            }
+
             // 기존 파일 삭제 처리
             List<String> failedToDelete = deleteReviewFiles(existingReview.getReviewId(), deletedFiles);
-
-            // 일부 파일 삭제 실패 예외 처리
             if (!failedToDelete.isEmpty()) {
                 userMessage.setMessage("일부 파일 삭제에 실패했습니다: " + failedToDelete);
                 return 0;
@@ -225,16 +242,29 @@ public class ReviewImageService {
 
             // 새로운 파일 추가
             if (files != null && !files.isEmpty()) {
-                saveNewReviewFiles(existingReview, files);
+                boolean uploadSuccess = saveNewReviewFiles(existingReview, files);
+                if (!uploadSuccess) {
+                    userMessage.setMessage("리뷰 수정 중 파일 업로드에 실패했습니다.");
+                    return 0;
+                }
             }
 
+            // 리뷰 수정 성공 메시지
             userMessage.setMessage("리뷰 수정이 완료되었습니다.");
             return 1;
+
+        } catch (CustomException e) {
+            userMessage.setMessage(e.getMessage());
+            return 0;
         } catch (Exception e) {
+            log.error("리뷰 수정 중 오류 발생: ", e);
             userMessage.setMessage("리뷰 수정 중 오류가 발생했습니다: " + e.getMessage());
             return 0;
         }
     }
+
+
+
 
     private List<String> deleteReviewFiles(long reviewId, List<String> deletedFiles) {
         List<String> failedToDelete = new ArrayList<>();
@@ -243,35 +273,27 @@ public class ReviewImageService {
             return failedToDelete;
         }
 
-        String basePath = filePathConfig.getUploadDir();
+        String basePath = filePathConfig.getUploadDir(); // 중복 경로 문제 확인
 
         for (String fileName : deletedFiles) {
             Optional<ReviewPic> reviewPicOpt = reviewPicRepository
                     .findByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
 
             if (reviewPicOpt.isPresent()) {
-                // 저장할 때와 동일한 방식으로 경로 생성
                 String fileCategory = fileName.endsWith(".mp4") || fileName.endsWith(".mov") ? "videos" : "images";
                 String fullPath = Paths.get(basePath, fileCategory, fileName).toString();
 
-                log.info("삭제 시도 경로: {}", fullPath); // 삭제하려는 경로 로그 추가
-
                 File file = new File(fullPath);
 
+                // 파일이 존재하지 않으면 DB에서만 삭제 (실제 파일이 없을 가능성 있음)
                 if (!file.exists()) {
-                    log.error("삭제할 파일이 존재하지 않음: {}", fullPath);
+                    log.warn("파일이 존재하지 않음: {}", fullPath);
                     reviewPicRepository.deleteByReviewPicIds_ReviewIdAndReviewPicIds_ReviewPic(reviewId, fileName);
                     continue;
                 }
 
-                if (!file.canWrite()) {
-                    log.error("파일 삭제 권한 없음: {}", fullPath);
-                    failedToDelete.add(fileName);
-                    continue;
-                }
-
-                boolean deleted = file.delete();
-                if (!deleted) {
+                // 파일 삭제 시도
+                if (!file.delete()) {
                     log.error("파일 삭제 실패: {}", fullPath);
                     failedToDelete.add(fileName);
                 } else {
@@ -284,6 +306,8 @@ public class ReviewImageService {
         }
         return failedToDelete;
     }
+
+
 
 
     //  리뷰 삭제 (작성자 본인)
@@ -768,15 +792,17 @@ public class ReviewImageService {
 
 
     // 새로운 리뷰 파일 저장 (중복 방지 포함)
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveNewReviewFiles(Review review, List<MultipartFile> files) {
+    public boolean saveNewReviewFiles(Review review, List<MultipartFile> files) {
         List<String> existingFileNames = reviewPicRepository.findFilePathsByReview(review.getReviewId());
 
         if (files == null || files.isEmpty()) {
             log.info("새로운 파일이 없으므로 기존 파일 유지");
-            return;
+            return true;
         }
+
+        String baseUploadDir = filePathConfig.getUploadDir();
+        log.info("파일 업로드 기본 디렉터리: {}", baseUploadDir);
 
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) {
@@ -786,38 +812,35 @@ public class ReviewImageService {
             String fileType = file.getContentType();
             if (fileType == null) {
                 log.warn("유효하지 않은 파일 형식");
-                continue;
+                return false;
             }
 
             String fileCategory = fileType.startsWith("image") ? "images" : "videos";
-            myFileUtils.makeFolders(fileCategory);
 
-            String savedFileName = myFileUtils.makeRandomFileName(file);
-            savedFileName = Paths.get(savedFileName).getFileName().toString();
-
-            if (existingFileNames.contains(savedFileName)) {
-                log.info("이미 존재하는 파일: {}", savedFileName);
-                continue;
-            }
+            // 경로 중복 제거
+            String fullSavePath = new File(baseUploadDir, Paths.get(fileCategory, myFileUtils.makeRandomFileName(file)).toString()).getAbsolutePath();
+            log.info("최종 저장 경로: {}", fullSavePath);
 
             try {
-                String fullSavePath = fileCategory + "/" + savedFileName;
                 myFileUtils.transferTo(file, fullSavePath);
 
                 ReviewPic reviewPic = new ReviewPic();
                 ReviewPicIds reviewPicIds = new ReviewPicIds();
                 reviewPicIds.setReviewId(review.getReviewId());
-                reviewPicIds.setReviewPic(savedFileName);
+
+                // 파일명만 저장하도록 수정
+                reviewPicIds.setReviewPic(new File(fullSavePath).getName());
                 reviewPic.setReviewPicIds(reviewPicIds);
                 reviewPic.setReview(review);
-
                 reviewPicRepository.save(reviewPic);
+
             } catch (IOException e) {
                 log.error("파일 업로드 실패: {}", e.getMessage());
+                return false;
             }
         }
+        return true;
     }
-
 
 
 }

@@ -123,4 +123,13 @@
         GROUP BY paymentDate
         ORDER BY paymentDate;
     </select>
+    <select id="GetUserInfoList">
+        SELECT U.name, U.user_pic, U.email, JC.registration_date, A.aca_name, C.class_name,
+        U.phone, JC.certification
+        FROM join_class JC
+        JOIN aca_class C ON JC.class_id = C.class_id
+        JOIN academy A ON C.aca_id = A.aca_id
+        JOIN user U ON JC.user_id = U.user_id
+        WHERE A.user_id = #{userId}
+    </select>
 </mapper>

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PostReportsReq {
-    @Schema(title = "신고한 유저 PK")
+    @Schema(title = "신고한 유저 PK", description = "신고한 사람의 user PK입니다.")
     private long reporter;
 
     @Schema(title = "신고 당한 사람 유저 PK", description = "리뷰, 채팅쪽에서 신고하면 이걸로 입력하시면 됩니다.")

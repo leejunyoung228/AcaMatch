@@ -1,18 +1,22 @@
 package com.green.acamatch.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import java.nio.file.Paths;
 
 @Component
-@Profile({"prod", "dev", "default"}) // 기본 프로파일도 포함!
 public class FilePathConfig {
 
-    @Value("${file.directory}")
-    private String uploadDir;
+    private final String uploadDir;
+    private final String excelPath;  // 엑셀 경로 추가
 
-    @Value("${excel.path}") // EXCEL_FILE_PATH 환경변수 매핑
-    private String excelPath;
+    public FilePathConfig(
+            @Value("${file.directory}") String uploadDir,
+            @Value("${excel.path}") String excelPath // 엑셀 경로 주입
+    ) {
+        this.uploadDir = Paths.get(uploadDir).toAbsolutePath().normalize().toString();
+        this.excelPath = Paths.get(excelPath).toAbsolutePath().normalize().toString();
+    }
 
     public String getUploadDir() {
         return uploadDir;
@@ -22,3 +26,4 @@ public class FilePathConfig {
         return excelPath;
     }
 }
+
