@@ -50,12 +50,12 @@ public class StudentGradeService {
     private final ExamRepository examRepository;
     private final EmailConst emailConst;
 
-    @Value("${excel.path}")
+    @Value("${file.directory}")
     private String filePath;
 
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
     public String exportToExcel(Long examId) {
-        Path excelFilePath = Paths.get(filePath, "/student_grades/studentGrade.xlsx");
+        Path excelFilePath = Paths.get(filePath,"student_grades","studentGrade.xlsx");
         log.info("Excel file path: {}", excelFilePath);
         myFileUtils.makeFolders(excelFilePath.getParent().toString());
         try {
@@ -73,7 +73,7 @@ public class StudentGradeService {
             // 파일 이름에 (1), (2) 등을 붙여서 새로운 파일 경로 설정
             do {
                 newFileName = String.format("studentGrade(%d).xlsx", counter);
-                excelFilePath = Paths.get(filePath, "student_grades", newFileName);
+                excelFilePath = Paths.get( "student_grades", newFileName);
                 excelFile = excelFilePath.toFile();
                 counter++;
             } while (excelFile.exists()); // 파일이 존재하는 동안 계속 이름을 바꾼다.
@@ -166,6 +166,7 @@ public class StudentGradeService {
             }
 
             workbook.write(fos);
+            fos.flush(); // 💡 변경된 부분: 파일 즉시 반영
 
             // 엑셀 파일이 저장될 폴더와 이름을 확인
             log.info("엑셀 파일 저장 경로: {}", excelFilePath);
