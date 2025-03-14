@@ -1133,7 +1133,8 @@
         A.aca_id,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id, U.name,
-        IFNULL(RC.reportsCount, 0) AS reportsCount
+        IFNULL(RC.reportsCount, 0) AS reportsCount,
+        A.aca_agree
         FROM academy A
         LEFT JOIN academy_pic AP
         ON A.aca_id = AP.aca_id

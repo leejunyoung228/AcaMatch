@@ -17,4 +17,5 @@ public class GetAcademyInfoRes {
     private String name;
     private long acaId;
     private int reportsCount;
+    private int acaAgree;
 }
