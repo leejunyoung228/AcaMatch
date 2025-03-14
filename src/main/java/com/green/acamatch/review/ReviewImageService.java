@@ -203,16 +203,37 @@ public class ReviewImageService {
                 return 0;
             }
 
+            // 리뷰 정보 업데이트 (별점, 코멘트 수정 반영)
+            boolean isUpdated = false;
+
+            // 별점 값이 null이면 기본값(기존 값 유지)
+            Double newStar = req.getStar() != null ? req.getStar() : existingReview.getStar();
+
+            if (!Objects.equals(existingReview.getStar(), newStar)) {
+                existingReview.setStar(newStar); // 별점 업데이트
+                isUpdated = true;
+            }
+
+            if (!Objects.equals(existingReview.getComment(), req.getComment())) {
+                existingReview.setComment(req.getComment()); // 코멘트 업데이트
+                isUpdated = true;
+            }
+
+            // 변경 사항이 있으면 저장
+            if (isUpdated) {
+                reviewRepository.save(existingReview);
+                reviewRepository.flush(); // 강제 반영 (필요한 경우)
+                log.info("리뷰 내용(별점, 코멘트) 업데이트 완료!");
+            }
+
             // 기존 파일 삭제 처리
             List<String> failedToDelete = deleteReviewFiles(existingReview.getReviewId(), deletedFiles);
-
-            // 일부 파일 삭제 실패 시 오류 반환
             if (!failedToDelete.isEmpty()) {
                 userMessage.setMessage("일부 파일 삭제에 실패했습니다: " + failedToDelete);
                 return 0;
             }
 
-            // 최소 1개 사진 유지 검사 (삭제 후 개수 확인)
+            // 최소 1개 사진 유지 검사
             long remainingImageCount = reviewPicRepository.countByReviewPicIds_ReviewId(existingReview.getReviewId());
             if (remainingImageCount == 0 && (files == null || files.isEmpty())) {
                 userMessage.setMessage("이미지 리뷰에는 최소 1개의 사진이 필요합니다.");
@@ -228,9 +249,10 @@ public class ReviewImageService {
                 }
             }
 
-            // 성공적으로 모든 작업 수행 후 메시지 설정
+            // 리뷰 수정 성공 메시지
             userMessage.setMessage("리뷰 수정이 완료되었습니다.");
             return 1;
+
         } catch (CustomException e) {
             userMessage.setMessage(e.getMessage());
             return 0;
