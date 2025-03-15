@@ -46,6 +46,7 @@ public class StudentGradeService {
     private final JoinClassRepository joinClassRepository;
     private final ExamRepository examRepository;
     private final EmailConst emailConst;
+
     @Value("${excel.path}")
     private String filePath;
     // 1. MariaDB에서 학생 성적 가져와 엑셀로 저장
@@ -133,6 +134,7 @@ public class StudentGradeService {
             throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Transactional
     public ResultResponse<Integer> importFromExcel(MultipartFile file) {
         if (!file.getOriginalFilename().endsWith(".xlsx") && !file.getOriginalFilename().endsWith(".xls")) {
