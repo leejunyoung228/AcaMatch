@@ -152,4 +152,47 @@ public class ReviewController {
                 .resultData(response)
                 .build();
     }
+
+    @GetMapping("academy/all")
+    @Operation(summary = "학원 리뷰 전체 조회(새로생성)")
+    public ResultResponse<List<ReviewAcademyAllGetRes>> getAcademyReviewsAll(@ParameterObject @ModelAttribute ReviewAcademyAllGetReq req) {
+        List<ReviewAcademyAllGetRes> resList = service.getAcademyReviewsAll(req);
+        return ResultResponse.<List<ReviewAcademyAllGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+    @GetMapping("me")
+    @Operation(summary = "본인이작성한 리뷰조회(새로생성)")
+    public ResultResponse<List<ReviewMeGetRes>> getMeReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = service.getMeReviews(req);
+        return ResultResponse.<List<ReviewMeGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+    @GetMapping("me/pic")
+    @Operation(summary = "본인이작성한 리뷰조회(사진있는거만)(새로생성)")
+    public ResultResponse<List<ReviewMeGetRes>> getMeNoPicReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = service.getMeNoPicReviews(req);
+        return ResultResponse.<List<ReviewMeGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+    @GetMapping("me/noPic")
+    @Operation(summary = "본인이작성한 리뷰조회(사진없는거만)(새로생성)")
+    public ResultResponse<List<ReviewMeGetRes>> getMePicReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = service.getMePicReviews(req);
+        return ResultResponse.<List<ReviewMeGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+
+
 }

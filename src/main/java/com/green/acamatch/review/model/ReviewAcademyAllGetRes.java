@@ -1,23 +1,27 @@
-package com.green.acamatch.review.dto;
+package com.green.acamatch.review.model;
 
-
-import com.green.acamatch.academy.model.HB.GeneralReviewDto;
-import com.green.acamatch.academy.model.HB.MediaReviewDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
+import lombok.ToString;
 
 @Getter
 @Setter
-public class ReviewDto {
+@ToString
+@EqualsAndHashCode
+public class ReviewAcademyAllGetRes {
+    @Schema(title = "리뷰 ID", description = "리뷰의 고유 PK", example = "1")
+    private Long reviewId;
 
     @Schema(title = "수업 ID", description = "개설된 수업강좌 ID", example = "5")
     private Long classId;
 
     @Schema(title = "강좌 이름", description = "개설된 수업강좌 이름", example = "원어민 영어")
     private String className;
+
+    @Schema(title = "학원 고유 PK ID", description = "등록된 학원의 ID", example = "26")
+    private Long acaId;
 
     @Schema(title = "작성자 ID", description = "리뷰 작성자의 유저 ID", example = "1")
     private Long userId;
@@ -37,31 +41,12 @@ public class ReviewDto {
     @Schema(title = "작성 날짜", description = "리뷰 작성 날짜", example = "2025-01-18")
     private String createdAt;
 
-    @Schema(title = "학원 고유 PK ID", description = "등록된 학원의 ID", example = "26")
-    private Long acaId;
-
     @Schema(description = "리뷰의 총 갯수")
-    private Integer reviewCount;
-
-    @Schema(title = "일반 리뷰 개수", example = "100")
-    private Integer generalReviewCount;
-
-    @Schema(title = "미디어 포함 리뷰 개수", example = "50")
-    private Integer mediaReviewCount;
-
-    @Schema(title = "일반 리뷰 (미디어 없는 리뷰)")
-    private List<GeneralReviewDto> generalReviews;
-
-    @Schema(title = "미디어 포함 리뷰 (이미지가 포함된 리뷰)")
-    private List<MediaReviewDto> mediaReviews;
-
-    @Schema(title = "리뷰 ID", description = "리뷰의 고유 PK", example = "1")
-    private Long reviewId;
+    private Integer myReviewCount;
 
     @Schema(title = "밴 여부", description = "밴을 먹은 리뷰 여부")
     private int banReview;
 
     @Schema(title = "리뷰사진")
     private String reviewPic;
-
 }

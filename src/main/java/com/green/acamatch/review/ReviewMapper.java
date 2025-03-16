@@ -92,4 +92,9 @@ public interface ReviewMapper {
 
         int totalMediaReviewCount (Long signedUserId);
 
+        List<ReviewAcademyAllGetRes> getAcademyReviewsAll(ReviewAcademyAllGetReq req);
+        List<ReviewMeGetRes> getMeReviews(ReviewMeGetReq req);
+        List<ReviewMeGetRes> getMeNoPicReviews(ReviewMeGetReq req);
+        List<ReviewMeGetRes> getMePicReviews(ReviewMeGetReq req);
+
 }

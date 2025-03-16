@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.acamatch.academy.Controller.PremiumController;
 import com.green.acamatch.academy.Service.PremiumService;
 import com.green.acamatch.academy.model.JW.AcademyMessage;
+import com.green.acamatch.academy.premium.model.PremiumGetRes;
 import com.green.acamatch.academy.premium.model.PremiumUpdateReq;
 import com.green.acamatch.config.GlobalOauth2;
 import com.green.acamatch.config.constant.JwtConst;
@@ -27,6 +28,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -48,6 +52,7 @@ class PremiumControllerTest {
 
     @InjectMocks
     private PremiumController premiumController;
+
 
     @BeforeEach
     void setUp() {
@@ -74,4 +79,6 @@ class PremiumControllerTest {
                 .andExpect(jsonPath("$.resultMessage").value("승인 성공"))
                 .andExpect(jsonPath("$.resultData").value(1));
     }
+
+
 }

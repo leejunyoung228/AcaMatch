@@ -50,6 +50,7 @@ public class ReviewService {
     private final JoinClassRepository joinClassRepository;
     private final ClassRepository acaClassRepository;
     private final AcademyRepository academyRepository;
+    private final ReviewMapper reviewMapper;
 
 
 //    /**
@@ -1035,6 +1036,54 @@ public class ReviewService {
                 .map(user -> user.getUserRole().isAdmin()) // UserRole의 isAdmin() 활용
                 .orElse(false);
     }
+
+
+
+    //학원 전체 리뷰 조회
+    public List<ReviewAcademyAllGetRes> getAcademyReviewsAll(ReviewAcademyAllGetReq req) {
+        List<ReviewAcademyAllGetRes> resList = reviewMapper.getAcademyReviewsAll(req);
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성된 리뷰가 없습니다.");
+            return null;
+        }
+        userMessage.setMessage("작성된 리뷰를 조회하였습니다.");
+        return resList;
+    }
+
+    //내가 작성한 리뷰 조회(추가)
+    public List<ReviewMeGetRes> getMeReviews(ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = reviewMapper.getMeReviews(req);
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성한 리뷰가 없습니다.");
+            return null;
+        }
+        userMessage.setMessage("작성한 리뷰를 조회하였습니다.");
+        return resList;
+    }
+
+    //내가 작성한 리뷰 조회(사진있는거)(추가)
+    public List<ReviewMeGetRes> getMeNoPicReviews(ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = reviewMapper.getMeNoPicReviews(req);
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성한 리뷰가 없습니다.");
+            return null;
+        }
+        userMessage.setMessage("작성한 리뷰를 조회하였습니다.");
+        return resList;
+    }
+
+    //내가 작성한 리뷰 조회(사진없는거)(추가)
+    public List<ReviewMeGetRes> getMePicReviews(ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = reviewMapper.getMePicReviews(req);
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성한 리뷰가 없습니다.");
+            return null;
+        }
+        userMessage.setMessage("작성한 리뷰를 조회하였습니다.");
+        return resList;
+    }
+
+
 
 
 }

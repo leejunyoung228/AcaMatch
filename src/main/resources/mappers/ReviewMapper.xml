@@ -164,6 +164,7 @@
         r.star AS star,
         r.created_at AS createdAt,
         r.review_id AS reviewId,
+        rp.review_pic as reviewPic,
         r.ban_review AS banReview,
         (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
@@ -171,6 +172,7 @@
         JOIN aca_class c ON j.class_id = c.class_id
         LEFT JOIN academy a ON c.aca_id = a.aca_id
         JOIN user u ON j.user_id = u.user_id
+        JOIN review_pic rp ON r.review_id = rp.review_id
         WHERE a.user_id = #{userId} AND c.aca_id = #{acaId}
         ORDER BY r.review_id DESC
         LIMIT #{startIdx}, #{size}
@@ -191,7 +193,7 @@
         r.star AS star,
         r.created_at AS createdAt,
         r.review_id AS reviewId,
-        r.ban_review AS banReview,
+        r.ban_review AS banReview
         (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
         FROM review r
         JOIN join_class j ON r.join_class_id = j.join_class_id
@@ -411,5 +413,168 @@
     JOIN join_class B ON A.join_class_id = B.join_class_id
     WHERE B.user_id = #{signedUserId};
     </select>
+
+
+
+    <!--학원 리뷰 전체 조회(새로생성)-->
+    <select id="getAcademyReviewsAll">
+        SELECT r.review_id, c.class_id, c.class_name, a.aca_id
+             , u.user_id, u.name, u.user_pic
+             , r.comment, r.star, r.ban_review, r.created_at
+             , rp.review_pic
+             , (select COUNT(r.review_id)
+                from review r
+                JOIN join_class j ON r.join_class_id = j.join_class_id
+                JOIN aca_class c ON j.class_id = c.class_id
+                JOIN academy a ON a.aca_id = c.aca_id
+                WHERE a.aca_id = #{acaId}) AS myReviewCount
+        from review r
+        JOIN user u on r.user_id = u.user_id
+        join join_class j on r.join_class_id = j.join_class_id
+        join aca_class c on c.class_id = j.class_id
+        join academy a on a.aca_id = c.aca_id
+        left join review_pic rp on r.review_id = rp.review_id
+        where a.aca_id = #{acaId}
+        order by r.review_id
+        limit #{startIdx}, #{size}
+    </select>
+
+
+    <!--내가 작성한 리뷰 조회(새로생성)-->
+    <select id="getMeReviews">
+        SELECT r.review_id, c.class_id, c.class_name, a.aca_id
+             , u.user_id, u.name as writerName, u.user_pic as writerPic
+             , r.comment, r.star, r.ban_review, r.created_at
+             , rp.review_pic
+             , (select count(*) from review where user_id = #{userId}) as myReviewCount
+        from review r
+        join user u
+        on r.user_id = u.user_id
+        join join_class j
+        on r.join_class_id = j.join_class_id
+        join aca_class c
+        on c.class_id = j.class_id
+        join academy a
+        on a.aca_id = c.aca_id
+        left join review_pic rp
+        on r.review_id = rp.review_id
+        where u.user_id = #{userId}
+        order by r.review_id
+        limit #{startIdx}, #{size}
+
+    </select>
+
+    <!--내가 작성한 리뷰 조회(사진있는거만)(새로생성)-->
+    <select id="getMeNoPicReviews">
+        SELECT r.review_id, c.class_id, c.class_name, a.aca_id
+        , u.user_id, u.name as writerName, u.user_pic as writerPic
+        , r.comment, r.star, r.ban_review, r.created_at
+        , rp.review_pic
+        , (select count(a.review_id) from review a join review_pic b on a.review_id = b.review_id where user_id = #{userId}) as myReviewCount
+        from review r
+        join user u
+        on r.user_id = u.user_id
+        join join_class j
+        on r.join_class_id = j.join_class_id
+        join aca_class c
+        on c.class_id = j.class_id
+        join academy a
+        on a.aca_id = c.aca_id
+        join review_pic rp
+        on r.review_id = rp.review_id
+        where u.user_id = #{userId}
+        order by r.review_id
+        limit #{startIdx}, #{size}
+
+    </select>
+
+    <!--내가 작성한 리뷰 조회(사진없는거만)(새로생성)-->
+    <select id="getMePicReviews">
+        SELECT r.review_id, c.class_id, c.class_name, a.aca_id
+        , u.user_id, u.name as writerName, u.user_pic as writerPic
+        , r.comment, r.star, r.ban_review, r.created_at
+        , rp.review_pic
+        , (select count(a.review_id) from review a left join review_pic b on a.review_id = b.review_id where user_id = #{userId} and b.review_pic is null) as myReviewCount
+        from review r
+        join user u
+        on r.user_id = u.user_id
+        join join_class j
+        on r.join_class_id = j.join_class_id
+        join aca_class c
+        on c.class_id = j.class_id
+        join academy a
+        on a.aca_id = c.aca_id
+        left join review_pic rp
+        on r.review_id = rp.review_id
+        where u.user_id = #{userId}
+        and rp.review_pic is null
+        order by r.review_id
+        limit #{startIdx}, #{size}
+
+    </select>
+
+
+    <!--<select id="getMeReviews">
+        SELECT
+        A.comment AS reviewComment,
+        A.star AS reviewStar,
+        A.created_at AS reviewCreatedAt,
+        A.updated_at AS reviewUpdatedAt,
+        A.review_id AS reviewId,
+        A.ban_review AS banReview,
+        A.join_class_id AS joinClassId,
+        B.user_id AS reviewUserId,
+        D.nick_name AS reviewUserNickName,
+        D.user_pic AS writerPic,
+        C.class_name AS reviewClassName,
+        rq.review_pic AS reviewPic,
+        B.class_id AS classId,
+        (
+        SELECT COUNT(*)
+        FROM review A2
+        JOIN join_class B2 ON A2.join_class_id = B2.join_class_id
+        WHERE B2.user_id = #{userId}
+        ) AS totalGeneralReviewCount
+        FROM review A
+        JOIN join_class B ON A.join_class_id = B.join_class_id
+        JOIN aca_class C ON B.class_id = C.class_id
+        JOIN user D ON B.user_id = D.user_id
+        LEFT JOIN review_pic RP ON A.review_id = RP.review_id  &lt;!&ndash; LEFT JOIN 변경 &ndash;&gt;
+        JOIN review_pic rp ON A.review_id = rq.review_id
+        WHERE B.user_id = #{userId}
+        ORDER BY A.review_id DESC
+        LIMIT #{startIdx}, #{size};
+    </select>
+-->
+
+
+    <!-- 학원 관리자가 본인 학원 리뷰 조회
+    <select id="getMyAcademyReviews">
+        SELECT
+        c.class_id AS classId,
+        c.class_name AS className,
+        c.aca_id AS acaId,
+        a.aca_name AS acaName,
+        u.user_id AS userId,
+        u.nick_name AS writerName,
+        u.user_pic AS writerPic,
+        r.comment AS comment,
+        r.star AS star,
+        r.created_at AS createdAt,
+        r.review_id AS reviewId,
+        rp.review_pic as reviewPic,
+        r.ban_review AS banReview,
+        (SELECT COUNT(*) FROM review r2 WHERE r2.join_class_id = j.join_class_id) AS reviewCount
+        FROM review r
+        JOIN join_class j ON r.join_class_id = j.join_class_id
+        JOIN aca_class c ON j.class_id = c.class_id
+        LEFT JOIN academy a ON c.aca_id = a.aca_id
+        JOIN user u ON j.user_id = u.user_id
+        JOIN review_pic rp ON r.review_id = rp.review_id
+        WHERE a.user_id = #{userId} AND c.aca_id = #{acaId}
+        ORDER BY r.review_id DESC
+        LIMIT #{startIdx}, #{size}
+    </select>-->
+
 
 </mapper>
