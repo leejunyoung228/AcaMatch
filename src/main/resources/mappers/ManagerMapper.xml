@@ -82,16 +82,17 @@
         ORDER BY register_date;
     </select>
 
+    <!-- 수영 -->
     <select id="getAcademyCostExcel">
         WITH RECURSIVE dates AS (
-        -- 1. 첫 번째 등록일의 월 1일을 시작일로 설정
-        SELECT DATE_FORMAT(MIN(a.created_at), '%Y-%m-01') AS date
-        FROM academy a
+        -- 1. 지난달 1일을 시작 날짜로 설정
+        SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') AS date
         UNION ALL
         -- 2. 하루씩 증가
         SELECT DATE_ADD(date, INTERVAL 1 DAY)
         FROM dates
-        LIMIT 10000  -- 생성할 최대 날짜 수 제한 (범위 설정) )
+        WHERE <![CDATA[ date < DATE_FORMAT(LAST_DAY(CURDATE()), '%Y-%m-%d') ]]>
+        )
         SELECT d.date AS day,
         COUNT(a.aca_id) AS academy_count
         FROM dates d
@@ -99,5 +100,24 @@
         ON DATE(a.created_at) = d.date
         GROUP BY d.date
         ORDER BY d.date
+    </select>
+
+    <select id="getUserCostCount">
+        WITH RECURSIVE date_series AS (
+        -- 지난달 1일부터 시작
+        SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') AS register_date
+        UNION ALL
+        -- 하루씩 증가
+        SELECT DATE_ADD(register_date, INTERVAL 1 DAY)
+        FROM date_series
+        WHERE <![CDATA[ register_date < DATE_FORMAT(LAST_DAY(CURDATE()), '%Y-%m-%d') ]]>
+        )
+        SELECT
+        ds.register_date,  -- 날짜 리스트
+        (SELECT COUNT(*) FROM user) AS totalUserCount  -- 현재까지 등록된 모든 유저 수
+        FROM date_series ds
+        LEFT JOIN user u ON DATE(u.created_at) = ds.register_date
+        GROUP BY ds.register_date
+        ORDER BY ds.register_date;
     </select>
 </mapper>

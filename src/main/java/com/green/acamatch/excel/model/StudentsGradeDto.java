@@ -9,8 +9,6 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class StudentsGradeDto {
     private long joinClassId;
     private long classId;

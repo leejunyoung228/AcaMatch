@@ -13,8 +13,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DashBoardDto {
-    private LocalDate date; // 날짜
-    private int academyCount; // 학원 수
     private int userCount; // 사용자 수
     private int paymentCount; // 결제 내역
 }
