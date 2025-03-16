@@ -14,9 +14,6 @@ public class GetAcademyListByAcaNameOrderTypeReq extends Paging {
     @Schema(title = "주문 타입", description = "0이면 학원, 1이면 교재")
     private Integer orderType;
 
-    @Schema(title = "주문자 이름")
-    private String userName;
-
     @Schema(title = "시작일", example = "2025-02-01")
     private String startDate;
 
@@ -25,6 +22,9 @@ public class GetAcademyListByAcaNameOrderTypeReq extends Paging {
 
     @Schema(title = "학원 PK")
     private Long acaId;
+
+    @Schema(title = "유저 PK", description = "학원 관계자 입장에서 쓰실때만 넣으시면 됩니다!")
+    private Long userId;
 
     public GetAcademyListByAcaNameOrderTypeReq(Integer page, Integer size) {
         super(page, size);

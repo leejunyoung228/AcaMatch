@@ -4,12 +4,16 @@ import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.manager.Teacher;
 import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
-        import lombok.Getter;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@NoArgsConstructor
+@Builder
 @Entity
 @Getter
 @Setter
@@ -51,4 +55,16 @@ public class AcaClass {
 //            @JoinColumn(name = "teacher_aca_id", referencedColumnName = "aca_id")
 //    })
 //    private Teacher teacher;
+
+    public AcaClass(Long classId, Academy academy, String className, String classComment, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, int price) {
+        this.classId = classId;
+        this.academy = academy;
+        this.className = className;
+        this.classComment = classComment;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.price = price;
+    }
 }

@@ -2,6 +2,8 @@ package com.green.acamatch.academy.mapper;
 
 import com.green.acamatch.academy.model.HB.*;
 import com.green.acamatch.academy.model.JW.*;
+import com.green.acamatch.academy.premium.model.PremiumBannerExistGetReq;
+import com.green.acamatch.academy.premium.model.PremiumBannerExistGetRes;
 import com.green.acamatch.academy.tag.SelTagDto;
 import com.green.acamatch.academy.tag.SelTagReq;
 import com.green.acamatch.entity.tag.Tag;
@@ -40,6 +42,7 @@ public interface AcademyMapper {
     AcademyBestLikeGetRes selAcademyCount();
 
     AcademyBestLikeGetRes selAcademyLikeCount();
+
 
 
     // ---------------------------------------------------------------
@@ -99,19 +102,5 @@ public interface AcademyMapper {
     List<GetAcademyListByAcaNameOrderTypeRes> getAcademyListByAcaNameOrderType(GetAcademyListByAcaNameOrderTypeReq p);
 
     List<GetSearchInfoRes> getSearchInfo(String week);
-
-    // 일반 리뷰 개수 가져오기
-    int countGeneralReviews(@Param("acaId") Long acaId);
-
-    int countMediaReviews(@Param("acaId") Long acaId);
-
-
-    List<GeneralReviewDto> getGeneralReviews(@Param("generalStartIdx") int generalStartIdx,
-                                             @Param("acaId") Long acaId,
-                                             @Param("size") int size);
-
-    List<MediaReviewDto> getMediaReviews(@Param("mediaStartIdx") int mediaStartIdx,
-                                         @Param("acaId") Long acaId,
-                                         @Param("size") int size);
 }
 

@@ -2,7 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.green.acamatch.reports.ReportsMapper">
     <select id="getUserList">
-        SELECT U.email, U.name, R.reports_type, R.processing_status, COUNT(R.report_id) AS reportCount
+        SELECT U.email, U.name, R.reports_type, R.processing_status,
+        COUNT(R.report_id) AS reportCount, R.report_id,
+        R.updated_at, R.exposure_end_date, R.action_type
         FROM reports R
         JOIN user U ON R.reported_user_id = u.user_id
         GROUP BY U.user_id

@@ -27,8 +27,8 @@
 
     <select id="selGradeScore" resultMap="selGradeScoreResultMap">
         SELECT A.exam_name, B.exam_date,
-        CASE WHEN A.SCORE_TYPE = 0 THEN B.score ELSE NULL END AS result_score,
-        CASE WHEN A.SCORE_TYPE != 0 THEN
+        CASE WHEN A.EXAM_TYPE = 0 THEN B.score ELSE NULL END AS result_score,
+        CASE WHEN A.EXAM_TYPE != 0 THEN
         CASE WHEN COALESCE(B.PASS, 0) = 0 THEN 0 ELSE 1 END ELSE NULL END AS result_pass
         FROM exam A
         INNER JOIN grade B

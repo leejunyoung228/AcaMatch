@@ -3,9 +3,7 @@ package com.green.acamatch.manager;
 import com.green.acamatch.acaClass.AcaClassService;
 import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.manager.model.GetAcademyCostCountRes;
-import com.green.acamatch.manager.model.GetAcademyCountRes;
-import com.green.acamatch.manager.model.GetUserCountRes;
+import com.green.acamatch.manager.model.*;
 import com.green.acamatch.sms.SmsService;
 import com.green.acamatch.sms.model.SmsRequest;
 import com.green.acamatch.user.UserUtils;
@@ -13,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -53,18 +50,33 @@ public class ManagerService {
         }
     }
 
-    public List<GetAcademyCountRes> getAcademyCount(String month){
-        List<GetAcademyCountRes> res = managerMapper.getAcademyCount(month);
+    public List<GetAcademyCountRes> getAcademyCount(GetAcademyCountReq req){
+        List<GetAcademyCountRes> res = managerMapper.getAcademyCount(req);
         return res;
     }
 
-    public List<GetUserCountRes> getUserCount(String month){
-        List<GetUserCountRes> res = managerMapper.getUserCount(month);
+    public List<GetUserCountRes> getUserCount(GetUserCountReq req){
+        List<GetUserCountRes> res = managerMapper.getUserCount(req);
         return res;
     }
 
-    public List<GetAcademyCostCountRes> getAcademyCostCount(String month){
-        List<GetAcademyCostCountRes> res = managerMapper.getAcademyCostCount(month);
+    public List<GetAcademyCostCountRes> getAcademyCostCount(GetAcademyCostCountReq req){
+        List<GetAcademyCostCountRes> res = managerMapper.getAcademyCostCount(req);
+        return res;
+    }
+
+    public List<GetAcademyCostByUserIdRes> getAcademyCostByUserId(GetAcademyCostByUserIdReq req){
+        List<GetAcademyCostByUserIdRes> res = managerMapper.getAcademyCostByUserId(req);
+        return res;
+    }
+
+    public List<GetUserCountByUserIdRes> getUserCountByUserId(GetUserCountByUserIdReq req){
+        List<GetUserCountByUserIdRes> res = managerMapper.getUserCountByUserId(req);
+        return res;
+    }
+
+    public List<GetUserInfoListRes> GetUserInfoList(long userId){
+        List<GetUserInfoListRes> res = managerMapper.GetUserInfoList(userId);
         return res;
     }
 }

@@ -19,6 +19,7 @@ import java.util.List;
 @Tag(name = "결제")
 public class AcademyCostController {
     private final AcademyCostService academyCostService;
+    private final AcademyCostMessage academyCostMessage;
 
     @GetMapping("getAcademyCostInfoByMonth")
     @Operation(summary = "사이트 관리자가 월 수익 보기")
@@ -48,12 +49,12 @@ public class AcademyCostController {
                 .build();
     }
 
-    @PutMapping("updateStatus/{costId}")
+    @PutMapping("updateStatus/{costIds}")
     @Operation(summary = "정산 X -> 정산 O로 처리", description = "어떻게 만드실지 몰라서 일단 결제 PK를 받아와서 정산 상태인 status를 1로 변경하도록 만들었습니다.")
-    public ResultResponse<Integer> updateStatus(@PathVariable Long costId) {
-        int result = academyCostService.updateStatus(costId);
+    public ResultResponse<Integer> updateStatus(@PathVariable String costIds) {
+        int result = academyCostService.updateStatuses(costIds);
         return ResultResponse.<Integer>builder()
-                .resultMessage("정산 처리 완료")
+                .resultMessage(academyCostMessage.getMessage())
                 .resultData(result)
                 .build();
     }

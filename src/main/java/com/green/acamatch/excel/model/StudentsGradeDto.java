@@ -10,15 +10,13 @@ import java.time.LocalDate;
 @Setter
 @Getter
 public class StudentsGradeDto {
-    private long joinClassId;
-    private long classId;
-    private long userId;
+    private Long joinClassId;
     private String name;
     private Long examId;
     private String examName;
     private LocalDate examDate;
     private Long gradeId;
-    private int examType;
+    private Integer examType;
     private Integer score;
     private Integer pass;
     private Integer processingStatus;

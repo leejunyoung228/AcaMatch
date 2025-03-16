@@ -309,6 +309,7 @@
         A.address,
         U.name,
         AP.aca_pic,
+        A.premium,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         IFNULL(RC.reportsCount, 0) AS reportsCount  -- 신고 수가 없으면 0으로 처리
         FROM academy A
@@ -319,7 +320,17 @@
         FROM reports R
         GROUP BY R.aca_id
         ) RC ON A.aca_id = RC.aca_id  -- 학원별 신고 개수를 LEFT JOIN
-        WHERE A.user_id = #{signedUserId}
+        <where>
+            <if test="signedUserId != null">
+                AND A.user_id = #{signedUserId}
+            </if>
+            <if test="acaAgree != null">
+                AND A.aca_agree = #{acaAgree}
+            </if>
+            <if test="acaName != null and acaName != '' ">
+                AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
+            </if>
+        </where>
         GROUP BY A.aca_id;
     </select>
 
@@ -1132,7 +1143,8 @@
         A.aca_id,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         A.`comment`, A.created_at, A.aca_phone, A.address, U.user_id, U.name,
-        IFNULL(RC.reportsCount, 0) AS reportsCount
+        IFNULL(RC.reportsCount, 0) AS reportsCount,
+        A.aca_agree
         FROM academy A
         LEFT JOIN academy_pic AP
         ON A.aca_id = AP.aca_id
@@ -1172,6 +1184,7 @@
         A.address,
         A.detail_address,
         A.post_num,
+        COUNT(*) OVER() AS totalCount,
         IFNULL(`AS`.starAvg, 0) AS starAvg,
         IFNULL(GROUP_CONCAT(DISTINCT T.tag_name ORDER BY T.tag_id SEPARATOR ', '), '') AS tagNames,
         IFNULL(LC.likeCount, 0) AS likeCount,
@@ -1215,32 +1228,41 @@
         WHERE aca_name like CONCAT('%', #{acaName}, '%')
     </select>
     <select id="getAcademyListByAcaNameOrderType">
-        SELECT A.aca_id,
-        A.aca_name,
-        A.comment,
-        AP.aca_pic,
+        SELECT
+        IFNULL(A.aca_id, A1.aca_id) AS aca_id,
+        IFNULL(A.aca_name, A1.aca_name) AS aca_name,
+        IFNULL(B.book_name, C.class_name) AS `classOrBookName`,
+        IFNULL(AP.aca_pic, AP1.aca_pic) AS aca_pic,
         AC.created_at,
         AC.price,
         AC.cost_status,
         U.name,
         AC.cost_id,
         COUNT(*) OVER() AS totalCount
-        FROM product P
+        FROM academy_cost AC
+        JOIN product P ON AC.product_id = P.product_id
         LEFT JOIN aca_class C ON P.class_id = C.class_id
         LEFT JOIN book B ON P.book_id = B.book_id
-        JOIN academy_cost AC ON P.product_id = AC.product_id
-        JOIN academy A ON A.aca_id = C.class_id
-        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy A ON C.aca_id = A.aca_id
+        LEFT JOIN academy A1 ON B.aca_id = A1.aca_id
+        LEFT JOIN (
+        SELECT aca_id, MIN(aca_pic) AS aca_pic
+        FROM academy_pic
+        GROUP BY aca_id
+        ) AP ON A.aca_id = AP.aca_id -- 학원당 대표 사진 1개만 가져오기
+        LEFT JOIN (
+        SELECT aca_id, MIN(aca_pic) AS aca_pic
+        FROM academy_pic
+        GROUP BY aca_id
+        ) AP1 ON A1.aca_id = AP1.aca_id -- 학원당 대표 사진 1개만 가져오기
         JOIN user U ON AC.user_id = U.user_id
         <where>
+            AND AC.product_id != 1
             <if test="acaName != null and acaName != ''">
                 AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
             </if>
             <if test="orderType != null and orderType != ''">
                 AND AC.order_type = #{orderType}
-            </if>
-            <if test="userName != null and userName != ''">
-                AND U.user_name LIKE CONCAT('%', #{userName}, '%')
             </if>
             <if test="startDate != null and startDate != ''">
                 AND AC.created_at &gt;= #{startDate}
@@ -1250,6 +1272,9 @@
             </if>
             <if test="acaId != null">
                 AND A.aca_id = #{acaId}
+            </if>
+            <if test="userId != null">
+                AND A.user_id = #{userId}
             </if>
         </where>
         ORDER BY AC.created_at DESC

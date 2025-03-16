@@ -43,6 +43,7 @@
 
     <resultMap id="attendanceResultMap" type="com.green.acamatch.attendance.model.AttendanceGetUserDto">
         <result property="userId" column="user_id"/>
+        <result property="attendanceId" column="attendance_id"/>
         <result property="name" column="name"/>
         <result property="status" column="status"
                 javaType="com.green.acamatch.entity.attendance.AttendanceStatus"
@@ -50,7 +51,7 @@
     </resultMap>
 
     <select id="getAttendanceUserName" resultMap="attendanceResultMap">
-        SELECT E.user_id, E.name, A.`status`
+        SELECT A.attendance_id, E.user_id, E.name, A.`status`
         FROM attendance A
         INNER JOIN join_class B
         ON A.join_class_id = B.join_class_id

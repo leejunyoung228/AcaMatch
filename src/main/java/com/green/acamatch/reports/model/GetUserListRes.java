@@ -22,4 +22,16 @@ public class GetUserListRes {
 
     @Schema(title = "신고 당한 횟수")
     private int reportCount;
+
+    @Schema(title = "신고 PK")
+    private long reportId;
+
+    @Schema(title = "조치한 날짜")
+    private String updatedAt;
+
+    @Schema(title = "조치가 끝나는 날짜")
+    private String exposureEndDate;
+
+    @Schema(title = "조치 상태")
+    private String actionType;
 }
