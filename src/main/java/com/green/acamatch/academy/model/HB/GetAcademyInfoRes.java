@@ -18,4 +18,5 @@ public class GetAcademyInfoRes {
     private long acaId;
     private int reportsCount;
     private int acaAgree;
+    private int totalCount;
 }

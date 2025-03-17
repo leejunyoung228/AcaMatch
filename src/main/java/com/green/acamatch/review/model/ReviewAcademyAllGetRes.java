@@ -5,6 +5,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.w3c.dom.stylesheets.LinkStyle;
+
+import java.util.List;
 
 @Getter
 @Setter

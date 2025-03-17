@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Setter
-@Component
 @ConfigurationProperties(prefix = "solapi")
 public class SmsConfigProperties {
     private String apiKey;
