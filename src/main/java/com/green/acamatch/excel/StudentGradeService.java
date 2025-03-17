@@ -54,6 +54,7 @@ public class StudentGradeService {
         // 경로 설정 (OS 호환성 고려)
         Path excelDirectory = Paths.get(filePath, "student_grades");
         Path excelFilePath = excelDirectory.resolve("studentGrade.xlsx").toAbsolutePath();
+        String newFileName = "studentGrade.xlsx";
         log.info("Excel 파일 저장 경로: {}", excelFilePath);
         // 폴더 생성 (절대경로 문제 해결)
         myFileUtils.makeFolders(excelDirectory.toString());
@@ -67,7 +68,7 @@ public class StudentGradeService {
         File excelFile = excelFilePath.toFile();
         if (excelFile.exists()) {
             int counter = 1;
-            String newFileName;
+
             // 파일 이름에 (1), (2) 등을 붙여서 새로운 파일 경로 설정
             do {
                 newFileName = String.format("studentGrade(%d).xlsx", counter);
@@ -127,7 +128,7 @@ public class StudentGradeService {
             workbook.write(fos);
             log.info("엑셀 파일 생성 완료: {}", excelFilePath);
             // URL 반환 (파일 경로가 아닌 API로 접근할 수 있도록)
-            String url = String.format("%s/xlsx/student_grades/studentGrade.xlsx", emailConst.getBaseUrl());
+            String url = String.format("%s/xlsx/student_grades/%s", emailConst.getBaseUrl(), newFileName);
             return url;
         } catch (Exception e) {
             log.error("엑셀 파일 생성 중 오류 발생", e);
