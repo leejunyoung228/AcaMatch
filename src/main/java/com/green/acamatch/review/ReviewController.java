@@ -1,14 +1,13 @@
 package com.green.acamatch.review;
 
+import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.review.model.ReviewPostReq;
+import com.green.acamatch.review.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -19,6 +18,7 @@ import java.util.List;
 @RequestMapping("review")
 public class ReviewController {
     private final ReviewService reviewService;
+    private final UserMessage userMessage;
 
     @PostMapping
     @Operation(summary = "리뷰 등록", description = "postMan으로 테스트")
@@ -29,4 +29,50 @@ public class ReviewController {
                 .resultData(result)
                 .build();
     }
+
+    @GetMapping("academy/all")
+    @Operation(summary = "학원 리뷰 전체 조회(새로생성)")
+    public ResultResponse<List<ReviewAcademyAllGetRes>> getAcademyReviewsAll(@ParameterObject @ModelAttribute ReviewAcademyAllGetReq req) {
+        List<ReviewAcademyAllGetRes> resList = reviewService.getAcademyReviewsAll(req);
+        return ResultResponse.<List<ReviewAcademyAllGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+    @GetMapping("me")
+    @Operation(summary = "본인이작성한 리뷰조회(새로생성)")
+    public ResultResponse<List<ReviewMeGetRes>> getMeReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = reviewService.getMeReviews(req);
+        return ResultResponse.<List<ReviewMeGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+    @GetMapping("me/pic")
+    @Operation(summary = "본인이작성한 리뷰조회(사진있는거만)(새로생성)")
+    public ResultResponse<List<ReviewMeGetRes>> getMeNoPicReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = reviewService.getMeNoPicReviews(req);
+        return ResultResponse.<List<ReviewMeGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+    @GetMapping("me/noPic")
+    @Operation(summary = "본인이작성한 리뷰조회(사진없는거만)(새로생성)")
+    public ResultResponse<List<ReviewMeGetRes>> getMePicReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = reviewService.getMePicReviews(req);
+        return ResultResponse.<List<ReviewMeGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+
+
+
+
+
 }
