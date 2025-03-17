@@ -5,6 +5,7 @@ import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.academy.model.HB.GeneralReviewDto;
 import com.green.acamatch.academy.model.HB.MediaReviewDto;
 import com.green.acamatch.accessLog.dailyVisitorStatus.CustomUserDetails;
+import com.green.acamatch.config.FilePathConfig;
 import com.green.acamatch.config.MyFileUtils;
 import com.green.acamatch.config.exception.*;
 import com.green.acamatch.config.jwt.JwtUser;
@@ -59,6 +60,8 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final MyFileUtils myFileUtils;
     private final ReviewPicRepository reviewPicRepository;
+    private final FilePathConfig filePathConfig;
+    private final ReviewMessage reviewMessage;
 
     @Transactional
     public Integer postReview(List<MultipartFile> pics, ReviewPostReq p) {
@@ -175,6 +178,50 @@ public class ReviewService {
         return result;
     }
 
+    public int updateReview(UpdateReviewReq req, List<MultipartFile> pics){
+        Review review = reviewRepository.findById(req.getReviewId()).orElse(null);
+        if(req.getStar() != null) review.setStar(req.getStar());
+        if(req.getComment() != null) review.setComment(req.getComment());
+        reviewRepository.save(review);
 
+
+
+        if(pics != null && !pics.isEmpty()) {
+            reviewPicRepository.deleteReviewPicsByReviewId(req.getReviewId());
+            String middlePath = String.format("review/%d", req.getReviewId());
+            myFileUtils.deleteFolder(middlePath, true);
+            myFileUtils.makeFolders(middlePath);
+
+            List<String> picNameList = new ArrayList<>();
+            List<ReviewPic> picList = new ArrayList<>(pics.size());
+
+            for(MultipartFile pic : pics){
+                String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
+
+                picNameList.add(savedPicName);
+                String filePath = String.format("%s/%s", middlePath, savedPicName);
+
+                ReviewPicIds reviewPicIds = new ReviewPicIds();
+                reviewPicIds.setReviewId(req.getReviewId());
+                reviewPicIds.setReviewPic(savedPicName);
+
+                ReviewPic reviewPic = new ReviewPic();
+                reviewPic.setReviewPicIds(reviewPicIds);
+                reviewPic.setReview(review);
+                reviewPicRepository.save(reviewPic);
+
+                try {
+                    myFileUtils.transferTo(pic, filePath);
+                } catch (IOException e){
+                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                    myFileUtils.deleteFolder(delFolderPath, true);
+                }
+
+            }
+        }
+        reviewMessage.setMessage("리뷰정보수정이 완료되었습니다.");
+        reviewRepository.save(review);
+        return 1;
+    }
 
 }
