@@ -606,6 +606,7 @@
         <id property="acaId" column="aca_id"/>
         <result property="acaName" column="aca_name"/>
         <result property="acaPic" column="aca_pic"/>
+        <result property="acaPics" column="acaPics"/>
         <result property="address" column="address"/>
         <result property="detailAddress" column="detail_address"/>
         <result property="postNum" column="post_num"/>
@@ -796,6 +797,7 @@
         A.teacher_num,
         A.comment,
         AP.aca_pic,
+        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS acaPics,
         AT.tagName,
 
         -- 클래스별 정보
@@ -1337,5 +1339,10 @@
         JOIN aca_class C ON JC.class_id = C.class_id
         JOIN academy A ON C.aca_id = A.aca_id
         WHERE JC.user_id = #{userId}
+    </select>
+    <select id="getAcademyInfo">
+        SELECT *
+        FROM academy
+        WHERE aca_id = #{acaId}
     </select>
 </mapper>

@@ -79,4 +79,8 @@ public class ManagerService {
         List<GetUserInfoListRes> res = managerMapper.GetUserInfoList(userId);
         return res;
     }
+
+    public GetAcademyCostInfoByUserId getAcademyCostInfoByUserId(long userId){
+        return managerMapper.GetAcademyCostInfoByUserId(userId);
+    }
 }
