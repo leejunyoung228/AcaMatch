@@ -5,11 +5,6 @@ constant:
 file:
   directory: /home/download/image
 
-
-excel:
-  path: ${EXCEL_FILE_PATH:/app/excel_files}
-
-
 spring:
   datasource:
       url: jdbc:log4jdbc:mariadb://192.168.0.144/db_even_last_3
