@@ -197,7 +197,8 @@ excel:
 
 
 solapi:
-  api-key: NCSEUEYMFBLPYBNV
-  api-secret: 8AFKLPRTY7RTJIEFCUOLNVMF4GVIJ8RF
+  api-key: "NCSEUEYMFBLPYBNV"
+  api-secret: "8AFKLPRTY7RTJIEFCUOLNVMF4GVIJ8RF"
   sender: "01022880426"
+  site-user: "skdml9546"
 

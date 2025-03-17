@@ -12,4 +12,5 @@ public class SmsConfigProperties {
     private String apiKey;
     private String apiSecret;
     private String sender;
+    private String siteUser;
 }
