@@ -1,18 +1,10 @@
 package com.green.acamatch.review;
 
-import com.green.acamatch.academy.model.HB.GeneralReviewDto;
-import com.green.acamatch.academy.model.HB.MediaReviewDto;
-import com.green.acamatch.review.dto.MyReviewDto;
-import com.green.acamatch.review.dto.ReviewDto;
-import com.green.acamatch.review.model.*;
-import org.apache.ibatis.annotations.*;
-
-import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface ReviewMapper {
-
-    int checkEnrollmentByClassIds( List<Long> classIds, Long userId);
+}
 
 
     // 리뷰 작성자 확인 (joinClassId 기반)
@@ -91,10 +83,5 @@ public interface ReviewMapper {
                                              @Param("size") int size);
 
         int totalMediaReviewCount (Long signedUserId);
-
-        List<ReviewAcademyAllGetRes> getAcademyReviewsAll(ReviewAcademyAllGetReq req);
-        List<ReviewMeGetRes> getMeReviews(ReviewMeGetReq req);
-        List<ReviewMeGetRes> getMeNoPicReviews(ReviewMeGetReq req);
-        List<ReviewMeGetRes> getMePicReviews(ReviewMeGetReq req);
 
 }
