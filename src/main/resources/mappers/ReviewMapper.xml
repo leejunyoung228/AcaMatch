@@ -116,6 +116,63 @@
         </delete>
 
 
+    <!--학원리뷰조회 사진있는거만(새로생성)-->
+        <select id="getAcademyPicReviews">
+            SELECT r.review_id, c.class_id, c.class_name, a.aca_id
+            , u.user_id, u.name as writerName, u.user_pic as writerPic
+            , r.comment, r.star, r.ban_review, r.created_at
+            , rp.review_pic
+            , (select count(a.review_id) from review a
+            join review_pic b on a.review_id = b.review_id
+            join join_class c on a.join_class_id = c.join_class_id
+            JOIN aca_class ac ON c.class_id = ac.class_id
+            JOIN academy ad ON ad.aca_id = ac.aca_id
+            where ad.aca_id = #{acaId}) as myReviewCount
+            from review r
+            join user u
+            on r.user_id = u.user_id
+            join join_class j
+            on r.join_class_id = j.join_class_id
+            join aca_class c
+            on c.class_id = j.class_id
+            join academy a
+            on a.aca_id = c.aca_id
+            join review_pic rp
+            on r.review_id = rp.review_id
+            where a.aca_id = #{acaId}
+            order by r.review_id
+            limit #{startIdx}, #{size}
+        </select>
+
+    <!--학원리뷰조회 사진없는거만(새로생성)-->
+        <select id="getAcademyNoPicReviews">
+            SELECT r.review_id, c.class_id, c.class_name, a.aca_id
+            , u.user_id, u.name as writerName, u.user_pic as writerPic
+            , r.comment, r.star, r.ban_review, r.created_at
+            , rp.review_pic
+                , (select count(a.review_id) from review a
+                left join review_pic b on a.review_id = b.review_id
+                join join_class c on a.join_class_id = c.join_class_id
+                JOIN aca_class ac ON c.class_id = ac.class_id
+                JOIN academy ad ON ad.aca_id = ac.aca_id
+                where ad.aca_id = #{acaId} and b.review_pic is null) as myReviewCount
+            from review r
+            join user u
+            on r.user_id = u.user_id
+            join join_class j
+            on r.join_class_id = j.join_class_id
+            join aca_class c
+            on c.class_id = j.class_id
+            join academy a
+            on a.aca_id = c.aca_id
+            left join review_pic rp
+            on r.review_id = rp.review_id
+            where a.aca_id = #{acaId}
+            and rp.review_pic is null
+            order by r.review_id
+            limit #{startIdx}, #{size}
+        </select>
+
 
 
 

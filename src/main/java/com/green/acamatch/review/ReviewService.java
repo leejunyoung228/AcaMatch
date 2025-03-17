@@ -59,6 +59,7 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final MyFileUtils myFileUtils;
     private final ReviewPicRepository reviewPicRepository;
+    private final ReviewImageService reviewImageService;
 
     @Transactional
     public Integer postReview(List<MultipartFile> pics, ReviewPostReq p) {
@@ -173,6 +174,30 @@ public class ReviewService {
         int result = reviewMapper.delMeReview(req);
         userMessage.setMessage("리뷰를 삭제하였습니다.");
         return result;
+    }
+
+    //학원 리뷰 조회(사진있는거만)(추가)
+    @Transactional
+    public List<ReviewAcademyGetRes> getAcademyPicReviews(ReviewAcademyGetReq req) {
+        List<ReviewAcademyGetRes> resList = reviewMapper.getAcademyPicReviews(req);
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성된 리뷰가 없습니다.");
+            return resList;
+        }
+        userMessage.setMessage("리뷰가 조회되었습니다.");
+        return resList;
+    }
+
+    //학원 리뷰 조회(사진없는거만)(추가)
+    @Transactional
+    public List<ReviewAcademyGetRes> getAcademyNoPicReviews(ReviewAcademyGetReq req) {
+        List<ReviewAcademyGetRes> resList = reviewMapper.getAcademyNoPicReviews(req);
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성된 리뷰가 없습니다.");
+            return resList;
+        }
+        userMessage.setMessage("리뷰가 조회되었습니다.");
+        return resList;
     }
 
 
