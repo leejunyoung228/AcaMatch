@@ -128,7 +128,7 @@ public class StudentGradeService {
             workbook.write(fos);
             log.info("엑셀 파일 생성 완료: {}", excelFilePath);
             // URL 반환 (파일 경로가 아닌 API로 접근할 수 있도록)
-            String url = String.format("%s/xlsx/student_grades/%s", emailConst.getBaseUrl(), newFileName);
+            String url = String.format(filePath);
             return url;
         } catch (Exception e) {
             log.error("엑셀 파일 생성 중 오류 발생", e);
