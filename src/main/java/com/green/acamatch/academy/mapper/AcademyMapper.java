@@ -101,6 +101,10 @@ public interface AcademyMapper {
 
     List<GetAcademyListByAcaNameOrderTypeRes> getAcademyListByAcaNameOrderType(GetAcademyListByAcaNameOrderTypeReq p);
 
-    List<GetSearchInfoRes> getSearchInfo(String week);
+    List<GetSearchInfoRes> getSearchInfo(GetSearchInfoReq req);
+
+    List<GetAcademyStatusRes> getAcademyStatus(long userId);
+    List<GetJoinClassStatusRes> getJoinClassStatus(long userId);
+
 }
 

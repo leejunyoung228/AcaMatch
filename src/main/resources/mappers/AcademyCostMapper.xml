@@ -67,4 +67,8 @@
         JOIN product P ON AC.product_id = P.product_id
         WHERE cost_id = #{costId}
     </select>
+    <select id="getProductInfo">
+        SELECT product_id, product_name, product_price, book_id, class_id
+        FROM product
+    </select>
 </mapper>

@@ -251,11 +251,32 @@ public class AcademyController {
                 .build();
     }
 
-    @GetMapping("GetSearchInfo/{week}")
+    @GetMapping("GetSearchInfo")
     @Operation(summary = "태그로 검색 분포 정보", description = "이번주, 지난주 넣으시면 됩니다!")
-    public ResultResponse<List<GetSearchInfoRes>> getSearchInfo(@PathVariable String week){
-        List<GetSearchInfoRes> res = academyService.getSearchInfo(week);
+    public ResultResponse<List<GetSearchInfoRes>> getSearchInfo(@ParameterObject GetSearchInfoReq req){
+        List<GetSearchInfoRes> res = academyService.getSearchInfo(req);
         return ResultResponse.<List<GetSearchInfoRes>>builder()
+                .resultMessage("조회 성공")
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("GetAcademyStatus/{userId}")
+    @Operation(summary = "학원 관계자 입장에서 본인이 등록한 학원 상태", description = "acaAgree가 1이 승인 완료 상태, 0이 승인 대기중인 상태입니다.")
+    public ResultResponse<List<GetAcademyStatusRes>> getAcademyStatus(@PathVariable long userId){
+        List<GetAcademyStatusRes> res = academyService.getAcademyStatus(userId);
+        return ResultResponse.<List<GetAcademyStatusRes>>builder()
+                .resultMessage("조회 성공")
+                .resultData(res)
+                .build();
+    }
+
+    @GetMapping("GetJoinClassStatus/{userId}")
+    @Operation(summary = "학생 입장에서 본인이 등록한 수업 상태", description = "certification이 1이면 승인 완료, 0이면 대기중인 상태입니다." +
+            "registrationDate가 신청일 입니다.")
+    public ResultResponse<List<GetJoinClassStatusRes>> getJoinClassStatus(@PathVariable long userId){
+        List<GetJoinClassStatusRes> res = academyService.getJoinClassStatus(userId);
+        return ResultResponse.<List<GetJoinClassStatusRes>>builder()
                 .resultMessage("조회 성공")
                 .resultData(res)
                 .build();
