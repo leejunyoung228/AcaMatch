@@ -193,11 +193,13 @@ springdoc:
     disabled: true
 
 excel:
-  path: ${EXCEL_FILE_PATH:C:\Users\Administrator\Documents\Downloads} #docker에서 excel 파일을 보기위해 추가
-
+  path: ${EXCEL_FILE_PATH:/home/download/image} #docker에서 excel 파일을 보기위해 추가
+#excel:
+  #path: ${EXCEL_FILE_PATH:/C:\Users\Administrator\Downloads} #local에서 테스트할때 사용
 
 solapi:
-  api-key: NCSEUEYMFBLPYBNV
-  api-secret: 8AFKLPRTY7RTJIEFCUOLNVMF4GVIJ8RF
+  api-key: "NCSEUEYMFBLPYBNV"
+  api-secret: "8AFKLPRTY7RTJIEFCUOLNVMF4GVIJ8RF"
   sender: "01022880426"
+  site-user: "skdml9546"
 

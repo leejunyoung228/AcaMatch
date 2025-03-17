@@ -66,23 +66,38 @@
         JOIN user U ON JC.user_id = U.user_id
         WHERE A.user_id = #{userId}
     </select>
-
-    <select id="getUserCostCount">
-        WITH RECURSIVE date_series AS (
-        -- 지난달 1일부터 시작
-        SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') AS register_date
-        UNION ALL
-        -- 하루씩 증가
-        SELECT DATE_ADD(register_date, INTERVAL 1 DAY)
-        FROM date_series
-        WHERE <![CDATA[ register_date < DATE_FORMAT(LAST_DAY(CURDATE()), '%Y-%m-%d') ]]>
+    <select id="GetAcademyCostInfoByUserId">
+        WITH FilteredCosts AS (
+        SELECT DISTINCT AC.cost_id, AC.price, AC.fee, AC.product_id, AC.created_at, A.user_id
+        FROM academy_cost AC
+        JOIN product P ON AC.product_id = P.product_id
+        JOIN aca_class CL ON P.class_id = CL.class_id
+        JOIN book B ON CL.class_id = B.class_id
+        JOIN academy A ON B.aca_id = A.aca_id
+        WHERE AC.cost_status = 2
+        AND A.user_id = #{userId}
+        AND YEAR(AC.created_at) = YEAR(NOW())
+        AND WEEK(AC.created_at, 1) = WEEK(NOW(), 1)  -- ISO 8601 기준 (월요일 시작)
         )
         SELECT
-        ds.register_date,  -- 날짜 리스트
-        (SELECT COUNT(*) FROM user) AS totalUserCount  -- 현재까지 등록된 모든 유저 수
-        FROM date_series ds
-        LEFT JOIN user u ON DATE(u.created_at) = ds.register_date
-        GROUP BY ds.register_date
-        ORDER BY ds.register_date;
+        SUM(FC.price - FC.fee) AS sumFee,  -- 중복 제거 후 합산
+        COUNT(FC.cost_id) AS costCount,  -- 중복 제거 후 개수 계산
+        (
+        (
+        SELECT COUNT(DISTINCT PX.product_id)  -- 중복 제거 후 교재 판매 개수 계산
+        FROM academy_cost AX
+        JOIN product PX ON PX.book_id IS NOT NULL AND AX.product_id = PX.product_id
+        JOIN book B ON PX.book_id = B.book_id
+        JOIN academy AXD ON B.aca_id = AXD.aca_id
+        WHERE AXD.user_id = FC.user_id
+        ) / (
+        SELECT SUM(BX.book_amount)
+        FROM book BX
+        JOIN academy AXB ON BX.aca_id = AXB.aca_id
+        WHERE AXB.user_id = FC.user_id
+        )
+        ) AS saleRate
+        FROM FilteredCosts FC
+        GROUP BY FC.user_id;
     </select>
 </mapper>
