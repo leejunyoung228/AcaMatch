@@ -1,39 +1,64 @@
 package com.green.acamatch.review;
 
+import com.green.acamatch.acaClass.ClassRepository;
+import com.green.acamatch.academy.AcademyRepository;
+import com.green.acamatch.academy.model.HB.GeneralReviewDto;
+import com.green.acamatch.academy.model.HB.MediaReviewDto;
+import com.green.acamatch.accessLog.dailyVisitorStatus.CustomUserDetails;
 import com.green.acamatch.config.MyFileUtils;
-import com.green.acamatch.config.exception.AcaClassErrorCode;
-import com.green.acamatch.config.exception.CustomException;
-import com.green.acamatch.config.exception.ReviewErrorCode;
-import com.green.acamatch.config.exception.UserErrorCode;
+import com.green.acamatch.config.exception.*;
+import com.green.acamatch.config.jwt.JwtUser;
+import com.green.acamatch.config.security.AuthenticationFacade;
+import com.green.acamatch.entity.acaClass.AcaClass;
 import com.green.acamatch.entity.joinClass.JoinClass;
+import com.green.acamatch.entity.myenum.UserRole;
 import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.review.ReviewPic;
 import com.green.acamatch.entity.review.ReviewPicIds;
 import com.green.acamatch.entity.user.User;
 import com.green.acamatch.joinClass.JoinClassRepository;
-import com.green.acamatch.review.model.ReviewPostReq;
+
+import com.green.acamatch.review.dto.ReviewDto;
+
+import com.green.acamatch.review.model.*;
+import com.green.acamatch.user.repository.RelationshipRepository;
 import com.green.acamatch.user.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-@Slf4j
+import org.slf4j.Logger;
+import org.springframework.web.multipart.MultipartFile;
+
+
 @Service
 @RequiredArgsConstructor
+
 public class ReviewService {
-    private final ReviewMapper reviewMapper;
-    private final JoinClassRepository joinClassRepository;
-    private final UserRepository userRepository;
+
+    private final ReviewMapper mapper;
+    private final UserMessage userMessage;
+    private static final Logger log = LoggerFactory.getLogger(ReviewService.class);
+    private final RelationshipRepository relationshipRepository;
     private final ReviewRepository reviewRepository;
-    private final ReviewPicRepository reviewPicRepository;
+    private final UserRepository userRepository;
+    private final JoinClassRepository joinClassRepository;
+    private final ClassRepository acaClassRepository;
+    private final AcademyRepository academyRepository;
+    private final ReviewMapper reviewMapper;
     private final MyFileUtils myFileUtils;
+    private final ReviewPicRepository reviewPicRepository;
 
     @Transactional
     public Integer postReview(List<MultipartFile> pics, ReviewPostReq p) {
@@ -84,4 +109,72 @@ public class ReviewService {
             }
         } return 1;
     }
+
+
+
+
+    //학원 전체 리뷰 조회(추가)
+    public List<ReviewAcademyAllGetRes> getAcademyReviewsAll(ReviewAcademyAllGetReq req) {
+        List<ReviewAcademyAllGetRes> resList = reviewMapper.getAcademyReviewsAll(req);
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성된 리뷰가 없습니다.");
+            return null;
+        }
+        userMessage.setMessage("작성된 리뷰를 조회하였습니다.");
+        return resList;
+    }
+
+    //내가 작성한 리뷰 조회(추가)
+    public List<ReviewMeGetRes> getMeReviews(ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = reviewMapper.getMeReviews(req);
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성한 리뷰가 없습니다.");
+            return null;
+        }
+        userMessage.setMessage("작성한 리뷰를 조회하였습니다.");
+        return resList;
+    }
+
+    //내가 작성한 리뷰 조회(사진있는거)(추가)
+    public List<ReviewMeGetRes> getMeNoPicReviews(ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = reviewMapper.getMeNoPicReviews(req);
+
+
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성한 리뷰가 없습니다.");
+            return null;
+        }
+        userMessage.setMessage("작성한 리뷰를 조회하였습니다.");
+        return resList;
+    }
+
+    //내가 작성한 리뷰 조회(사진없는거)(추가)
+    public List<ReviewMeGetRes> getMePicReviews(ReviewMeGetReq req) {
+        List<ReviewMeGetRes> resList = reviewMapper.getMePicReviews(req);
+        if(resList == null || resList.isEmpty()) {
+            userMessage.setMessage("작성한 리뷰가 없습니다.");
+            return null;
+        }
+        userMessage.setMessage("작성한 리뷰를 조회하였습니다.");
+        return resList;
+    }
+
+    //학원관계자가 자신의 학원 리뷰 삭제(추가)
+    @Transactional
+    public int delAcademyReview(ReviewAcademyDeleteReq req) {
+        int result = reviewMapper.delAcademyReview(req);
+        userMessage.setMessage("리뷰를 삭제하였습니다.");
+        return result;
+    }
+
+    //본인이 작성한 리뷰 삭제(추가)
+    @Transactional
+    public int delMeReview(ReviewMeDeleteReq req) {
+        int result = reviewMapper.delMeReview(req);
+        userMessage.setMessage("리뷰를 삭제하였습니다.");
+        return result;
+    }
+
+
+
 }

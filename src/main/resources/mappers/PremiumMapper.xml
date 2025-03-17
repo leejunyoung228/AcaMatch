@@ -27,4 +27,15 @@
         Limit #{startIdx}, #{size}
     </select>
 
+    <!--이미 프리미엄신청이 되었거나 프리미엄인 학원 제외하고 조회-->
+    <select id="getPremiumNotExist" resultType="com.green.acamatch.academy.premium.model.PremiumNotexistGetRes">
+        SELECT a.aca_id, a.aca_name
+        FROM academy a
+        WHERE a.aca_id NOT IN (
+        SELECT p.aca_id FROM premium_academy p JOIN academy a ON a.aca_id = p.aca_id WHERE a.user_id = #{userId}
+        )
+        AND a.user_id = #{userId};
+
+    </select>
+
 </mapper>

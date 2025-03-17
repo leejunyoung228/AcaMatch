@@ -1,42 +1,27 @@
 package com.green.acamatch.config;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.UUID;
 
-@Slf4j
 @Getter
 @Component
 public class MyFileUtils {
-    private final FilePathConfig filePathConfig;  // 주입받을 필드
     private final String uploadPath;
 
-    // 생성자에서 `filePathConfig` 초기화
-    public MyFileUtils(FilePathConfig filePathConfig) {
-        this.filePathConfig = filePathConfig;
-        this.uploadPath = filePathConfig.getUploadDir();
+    public MyFileUtils(@Value("${file.directory}") String uploadPath) {
+        this.uploadPath = uploadPath;
     }
 
     public String makeFolders(String path) {
-        File file;
-
-        // 절대경로인지 확인 후 설정 (Windows: C:\ or Linux: /)
-        if (Paths.get(path).isAbsolute()) {
-            file = new File(path);
-        } else {
-            file = new File(filePathConfig.getUploadDir(), path);
-        }
-
-        if (!file.exists() && !file.mkdirs()) {
-            log.error("폴더 생성 실패: {}", file.getAbsolutePath());
-            throw new RuntimeException("폴더 생성 실패: " + file.getAbsolutePath());
+        File file = new File(uploadPath, path);
+        if (!file.exists()) {
+            file.mkdirs();
         }
         return file.getAbsolutePath();
     }
@@ -87,43 +72,8 @@ public class MyFileUtils {
     }
 
 
-    public void transferTo(MultipartFile mf, String relativePath) throws IOException {
-        String baseDir = filePathConfig.getUploadDir();
-
-        // 중복 방지: relativePath가 이미 절대 경로면 baseDir 붙이지 않음
-        File file = new File(relativePath);
-        if (!file.isAbsolute()) {
-            file = new File(baseDir, relativePath);
-        }
-
-        String fullSavePath = file.getAbsolutePath();
-        log.info(" 최종 파일 저장 경로: {}", fullSavePath);
-
-        // 부모 디렉토리 확인 및 생성
-        File parentDir = file.getParentFile();
-        if (!parentDir.exists() && !parentDir.mkdirs()) {
-            log.error("폴더 생성 실패: {}", parentDir.getAbsolutePath());
-            throw new IOException("폴더 생성 실패: " + parentDir.getAbsolutePath());
-        }
-
-        // 파일 저장
+    public void transferTo(MultipartFile mf, String path) throws IOException {
+        File file = new File(uploadPath, path);
         mf.transferTo(file);
     }
-
-
-    public boolean deleteFile(String relativePath) {
-        String baseDir = filePathConfig.getUploadDir(); // baseDir 가져오기
-        String fullDeletePath = Paths.get(baseDir, relativePath).normalize().toString();
-        File file = new File(fullDeletePath);
-
-        if (file.exists() && file.isFile()) {
-            boolean deleted = file.delete();
-            log.info(deleted ? " 파일 삭제 성공: {}" : "파일 삭제 실패: {}", file.getAbsolutePath());
-            return deleted;
-        } else {
-            log.warn(" 삭제할 파일이 존재하지 않음: {}", file.getAbsolutePath());
-            return false;
-        }
-    }
 }
-

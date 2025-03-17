@@ -95,6 +95,17 @@ public class PremiumController {
                 .resultData(result)
                 .build();
     }
+
+    //프리미엄학원신청이 되어있지않고 프리미엄이 아닌 학원 조회
+    @GetMapping("notPremium")
+    @Operation(summary = "프리미엄학원 신청을 위한 조회(프리미엄아니고 신청도 안되어있는)")
+    public ResultResponse<List<PremiumNotexistGetRes>> getPremiumNotExist(@ParameterObject @ModelAttribute PremiumNotExistGetReq req) {
+        List<PremiumNotexistGetRes> resList = premiumService.getPremiumNotExist(req);
+        return ResultResponse.<List<PremiumNotexistGetRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
 }
 
 

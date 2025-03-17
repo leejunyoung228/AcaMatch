@@ -15,22 +15,24 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 import java.io.IOException;
 
 @Configuration
-class WebMvcConfiguration implements WebMvcConfigurer {
+public class WebMvcConfiguration implements WebMvcConfigurer {
+
     private final String uploadPath;
 
-    public WebMvcConfiguration(@Value("${file.directory}") String uploadPath) {
+    public WebMvcConfiguration(@Value("${file.directory}") String uploadPath, ExcelProperties excelProperties) {
         this.uploadPath = uploadPath;
     }
-    @Value("${excel.path}") // 엑셀 저장 경로 (환경 변수에서 가져옴)
-    private String excelPath;
+
+//    @Value("${excel.path}") // 엑셀 저장 경로 (환경 변수에서 가져옴)
+//    private String excelPath;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/pic/**").addResourceLocations("file:" + uploadPath + "/");
         registry.addResourceHandler("/xlsx/**").addResourceLocations("file:" + uploadPath + "/");
-        // 추가로 C:\Users\Administrator\Downloads\student_grades 경로 허용
-        registry.addResourceHandler("/xlsx/**")
-                .addResourceLocations("file:" + excelPath + "/");
+//        // 추가로 C:\Users\Administrator\Downloads\student_grades 경로 허용
+//        registry.addResourceHandler("/xlsx/**")
+//                .addResourceLocations("file:" + excelPath + "/");
 
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/").resourceChain(true).addResolver(new PathResourceResolver() {
             @Override
