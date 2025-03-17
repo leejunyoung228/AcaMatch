@@ -18,9 +18,9 @@ public class SmsConfig {
     @Bean
     public DefaultMessageService messageService() {
         // 🔥 디버깅용: API Key 값 확인
-        System.out.println("API Key: " + smsConfigProperties.getApiKey());
-        System.out.println("API Secret: " + smsConfigProperties.getApiSecret());
-        System.out.println("sender: " + smsConfigProperties.getSender());
+        System.out.println("📌 API Key: " + smsConfigProperties.getApiKey());
+        System.out.println("📌 API Secret: " + smsConfigProperties.getApiSecret());
+        System.out.println("📌 Sender: " + smsConfigProperties.getSender());
 
         return NurigoApp.INSTANCE.initialize(
                 smsConfigProperties.getApiKey(),
