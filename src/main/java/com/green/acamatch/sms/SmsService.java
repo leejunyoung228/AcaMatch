@@ -25,15 +25,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SmsService {
 
-    private final SmsApiConst smsApiConst;
+    private final SmsConfigProperties smsConfigProperties;
 
     public Map<String, String> getSmsKeys() {
         Map<String, String> keys = new HashMap<>();
-        keys.put("apiKey", smsApiConst.getApiKey());
-        keys.put("apiSecret", smsApiConst.getApiSecret());
-        keys.put("sender", smsApiConst.getSender());
+        keys.put("apiKey", smsConfigProperties.getApiKey());
+        keys.put("apiSecret", smsConfigProperties.getApiSecret());
         return keys;
     }
+
 //    private final DefaultMessageService messageService;
 //    private final String sender;
 //    private final UserMessage userMessage;
