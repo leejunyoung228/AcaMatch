@@ -20,6 +20,7 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
     private final UserMessage userMessage;
+    private final ReviewMessage reviewMessage;
 
     @PostMapping
     @Operation(summary = "리뷰 등록", description = "postMan으로 테스트")
@@ -116,4 +117,13 @@ public class ReviewController {
 
 
 
+    @PutMapping("updateReview")
+    @Operation(summary = "리뷰 수정")
+    public ResultResponse<Integer> updateReview(@RequestPart List<MultipartFile> pics, @RequestPart UpdateReviewReq p) {
+        int result = reviewService.updateReview(p, pics);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(reviewMessage.getMessage())
+                .resultData(result)
+                .build();
+    }
 }

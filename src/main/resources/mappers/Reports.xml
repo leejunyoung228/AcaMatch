@@ -4,9 +4,52 @@
     <select id="getUserList">
         SELECT U.email, U.name, R.reports_type, R.processing_status,
         COUNT(R.report_id) AS reportCount, R.report_id,
-        R.updated_at, R.exposure_end_date, R.action_type
+        R.updated_at, R.exposure_end_date, R.action_type,
+        COUNT(*) OVER() AS totalCount
         FROM reports R
         JOIN user U ON R.reported_user_id = u.user_id
         GROUP BY U.user_id
+        LIMIT #{startIdx}, #{size}
+    </select>
+    <select id="getAcademyList">
+        SELECT
+        A.aca_id,
+        A.aca_name,
+        AP.aca_pic,
+        U.email,
+        R.reports_type,
+        R.updated_at,
+        R.exposure_end_date,
+        R.processing_status,
+        (SELECT COUNT(R2.report_id)
+        FROM reports R2
+        WHERE R2.aca_id = A.aca_id) AS reportsCount,
+        COUNT(*) OVER() AS totalCount
+        FROM reports R
+        JOIN academy A ON R.aca_id = A.aca_id
+        JOIN user U ON A.user_id = U.user_id
+        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        GROUP BY A.aca_id
+        LIMIT #{startIdx}, #{size}
+    </select>
+    <select id="getReviewList">
+        SELECT
+        U.user_pic,
+        U.`name`,
+        U.email,
+        R1.`comment`,
+        R.reports_type,
+        R.updated_at,
+        R.exposure_end_date,
+        R.processing_status,
+        (SELECT COUNT(R2.report_id)
+        FROM reports R2
+        WHERE R2.review_id = R1.review_id) AS reportsCount,
+        COUNT(*) OVER() AS totalCount
+        FROM reports R
+        JOIN review R1 ON R.review_id = R1.review_id
+        JOIN user U ON R1.user_id = U.user_id
+        GROUP BY R1.review_id
+        LIMIT #{startIdx}, #{size}
     </select>
 </mapper>

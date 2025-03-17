@@ -3,8 +3,7 @@ package com.green.acamatch.reports;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.entity.reports.ActionType;
 import com.green.acamatch.entity.reports.ReportsType;
-import com.green.acamatch.reports.model.GetUserListRes;
-import com.green.acamatch.reports.model.PostReportsReq;
+import com.green.acamatch.reports.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -67,11 +66,31 @@ public class ReportsController {
 
     @GetMapping("getUserList")
     @Operation(summary = "신고 당한 유저 리스트 불러오기")
-    public ResultResponse<List<GetUserListRes>> getUserList(){
-        List<GetUserListRes> userList = reportsService.getUserList();
+    public ResultResponse<List<GetUserListRes>> getUserList(@ParameterObject GetUserListReq req){
+        List<GetUserListRes> userList = reportsService.getUserList(req);
         return ResultResponse.<List<GetUserListRes>>builder()
                 .resultMessage("출력 성공")
                 .resultData(userList)
+                .build();
+    }
+
+    @GetMapping("getAcademyList")
+    @Operation(summary = "신고 당한 학원 리스트 불러오기")
+    public ResultResponse<List<GetAcademyListRes>> getAcademyList(@ParameterObject GetAcademyListReq req){
+        List<GetAcademyListRes> result = reportsService.getAcademyList(req);
+        return ResultResponse.<List<GetAcademyListRes>>builder()
+                .resultMessage("조회 성공")
+                .resultData(result)
+                .build();
+    }
+
+    @GetMapping("getReviewList")
+    @Operation(summary = "신고 당한 리뷰 조회")
+    public ResultResponse<List<GetReviewListRes>> getReviewList(@ParameterObject GetReviewListReq req){
+        List<GetReviewListRes> result = reportsService.getReviewList(req);
+        return ResultResponse.<List<GetReviewListRes>>builder()
+                .resultMessage("조회 성공")
+                .resultData(result)
                 .build();
     }
 }
