@@ -1,5 +1,6 @@
 package com.green.acamatch.review.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.green.acamatch.academy.model.HB.GeneralReviewDto;
 import com.green.acamatch.academy.model.HB.MediaReviewDto;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -54,4 +55,5 @@ public class ReviewMeGetRes {
 
     @Schema(title = "리뷰사진")
     private String reviewPic;
+
 }

@@ -138,6 +138,8 @@ public class ReviewService {
     //내가 작성한 리뷰 조회(사진있는거)(추가)
     public List<ReviewMeGetRes> getMeNoPicReviews(ReviewMeGetReq req) {
         List<ReviewMeGetRes> resList = reviewMapper.getMeNoPicReviews(req);
+
+
         if(resList == null || resList.isEmpty()) {
             userMessage.setMessage("작성한 리뷰가 없습니다.");
             return null;
