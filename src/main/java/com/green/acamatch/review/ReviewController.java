@@ -10,6 +10,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.transform.Result;
 import java.util.List;
 
 @Tag(name = "리뷰 관리", description = "리뷰 등록, 가져오기, 수정, 삭제")
@@ -67,6 +68,26 @@ public class ReviewController {
         return ResultResponse.<List<ReviewMeGetRes>>builder()
                 .resultMessage(userMessage.getMessage())
                 .resultData(resList)
+                .build();
+    }
+
+    @DeleteMapping("academy")
+    @Operation(summary = "학원관계자가 본인 학원 리뷰 삭제 (새로생성)")
+    public ResultResponse<Integer> delAcademyReview(@ParameterObject @ModelAttribute ReviewAcademyDeleteReq req) {
+        int result = reviewService.delAcademyReview(req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(result)
+                .build();
+    }
+
+    @DeleteMapping("me")
+    @Operation(summary = "본인이 작성한 리뷰 삭제(새로생성)")
+    public ResultResponse<Integer> delMeReview(@ParameterObject @ModelAttribute ReviewMeDeleteReq req) {
+        int result = reviewService.delMeReview(req);
+        return ResultResponse.<Integer>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(result)
                 .build();
     }
 

@@ -15,12 +15,14 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 import java.io.IOException;
 
 @Configuration
-class WebMvcConfiguration implements WebMvcConfigurer {
+public class WebMvcConfiguration implements WebMvcConfigurer {
+
     private final String uploadPath;
 
-    public WebMvcConfiguration(@Value("${file.directory}") String uploadPath) {
+    public WebMvcConfiguration(@Value("${file.directory}") String uploadPath, ExcelProperties excelProperties) {
         this.uploadPath = uploadPath;
     }
+
 //    @Value("${excel.path}") // 엑셀 저장 경로 (환경 변수에서 가져옴)
 //    private String excelPath;
 
@@ -43,6 +45,7 @@ class WebMvcConfiguration implements WebMvcConfigurer {
             }
         });
     }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
