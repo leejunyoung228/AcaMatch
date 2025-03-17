@@ -21,6 +21,7 @@ public class JoinClass {
 
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private AcaClass acaClass;
 
     @ManyToOne
