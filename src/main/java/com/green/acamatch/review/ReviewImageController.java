@@ -1,17 +1,10 @@
 package com.green.acamatch.review;
 
-import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserMessage;
-import com.green.acamatch.config.model.ResultResponse;
-import com.green.acamatch.review.model.ReviewPostReqForParent;
-import com.green.acamatch.review.model.ReviewUpdateReq;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
