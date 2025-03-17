@@ -25,6 +25,18 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         this.excelProperties = excelProperties;
     }
 
+//    @Value("${excel.path}") // 엑셀 저장 경로 (환경 변수에서 가져옴)
+//    private String excelPath;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/pic/**").addResourceLocations("file:" + uploadPath + "/");
+        registry.addResourceHandler("/xlsx/**").addResourceLocations("file:" + uploadPath + "/");
+//        // 추가로 C:\Users\Administrator\Downloads\student_grades 경로 허용
+//        registry.addResourceHandler("/xlsx/**")
+//                .addResourceLocations("file:" + excelPath + "/");
+
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // ✅ 업로드 파일 경로 허용
