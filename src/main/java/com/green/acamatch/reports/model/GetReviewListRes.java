@@ -5,15 +5,15 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetAcademyListRes {
-    private long acaId;
-    private String acaName;
-    private String acaPic;
+public class GetReviewListRes {
+    private String userPic;
+    private String name;
     private String email;
+    private String comment;
     private String reportsType;
     private String updatedAt;
     private String exposureEndDate;
-    private int totalCount;
-    private int reportsCount;
     private int processingStatus;
+    private int reportsCount;
+    private int totalCount;
 }
