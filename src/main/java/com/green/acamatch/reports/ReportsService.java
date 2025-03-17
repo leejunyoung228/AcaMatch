@@ -7,10 +7,7 @@ import com.green.acamatch.entity.reports.Reports;
 import com.green.acamatch.entity.reports.ReportsType;
 import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.user.User;
-import com.green.acamatch.reports.model.GetAcademyListReq;
-import com.green.acamatch.reports.model.GetAcademyListRes;
-import com.green.acamatch.reports.model.GetUserListRes;
-import com.green.acamatch.reports.model.PostReportsReq;
+import com.green.acamatch.reports.model.*;
 import com.green.acamatch.review.ReviewRepository;
 import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -74,12 +71,16 @@ public class ReportsService {
         return 1;
     }
 
-    public List<GetUserListRes> getUserList(){
-        List<GetUserListRes> userList = reportsMapper.getUserList();
+    public List<GetUserListRes> getUserList(GetUserListReq req){
+        List<GetUserListRes> userList = reportsMapper.getUserList(req);
         return userList;
     }
 
     public List<GetAcademyListRes> getAcademyList(GetAcademyListReq req){
         return reportsMapper.getAcademyList(req);
+    }
+
+    public List<GetReviewListRes> getReviewList(GetReviewListReq req){
+        return reportsMapper.getReviewList(req);
     }
 }
