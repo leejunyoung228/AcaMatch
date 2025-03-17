@@ -1,9 +1,6 @@
 package com.green.acamatch.academyCost;
 
-import com.green.acamatch.academyCost.model.GetAcademyCostInfoByCostId;
-import com.green.acamatch.academyCost.model.GetAcademyCostInfoByMonth;
-import com.green.acamatch.academyCost.model.GetSettlementListReq;
-import com.green.acamatch.academyCost.model.GetSettlementListRes;
+import com.green.acamatch.academyCost.model.*;
 import com.green.acamatch.entity.academyCost.AcademyCost;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -81,5 +78,9 @@ public class AcademyCostService {
 
         academyCostMessage.setMessage("정산이 완료되었습니다.");
         return 1;
+    }
+
+    public List<GetProductInfoRes> getProductInfo(){
+        return academyCostMapper.getProductInfo();
     }
 }

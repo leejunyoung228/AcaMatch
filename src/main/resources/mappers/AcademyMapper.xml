@@ -1293,13 +1293,8 @@
         JOIN tag T ON S.tag_id = T.tag_id
         ) TT
         ON S.tag_id = TT.tag_id
-        WHERE 1=1
-        <if test='week == "이번주"'>
-            AND YEARWEEK(S.created_at) = YEARWEEK(NOW())
-        </if>
-        <if test='week == "지난주"'>
-            AND YEARWEEK(S.created_at) = YEARWEEK(NOW() - INTERVAL 1 WEEK)
-        </if>
+        WHERE YEAR(S.created_at) = #{year}
+        AND MONTH(S.created_at) = #{month}
         GROUP BY S.tag_id
     </select>
 
@@ -1322,5 +1317,25 @@
         JOIN review_pic RP ON A.review_id = RP.review_id  -- 사진이 있는 리뷰 개수만 조회
         WHERE C.aca_id = #{acaId};
     </select>
-
+<!--    <select id="getGeneralReviews">-->
+<!--        SELECT R.review_id, R.created_at, R.updated_at, R.ban_review, R.comment,-->
+<!--        R.star, R.join_class_id, R.user_id,-->
+<!--        COUNT(*) OVER() AS totalCount-->
+<!--        FROM review R-->
+<!--        LEFT JOIN review_pic RP ON R.review_id = RP.review_id-->
+<!--        WHERE review_pic IS NULL OR review_pic = ''-->
+<!--        LIMIT #{startIdx}, #{size};-->
+<!--    </select>-->
+    <select id="getAcademyStatus">
+        SELECT A.created_at, A.aca_name, A.aca_agree, A.aca_id
+        FROM academy A
+        WHERE A.user_id = #{userId}
+    </select>
+    <select id="getJoinClassStatus">
+        SELECT JC.registration_date, A.aca_name, JC.certification, C.class_name, A.aca_id
+        FROM join_class JC
+        JOIN aca_class C ON JC.class_id = C.class_id
+        JOIN academy A ON C.aca_id = A.aca_id
+        WHERE JC.user_id = #{userId}
+    </select>
 </mapper>

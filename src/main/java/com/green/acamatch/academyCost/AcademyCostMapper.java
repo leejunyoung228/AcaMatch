@@ -18,4 +18,6 @@ public interface AcademyCostMapper {
     List<GetSettlementListRes> getSettlementList(GetSettlementListReq req);
 
     GetAcademyCostInfoByCostId getAcademyCostInfoByCostId(long costId);
+
+    List<GetProductInfoRes> getProductInfo();
 }
