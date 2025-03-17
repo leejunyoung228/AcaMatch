@@ -1,9 +1,6 @@
 package com.green.acamatch.academyCost;
 
-import com.green.acamatch.academyCost.model.GetAcademyCostInfoByCostId;
-import com.green.acamatch.academyCost.model.GetAcademyCostInfoByMonth;
-import com.green.acamatch.academyCost.model.GetSettlementListReq;
-import com.green.acamatch.academyCost.model.GetSettlementListRes;
+import com.green.acamatch.academyCost.model.*;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,6 +53,16 @@ public class AcademyCostController {
         return ResultResponse.<Integer>builder()
                 .resultMessage(academyCostMessage.getMessage())
                 .resultData(result)
+                .build();
+    }
+
+    @GetMapping("getProductInfo")
+    @Operation(summary = "모든 상품 정보 조회하는 api")
+    public ResultResponse<List<GetProductInfoRes>> getProductInfo() {
+        List<GetProductInfoRes> res = academyCostService.getProductInfo();
+        return ResultResponse.<List<GetProductInfoRes>>builder()
+                .resultMessage("조회 성공")
+                .resultData(res)
                 .build();
     }
 }

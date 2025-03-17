@@ -803,7 +803,15 @@ public class AcademyService {
         return academyMapper.getAcademyListByAcaNameOrderType(p);
     }
 
-    public List<GetSearchInfoRes> getSearchInfo(String week){
-        return academyMapper.getSearchInfo(week);
+    public List<GetSearchInfoRes> getSearchInfo(GetSearchInfoReq req){
+        return academyMapper.getSearchInfo(req);
+    }
+
+    public List<GetAcademyStatusRes> getAcademyStatus(long userId){
+        return academyMapper.getAcademyStatus(userId);
+    }
+
+    public List<GetJoinClassStatusRes> getJoinClassStatus(long userId){
+        return academyMapper.getJoinClassStatus(userId);
     }
 }
