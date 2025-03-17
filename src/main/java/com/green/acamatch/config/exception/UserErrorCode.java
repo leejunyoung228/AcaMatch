@@ -16,7 +16,8 @@ public enum UserErrorCode implements ErrorCode {
     UNAUTHENTICATED(HttpStatus.UNAUTHORIZED, "로그인을 해주세요."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
-    INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "인증 코드가 올바르지 않습니다.")
+    INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "인증 코드가 올바르지 않습니다."),
+    BAN_USER(HttpStatus.BAD_REQUEST, "신고 유효 기간이 아직 지나지 않았습니다.")
     ;
 
     private final HttpStatus httpStatus;
