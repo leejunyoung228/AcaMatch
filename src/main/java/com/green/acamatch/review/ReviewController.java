@@ -92,6 +92,31 @@ public class ReviewController {
                 .build();
     }
 
+    @GetMapping("academy/pic")
+    @Operation(summary = "학원리뷰 조회(사진있는거만) (새로생성)")
+    public ResultResponse<List<ReviewAcademyGetRes>> getAcademyPicReviews(@ParameterObject @ModelAttribute ReviewAcademyGetReq req) {
+        List<ReviewAcademyGetRes> resList = reviewService.getAcademyPicReviews(req);
+        return ResultResponse.<List<ReviewAcademyGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+    @GetMapping("academy/noPic")
+    @Operation(summary = "학원리뷰 조회(사진없는거만) (새로생성)")
+    public ResultResponse<List<ReviewAcademyGetRes>> getAcademyNoPicReviews(@ParameterObject @ModelAttribute ReviewAcademyGetReq req) {
+        List<ReviewAcademyGetRes> resList = reviewService.getAcademyNoPicReviews(req);
+        return ResultResponse.<List<ReviewAcademyGetRes>>builder()
+                .resultMessage(userMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+
+
+
+
+
     @PutMapping("updateReview")
     @Operation(summary = "리뷰 수정")
     public ResultResponse<Integer> updateReview(@RequestPart List<MultipartFile> pics, @RequestPart UpdateReviewReq p) {
