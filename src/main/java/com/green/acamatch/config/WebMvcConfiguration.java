@@ -18,12 +18,11 @@ import java.io.IOException;
 class WebMvcConfiguration implements WebMvcConfigurer {
     private final String uploadPath;
 
-    public WebMvcConfiguration(@Value("${file.directory}") String uploadPath,
-                               @Value("${excel.path:}") String configExcelPath) {
+    public WebMvcConfiguration(@Value("${file.directory}") String uploadPath) {
         this.uploadPath = uploadPath;
     }
-    @Value("${excel.path}") // 엑셀 저장 경로 (환경 변수에서 가져옴)
-    private String excelPath;
+//    @Value("${excel.path}") // 엑셀 저장 경로 (환경 변수에서 가져옴)
+//    private String excelPath;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -33,8 +32,7 @@ class WebMvcConfiguration implements WebMvcConfigurer {
 //        registry.addResourceHandler("/xlsx/**")
 //                .addResourceLocations("file:" + excelPath + "/");
 
-        registry.addResourceHandler("/**").addResourceLocations("classpath:/static/")
-                .resourceChain(true).addResolver(new PathResourceResolver() {
+        registry.addResourceHandler("/**").addResourceLocations("classpath:/static/").resourceChain(true).addResolver(new PathResourceResolver() {
             @Override
             protected Resource getResource(String resourcePath, Resource location) throws IOException {
                 Resource resource = location.createRelative(resourcePath);
