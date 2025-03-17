@@ -7,6 +7,8 @@ import com.green.acamatch.entity.reports.Reports;
 import com.green.acamatch.entity.reports.ReportsType;
 import com.green.acamatch.entity.review.Review;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.reports.model.GetAcademyListReq;
+import com.green.acamatch.reports.model.GetAcademyListRes;
 import com.green.acamatch.reports.model.GetUserListRes;
 import com.green.acamatch.reports.model.PostReportsReq;
 import com.green.acamatch.review.ReviewRepository;
@@ -75,5 +77,9 @@ public class ReportsService {
     public List<GetUserListRes> getUserList(){
         List<GetUserListRes> userList = reportsMapper.getUserList();
         return userList;
+    }
+
+    public List<GetAcademyListRes> getAcademyList(GetAcademyListReq req){
+        return reportsMapper.getAcademyList(req);
     }
 }

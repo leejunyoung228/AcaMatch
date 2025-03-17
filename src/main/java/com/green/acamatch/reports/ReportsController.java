@@ -3,6 +3,8 @@ package com.green.acamatch.reports;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.entity.reports.ActionType;
 import com.green.acamatch.entity.reports.ReportsType;
+import com.green.acamatch.reports.model.GetAcademyListReq;
+import com.green.acamatch.reports.model.GetAcademyListRes;
 import com.green.acamatch.reports.model.GetUserListRes;
 import com.green.acamatch.reports.model.PostReportsReq;
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,6 +74,16 @@ public class ReportsController {
         return ResultResponse.<List<GetUserListRes>>builder()
                 .resultMessage("출력 성공")
                 .resultData(userList)
+                .build();
+    }
+
+    @GetMapping("getAcademyList")
+    @Operation(summary = "신고 당한 학원 리스트 불러오기")
+    public ResultResponse<List<GetAcademyListRes>> getAcademyList(@ParameterObject GetAcademyListReq req){
+        List<GetAcademyListRes> result = reportsService.getAcademyList(req);
+        return ResultResponse.<List<GetAcademyListRes>>builder()
+                .resultMessage("조회 성공")
+                .resultData(result)
                 .build();
     }
 }
