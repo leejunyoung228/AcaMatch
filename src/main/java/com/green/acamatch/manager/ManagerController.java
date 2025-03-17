@@ -87,4 +87,14 @@ public class ManagerController {
                 .resultData(result)
                 .build();
     }
+
+    @GetMapping("GetAcademyCostInfoByUserId/{userId}")
+    @Operation(summary = "학원 관계자가 대시보드에서 월 수익? 보기")
+    public ResultResponse<GetAcademyCostInfoByUserId> getAcademyCostInfoByUserId(@PathVariable long userId){
+        GetAcademyCostInfoByUserId result = managerService.getAcademyCostInfoByUserId(userId);
+        return ResultResponse.<GetAcademyCostInfoByUserId>builder()
+                .resultMessage("조회 성공")
+                .resultData(result)
+                .build();
+    }
 }

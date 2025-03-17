@@ -18,6 +18,9 @@ public class GetAcademyDetailRes {
     @Schema(title = "학원 사진", example = "https://example.com/image.jpg")
     private String acaPic;
 
+    @Schema(title = "학원 사진들")
+    private String acaPics;
+
     @Schema(title = "학원 주소", example = "서울특별시 강남구 테헤란로 123")
     private String address;
 
