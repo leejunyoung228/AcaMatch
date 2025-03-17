@@ -18,4 +18,7 @@ public interface ReviewMapper {
     List<ReviewMeGetRes> getMeNoPicReviews(ReviewMeGetReq req);
     List<ReviewMeGetRes> getMePicReviews(ReviewMeGetReq req);
 
+    int delAcademyReview(ReviewAcademyDeleteReq req);
+    int delMeReview(ReviewMeDeleteReq req);
+
 }

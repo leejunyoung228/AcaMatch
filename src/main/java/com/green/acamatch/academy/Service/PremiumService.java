@@ -29,6 +29,7 @@ public class PremiumService {
     private final PremiumRepository premiumRepository;
     private final AcademyRepository academyRepository;
     private final PremiumMapper premiumMapper;
+    private final AcademyMapper academyMapper;
 
 
     //프리미엄학원 신청(학원관계자)
@@ -118,5 +119,16 @@ public class PremiumService {
         for(Long acaId : acaIds) {
             academyRepository.updateAcademyPremiumEndByAcaId(acaId);
         }
+    }
+
+    // 프리미엄학원 신청 및 등록이 되어있지 않은 본인 학원 조회
+    public List<PremiumNotexistGetRes> getPremiumNotExist(PremiumNotExistGetReq req) {
+        List<PremiumNotexistGetRes> res = premiumMapper.getPremiumNotExist(req);
+        if(res == null || res.isEmpty()) {
+            academyMessage.setMessage("프리미엄 신청할 수 있는 학원이 없습니다.");
+            return res;
+        }
+        academyMessage.setMessage("신청할 수 있는 학원을 조회하였습니다.");
+        return res;
     }
 }

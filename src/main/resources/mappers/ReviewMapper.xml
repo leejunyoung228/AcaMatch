@@ -102,6 +102,29 @@
     </select>
 
 
+    <!--학원리뷰 삭제(학원관계자)(새로생성)-->
+        <delete id="delAcademyReview">
+            delete from review
+            where review_id = #{reviewId}
+        </delete>
+
+    <!--본인이 작성한 리뷰 삭제(새로생성)-->
+        <delete id="delMeReview">
+            delete from review
+            where user_id = #{userId}
+            and review_id = #{reviewId}
+        </delete>
+
+
+
+
+
+
+
+
+
+
+
     <!--<select id="getMeReviews">
         SELECT
         A.comment AS reviewComment,
