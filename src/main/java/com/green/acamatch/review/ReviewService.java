@@ -157,6 +157,21 @@ public class ReviewService {
         return resList;
     }
 
+    //학원관계자가 자신의 학원 리뷰 삭제(추가)
+    @Transactional
+    public int delAcademyReview(ReviewAcademyDeleteReq req) {
+        int result = reviewMapper.delAcademyReview(req);
+        userMessage.setMessage("리뷰를 삭제하였습니다.");
+        return result;
+    }
+
+    //본인이 작성한 리뷰 삭제(추가)
+    @Transactional
+    public int delMeReview(ReviewMeDeleteReq req) {
+        int result = reviewMapper.delMeReview(req);
+        userMessage.setMessage("리뷰를 삭제하였습니다.");
+        return result;
+    }
 
 
 
