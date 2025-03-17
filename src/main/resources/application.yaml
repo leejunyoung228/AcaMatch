@@ -68,7 +68,7 @@ constant:
     refresh-token-cookie-expiry: 1_296_000 #15일 (S)
 
 file:
-  directory: C:/2024-02/download/acamatch_ver2 #D:/2024-02/download/greengram_ver3
+  directory: D:/2024-02/download/greengram_ver3
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
@@ -193,7 +193,7 @@ springdoc:
     disabled: true
 
 excel:
-  path: ${EXCEL_FILE_PATH:C:\Users\Administrator\Documents\Downloads} #docker에서 excel 파일을 보기위해 추가
+  path: ${EXCEL_FILE_PATH:/home/download/image} #docker에서 excel 파일을 보기위해 추가
 
 solapi:
   api-key: NCSEUEYMFBLPYBNV
