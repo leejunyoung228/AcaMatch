@@ -72,11 +72,13 @@ public class GradeService {
         try {
             List<GradeDetailDto> result = mapper.selGradeDetail(p);
             if (result == null || result.isEmpty()) {
-                throw new CustomException(AcaClassErrorCode.NOT_FOUND_GRADE);
+                userMessage.setMessage("성적 불러오기 실패");
+                return null;
             }
+            userMessage.setMessage("성적 불러오기 성공");
             return result;
-        } catch (CustomException e) {
-            e.getStackTrace();
+        } catch (Exception e) {
+            userMessage.setMessage("기타 오류 사항으로 성적을 불러오지 못했습니다.");
             return null;
         }
     }
@@ -100,11 +102,13 @@ public class GradeService {
         try {
             List<GradeUserAndParentGetRes> result = mapper.selGradeUserAndParent(p);
             if (result == null || result.isEmpty()) {
-                throw new CustomException(AcaClassErrorCode.FAIL_TO_SEL);
+                userMessage.setMessage("목록 불러오기 실패");
+                return null;
             }
+            userMessage.setMessage("목록 불러오기 성공");
             return result;
         }catch (CustomException e) {
-            e.getStackTrace();
+            userMessage.setMessage("기타 오류 사항으로 정보를 불러오지 못했습니다.");
             return null;
         }
     }

@@ -797,7 +797,7 @@
         A.teacher_num,
         A.comment,
         AP.aca_pic,
-        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS acaPics,
+        GROUP_CONCAT(DISTINCT AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS acaPics,
         AT.tagName,
 
         -- 클래스별 정보
@@ -1241,6 +1241,7 @@
         U.name,
         AC.cost_id,
         AC.t_id,
+        RF.refund_status,
         COUNT(*) OVER() AS totalCount
         FROM academy_cost AC
         JOIN product P ON AC.product_id = P.product_id
@@ -1259,29 +1260,29 @@
         GROUP BY aca_id
         ) AP1 ON A1.aca_id = AP1.aca_id -- 학원당 대표 사진 1개만 가져오기
         JOIN user U ON AC.user_id = U.user_id
-        <where>
-            AND AC.product_id != 1
-            <if test="acaName != null and acaName != ''">
-                AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
-            </if>
-            <if test="orderType != null and orderType != ''">
-                AND AC.order_type = #{orderType}
-            </if>
-            <if test="startDate != null and startDate != ''">
-                AND AC.created_at &gt;= #{startDate}
-            </if>
-            <if test="endDate != null and endDate != ''">
-                AND AC.created_at &lt;= #{endDate}
-            </if>
-            <if test="acaId != null">
-                AND A.aca_id = #{acaId}
-            </if>
-            <if test="userId != null">
-                AND A.user_id = #{userId}
-            </if>
-        </where>
+        LEFT JOIN refund RF ON AC.cost_id = RF.cost_id
+        WHERE RF.cost_id IS NULL -- 환불되지 않은 데이터만 선택
+        AND AC.product_id != 1
+        <if test="acaName != null and acaName != ''">
+            AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
+        </if>
+        <if test="orderType != null and orderType != ''">
+            AND AC.order_type = #{orderType}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND AC.created_at &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND AC.created_at &lt;= #{endDate}
+        </if>
+        <if test="acaId != null">
+            AND A.aca_id = #{acaId}
+        </if>
+        <if test="userId != null">
+            AND A.user_id = #{userId}
+        </if>
         ORDER BY AC.created_at DESC
-        LIMIT #{startIdx}, #{size}
+        LIMIT #{startIdx}, #{size};
     </select>
     <select id="getAcademyListByAcaNameAndDate">
     </select>

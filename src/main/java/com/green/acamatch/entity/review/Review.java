@@ -23,7 +23,7 @@ public class Review extends UpdatedAt {
     private Long reviewId;
 
     @Column(nullable = false)
-    private double star;
+    private int star;
 
     @Column(length = 5000)
     private String comment;

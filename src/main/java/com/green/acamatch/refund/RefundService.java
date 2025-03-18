@@ -3,6 +3,7 @@ package com.green.acamatch.refund;
 import com.green.acamatch.academyCost.AcademyCostRepository;
 import com.green.acamatch.entity.academyCost.AcademyCost;
 import com.green.acamatch.entity.academyCost.Refund;
+import com.green.acamatch.refund.model.GetRefundListByAcaUserIdRes;
 import com.green.acamatch.refund.model.GetRefundRes;
 import com.green.acamatch.refund.model.PostRefundReq;
 import jakarta.persistence.EntityNotFoundException;
@@ -50,5 +51,9 @@ public class RefundService {
         if (updatedRows == 0) {
             throw new EntityNotFoundException("해당 refundId에 대한 환불 정보가 없습니다: " + refundId);
         }
+    }
+
+    public List<GetRefundListByAcaUserIdRes> getRefundListByAcaUserId(long userId){
+        return refundMapper.getRefundListByAcaUserId(userId);
     }
 }

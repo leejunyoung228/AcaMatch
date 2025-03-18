@@ -17,6 +17,9 @@ public class GetSettlementListReq extends Paging{
     @Schema(title = "지정한 월", example = "03")
     private String month;
 
+    @Schema(title = "유저 PK", example = "2")
+    private Long userId;
+
     public GetSettlementListReq(Integer page, Integer size) {
         super(page, size);
     }

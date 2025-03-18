@@ -214,16 +214,17 @@ public class ReviewService {
         return resList;
     }
 
+    @Transactional
     public int updateReview(UpdateReviewReq req, List<MultipartFile> pics){
         Review review = reviewRepository.findById(req.getReviewId()).orElse(null);
-        if(req.getStar() != null) review.setStar(req.getStar());
+        review.setStar(req.getStar());
         if(req.getComment() != null) review.setComment(req.getComment());
         reviewRepository.save(review);
 
 
 
         if(pics != null && !pics.isEmpty()) {
-            reviewPicRepository.deleteReviewPicsByReviewId(req.getReviewId());
+            reviewPicRepository.deleteReviewPicsByReviewId(review);
             String middlePath = String.format("review/%d", req.getReviewId());
             myFileUtils.deleteFolder(middlePath, true);
             myFileUtils.makeFolders(middlePath);

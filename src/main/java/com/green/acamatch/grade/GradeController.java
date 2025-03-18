@@ -1,5 +1,6 @@
 package com.green.acamatch.grade;
 
+import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.grade.model.*;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "성적 관리", description = "성적 등록")
@@ -42,11 +44,11 @@ public class GradeController {
     @GetMapping("gradeDetail")
     @Operation(summary = "성적 상세보기")
     public ResultResponse<List<GradeDetailDto>> selGradeDetail(@ModelAttribute @ParameterObject GradeDetailGetReq p) {
-        List<GradeDetailDto> result = service.selGradeDetail(p);
-        return ResultResponse.<List<GradeDetailDto>>builder()
-                .resultMessage("상세보기 불러오기 성공")
-                .resultData(result)
-                .build();
+            List<GradeDetailDto> result = service.selGradeDetail(p);
+            return ResultResponse.<List<GradeDetailDto>>builder()
+                    .resultMessage(userMessage.getMessage())
+                    .resultData(result)
+                    .build();
     }
 
 
@@ -65,7 +67,7 @@ public class GradeController {
     public ResultResponse<List<GradeUserAndParentGetRes>> selGradeUserAndParent(@ModelAttribute @ParameterObject GradeUserAndParentGetReq p) {
         List<GradeUserAndParentGetRes> result = service.selGradeUserAndParent(p);
         return ResultResponse.<List<GradeUserAndParentGetRes>>builder()
-                .resultMessage("목록 불러오기 성공")
+                .resultMessage(userMessage.getMessage())
                 .resultData(result)
                 .build();
     }
