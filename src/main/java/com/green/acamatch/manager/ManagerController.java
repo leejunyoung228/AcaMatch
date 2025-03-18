@@ -78,10 +78,10 @@ public class ManagerController {
                 .build();
     }
 
-    @GetMapping("GetUserInfoList/{userId}")
-    @Operation(summary = "학원 관계자 대시보드에 학생 등록 요청 API")
-    public ResultResponse<List<GetUserInfoListRes>> GetUserInfoList(@PathVariable long userId){
-        List<GetUserInfoListRes> result = managerService.GetUserInfoList(userId);
+    @GetMapping("GetUserInfoList")
+    @Operation(summary = "학원 관계자 대시보드에 학생 등록 요청 API", description = "certification이 0이면 승인 X 상태, 1이면 승인 O 상태")
+    public ResultResponse<List<GetUserInfoListRes>> GetUserInfoList(@ParameterObject GetUserInfoListReq req){
+        List<GetUserInfoListRes> result = managerService.GetUserInfoList(req);
         return ResultResponse.<List<GetUserInfoListRes>>builder()
                 .resultMessage("출력 성공")
                 .resultData(result)
