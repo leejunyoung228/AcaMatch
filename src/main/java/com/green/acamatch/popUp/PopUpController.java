@@ -1,6 +1,7 @@
 package com.green.acamatch.popUp;
 
 import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import com.green.acamatch.popUp.model.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +24,7 @@ import java.util.List;
 @Slf4j
 public class PopUpController {
     private final PopUpService popUpService;
+    private final UserMessage userMessage;
 
     @PostMapping
     @Operation(summary = "팝업 등록",
@@ -40,35 +42,21 @@ public class PopUpController {
     @GetMapping
     @Operation(summary = "팝업 리스트 가져오기/ pop_up_show : 0(비활성) 1(활성) 2(endDate가 지난 팝업)")
     public ResultResponse<List<PopUpGetDto>> getPopUpList(@ParameterObject @ModelAttribute PopUpGetReq p) {
-        try {
             List<PopUpGetDto> result = popUpService.getPopUpList(p);
             return ResultResponse.<List<PopUpGetDto>>builder()
-                    .resultMessage("팝업 리스트 보기 완료")
+                    .resultMessage(userMessage.getMessage())
                     .resultData(result)
                     .build();
-        } catch (CustomException e) {
-            return ResultResponse.<List<PopUpGetDto>>builder()
-                    .resultMessage("팝업 리스트 보기 실패")
-                    .resultData(new ArrayList<>())
-                    .build();
-        }
     }
 
     @GetMapping("detail")
     @Operation(summary = "팝업 상세정보 가져오기")
     public ResultResponse<List<PopUpGetDto>> getPopUpDetail(@ParameterObject @ModelAttribute PopUpGetDetailReq p) {
-        try {
             List<PopUpGetDto> result = popUpService.getPopUpDetail(p);
             return ResultResponse.<List<PopUpGetDto>>builder()
-                    .resultMessage("팝업 상세정보 보기 완료")
+                    .resultMessage(userMessage.getMessage())
                     .resultData(result)
                     .build();
-        } catch (CustomException e) {
-            return ResultResponse.<List<PopUpGetDto>>builder()
-                    .resultMessage("팝업 상세정보 보기 실패")
-                    .resultData(new ArrayList<>())
-                    .build();
-        }
     }
 
     @GetMapping("show")
