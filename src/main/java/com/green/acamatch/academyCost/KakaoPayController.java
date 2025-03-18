@@ -77,6 +77,8 @@ public class KakaoPayController {
      * 환불
      */
     @PostMapping("/refund")
+    @Operation(summary = "해당 환불 건의 tid, costId 넣어서 하시면 바로 됩니다. 수업 결제 건의 경우 수업 날짜를 비교해서 " +
+            "환불 금액이 달라집니다.")
     public ResponseEntity<KakaoCancelResponse> refund(@ParameterObject KakaoCancelReq req) {
 
         KakaoCancelResponse kakaoCancelResponse = kakaoPayService.kakaoCancel(req);

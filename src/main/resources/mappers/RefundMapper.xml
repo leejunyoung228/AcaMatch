@@ -11,10 +11,9 @@
     <select id="getRefundListByUserId">
         select A.refund_id, A.cost_id, A.refund_comment, A.refund_status, A.created_at, A.updated_at
         from refund A
-        join academyCost B
-        on A.user_id = B.user_id
+        join academy_cost B
+        on A.cost_id = B.cost_id
         where B.user_id = #{userId}
-        AND A.created_at >=
     </select>
     <select id="getInfoByRefundId">
         select refund_id, cost_id, refund_comment, refund_status, created_at, updated_at
