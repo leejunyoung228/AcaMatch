@@ -29,7 +29,7 @@
         WHERE R.cost_id IS NULL
         AND A.cost_status = 2
         AND YEAR(DATE(A.created_at)) = YEAR(CURDATE())
-        AND WEEK(DATE(A.created_at), 1) = WEEK(CURDATE(), 1);
+        AND MONTH(DATE(A.created_at)) = MONTH(CURDATE())
     </select>
     <select id="getBookIdByProductId">
         select book_id

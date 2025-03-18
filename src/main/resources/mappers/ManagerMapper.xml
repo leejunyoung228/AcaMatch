@@ -90,7 +90,7 @@
         WHERE AC.cost_status = 2
         AND A.user_id = #{userId}
         AND YEAR(AC.created_at) = YEAR(NOW())
-        AND WEEK(AC.created_at, 1) = WEEK(NOW(), 1)  -- ISO 8601 기준 (월요일 시작)
+        AND MONTH(AC.created_at) = MONTH(NOW())  -- ISO 8601 기준 (월요일 시작)
         AND R.cost_id IS NULL  -- 환불되지 않은 데이터만 필터링
         )
         SELECT
