@@ -20,4 +20,15 @@
         from refund
         where refund_id = #{refundId}
     </select>
+    <select id="getRefundListByAcaUserId">
+        select RF.refund_id, RF.cost_id, RF.refund_comment, RF.refund_status, RF.created_at, RF.updated_at
+        from refund RF
+        JOIN academy_cost AC ON RF.cost_id = AC.cost_id
+        JOIN product P ON AC.product_id = P.product_id
+        LEFT JOIN aca_class C ON P.class_id = C.class_id
+        LEFT JOIN book B ON P.book_id = B.book_id
+        JOIN academy A ON C.aca_id = A.aca_id OR B.aca_id = A.aca_id
+        where RF.created_at >= now() - interval 1 MONTH
+        AND A.user_id = #{userId}
+    </select>
 </mapper>
