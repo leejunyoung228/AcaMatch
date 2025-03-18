@@ -17,4 +17,5 @@ public class GetReviewListRes {
     private int reportsCount;
     private int totalCount;
     private String actionType;
+    private long reportId;
 }
