@@ -24,7 +24,7 @@ public class ReviewController {
 
     @PostMapping
     @Operation(summary = "리뷰 등록", description = "postMan으로 테스트")
-    public ResultResponse<Integer> postReview(@RequestPart List<MultipartFile> pics, @RequestPart ReviewPostReq p) {
+    public ResultResponse<Integer> postReview(@RequestPart(value = "pics", required = false) List<MultipartFile> pics, @RequestPart ReviewPostReq p) {
         int result = reviewService.postReview(pics, p);
         return ResultResponse.<Integer>builder()
                 .resultMessage(result == 1 ? "리뷰 등록 성공" : "리뷰 등록 실패")
