@@ -9,18 +9,25 @@
         where t_id = #{tid}
     </select>
     <select id="getAcademyCostInfo">
-        SELECT SUM(fee) AS sumFee, COUNT(cost_id) AS costCount, ((
-        SELECT COUNT(X2.product_id)
+        SELECT
+        SUM(A.fee) AS sumFee,
+        COUNT(A.cost_id) AS costCount,
+        (
+        (SELECT COUNT(X2.product_id)
         FROM academy_cost X1
         INNER JOIN product X2
         ON X2.book_id IS NOT NULL
         AND X1.product_id = X2.product_id
-        ) / (
-        SELECT SUM(X3.book_amount)
-        FROM book X3
-        )) AS saleRate
+        LEFT JOIN refund R1 ON X1.cost_id = R1.cost_id
+        WHERE R1.cost_id IS NULL)
+        /
+        (SELECT SUM(X3.book_amount)
+        FROM book X3)
+        ) AS saleRate
         FROM academy_cost A
-        WHERE A.cost_status = 2
+        LEFT JOIN refund R ON A.cost_id = R.cost_id
+        WHERE R.cost_id IS NULL
+        AND A.cost_status = 2
         AND YEAR(DATE(A.created_at)) = YEAR(CURDATE())
         AND WEEK(DATE(A.created_at), 1) = WEEK(CURDATE(), 1);
     </select>
