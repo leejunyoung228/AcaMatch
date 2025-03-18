@@ -1,6 +1,7 @@
 package com.green.acamatch.refund;
 
 import com.green.acamatch.config.model.ResultResponse;
+import com.green.acamatch.refund.model.GetRefundListByAcaUserIdRes;
 import com.green.acamatch.refund.model.GetRefundRes;
 import com.green.acamatch.refund.model.PostRefundReq;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,6 +56,16 @@ public class RefundController {
         return ResultResponse.<Integer>builder()
                 .resultMessage("수정 완료")
                 .resultData(1)
+                .build();
+    }
+
+    @GetMapping("getRefundListByAcaUserId/{userId}")
+    @Operation(summary = "학원 관계자가 환불 내역 보기", description = "userId 2번에 데이터 있어요")
+    public ResultResponse<List<GetRefundListByAcaUserIdRes>> getRefundListByAcaUserId(@PathVariable long userId){
+        List<GetRefundListByAcaUserIdRes> res = refundService.getRefundListByAcaUserId(userId);
+        return ResultResponse.<List<GetRefundListByAcaUserIdRes>>builder()
+                .resultMessage("조회 완료")
+                .resultData(res)
                 .build();
     }
 }

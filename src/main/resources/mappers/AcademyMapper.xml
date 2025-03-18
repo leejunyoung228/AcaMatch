@@ -797,7 +797,7 @@
         A.teacher_num,
         A.comment,
         AP.aca_pic,
-        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS acaPics,
+        GROUP_CONCAT(DISTINCT AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS acaPics,
         AT.tagName,
 
         -- 클래스별 정보
