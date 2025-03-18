@@ -59,12 +59,20 @@
     </select>
     <select id="GetUserInfoList">
         SELECT U.name, U.user_pic, U.email, JC.registration_date, A.aca_name, C.class_name,
-        U.phone, JC.certification
+        U.phone, JC.certification, JC.join_class_id,
+        COUNT(*) OVER() AS totalCount
         FROM join_class JC
         JOIN aca_class C ON JC.class_id = C.class_id
         JOIN academy A ON C.aca_id = A.aca_id
         JOIN user U ON JC.user_id = U.user_id
         WHERE A.user_id = #{userId}
+        <if test="certification != null">
+            AND JC.certification = #{certification}
+        </if>
+        <if test=" name != null and name != '' ">
+            AND U.name like CONCAT('%', #{name}, '%')
+        </if>
+        LIMIT #{startIdx}, #{size}
     </select>
     <select id="GetAcademyCostInfoByUserId">
         WITH FilteredCosts AS (

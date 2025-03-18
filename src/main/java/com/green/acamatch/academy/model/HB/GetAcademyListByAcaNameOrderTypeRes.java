@@ -31,6 +31,9 @@ public class GetAcademyListByAcaNameOrderTypeRes {
     @Schema(title = "결제 PK")
     private Long costId;
 
+    @Schema(title = "결제 고유 번호")
+    private String tId;
+
     @Schema(title = "검색된 전체의 수")
     private int totalCount;
 }
