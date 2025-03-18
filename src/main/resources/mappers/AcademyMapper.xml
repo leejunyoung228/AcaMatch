@@ -819,6 +819,7 @@
         A.aca_phone,
         A.teacher_num,
         A.comment,
+        APIC.aca_pic,
         AP.acaPics,
         AT.tagName,
 
@@ -862,6 +863,7 @@
         COALESCE(UL.isLiked, 0) AS isLiked
 
         FROM academy A
+        LEFT JOIN academy_pic APIC ON A.aca_id = APIC.aca_id
         LEFT JOIN AcademyPics AP ON A.aca_id = AP.aca_id
         LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id
         LEFT JOIN BookByClass BC ON AC.classId = BC.classId

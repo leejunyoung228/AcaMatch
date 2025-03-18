@@ -216,6 +216,7 @@ public class ReviewService {
 
     @Transactional
     public int updateReview(UpdateReviewReq req, List<MultipartFile> pics){
+
         Review review = reviewRepository.findById(req.getReviewId()).orElse(null);
         review.setStar(req.getStar());
         if(req.getComment() != null) review.setComment(req.getComment());
