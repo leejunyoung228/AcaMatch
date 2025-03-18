@@ -65,50 +65,6 @@ public class AcaClassService {
     public int postAcaClass(AcaClassPostReq p) {
         try {
             AcaClass acaClass = new AcaClass();
-            Teacher teacher;
-
-//            // teacherUserId가 없을 경우 학원 관리자로 설정
-//            if (p.getTeacherUserId() == null || p.getTeacherUserId() == 0) {
-//                Academy academy = academyRepository.findById(p.getAcaId())
-//                        .orElseThrow(() -> new CustomException(AcademyException.NOT_FOUND_ACADEMY));
-//
-//                Long ownerId = academy.getUser().getUserId(); // 학원 owner 가져오기
-//
-//                // ownerId를 기반으로 Teacher 객체 생성 또는 조회
-//                TeacherIds ownerTeacherIds = new TeacherIds();
-//                ownerTeacherIds.setUserId(ownerId);
-//                ownerTeacherIds.setAcaId(p.getAcaId());
-//
-//                teacher = smsTeacherRepository.findByTeacherIds(ownerTeacherIds)
-//                        .orElseGet(() -> {
-//                            Teacher newTeacher = new Teacher();
-//                            newTeacher.setTeacherIds(ownerTeacherIds);
-//                            newTeacher.setUser(academy.getUser());
-//                            newTeacher.setAcademy(academy);
-//                            newTeacher.setTeacherComment("학원 관리자로 자동 설정됨");
-//                            newTeacher.setTeacherAgree(1);
-//                            return smsTeacherRepository.save(newTeacher);
-//                        });
-//            } else {
-//                // teacherUserId가 있을 경우 기존 로직 유지
-//                TeacherIds teacherIds = new TeacherIds();
-//                teacherIds.setUserId(p.getTeacherUserId());
-//                teacherIds.setAcaId(p.getAcaId());
-//
-//                teacher = smsTeacherRepository.findByTeacherIds(teacherIds)
-//                        .orElseThrow(() -> new CustomException(ManagerErrorCode.TEACHER_NOT_FOUND));
-//            }
-//
-//            // teacherUserId 값 보정
-//            Long teacherUserId = Optional.ofNullable(p.getTeacherUserId()).orElse(0L);
-//
-//            // 중복 강좌 검사 (운영 시간(start_time, end_time) 제외)
-//            Long duplicateCount = classRepository.countByAcaIdAndClassNameAndStartDateAndEndDateAndTeacherUserId(
-//                    p.getAcaId(), p.getClassName(), p.getStartDate(), p.getEndDate(), teacherUserId);
-//
-//            if (duplicateCount > 0) {
-//                throw new CustomException(ManagerErrorCode.CLASS_ALREADY_EXISTS);
-//            }
 
             // 학원 정보 설정
             Academy academy = academyRepository.findById(p.getAcaId())
@@ -121,7 +77,6 @@ public class AcaClassService {
             acaClass.setStartTime(p.getStartTime());
             acaClass.setEndTime(p.getEndTime());
             acaClass.setPrice(p.getPrice());
-//            acaClass.setTeacher(teacher); // Teacher 설정
 
             // 강좌 저장
             AcaClass savedClass = classRepository.save(acaClass);

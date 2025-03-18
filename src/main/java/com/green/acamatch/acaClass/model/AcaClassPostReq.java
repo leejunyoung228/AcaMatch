@@ -31,8 +31,4 @@ public class AcaClassPostReq {
     private LocalTime endTime;
     @Schema(title = "수강료", example = "100000")
     private int price;
-
-    private Long teacherUserId;
-
-
 }

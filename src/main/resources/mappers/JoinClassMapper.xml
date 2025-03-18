@@ -26,13 +26,14 @@
 
     <resultMap id="JoinClassInfoResultMap" type="com.green.acamatch.joinClass.model.JoinClassInfoDto">
         <id property="classId" column="class_id" />
+        <result property="joinClassId" column="join_class_id"/>
         <result property="className" column="class_name"/>
         <result property="startDate" column="start_date"/>
         <result property="endDate" column="end_date"/>
     </resultMap>
 
     <select id= "selJoinClass" resultMap="JoinClassResultMap">
-    SELECT C.aca_id,
+    SELECT C.aca_id, A.join_class_id,
     GROUP_CONCAT(DISTINCT D.aca_pic ORDER BY D.aca_pic SEPARATOR ',') AS aca_pics,
     D.aca_pic, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
     FROM join_class A
@@ -46,7 +47,7 @@
     ON A.user_id = E.student_id
         WHERE (E.parent_id = #{parentId} OR #{parentId} IS NULL)
         OR (A.user_id = #{studentId} OR #{studentId} IS NULL)
-        GROUP BY C.aca_id, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date
+        GROUP BY C.aca_id, C.aca_name, B.class_id, B.class_name, B.start_date, B.end_date, A.join_class_id
     LIMIT #{startIdx}, #{size}
     </select>
 
