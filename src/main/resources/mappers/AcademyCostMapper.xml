@@ -43,29 +43,30 @@
     </select>
     <select id="getSettlementList">
         SELECT A.aca_id, A.aca_name, AP.aca_pic, A.address,
-        SUM(AC.price) AS totalPrice, MAX(AC.`status`) AS latestStatus,
+        SUM(AC.price) AS totalPrice,
+        MAX(AC.`status`) AS latestStatus,
         COUNT(*) OVER() AS totalCount,
         GROUP_CONCAT(AC.cost_id ORDER BY AC.created_at DESC) AS costIds
         FROM product P
         LEFT JOIN aca_class C ON P.class_id = C.class_id
         LEFT JOIN book B ON P.book_id = B.book_id
         JOIN academy_cost AC ON P.product_id = AC.product_id
+        LEFT JOIN refund R ON AC.cost_id = R.cost_id  -- 환불 테이블과 LEFT JOIN
         JOIN academy A ON A.aca_id = C.aca_id
         LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
-        <where>
-            <if test="status != null">
-                AND AC.`status` = #{status}
-            </if>
-            <if test="year != null">
-                AND YEAR(AC.created_at) = #{year}
-            </if>
-            <if test="month != null">
-                AND MONTH(AC.created_at) = #{month}
-            </if>
-            <if test="userId != null">
-                AND A.user_id = #{userId}
-            </if>
-        </where>
+        WHERE R.cost_id IS NULL  -- 환불되지 않은 데이터만 필터링
+        <if test="status != null">
+            AND AC.`status` = #{status}
+        </if>
+        <if test="year != null">
+            AND YEAR(AC.created_at) = #{year}
+        </if>
+        <if test="month != null">
+            AND MONTH(AC.created_at) = #{month}
+        </if>
+        <if test="userId != null">
+            AND A.user_id = #{userId}
+        </if>
         GROUP BY A.aca_id
         ORDER BY AC.created_at DESC
         LIMIT #{startIdx}, #{size};
