@@ -38,4 +38,18 @@
 
     </select>
 
+
+    <!--프리미엄 학원 조회(학원관계자)-->
+    <select id="getPremiumAcademyAcaAdmin" resultType="com.green.acamatch.academy.premium.model.PremiumAcaAdminGetRes">
+        SELECT a.aca_id, b.aca_name, a.start_date, a.end_date, a.pre_check, a.created_at
+            , count(*) over() as countPremium
+        FROM premium_academy a
+        JOIN academy b
+        ON a.aca_id = b.aca_id
+        JOIN user c
+        ON b.user_id = c.user_id
+        where b.user_id = #{userId}
+        ORDER BY a.created_at
+    </select>
+
 </mapper>
