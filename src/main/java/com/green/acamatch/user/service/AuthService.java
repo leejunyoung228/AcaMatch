@@ -44,19 +44,19 @@ public class AuthService {
         if (!passwordEncoder.matches(req.getUpw(), user.getUpw())) {
             throw new CustomException(UserErrorCode.INCORRECT_ID_PW);
         }
-
-        Reports reports = reportsRepository.findByUser(user);
-        if (reports != null) {
-            LocalDateTime exposureEndDate = reports.getExposureEndDate();
-
-            // 현재 날짜/시간 가져오기
-            LocalDateTime now = LocalDateTime.now();
-
-            // 날짜 비교: exposureEndDate가 아직 지나지 않았으면 예외 발생
-            if (exposureEndDate != null && exposureEndDate.isAfter(now)) {
-                throw new CustomException(UserErrorCode.BAN_USER);
-            }
-        }
+//
+//        Reports reports = reportsRepository.findByUser(user);
+//        if (reports != null) {
+//            LocalDateTime exposureEndDate = reports.getExposureEndDate();
+//
+//            // 현재 날짜/시간 가져오기
+//            LocalDateTime now = LocalDateTime.now();
+//
+//            // 날짜 비교: exposureEndDate가 아직 지나지 않았으면 예외 발생
+//            if (exposureEndDate != null && exposureEndDate.isAfter(now)) {
+//                throw new CustomException(UserErrorCode.BAN_USER);
+//            }
+//        }
 
         return userUtils.generateUserSignInResByUser(user, response);
     }
