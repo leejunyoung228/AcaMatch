@@ -224,7 +224,7 @@ public class ReviewService {
 
 
         if(pics != null && !pics.isEmpty()) {
-            reviewPicRepository.deleteReviewPicsByReviewId(req.getReviewId());
+            reviewPicRepository.deleteReviewPicsByReviewId(review);
             String middlePath = String.format("review/%d", req.getReviewId());
             myFileUtils.deleteFolder(middlePath, true);
             myFileUtils.makeFolders(middlePath);
