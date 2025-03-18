@@ -66,6 +66,14 @@ public class ReviewService {
 
     @Transactional
     public Integer postReview(List<MultipartFile> pics, ReviewPostReq p) {
+        if (pics == null || pics.isEmpty()) {
+            pics = new ArrayList<>();
+        }
+
+        if (pics.isEmpty() && p.getComment() == null) {
+            throw new CustomException(ReviewErrorCode.REQUIRED_PHOTO_OR_COMMENT);
+        }
+
         JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(()
                 -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
         User user = userRepository.findById(p.getUserId()).orElseThrow(()
@@ -113,9 +121,6 @@ public class ReviewService {
             }
         } return 1;
     }
-
-
-
 
     //학원 전체 리뷰 조회(추가)
     public List<ReviewAcademyAllGetRes> getAcademyReviewsAll(ReviewAcademyAllGetReq req) {
