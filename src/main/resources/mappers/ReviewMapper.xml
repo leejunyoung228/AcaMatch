@@ -78,7 +78,7 @@
         , r.comment, r.star, r.ban_review, r.created_at,
         <!--, rp.review_pic-->
          GROUP_CONCAT(DISTINCT rp.review_pic ORDER BY rp.review_pic SEPARATOR ',') as review_pic
-        , (select count(a.review_id) from review a join review_pic b on a.review_id = b.review_id where user_id = #{userId}) as myReviewCount
+        , COUNT(*) OVER() as myReviewCount
         from review r
         join user u
         on r.user_id = u.user_id
@@ -91,6 +91,7 @@
         join review_pic rp
         on r.review_id = rp.review_id
         where u.user_id = #{userId}
+        group by r.review_id
         order by r.review_id
         limit #{startIdx}, #{size}
 
@@ -161,12 +162,7 @@
             , r.comment, r.star, r.ban_review, r.created_at,
             <!--, rp.review_pic-->
             GROUP_CONCAT(DISTINCT rp.review_pic ORDER BY rp.review_pic SEPARATOR ',') as review_pic
-            , (select count(a.review_id) from review a
-            join review_pic b on a.review_id = b.review_id
-            join join_class c on a.join_class_id = c.join_class_id
-            JOIN aca_class ac ON c.class_id = ac.class_id
-            JOIN academy ad ON ad.aca_id = ac.aca_id
-            where ad.aca_id = #{acaId}) as myReviewCount
+            , COUNT(*) OVER() as myReviewCount
             from review r
             join user u
             on r.user_id = u.user_id
@@ -179,6 +175,8 @@
             join review_pic rp
             on r.review_id = rp.review_id
             where a.aca_id = #{acaId}
+            and r.ban_review = 0
+            group by r.review_id
             order by r.review_id
             limit #{startIdx}, #{size}
         </select>
@@ -208,6 +206,7 @@
             on r.review_id = rp.review_id
             where a.aca_id = #{acaId}
             and rp.review_pic is null
+            and r.ban_review = 0
             order by r.review_id
             limit #{startIdx}, #{size}
         </select>
