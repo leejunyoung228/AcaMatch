@@ -36,4 +36,7 @@ public class GetAcademyListByAcaNameOrderTypeRes {
 
     @Schema(title = "검색된 전체의 수")
     private int totalCount;
+
+    @Schema(title = "환불 상태")
+    private int refundStatus;
 }
