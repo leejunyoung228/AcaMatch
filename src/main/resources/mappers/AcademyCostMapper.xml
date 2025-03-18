@@ -62,6 +62,9 @@
             <if test="month != null">
                 AND MONTH(AC.created_at) = #{month}
             </if>
+            <if test="userId != null">
+                AND A.user_id = #{userId}
+            </if>
         </where>
         GROUP BY A.aca_id
         ORDER BY AC.created_at DESC
