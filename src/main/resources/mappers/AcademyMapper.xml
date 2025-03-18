@@ -1240,6 +1240,7 @@
         AC.cost_status,
         U.name,
         AC.cost_id,
+        AC.t_id,
         COUNT(*) OVER() AS totalCount
         FROM academy_cost AC
         JOIN product P ON AC.product_id = P.product_id

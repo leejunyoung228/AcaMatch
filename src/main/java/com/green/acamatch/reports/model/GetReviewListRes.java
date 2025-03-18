@@ -16,4 +16,5 @@ public class GetReviewListRes {
     private int processingStatus;
     private int reportsCount;
     private int totalCount;
+    private String actionType;
 }

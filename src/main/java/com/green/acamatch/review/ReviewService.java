@@ -66,56 +66,67 @@ public class ReviewService {
 
     @Transactional
     public Integer postReview(List<MultipartFile> pics, ReviewPostReq p) {
-        JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(()
-                -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
-        User user = userRepository.findById(p.getUserId()).orElseThrow(()
-                -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-        Review review = new Review();
-        review.setJoinClass(joinClass);
-        review.setUser(user);
-        review.setComment(p.getComment());
-        review.setCreatedAt(LocalDateTime.now());
-        review.setUpdatedAt(LocalDateTime.now());
-        review.setStar(p.getStar());
-        review.setBanReview(p.getBanReview());
+        try {
+            if (pics == null || pics.isEmpty()) {
+                pics = new ArrayList<>();
+            }
 
-        reviewRepository.save(review);
+            if (pics.isEmpty() && p.getComment() == null) {
+                throw new CustomException(ReviewErrorCode.REQUIRED_PHOTO_OR_COMMENT);
+            }
 
-        long reviewId = review.getReviewId();
-        String middlePath = String.format("review/%d", reviewId);
-        myFileUtils.makeFolders(middlePath);
+            JoinClass joinClass = joinClassRepository.findById(p.getJoinClassId()).orElseThrow(()
+                    -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
+            User user = userRepository.findById(p.getUserId()).orElseThrow(()
+                    -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+            Review review = new Review();
+            review.setJoinClass(joinClass);
+            review.setUser(user);
+            review.setComment(p.getComment());
+            review.setCreatedAt(LocalDateTime.now());
+            review.setUpdatedAt(LocalDateTime.now());
+            review.setStar(p.getStar());
+            review.setBanReview(p.getBanReview());
 
-        List<String> picNameList = new ArrayList<>();
+            reviewRepository.save(review);
 
-        for (MultipartFile pic : pics) {
-            if (pic != null && !pic.isEmpty()) {
-                String savedPicName = myFileUtils.makeRandomFileName(pic);
-                String filePath = String.format("%s/%s", middlePath, savedPicName);
-                picNameList.add(savedPicName);
+            long reviewId = review.getReviewId();
+            String middlePath = String.format("review/%d", reviewId);
+            myFileUtils.makeFolders(middlePath);
 
-                try {
-                    myFileUtils.transferTo(pic, filePath);
+            List<String> picNameList = new ArrayList<>();
 
-                    ReviewPicIds reviewPicIds = new ReviewPicIds();
-                    reviewPicIds.setReviewId(reviewId);
-                    reviewPicIds.setReviewPic(savedPicName);
+            for (MultipartFile pic : pics) {
+                if (pic != null && !pic.isEmpty()) {
+                    String savedPicName = myFileUtils.makeRandomFileName(pic);
+                    String filePath = String.format("%s/%s", middlePath, savedPicName);
+                    picNameList.add(savedPicName);
 
-                    ReviewPic reviewPic = new ReviewPic();
-                    reviewPic.setReviewPicIds(reviewPicIds);
-                    reviewPic.setReview(review);
+                    try {
+                        myFileUtils.transferTo(pic, filePath);
 
-                    reviewPicRepository.save(reviewPic);
-                } catch (IOException e) {
-                    myFileUtils.deleteFolder(middlePath, true);
-                    log.error("파일 저장 실패: " + e.getMessage());
-                    throw new CustomException(ReviewErrorCode.IMAGE_UPLOAD_FAILED);
+                        ReviewPicIds reviewPicIds = new ReviewPicIds();
+                        reviewPicIds.setReviewId(reviewId);
+                        reviewPicIds.setReviewPic(savedPicName);
+
+                        ReviewPic reviewPic = new ReviewPic();
+                        reviewPic.setReviewPicIds(reviewPicIds);
+                        reviewPic.setReview(review);
+
+                        reviewPicRepository.save(reviewPic);
+                    } catch (IOException e) {
+                        myFileUtils.deleteFolder(middlePath, true);
+                        log.error("파일 저장 실패: " + e.getMessage());
+                        throw new CustomException(ReviewErrorCode.IMAGE_UPLOAD_FAILED);
+                    }
                 }
             }
-        } return 1;
+            return 1;
+        }catch (CustomException e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
-
-
-
 
     //학원 전체 리뷰 조회(추가)
     public List<ReviewAcademyAllGetRes> getAcademyReviewsAll(ReviewAcademyAllGetReq req) {

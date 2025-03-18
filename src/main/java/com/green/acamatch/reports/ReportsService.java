@@ -73,14 +73,31 @@ public class ReportsService {
 
     public List<GetUserListRes> getUserList(GetUserListReq req){
         List<GetUserListRes> userList = reportsMapper.getUserList(req);
+        for(GetUserListRes userListRes : userList){
+            if(userListRes.getActionType() == null){
+                userListRes.setActionType(null);
+            }
+        }
         return userList;
     }
 
     public List<GetAcademyListRes> getAcademyList(GetAcademyListReq req){
-        return reportsMapper.getAcademyList(req);
+        List<GetAcademyListRes> res = reportsMapper.getAcademyList(req);
+        for(GetAcademyListRes re : res){
+            if(re.getActionType() == null){
+                re.setActionType(null);
+            }
+        }
+        return res;
     }
 
     public List<GetReviewListRes> getReviewList(GetReviewListReq req){
-        return reportsMapper.getReviewList(req);
+        List<GetReviewListRes> res = reportsMapper.getReviewList(req);
+        for(GetReviewListRes re : res){
+            if(re.getActionType() == null){
+                re.setActionType(null);
+            }
+        }
+        return res;
     }
 }

@@ -75,8 +75,8 @@ public class ManagerService {
         return res;
     }
 
-    public List<GetUserInfoListRes> GetUserInfoList(long userId){
-        List<GetUserInfoListRes> res = managerMapper.GetUserInfoList(userId);
+    public List<GetUserInfoListRes> GetUserInfoList(GetUserInfoListReq req){
+        List<GetUserInfoListRes> res = managerMapper.GetUserInfoList(req);
         return res;
     }
 

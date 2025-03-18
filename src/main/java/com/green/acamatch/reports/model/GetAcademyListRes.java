@@ -16,4 +16,5 @@ public class GetAcademyListRes {
     private int totalCount;
     private int reportsCount;
     private int processingStatus;
+    private String actionType;
 }
