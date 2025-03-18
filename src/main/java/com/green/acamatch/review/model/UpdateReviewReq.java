@@ -10,5 +10,5 @@ import java.util.List;
 public class UpdateReviewReq {
     private long reviewId;
     private String comment;
-    private Integer star;
+    private int star;
 }
