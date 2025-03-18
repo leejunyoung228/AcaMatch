@@ -82,6 +82,17 @@ public class PremiumService {
         return resList;
     }
 
+    //프리미엄학원 조회(학원관계자)
+    public List<PremiumAcaAdminGetRes> getPremiumAcademyAcaAdmin(PremiumAcaAdminGetReq req) {
+        List<PremiumAcaAdminGetRes> resList = premiumMapper.getPremiumAcademyAcaAdmin(req);
+        if(resList == null || resList.isEmpty()) {
+            academyMessage.setMessage("신청한 프리미엄학원이 없습니다.");
+            return resList;
+        }
+        academyMessage.setMessage("프리미엄학원을 조회하였습니다.");
+        return resList;
+    }
+
     //프리미엄학원, 배너타입 조회(관리자)
     public List<PremiumBannerGetRes> getPremiumBannerType(Pageable pageable) {
         List<PremiumBannerGetRes> resList = premiumRepository.findAllByPremiumAndBannerType(pageable);
