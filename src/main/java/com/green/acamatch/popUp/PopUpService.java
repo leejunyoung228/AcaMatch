@@ -82,11 +82,13 @@ public class PopUpService {
         try {
             List<PopUpGetDto> result = popUpMapper.getPopUpList(p);
             if (result == null || result.isEmpty()) {
-                throw new CustomException(popUpErrorCode.POPUP_NOT_FOUND);
+                userMessage.setMessage("팝업 리스트 보기 실패");
+                return null;
             }
+            userMessage.setMessage("팝업 리스트 보기 성공");
             return result;
         } catch (CustomException e) {
-            e.printStackTrace();
+            userMessage.setMessage("기타 오류 사항으로 정보를 불러오지 못했습니다.");
             return null;
         }
     }
@@ -95,11 +97,13 @@ public class PopUpService {
         try {
             List<PopUpGetDto> result = popUpMapper.getPopUpDetail(p);
             if (result == null || result.isEmpty()) {
-                throw new CustomException(popUpErrorCode.POPUP_NOT_FOUND);
+                userMessage.setMessage("팝업 상세정보 보기 실패");
+                return null;
             }
+            userMessage.setMessage("팝업 상세정보 보기 성공");
             return result;
         } catch (CustomException e) {
-            e.printStackTrace();
+            userMessage.setMessage("기타 오류 사항으로 정보를 불러오지 못했습니다.");
             return null;
         }
     }
