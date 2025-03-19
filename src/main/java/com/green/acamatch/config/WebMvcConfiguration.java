@@ -19,7 +19,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     private final String uploadPath;
 
-    public WebMvcConfiguration(@Value("${file.directory}") String uploadPath, ExcelProperties excelProperties) {
+    public WebMvcConfiguration(@Value("${file.directory}") String uploadPath) {
         this.uploadPath = uploadPath;
     }
 

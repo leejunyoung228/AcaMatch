@@ -61,7 +61,6 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final MyFileUtils myFileUtils;
     private final ReviewPicRepository reviewPicRepository;
-    private final ReviewImageService reviewImageService;
     private final FilePathConfig filePathConfig;
     private final ReviewMessage reviewMessage;
 
