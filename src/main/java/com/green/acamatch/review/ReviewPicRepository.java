@@ -13,4 +13,7 @@ public interface ReviewPicRepository extends JpaRepository<ReviewPic, ReviewPicI
     @Modifying
     @Query(" delete from ReviewPic a where a.review=:review ")
     int deleteReviewPicsByReviewId(Review review);
+
+    @Query("select a.review from ReviewPic a where a.reviewPicIds=:reviewPicIds")
+    Review findReviewIdsByReviewPicIds(ReviewPicIds reviewPicIds);
 }

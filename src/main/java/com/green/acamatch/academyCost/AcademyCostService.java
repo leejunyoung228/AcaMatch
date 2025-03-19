@@ -83,4 +83,14 @@ public class AcademyCostService {
     public List<GetProductInfoRes> getProductInfo(){
         return academyCostMapper.getProductInfo();
     }
+
+    public List<GetAcademyCostListByUserRes> getAcademyCostListByUser(long userId){
+        List<GetAcademyCostListByUserRes> result = academyCostMapper.getAcademyCostListByUser(userId);
+        if(result == null){
+            academyCostMessage.setMessage("결제 내역이 없습니다");
+            return null;
+        }
+        academyCostMessage.setMessage("결제 내역 조회 성공");
+        return result;
+    }
 }

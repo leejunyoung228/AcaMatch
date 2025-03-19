@@ -20,4 +20,6 @@ public interface AcademyCostMapper {
     GetAcademyCostInfoByCostId getAcademyCostInfoByCostId(long costId);
 
     List<GetProductInfoRes> getProductInfo();
+
+    List<GetAcademyCostListByUserRes> getAcademyCostListByUser(long userId);
 }

@@ -65,4 +65,15 @@ public class AcademyCostController {
                 .resultData(res)
                 .build();
     }
+
+    @GetMapping("getAcademyCostListByUser/{userId}")
+    @Operation(summary = "유저 입장에서 결제 내역보기", description = "acaId랑 acaName, classOrBookName이 없는 애가 있는데 이건" +
+            "프리미엄 학원 결제 내역이라서 안나오는 겁니다.")
+    public ResultResponse<List<GetAcademyCostListByUserRes>> getAcademyCostListByUser(@PathVariable long userId) {
+        List<GetAcademyCostListByUserRes> result = academyCostService.getAcademyCostListByUser(userId);
+        return ResultResponse.<List<GetAcademyCostListByUserRes>>builder()
+                .resultMessage(academyCostMessage.getMessage())
+                .resultData(result)
+                .build();
+    }
 }
