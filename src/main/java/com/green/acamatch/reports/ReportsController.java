@@ -93,4 +93,14 @@ public class ReportsController {
                 .resultData(result)
                 .build();
     }
+
+    @GetMapping("getUserActionType")
+    @Operation(summary = "신고 당했는지 여부 체크?")
+    public ResultResponse<List<GetUserActionTypeRes>> getUserActionType(){
+        List<GetUserActionTypeRes> result = reportsService.getUserActionType();
+        return ResultResponse.<List<GetUserActionTypeRes>>builder()
+                .resultMessage("조회 성공")
+                .resultData(result)
+                .build();
+    }
 }

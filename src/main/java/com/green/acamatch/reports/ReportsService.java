@@ -103,4 +103,8 @@ public class ReportsService {
         }
         return res;
     }
+
+    public List<GetUserActionTypeRes> getUserActionType(){
+        return reportsMapper.getUserActionType();
+    }
 }

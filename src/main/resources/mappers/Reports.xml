@@ -56,4 +56,18 @@
         GROUP BY R1.review_id
         LIMIT #{startIdx}, #{size}
     </select>
+    <select id="getUserActionType">
+        SELECT R.updated_at, R.exposure_end_date, R.reports_type, R.action_type, R.report_id, U.user_id, U.name
+        FROM user U
+        JOIN reports R ON u.user_id = R.reported_user_id
+    </select>
+    <select id="getReportDate">
+        SELECT R.updated_at, R.exposure_end_date
+        FROM reports R
+        JOIN user U ON R.reported_user_id = U.user_id
+        WHERE processing_status = 1
+        AND U.email = #{email}
+        ORDER BY R.exposure_end_date DESC
+        LIMIT 1
+    </select>
 </mapper>
