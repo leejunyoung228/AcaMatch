@@ -10,4 +10,6 @@ public interface ReportsMapper {
     List<GetUserListRes> getUserList(GetUserListReq req);
     List<GetAcademyListRes> getAcademyList(GetAcademyListReq req);
     List<GetReviewListRes> getReviewList(GetReviewListReq req);
+    List<GetUserActionTypeRes> getUserActionType();
+    GetReportDateRes getReportDate(String email);
 }
