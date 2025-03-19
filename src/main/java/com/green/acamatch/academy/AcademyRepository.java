@@ -78,4 +78,8 @@ public interface AcademyRepository extends JpaRepository<Academy, Long> {
 
     @Query("SELECT ac.academy.acaId FROM AcaClass ac WHERE ac.classId = :classId")
     Optional<Long> findAcaIdByClassId(@Param("classId") Long classId);
+
+    List<Academy> findByUser(User user);  //  List로 변경하여 다중 학원 지원
+
+
 }

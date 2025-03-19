@@ -3,13 +3,20 @@ package com.green.acamatch.sms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.acamatch.acaClass.AcaClassService;
+import com.green.acamatch.acaClass.ClassRepository;
+import com.green.acamatch.academy.AcademyRepository;
 import com.green.acamatch.config.exception.CustomException;
 import com.green.acamatch.config.exception.SmsErrorCode;
 import com.green.acamatch.config.exception.UserErrorCode;
 import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
+import com.green.acamatch.config.security.AuthenticationFacade;
+import com.green.acamatch.entity.acaClass.AcaClass;
+import com.green.acamatch.entity.academy.Academy;
 import com.green.acamatch.entity.user.User;
+import com.green.acamatch.joinClass.JoinClassRepository;
 import com.green.acamatch.sms.model.SmsRequest;
+import com.green.acamatch.user.repository.RelationshipRepository;
 import com.green.acamatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +47,9 @@ public class SmsService {
     private final SmsConfigProperties smsConfigProperties;
     private final DefaultMessageService messageService;
     private final UserRepository userRepository; // 학원장 계정 저장된 곳
+    private final JoinClassRepository joinClassRepository;
+    private final ClassRepository classRepository;
+    private final AcademyRepository academyRepository;
 
     public Map<String, String> getSmsKeys() {
         Map<String, String> keys = new HashMap<>();
@@ -53,19 +63,19 @@ public class SmsService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // ✅ Solapi HMAC 인증 정보 생성
+        // Solapi HMAC 인증 정보 생성
         String apiKey = smsConfigProperties.getApiKey();
         String apiSecret = smsConfigProperties.getApiSecret();
         String timestamp = String.valueOf(System.currentTimeMillis());
 
-        String signature = generateHmacSignature(timestamp, apiKey, apiSecret); // ✅ HMAC-SHA256 서명 생성
+        String signature = generateHmacSignature(timestamp, apiKey, apiSecret); // HMAC-SHA256 서명 생성
 
-        // ✅ 올바른 인증 헤더 설정 (Solapi 공식 문서 기준)
+        // 올바른 인증 헤더 설정 (Solapi 공식 문서 기준)
         headers.set("Authorization", "HMAC-SHA256 " + apiKey + ":" + signature);
         headers.set("API-Key", apiKey);
         headers.set("Timestamp", timestamp);
 
-        // ✅ 요청 Body 설정
+        // 요청 Body 설정
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("phone", sender);
         requestBody.put("site_user", "your_site_user_id");  // ❗ 필수 파라미터
@@ -79,9 +89,9 @@ public class SmsService {
                     entity,
                     String.class
             );
-            return response.getBody();  // 📌 정상 응답 반환
+            return response.getBody();  // 정상 응답 반환
         } catch (HttpClientErrorException e) {
-            System.out.println("📌 Solapi API 오류 발생:");
+            System.out.println("Solapi API 오류 발생:");
             System.out.println("▶ 상태 코드: " + e.getStatusCode());
             System.out.println("▶ 응답 메시지: " + e.getResponseBodyAsString());
             throw new RuntimeException("발신번호 등록 실패: " + e.getResponseBodyAsString());
@@ -90,17 +100,17 @@ public class SmsService {
 
 
 
-    // ✅ Solapi 공식 인증 방식 적용
+    // Solapi 공식 인증 방식 적용
     private String generateHmacSignature(String timestamp, String apiKey, String apiSecret) {
         try {
-            String data = timestamp + apiKey;  // ✅ Solapi 요구 방식
+            String data = timestamp + apiKey;  // Solapi 요구 방식
             Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secretKeySpec = new SecretKeySpec(apiSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             mac.init(secretKeySpec);
             byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(hash);  // ✅ Base64 인코딩 후 반환
+            return Base64.getEncoder().encodeToString(hash);  // Base64 인코딩 후 반환
         } catch (Exception e) {
-            throw new RuntimeException("📌 HMAC Signature 생성 실패", e);
+            throw new RuntimeException("HMAC Signature 생성 실패", e);
         }
     }
 
@@ -164,6 +174,70 @@ public class SmsService {
         SingleMessageSendingRequest request = new SingleMessageSendingRequest(message);
         return messageService.sendOne(request);
     }
+
+
+    @Transactional
+    public List<SingleMessageSentResponse> sendBulkMessageForClass(Long classId, String textTemplate) {
+        Long userId = AuthenticationFacade.getSignedUserId();
+        log.info("✅ 현재 로그인한 학원장 ID: {}", userId);
+
+        User acaOwner = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("문자 발송 실패: 학원장 정보를 찾을 수 없습니다."));
+
+        List<Academy> academies = academyRepository.findByUser(acaOwner);
+        if (academies.isEmpty()) {
+            throw new IllegalArgumentException("문자 발송 실패: 학원 정보를 찾을 수 없습니다.");
+        }
+
+        Academy academy = academies.get(0);
+        log.info("✅ 선택된 학원 정보: {}", academy);
+
+        AcaClass acaClass = classRepository.findById(classId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 학급 정보를 찾을 수 없습니다."));
+
+        if (!acaClass.getAcademy().equals(academy)) {
+            throw new IllegalArgumentException("문자 발송 실패: 학원장이 운영하는 학급이 아닙니다.");
+        }
+
+        List<User> students = joinClassRepository.findStudentsByClassId(classId);
+        log.info("✅ 조회된 학생 목록: {}", students);
+
+        List<SingleMessageSentResponse> responses = new ArrayList<>();
+
+        for (User student : students) {
+            if (student == null || student.getPhone() == null) {
+                log.error("❌ 학생 정보가 null 입니다. (학생: {})", student);
+                continue;  // 오류 방지
+            }
+
+            String messageText = String.format(textTemplate, student.getName());
+            log.info("📨 문자 발송 준비: {} -> {}", acaOwner.getPhone(), student.getPhone());
+
+            try {
+                Message message = new Message();
+                message.setFrom(acaOwner.getPhone());
+                message.setTo(student.getPhone());
+                message.setText(messageText);
+
+                SingleMessageSendingRequest request = new SingleMessageSendingRequest(message);
+                SingleMessageSentResponse response = messageService.sendOne(request);
+                log.info("✅ 문자 발송 성공: {}", response);
+
+                responses.add(response);
+            } catch (Exception e) {
+                log.error("❌ 문자 발송 중 오류 발생 (학생: {}): {}", student, e.getMessage());
+            }
+        }
+
+        if (responses.isEmpty()) {
+            throw new IllegalArgumentException("문자 발송 실패: 모든 문자 전송이 실패하였습니다.");
+        }
+
+        return responses;
+    }
+
+
+
 
 //    private final DefaultMessageService messageService;
 //    private final String sender;

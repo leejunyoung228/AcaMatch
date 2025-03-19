@@ -28,5 +28,8 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Rela
             @Param("studentId") Long studentId,
             @Param("certification") int certification
     );
-}
 
+    @Query("SELECT r.student FROM Relationship r WHERE r.parent.userId IN " +
+            "(SELECT a.user.userId FROM Academy a WHERE a.acaId = :academyId)")
+    List<User> findStudentsByAcademyId(@Param("academyId") Long academyId);
+}

@@ -47,4 +47,10 @@ public interface ClassRepository extends JpaRepository<AcaClass, Long> {
 
     @Query("SELECT ac.academy.acaId FROM AcaClass ac WHERE ac.classId = :classId")
     Optional<Long> findAcaIdByClassId(@Param("classId") Long classId);
+
+    // ✅ 특정 학급(classId)에 속한 학생들 조회
+    @Query("SELECT j.user FROM JoinClass j WHERE j.acaClass.classId = :classId")
+    List<User> findStudentsByClassId(@Param("classId") Long classId);
+
+
 }

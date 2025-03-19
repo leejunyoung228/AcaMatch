@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -103,6 +104,27 @@ public class SmsController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    @PostMapping("/send-to-class")
+    @Operation(summary = "특정 학급 학생들에게 문자 발송")
+    public ResultResponse<List<SingleMessageSentResponse>> sendBulkMessageForClass(
+            @RequestParam Long classId,
+            @RequestParam String textTemplate) {
+
+        try {
+            List<SingleMessageSentResponse> responses = smsService.sendBulkMessageForClass(classId, textTemplate);
+            return ResultResponse.<List<SingleMessageSentResponse>>builder()
+                    .resultMessage("문자 발송 성공!")
+                    .resultData(responses)
+                    .build();
+        } catch (Exception e) {
+            return ResultResponse.<List<SingleMessageSentResponse>>builder()
+                    .resultMessage("문자 발송 실패: " + e.getMessage())
+                    .resultData(null)
+                    .build();
+        }
+    }
+
 
 //    @PostMapping("/register-sender")
 //    public ResponseEntity<String> registerSender(@RequestParam String sender) {
