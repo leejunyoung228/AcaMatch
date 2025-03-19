@@ -278,9 +278,9 @@ public class KakaoPayService {
 //        parameters.put("approval_url", successUrl);
 //        parameters.put("fail_url", failUrl);
 //        parameters.put("cancel_url", cancelUrl);
-        parameters.put("approval_url", "http://localhost:5173/success");
-        parameters.put("fail_url",  "http://localhost:5173/fail");
-        parameters.put("cancel_url", "http://localhost:5173/cancel");
+        parameters.put("approval_url", "http://acamatch.site:5233/success");
+        parameters.put("fail_url",  "http://acamatch.site:5233/fail");
+        parameters.put("cancel_url", "http://acamatch.site:5233/cancel");
 
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
