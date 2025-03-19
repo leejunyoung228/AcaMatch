@@ -1156,10 +1156,13 @@
         LIMIT 0, 10
     </select>
     <select id="GetAcademyCount">
-        SELECT COUNT(A.aca_id) AS academyCount, COUNT(U.user_id) AS userCount
+        SELECT
+        COUNT(A.aca_id) AS academyCount,
+        (
+        SELECT COUNT(user_id)
+        FROM user
+        ) AS userCount
         FROM academy A
-        RIGHT JOIN user U
-        ON A.user_id = U.user_id
     </select>
     <select id="getTagListByTagName">
         select tag_id
