@@ -56,6 +56,9 @@ public class AuthService {
         }
 
         GetReportDateRes result = reportsMapper.getReportDate(req.getEmail());
+        if(result == null){
+            return userUtils.generateUserSignInResByUser(user, response);
+        }
         if (result.getExposureEndDate() != null) {
             // 날짜 포맷 정의 (예: "yyyy-MM-dd HH:mm:ss")
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
