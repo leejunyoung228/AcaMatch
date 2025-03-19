@@ -33,4 +33,8 @@ public class GetAcademyListByUserIdRes {
     private int reportsCount;
 
     private int premium;
+
+    private String updatedAt;
+    private String exposureEndDate;
+    private String actionType;
 }
