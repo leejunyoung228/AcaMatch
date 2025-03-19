@@ -112,14 +112,10 @@ public class ReviewController {
                 .build();
     }
 
-
-
-
-
-
     @PutMapping("updateReview")
     @Operation(summary = "리뷰 수정")
-    public ResultResponse<Integer> updateReview(@RequestPart List<MultipartFile> pics, @RequestPart UpdateReviewReq p) {
+    public ResultResponse<Integer> updateReview(@RequestPart(value = "pics", required = false) List<MultipartFile> pics,
+                                                @RequestPart UpdateReviewReq p) {
         int result = reviewService.updateReview(p, pics);
         return ResultResponse.<Integer>builder()
                 .resultMessage(reviewMessage.getMessage())
