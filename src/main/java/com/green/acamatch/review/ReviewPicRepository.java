@@ -8,12 +8,15 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ReviewPicRepository extends JpaRepository<ReviewPic, ReviewPicIds> {
     @Modifying
     @Query(" delete from ReviewPic a where a.review=:review ")
     int deleteReviewPicsByReviewId(Review review);
 
-    @Query("select a.review from ReviewPic a where a.reviewPicIds=:reviewPicIds")
-    Review findReviewIdsByReviewPicIds(ReviewPicIds reviewPicIds);
+    @Modifying
+    @Query("SELECT a FROM ReviewPic a WHERE a.review=:review")
+    List<ReviewPic> findByReview(Review review);
 }
