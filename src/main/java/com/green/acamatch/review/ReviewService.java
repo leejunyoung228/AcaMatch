@@ -221,7 +221,7 @@ public class ReviewService {
 
     @Transactional
     public int updateReview(UpdateReviewReq req, List<MultipartFile> pics) {
-        if(pics == null && pics.isEmpty()){
+        if(pics == null || pics.isEmpty()){
             pics = new ArrayList<>();
         }
         // 1. 리뷰 조회
