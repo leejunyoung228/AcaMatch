@@ -310,13 +310,16 @@
         U.name,
         AP.aca_pic,
         A.premium,
+        RC.updated_at,
+        RC.exposure_end_date,
+        RC.action_type,
         GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS aca_pics,
         IFNULL(RC.reportsCount, 0) AS reportsCount  -- 신고 수가 없으면 0으로 처리
         FROM academy A
         JOIN academy_pic AP ON A.aca_id = AP.aca_id
         JOIN User U ON A.user_id = U.user_id
         LEFT JOIN (
-        SELECT R.aca_id, COUNT(R.report_id) AS reportsCount
+        SELECT R.aca_id, COUNT(R.report_id) AS reportsCount, R.updated_at, R.exposure_end_date, R.action_type
         FROM reports R
         GROUP BY R.aca_id
         ) RC ON A.aca_id = RC.aca_id  -- 학원별 신고 개수를 LEFT JOIN

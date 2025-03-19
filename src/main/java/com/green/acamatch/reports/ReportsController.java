@@ -65,7 +65,7 @@ public class ReportsController {
     }
 
     @GetMapping("getUserList")
-    @Operation(summary = "신고 당한 유저 리스트 불러오기")
+    @Operation(summary = "신고 당한 유저 리스트 불러오기", description = "updatedAt이 조치한 날짜, exposureEndDate는 조치가 끝나는 날짜입니다.")
     public ResultResponse<List<GetUserListRes>> getUserList(@ParameterObject GetUserListReq req){
         List<GetUserListRes> userList = reportsService.getUserList(req);
         return ResultResponse.<List<GetUserListRes>>builder()
