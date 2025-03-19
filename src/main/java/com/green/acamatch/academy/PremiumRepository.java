@@ -37,10 +37,11 @@ public interface PremiumRepository extends JpaRepository<PremiumAcademy, Long> {
 
     //프리미엄 학원 조회
     @Query("SELECT new com.green.acamatch.academy.premium.model.PremiumGetRes(" +
-            "a.acaId, b.acaName, a.startDate, a.endDate, a.preCheck, a.createdAt, " +
+            "a.acaId, b.acaName, c.academyPicIds.acaPic, a.startDate, a.endDate, a.preCheck, a.createdAt, " +
             "(SELECT COUNT(p) as countPremium FROM PremiumAcademy p) ) " + // 전체 개수를 가져오는 서브쿼리
             "FROM PremiumAcademy a " +
             "JOIN Academy b ON a.acaId = b.acaId " +
+            "JOIN AcademyPic c ON b.acaId = c.academyPicIds.acaId " +
             "ORDER BY a.createdAt")
     List<PremiumGetRes> findAllByPremium(Pageable pageable);
 
