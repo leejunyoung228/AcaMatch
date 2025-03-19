@@ -281,6 +281,9 @@
         ORDER BY r.review_id DESC
         LIMIT #{startIdx}, #{size}
     </select>-->
-
-
+    <select id="getReviewPic">
+        SELECT *
+        FROM review_pic
+        WHERE review_pic = #{reviewPic}
+    </select>
 </mapper>

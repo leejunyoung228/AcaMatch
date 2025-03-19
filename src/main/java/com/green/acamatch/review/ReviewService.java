@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
@@ -214,46 +215,93 @@ public class ReviewService {
         return resList;
     }
 
+    public GetReviewPicRes getReviewPic(String reviewPic){
+        return reviewMapper.getReviewPic(reviewPic);
+    }
+
     @Transactional
-    public int updateReview(UpdateReviewReq req, List<MultipartFile> pics){
-
+    public int updateReview(UpdateReviewReq req, List<MultipartFile> pics) {
+        // 1. 리뷰 조회
         Review review = reviewRepository.findById(req.getReviewId()).orElse(null);
+        if (review == null) {
+            return 0; // 리뷰가 없으면 실패 처리
+        }
+
+        // 2. 리뷰 정보 업데이트
         review.setStar(req.getStar());
-        if(req.getComment() != null) review.setComment(req.getComment());
-        reviewRepository.save(review);
+        if (req.getComment() != null) {
+            review.setComment(req.getComment());
+        }
 
-        if(pics != null && !pics.isEmpty()) {
-            String middlePath = String.format("review/%d", req.getReviewId());
+        // 3. 기존에 등록된 사진 가져오기
+        List<ReviewPic> existingPics = reviewPicRepository.findByReview(review);
+        List<String> existingPicNames = existingPics.stream()
+                .map(pic -> pic.getReviewPicIds().getReviewPic())
+                .collect(Collectors.toList());
 
-            List<String> picNameList = new ArrayList<>();
-            List<ReviewPic> picList = new ArrayList<>(pics.size());
+        // 4. 새로 등록할 사진 리스트 생성
+        List<String> newPicNames = new ArrayList<>();
+        List<ReviewPic> newPicList = new ArrayList<>();
 
-            for(MultipartFile pic : pics){
-                String savedPicName = (pic != null ? myFileUtils.makeRandomFileName(pic) : null);
+        String middlePath = String.format("review/%d", req.getReviewId());
 
-                picNameList.add(savedPicName);
-                String filePath = String.format("%s/%s", middlePath, savedPicName);
+        if (pics != null && !pics.isEmpty()) {
+            for (MultipartFile pic : pics) {
+                if (pic != null) {
+                    // 새로운 파일명 생성
+                    String savedPicName = myFileUtils.makeRandomFileName(pic);
+                    newPicNames.add(savedPicName);
 
-                ReviewPicIds reviewPicIds = new ReviewPicIds();
-                reviewPicIds.setReviewId(req.getReviewId());
-                reviewPicIds.setReviewPic(savedPicName);
+                    // 파일 저장 경로 설정
+                    String filePath = String.format("%s/%s", middlePath, savedPicName);
 
-                ReviewPic reviewPic = new ReviewPic();
-                reviewPic.setReviewPicIds(reviewPicIds);
-                reviewPic.setReview(review);
-                reviewPicRepository.save(reviewPic);
+                    // ReviewPic 엔티티 생성 및 저장
+                    ReviewPicIds reviewPicIds = new ReviewPicIds();
+                    reviewPicIds.setReviewId(req.getReviewId());
+                    reviewPicIds.setReviewPic(savedPicName);
 
-                try {
-                    myFileUtils.transferTo(pic, filePath);
-                } catch (IOException e){
-                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                    myFileUtils.deleteFolder(delFolderPath, true);
+                    ReviewPic reviewPic = new ReviewPic();
+                    reviewPic.setReviewPicIds(reviewPicIds);
+                    reviewPic.setReview(review);
+                    newPicList.add(reviewPic);
+
+                    // 파일 저장
+                    try {
+                        myFileUtils.transferTo(pic, filePath);
+                    } catch (IOException e) {
+                        String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                        myFileUtils.deleteFolder(delFolderPath, true);
+                    }
                 }
             }
+            reviewPicRepository.saveAll(newPicList);
         }
-        reviewMessage.setMessage("리뷰정보수정이 완료되었습니다.");
+
+        // 5. 삭제된 사진 찾기
+        List<String> deletedPicNames = existingPicNames.stream()
+                .filter(name -> !newPicNames.contains(name))
+                .collect(Collectors.toList());
+
+        if (!deletedPicNames.isEmpty()) {
+            for (String deletedPic : deletedPicNames) {
+                // 5.1 DB에서 삭제
+                ReviewPicIds reviewPicIds = new ReviewPicIds();
+                reviewPicIds.setReviewId(req.getReviewId());
+                reviewPicIds.setReviewPic(deletedPic);
+                reviewPicRepository.deleteById(reviewPicIds);
+
+                // 5.2 파일 시스템에서 삭제
+                String filePathToDelete = String.format("%s/%s/%s", myFileUtils.getUploadPath(), middlePath, deletedPic);
+                myFileUtils.deleteFile(filePathToDelete);
+            }
+        }
+
+        // 6. 리뷰 저장 및 성공 메시지 반환
+        reviewMessage.setMessage("리뷰 정보 수정이 완료되었습니다.");
         reviewRepository.save(review);
+
         return 1;
     }
+
 
 }

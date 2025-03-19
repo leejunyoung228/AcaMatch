@@ -23,5 +23,5 @@ public interface ReviewMapper {
     List<ReviewAcademyGetRes> getAcademyPicReviews(ReviewAcademyGetReq req);
     List<ReviewAcademyGetRes> getAcademyNoPicReviews(ReviewAcademyGetReq req);
 
-
+    GetReviewPicRes getReviewPic(String reviewPic);
 }
