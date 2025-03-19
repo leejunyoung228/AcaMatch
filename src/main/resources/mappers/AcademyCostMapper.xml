@@ -82,4 +82,32 @@
         SELECT product_id, product_name, product_price, book_id, class_id
         FROM product
     </select>
+    <select id="getAcademyCostListByUser">
+        SELECT
+        IFNULL(A.aca_id, A1.aca_id) AS aca_id,
+        IFNULL(A.aca_name, A1.aca_name) AS aca_name,
+        IFNULL(B.book_name, C.class_name) AS `classOrBookName`,
+        IFNULL(AP.aca_pic, AP1.aca_pic) AS aca_pic,
+        AC.created_at,
+        AC.price,
+        AC.cost_status,
+        U.name,
+        AC.cost_id,
+        AC.t_id,
+        IFNULL(RF.refund_status, 0) AS refundStatus
+        FROM academy_cost AC
+        JOIN product P ON AC.product_id = P.product_id
+        LEFT JOIN aca_class C ON P.class_id = C.class_id
+        LEFT JOIN book B ON P.book_id = B.book_id
+        LEFT JOIN academy A ON C.aca_id = A.aca_id
+        LEFT JOIN academy A1 ON B.aca_id = A1.aca_id
+        LEFT JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy_pic AP1 ON A1.aca_id = AP1.aca_id
+        JOIN user U ON AC.user_id = U.user_id
+        LEFT JOIN refund RF ON AC.cost_id = RF.cost_id
+        WHERE AC.user_id = #{userId}
+        AND RF.cost_id IS NULL
+        GROUP BY AC.cost_id
+        ORDER BY AC.created_at DESC;
+    </select>
 </mapper>

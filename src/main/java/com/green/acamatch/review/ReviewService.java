@@ -222,13 +222,8 @@ public class ReviewService {
         if(req.getComment() != null) review.setComment(req.getComment());
         reviewRepository.save(review);
 
-
-
         if(pics != null && !pics.isEmpty()) {
-            reviewPicRepository.deleteReviewPicsByReviewId(review);
             String middlePath = String.format("review/%d", req.getReviewId());
-            myFileUtils.deleteFolder(middlePath, true);
-            myFileUtils.makeFolders(middlePath);
 
             List<String> picNameList = new ArrayList<>();
             List<ReviewPic> picList = new ArrayList<>(pics.size());
@@ -254,7 +249,6 @@ public class ReviewService {
                     String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
                     myFileUtils.deleteFolder(delFolderPath, true);
                 }
-
             }
         }
         reviewMessage.setMessage("리뷰정보수정이 완료되었습니다.");
