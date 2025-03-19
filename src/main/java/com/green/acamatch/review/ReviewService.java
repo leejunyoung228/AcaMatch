@@ -221,6 +221,9 @@ public class ReviewService {
 
     @Transactional
     public int updateReview(UpdateReviewReq req, List<MultipartFile> pics) {
+        if(pics == null && pics.isEmpty()){
+            pics = new ArrayList<>();
+        }
         // 1. 리뷰 조회
         Review review = reviewRepository.findById(req.getReviewId()).orElse(null);
         if (review == null) {
@@ -245,37 +248,37 @@ public class ReviewService {
 
         String middlePath = String.format("review/%d", req.getReviewId());
 
-        if (pics != null && !pics.isEmpty()) {
-            for (MultipartFile pic : pics) {
-                if (pic != null) {
-                    // 새로운 파일명 생성
-                    String savedPicName = myFileUtils.makeRandomFileName(pic);
-                    newPicNames.add(savedPicName);
 
-                    // 파일 저장 경로 설정
-                    String filePath = String.format("%s/%s", middlePath, savedPicName);
+        for (MultipartFile pic : pics) {
+            if (pic != null) {
+                // 새로운 파일명 생성
+                String savedPicName = myFileUtils.makeRandomFileName(pic);
+                newPicNames.add(savedPicName);
 
-                    // ReviewPic 엔티티 생성 및 저장
-                    ReviewPicIds reviewPicIds = new ReviewPicIds();
-                    reviewPicIds.setReviewId(req.getReviewId());
-                    reviewPicIds.setReviewPic(savedPicName);
+                // 파일 저장 경로 설정
+                String filePath = String.format("%s/%s", middlePath, savedPicName);
 
-                    ReviewPic reviewPic = new ReviewPic();
-                    reviewPic.setReviewPicIds(reviewPicIds);
-                    reviewPic.setReview(review);
-                    newPicList.add(reviewPic);
+                // ReviewPic 엔티티 생성 및 저장
+                ReviewPicIds reviewPicIds = new ReviewPicIds();
+                reviewPicIds.setReviewId(req.getReviewId());
+                reviewPicIds.setReviewPic(savedPicName);
 
-                    // 파일 저장
-                    try {
-                        myFileUtils.transferTo(pic, filePath);
-                    } catch (IOException e) {
-                        String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
-                        myFileUtils.deleteFolder(delFolderPath, true);
-                    }
+                ReviewPic reviewPic = new ReviewPic();
+                reviewPic.setReviewPicIds(reviewPicIds);
+                reviewPic.setReview(review);
+                newPicList.add(reviewPic);
+
+                // 파일 저장
+                try {
+                    myFileUtils.transferTo(pic, filePath);
+                } catch (IOException e) {
+                    String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
+                    myFileUtils.deleteFolder(delFolderPath, true);
                 }
             }
-            reviewPicRepository.saveAll(newPicList);
         }
+        reviewPicRepository.saveAll(newPicList);
+
 
         // 5. 삭제된 사진 찾기
         List<String> deletedPicNames = existingPicNames.stream()
@@ -297,11 +300,10 @@ public class ReviewService {
         }
 
         // 6. 리뷰 저장 및 성공 메시지 반환
+
         reviewMessage.setMessage("리뷰 정보 수정이 완료되었습니다.");
         reviewRepository.save(review);
 
         return 1;
     }
-
-
 }
