@@ -213,19 +213,16 @@ public class ReviewService {
         return resList;
     }
 
+    @Transactional
     public int updateReview(UpdateReviewReq req, List<MultipartFile> pics){
+
         Review review = reviewRepository.findById(req.getReviewId()).orElse(null);
-        if(req.getStar() != null) review.setStar(req.getStar());
+        review.setStar(req.getStar());
         if(req.getComment() != null) review.setComment(req.getComment());
         reviewRepository.save(review);
 
-
-
         if(pics != null && !pics.isEmpty()) {
-            reviewPicRepository.deleteReviewPicsByReviewId(req.getReviewId());
             String middlePath = String.format("review/%d", req.getReviewId());
-            myFileUtils.deleteFolder(middlePath, true);
-            myFileUtils.makeFolders(middlePath);
 
             List<String> picNameList = new ArrayList<>();
             List<ReviewPic> picList = new ArrayList<>(pics.size());
@@ -251,7 +248,6 @@ public class ReviewService {
                     String delFolderPath = String.format("%s/%s", myFileUtils.getUploadPath(), middlePath);
                     myFileUtils.deleteFolder(delFolderPath, true);
                 }
-
             }
         }
         reviewMessage.setMessage("리뷰정보수정이 완료되었습니다.");

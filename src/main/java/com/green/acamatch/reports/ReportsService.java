@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.green.acamatch.entity.reports.ActionType.no_action;
+
 @Service
 @RequiredArgsConstructor
 public class ReportsService {
@@ -50,7 +52,7 @@ public class ReportsService {
     public int updateReports(long reportsId, ActionType actionType){
         Reports reports = reportsRepository.findById(reportsId).orElse(null);
         reports.setProcessingStatus(1);
-        if (actionType != ActionType.no_action) {
+        if (actionType != no_action) {
             reports.setExposureEndDate(reports.getUpdatedAt().plusDays(actionType.getDurationDays()));
         } else {
             reports.setExposureEndDate(null);
@@ -73,14 +75,31 @@ public class ReportsService {
 
     public List<GetUserListRes> getUserList(GetUserListReq req){
         List<GetUserListRes> userList = reportsMapper.getUserList(req);
+        for(GetUserListRes userListRes : userList){
+            if(userListRes.getActionType() == null){
+                userListRes.setActionType(String.format("%s", no_action));
+            }
+        }
         return userList;
     }
 
     public List<GetAcademyListRes> getAcademyList(GetAcademyListReq req){
-        return reportsMapper.getAcademyList(req);
+        List<GetAcademyListRes> res = reportsMapper.getAcademyList(req);
+        for(GetAcademyListRes re : res){
+            if(re.getActionType() == null){
+                re.setActionType(String.format("%s", no_action));
+            }
+        }
+        return res;
     }
 
     public List<GetReviewListRes> getReviewList(GetReviewListReq req){
-        return reportsMapper.getReviewList(req);
+        List<GetReviewListRes> res = reportsMapper.getReviewList(req);
+        for(GetReviewListRes re : res){
+            if(re.getActionType() == null){
+                re.setActionType(String.format("%s", no_action));
+            }
+        }
+        return res;
     }
 }

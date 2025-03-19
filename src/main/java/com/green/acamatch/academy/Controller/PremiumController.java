@@ -57,6 +57,21 @@ public class PremiumController {
                 .build();
     }
 
+
+    //프리미엄 학원 조회(학원관계자용)
+    @GetMapping("acaAdmin")
+    @Operation(summary = "프리미엄학원 조회(학원관계자용)")
+    public ResultResponse<List<PremiumAcaAdminGetRes>> getPremiumAcademyAcaAdmin(@ParameterObject @ModelAttribute PremiumAcaAdminGetReq req) {
+
+        List<PremiumAcaAdminGetRes> resList = premiumService.getPremiumAcademyAcaAdmin(req);
+        return ResultResponse.<List<PremiumAcaAdminGetRes>>builder()
+                .resultMessage(academyMessage.getMessage())
+                .resultData(resList)
+                .build();
+    }
+
+
+
     //프리미엄,배너타입학원조회
     @GetMapping("bannerType")
     @Operation(summary = "프리미엄학원, 배너타입 조회")

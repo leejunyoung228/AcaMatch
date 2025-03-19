@@ -655,6 +655,7 @@
 
     <select id="getAcademyWithClasses" resultMap="AcademyResultMap">
         WITH
+        -- 최신 리뷰 정보
         LatestReviews AS (
         SELECT
         A.comment AS reviewComment,
@@ -680,6 +681,8 @@
         ORDER BY A.review_id DESC
         LIMIT #{startIdx}, #{size}
         ),
+
+        -- 클래스별 평균 별점 및 리뷰 개수
         ReviewStats AS (
         SELECT
         C.class_id,
@@ -691,7 +694,8 @@
         JOIN aca_class C ON B.class_id = C.class_id
         GROUP BY C.class_id, C.aca_id
         ),
-        -- 추가된 일반 리뷰 개수
+
+        -- 일반 리뷰 개수
         GeneralReviewCount AS (
         SELECT
         C.aca_id,
@@ -704,7 +708,8 @@
         AND RP.review_id IS NULL
         GROUP BY C.aca_id
         ),
-        -- 추가된 미디어 리뷰 개수
+
+        -- 미디어 리뷰 개수
         MediaReviewCount AS (
         SELECT
         C.aca_id,
@@ -716,6 +721,8 @@
         WHERE C.aca_id = #{acaId}
         GROUP BY C.aca_id
         ),
+
+        -- 클래스 정보 조회
         AcademyClass AS (
         SELECT
         C.class_id AS classId,
@@ -738,17 +745,18 @@
         LEFT JOIN product P ON C.class_id = P.class_id
         GROUP BY C.class_id
         ),
+
+        -- 사용자 수강 인증 여부
         UserCertification AS (
         SELECT
         JC.class_id,
-        CASE
-        WHEN COUNT(JC.join_class_id) > 0 THEN 1
-        ELSE 0
-        END AS isCertified
+        CASE WHEN COUNT(JC.join_class_id) > 0 THEN 1 ELSE 0 END AS isCertified
         FROM join_class JC
         WHERE JC.user_id = #{signedUserId}
         GROUP BY JC.class_id
         ),
+
+        -- 사용자 좋아요 여부
         UserLikes AS (
         SELECT
         L.aca_id,
@@ -756,6 +764,8 @@
         FROM `likes` L
         WHERE L.user_id = #{signedUserId}
         ),
+
+        -- 학원별 총 좋아요 수
         LikeCount AS (
         SELECT
         aca_id,
@@ -763,6 +773,8 @@
         FROM `likes`
         GROUP BY aca_id
         ),
+
+        -- 학원 태그 정보
         AcademyTag AS (
         SELECT
         AT.aca_id,
@@ -771,6 +783,8 @@
         JOIN tag AS T ON AT.tag_id = T.tag_id
         GROUP BY AT.aca_id
         ),
+
+        -- 클래스별 교재 정보
         BookByClass AS (
         SELECT
         B.book_id AS bookId,
@@ -785,8 +799,17 @@
         FROM Book B
         JOIN aca_class AC ON B.class_id = AC.class_id
         WHERE AC.aca_id = #{acaId}
+        ),
+
+        -- 학원 사진 정보 (GROUP_CONCAT 적용)
+        AcademyPics AS (
+        SELECT
+        aca_id,
+        GROUP_CONCAT(DISTINCT aca_pic ORDER BY aca_pic SEPARATOR ', ') AS acaPics
+        FROM academy_pic
+        GROUP BY aca_id
         )
-        -- 최종 SELECT 문
+
         SELECT
         A.aca_id,
         A.aca_name,
@@ -796,11 +819,11 @@
         A.aca_phone,
         A.teacher_num,
         A.comment,
-        AP.aca_pic,
-        GROUP_CONCAT(AP.aca_pic ORDER BY AP.aca_pic SEPARATOR ', ') AS acaPics,
+        APIC.aca_pic,
+        AP.acaPics,
         AT.tagName,
 
-        -- 클래스별 정보
+        -- 클래스 정보
         COALESCE(AC.classId, 0) AS classId,
         COALESCE(AC.className, '') AS className,
         COALESCE(AC.classComment, '') AS classComment,
@@ -813,7 +836,7 @@
         COALESCE(AC.classCategoryName, '') AS classCategoryName,
         COALESCE(AC.productId, 0) AS productId,
 
-        -- 도서 정보 추가
+        -- 교재 정보
         COALESCE(BC.bookId, 0) AS bookId,
         COALESCE(BC.bookName, '') AS bookName,
         COALESCE(BC.bookAmount, 0) AS bookAmount,
@@ -821,27 +844,27 @@
         COALESCE(BC.bookPic, '') AS bookPic,
         COALESCE(BC.bookPrice, 0) AS bookPrice,
         COALESCE(BC.manager, '') AS manager,
-        COALESCE(BC.classId, 0) AS classId,
 
-        -- 학원별 총 좋아요 수
+        -- 학원 좋아요 수
         COALESCE(LC.likeCount, 0) AS likeCount,
 
-        -- 클래스별 평균 별점 및 리뷰 개수
+        -- 클래스별 별점 및 리뷰 개수
         COALESCE(RS.avgStar, 0) AS star,
         COALESCE(RS.reviewCount, 0) AS reviewCount,
 
-        -- 일반 리뷰 및 미디어 리뷰 개수 추가
+        -- 리뷰 개수
         COALESCE(GRC.generalReviewCount, 0) AS generalReviewCount,
         COALESCE(MRC.mediaReviewCount, 0) AS mediaReviewCount,
 
-        -- 해당 유저의 클래스별 수강 여부
+        -- 사용자의 수강 여부
         COALESCE(UC.isCertified, 0) AS userCertification,
 
-        -- 해당 유저의 좋아요 여부
+        -- 사용자의 좋아요 여부
         COALESCE(UL.isLiked, 0) AS isLiked
 
         FROM academy A
-        JOIN academy_pic AP ON A.aca_id = AP.aca_id
+        LEFT JOIN academy_pic APIC ON A.aca_id = APIC.aca_id
+        LEFT JOIN AcademyPics AP ON A.aca_id = AP.aca_id
         LEFT JOIN AcademyClass AC ON AC.aca_id = A.aca_id
         LEFT JOIN BookByClass BC ON AC.classId = BC.classId
         LEFT JOIN ReviewStats RS ON RS.class_id = AC.classId
@@ -853,7 +876,7 @@
         LEFT JOIN LikeCount LC ON LC.aca_id = A.aca_id
         WHERE A.aca_id = #{acaId}
         AND A.aca_agree = 1
-        LIMIT #{startIdx}, #{size};
+        LIMIT #{startIdx}, #{size}
     </select>
 
     <resultMap id="GeneralReviewResultMap" type="com.green.acamatch.academy.model.HB.GeneralReviewDto">
@@ -1240,6 +1263,8 @@
         AC.cost_status,
         U.name,
         AC.cost_id,
+        AC.t_id,
+        RF.refund_status,
         COUNT(*) OVER() AS totalCount
         FROM academy_cost AC
         JOIN product P ON AC.product_id = P.product_id
@@ -1258,29 +1283,29 @@
         GROUP BY aca_id
         ) AP1 ON A1.aca_id = AP1.aca_id -- 학원당 대표 사진 1개만 가져오기
         JOIN user U ON AC.user_id = U.user_id
-        <where>
-            AND AC.product_id != 1
-            <if test="acaName != null and acaName != ''">
-                AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
-            </if>
-            <if test="orderType != null and orderType != ''">
-                AND AC.order_type = #{orderType}
-            </if>
-            <if test="startDate != null and startDate != ''">
-                AND AC.created_at &gt;= #{startDate}
-            </if>
-            <if test="endDate != null and endDate != ''">
-                AND AC.created_at &lt;= #{endDate}
-            </if>
-            <if test="acaId != null">
-                AND A.aca_id = #{acaId}
-            </if>
-            <if test="userId != null">
-                AND A.user_id = #{userId}
-            </if>
-        </where>
+        LEFT JOIN refund RF ON AC.cost_id = RF.cost_id
+        WHERE RF.cost_id IS NULL -- 환불되지 않은 데이터만 선택
+        AND AC.product_id != 1
+        <if test="acaName != null and acaName != ''">
+            AND A.aca_name LIKE CONCAT('%', #{acaName}, '%')
+        </if>
+        <if test="orderType != null and orderType != ''">
+            AND AC.order_type = #{orderType}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND AC.created_at &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND AC.created_at &lt;= #{endDate}
+        </if>
+        <if test="acaId != null">
+            AND A.aca_id = #{acaId}
+        </if>
+        <if test="userId != null">
+            AND A.user_id = #{userId}
+        </if>
         ORDER BY AC.created_at DESC
-        LIMIT #{startIdx}, #{size}
+        LIMIT #{startIdx}, #{size};
     </select>
     <select id="getAcademyListByAcaNameAndDate">
     </select>

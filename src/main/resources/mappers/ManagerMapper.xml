@@ -22,11 +22,13 @@
     </select>
     <select id="getAcademyCostCount">
         SELECT
-        DATE(created_at) AS register_date,
+        DATE(A.created_at) AS register_date,
         COUNT(*) AS academyCostCount
-        FROM academy_cost
-        WHERE year(created_at) = #{year}
-        AND MONTH(created_at) = #{month}
+        FROM academy_cost A
+        LEFT JOIN refund R ON A.cost_id = R.cost_id
+        WHERE R.cost_id IS NULL
+        AND YEAR(A.created_at) = #{year}
+        AND MONTH(A.created_at) = #{month}
         GROUP BY register_date
         ORDER BY register_date;
     </select>
@@ -38,11 +40,13 @@
         JOIN book B ON A.aca_id = B.aca_id
         JOIN product P ON B.book_id = P.book_id OR C.class_id = P.class_id
         JOIN academy_cost AC ON P.product_id = AC.product_id
-        WHERE YEAR(AC.created_at) = #{year}
+        LEFT JOIN refund R ON AC.cost_id = R.cost_id
+        WHERE R.cost_id IS NULL
+        AND YEAR(AC.created_at) = #{year}
         AND MONTH(AC.created_at) = #{month}
         AND P.product_id != 1
         AND A.user_id = #{userId}
-        GROUP BY AC.cost_id
+        GROUP BY paymentDate
         ORDER BY paymentDate;
     </select>
     <select id="getUserCountByUserId">
@@ -59,12 +63,20 @@
     </select>
     <select id="GetUserInfoList">
         SELECT U.name, U.user_pic, U.email, JC.registration_date, A.aca_name, C.class_name,
-        U.phone, JC.certification
+        U.phone, JC.certification, JC.join_class_id,
+        COUNT(*) OVER() AS totalCount
         FROM join_class JC
         JOIN aca_class C ON JC.class_id = C.class_id
         JOIN academy A ON C.aca_id = A.aca_id
         JOIN user U ON JC.user_id = U.user_id
         WHERE A.user_id = #{userId}
+        <if test="certification != null">
+            AND JC.certification = #{certification}
+        </if>
+        <if test=" name != null and name != '' ">
+            AND U.name like CONCAT('%', #{name}, '%')
+        </if>
+        LIMIT #{startIdx}, #{size}
     </select>
     <select id="GetAcademyCostInfoByUserId">
         WITH FilteredCosts AS (
@@ -74,10 +86,12 @@
         JOIN aca_class CL ON P.class_id = CL.class_id
         JOIN book B ON CL.class_id = B.class_id
         JOIN academy A ON B.aca_id = A.aca_id
+        LEFT JOIN refund R ON AC.cost_id = R.cost_id  -- 환불 내역과 LEFT JOIN
         WHERE AC.cost_status = 2
         AND A.user_id = #{userId}
         AND YEAR(AC.created_at) = YEAR(NOW())
-        AND WEEK(AC.created_at, 1) = WEEK(NOW(), 1)  -- ISO 8601 기준 (월요일 시작)
+        AND MONTH(AC.created_at) = MONTH(NOW())  -- ISO 8601 기준 (월요일 시작)
+        AND R.cost_id IS NULL  -- 환불되지 않은 데이터만 필터링
         )
         SELECT
         SUM(FC.price - FC.fee) AS sumFee,  -- 중복 제거 후 합산
@@ -89,7 +103,9 @@
         JOIN product PX ON PX.book_id IS NOT NULL AND AX.product_id = PX.product_id
         JOIN book B ON PX.book_id = B.book_id
         JOIN academy AXD ON B.aca_id = AXD.aca_id
+        LEFT JOIN refund RX ON AX.cost_id = RX.cost_id  -- 환불 내역과 JOIN
         WHERE AXD.user_id = FC.user_id
+        AND RX.cost_id IS NULL  -- 환불되지 않은 데이터만 필터링
         ) / (
         SELECT SUM(BX.book_amount)
         FROM book BX

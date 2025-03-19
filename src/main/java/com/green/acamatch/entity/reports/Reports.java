@@ -7,6 +7,8 @@ import com.green.acamatch.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
@@ -33,14 +35,17 @@ public class Reports extends CreatedAt {
 
     @ManyToOne
     @JoinColumn(name = "reported_user_id") // 신고당한 사용자
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User reportedUser;
 
     @ManyToOne
     @JoinColumn(name = "aca_id") // 신고당한 학원
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Academy academy;
 
     @ManyToOne
     @JoinColumn(name = "review_id") // 신고당한 학원
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Review review;
 
     @Column(nullable = false)

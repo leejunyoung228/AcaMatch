@@ -17,7 +17,7 @@ public interface ManagerMapper {
 
     List<GetUserCountByUserIdRes> getUserCountByUserId(GetUserCountByUserIdReq req);
 
-    List<GetUserInfoListRes> GetUserInfoList(long userId);
+    List<GetUserInfoListRes> GetUserInfoList(GetUserInfoListReq req);
 
     GetAcademyCostInfoByUserId GetAcademyCostInfoByUserId(long userId);
 }

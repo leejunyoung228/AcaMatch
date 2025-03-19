@@ -14,4 +14,6 @@ public class GetUserInfoListRes {
     private String className;
     private String phone;
     private int certification;
+    private long joinClassId;
+    private int totalCount;
 }

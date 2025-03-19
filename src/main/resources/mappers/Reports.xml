@@ -21,6 +21,8 @@
         R.updated_at,
         R.exposure_end_date,
         R.processing_status,
+        R.action_type,
+        R.report_id,
         (SELECT COUNT(R2.report_id)
         FROM reports R2
         WHERE R2.aca_id = A.aca_id) AS reportsCount,
@@ -42,6 +44,8 @@
         R.updated_at,
         R.exposure_end_date,
         R.processing_status,
+        R.action_type,
+        R.report_id,
         (SELECT COUNT(R2.report_id)
         FROM reports R2
         WHERE R2.review_id = R1.review_id) AS reportsCount,

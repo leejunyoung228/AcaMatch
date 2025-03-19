@@ -33,7 +33,7 @@ public class ReviewController {
     }
 
     @GetMapping("academy/all")
-    @Operation(summary = "학원 리뷰 전체 조회(새로생성)")
+    @Operation(summary = "학원 리뷰 전체 조회")
     public ResultResponse<List<ReviewAcademyAllGetRes>> getAcademyReviewsAll(@ParameterObject @ModelAttribute ReviewAcademyAllGetReq req) {
         List<ReviewAcademyAllGetRes> resList = reviewService.getAcademyReviewsAll(req);
         return ResultResponse.<List<ReviewAcademyAllGetRes>>builder()
@@ -43,7 +43,7 @@ public class ReviewController {
     }
 
     @GetMapping("me")
-    @Operation(summary = "본인이작성한 리뷰조회(새로생성)")
+    @Operation(summary = "본인이작성한 리뷰조회")
     public ResultResponse<List<ReviewMeGetRes>> getMeReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
         List<ReviewMeGetRes> resList = reviewService.getMeReviews(req);
         return ResultResponse.<List<ReviewMeGetRes>>builder()
@@ -53,8 +53,8 @@ public class ReviewController {
     }
 
     @GetMapping("me/pic")
-    @Operation(summary = "본인이작성한 리뷰조회(사진있는거만)(새로생성)")
-    public ResultResponse<List<ReviewMeGetRes>> getMeNoPicReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
+    @Operation(summary = "본인이작성한 리뷰조회(사진있는거만)")
+    public ResultResponse<List<ReviewMeGetRes>> getMePicReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
         List<ReviewMeGetRes> resList = reviewService.getMeNoPicReviews(req);
         return ResultResponse.<List<ReviewMeGetRes>>builder()
                 .resultMessage(userMessage.getMessage())
@@ -63,8 +63,8 @@ public class ReviewController {
     }
 
     @GetMapping("me/noPic")
-    @Operation(summary = "본인이작성한 리뷰조회(사진없는거만)(새로생성)")
-    public ResultResponse<List<ReviewMeGetRes>> getMePicReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
+    @Operation(summary = "본인이작성한 리뷰조회(사진없는거만)")
+    public ResultResponse<List<ReviewMeGetRes>> getMeNoPicReviews(@ParameterObject @ModelAttribute ReviewMeGetReq req) {
         List<ReviewMeGetRes> resList = reviewService.getMePicReviews(req);
         return ResultResponse.<List<ReviewMeGetRes>>builder()
                 .resultMessage(userMessage.getMessage())
