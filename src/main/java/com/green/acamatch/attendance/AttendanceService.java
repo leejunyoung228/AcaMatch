@@ -3,6 +3,7 @@ package com.green.acamatch.attendance;
 import com.green.acamatch.attendance.model.*;
 import com.green.acamatch.config.exception.AcaClassErrorCode;
 import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.entity.attendance.Attendance;
 import com.green.acamatch.entity.joinClass.JoinClass;
 import com.green.acamatch.joinClass.JoinClassRepository;
@@ -23,6 +24,8 @@ public class AttendanceService {
     private final AttendanceMapper attendanceMapper;
     private final JoinClassRepository joinClassRepository;
     private final AttendanceRepository attendanceRepository;
+    @Autowired
+    private UserMessage userMessage;
 
     @Transactional
     public int postAttendance(AttendancePostReq p) {
@@ -71,11 +74,13 @@ public class AttendanceService {
         try {
             List<AcademyAttendanceGetRes> result = attendanceMapper.getAcademyAttendanceStatusCount(p);
             if (result == null || result.isEmpty()) {
-                throw new CustomException(AcaClassErrorCode.NOT_FOUND_ATTENDANCE);
+                userMessage.setMessage("학원입장 출석률 가져오기 실패");
+                return null;
             }
+            userMessage.setMessage("학원입장 출석률 가져오기 성공");
             return result;
         }catch (CustomException e) {
-            e.printStackTrace();
+            userMessage.setMessage("기타 오류 사항으로 정보를 불러오지 못했습니다.");
             return null;
         }
     }
@@ -95,8 +100,8 @@ public class AttendanceService {
             attendance.setStatus(p.getStatus());
             attendanceRepository.save(attendance);
             return 1;
-        } catch (IllegalArgumentException e) {
-            e.getMessage();
+        } catch (CustomException e) {
+            e.getStackTrace();
             return 0;
         }
     }

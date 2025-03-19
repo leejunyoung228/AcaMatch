@@ -2,6 +2,7 @@ package com.green.acamatch.attendance;
 
 import com.green.acamatch.attendance.model.*;
 import com.green.acamatch.config.exception.CustomException;
+import com.green.acamatch.config.exception.UserMessage;
 import com.green.acamatch.config.model.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AttendanceController {
     private final AttendanceService attendanceService;
+    private final UserMessage userMessage;
 
     @PostMapping
     @Operation(summary = "출석부 등록", description = "출석, 지각, 결석, 조퇴 - 입력시 한글로 적어야합니다.")
@@ -49,18 +51,11 @@ public class AttendanceController {
     @GetMapping("academyCount")
     @Operation(summary = "학원입장 출석률")
     public ResultResponse<List<AcademyAttendanceGetRes>> getAcademyAttendanceStatusCount(@ParameterObject AcademyAttendanceGetReq p) {
-        try {
             List<AcademyAttendanceGetRes> result = attendanceService.getAcademyAttendanceStatusCount(p);
             return ResultResponse.<List<AcademyAttendanceGetRes>>builder()
-                    .resultMessage("학원입장 출석률 가져오기 성공")
+                    .resultMessage(userMessage.getMessage())
                     .resultData(result)
                     .build();
-        } catch (CustomException e) {
-            return ResultResponse.<List<AcademyAttendanceGetRes>>builder()
-                    .resultMessage("학원입장 출석률 가져오기 실패")
-                    .resultData(new ArrayList<>())
-                    .build();
-        }
     }
 
     @GetMapping("user")
@@ -85,7 +80,7 @@ public class AttendanceController {
     public ResultResponse<Integer> putAttendance(@RequestBody AttendancePutReq p) {
         Integer result = attendanceService.updAttendance(p);
         return ResultResponse.<Integer>builder()
-                .resultMessage("출석부 수정 성공")
+                .resultMessage(result == 1 ? "출석부 수정 성공" : "출석부 수정 실패")
                 .resultData(result)
                 .build();
     }
