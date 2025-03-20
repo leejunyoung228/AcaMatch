@@ -102,6 +102,8 @@ public class LikeService {
         }
 
         LikeIds likeIds = new LikeIds();
+        likeIds.setAcaId(req.getAcaId());
+        likeIds.setUserId(req.getUserId());
         if (!likeRepository.existsById(likeIds)) {
             userMessage.setMessage("좋아요를 누르지 않은 상태입니다.");
             return new AcaLikeRes(false);
