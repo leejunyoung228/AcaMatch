@@ -139,9 +139,10 @@
 
     <select id="selGradeDetail" resultMap="gradeDetailResultMap">
         SELECT D.user_id, D.user_pic, D.name, C.join_class_id, D.email, F.grade_id, E.exam_name, F.exam_date, E.exam_type,
-        CASE WHEN E.exam_type = 0 THEN F.score ELSE 0 END AS score,
+        CASE WHEN E.exam_type = 0 THEN F.score ELSE NULL END AS score,
         CASE WHEN E.exam_type != 0 THEN
-        CASE WHEN COALESCE(F.pass, 0) THEN 0 ELSE 1 END ELSE NULL END AS pass
+        CASE WHEN F.pass IS NULL THEN NULL
+        WHEN F.pass = 0 THEN 0 ELSE 1 END ELSE NULL END AS pass
         FROM academy A
         INNER JOIN aca_class B
         ON A.aca_id = B.aca_id

@@ -205,10 +205,7 @@ public class StudentGradeService {
                         }
                     }
                 }
-//                // `pass`가 null일 경우 기본값 설정
-//                if (pass == null) {
-//                    pass = 0;  // 기본값을 설정 (0으로 설정 가능)
-//                }
+
                 Cell cell = row.getCell(9);
                 Integer processingStatus = null;
                 if (cell != null) { // 셀이 null인지 확인
@@ -232,7 +229,9 @@ public class StudentGradeService {
                             log.error("Exam not found for examId: {}", examId);
                             return new CustomException(AcaClassErrorCode.NOT_FOUND_EXAM);
                         });
-                Grade grade = gradeRepository.findById(gradeId).orElse(new Grade());
+                Grade grade = gradeRepository.findById(gradeId).orElseGet(() ->
+                        gradeRepository.findByJoinClassAndExam(joinClass, exam).orElse(new Grade())
+                );
                 grade.setJoinClass(joinClass);
                 grade.setExam(exam);
                 grade.setExamDate(examDate);
