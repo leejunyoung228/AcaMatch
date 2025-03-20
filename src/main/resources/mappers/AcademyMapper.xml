@@ -1249,6 +1249,7 @@
         WHERE r.aca_id = A.aca_id
         AND (r.exposure_end_date IS NULL OR r.exposure_end_date > NOW())
         )
+        AND A.aca_agree = 1
         GROUP BY A.aca_id
         ORDER BY distance ASC
         LIMIT #{startIdx}, #{size}
