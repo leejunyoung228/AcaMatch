@@ -8,10 +8,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import java.time.*;
 @Service
 @RequiredArgsConstructor
 public class AcademyCostService {
@@ -31,8 +32,13 @@ public class AcademyCostService {
         return academyCostMapper.getAcademyCostInfoByCostId(costId);
     }
 
+
+
     public int updateStatuses(String costIds) {
-        LocalDate today = LocalDate.now();
+        // 현재 날짜를 가져올 때 Clock을 사용
+        Clock clock = Clock.systemDefaultZone();
+        LocalDate today = LocalDate.now(clock);
+
         YearMonth currentMonth = YearMonth.from(today); // 이번 달
         LocalDate firstDayOfThisMonth = currentMonth.atDay(1); // 이번 달 1일
         LocalDate firstDayOfNextMonth = currentMonth.plusMonths(1).atDay(1); // 다음 달 1일
@@ -55,6 +61,8 @@ public class AcademyCostService {
             return 0;
         }
 
+        List<String> errorMessages = new ArrayList<>();
+
         // 모든 costId 처리
         for (Long costId : costIdList) {
             AcademyCost academyCost = academyCostRepository.findById(costId).orElse(null);
@@ -65,8 +73,8 @@ public class AcademyCostService {
 
                 // 같은 달이면 정산 불가
                 if (paymentMonth.equals(currentMonth)) {
-                    academyCostMessage.setMessage("이번 달 결제 내역은 정산할 수 없습니다.");
-                    return 0;
+                    errorMessages.add("결제 내역 " + costId + "는 이번 달 결제 내역이므로 정산할 수 없습니다.");
+                    continue;
                 }
 
                 // 정산 가능하면 상태 업데이트
@@ -76,9 +84,16 @@ public class AcademyCostService {
             }
         }
 
+        if (!errorMessages.isEmpty()) {
+            academyCostMessage.setMessage(String.join("\n", errorMessages));
+            return 0;
+        }
+
         academyCostMessage.setMessage("정산이 완료되었습니다.");
         return 1;
     }
+
+
 
     public List<GetProductInfoRes> getProductInfo(){
         return academyCostMapper.getProductInfo();
