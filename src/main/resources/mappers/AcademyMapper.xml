@@ -790,7 +790,7 @@
         -- 클래스별 교재 정보
         BookByClass AS (
         SELECT
-        B.book_id AS bookId,
+        P.product_id AS bookId,
         B.book_name AS bookName,
         B.book_amount AS bookAmount,
         B.book_comment AS bookComment,
@@ -801,6 +801,7 @@
         AC.aca_id
         FROM Book B
         JOIN aca_class AC ON B.class_id = AC.class_id
+        JOIN product P ON B.book_id = P.book_id
         WHERE AC.aca_id = #{acaId}
         ),
 
