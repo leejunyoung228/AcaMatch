@@ -26,6 +26,9 @@ public class ReviewMeGetRes {
     @Schema(title = "강좌 이름", description = "개설된 수업강좌 이름", example = "원어민 영어")
     private String className;
 
+    @Schema(title = "학원 이름")
+    private String acaName;
+
     @Schema(title = "학원 고유 PK ID", description = "등록된 학원의 ID", example = "26")
     private Long acaId;
 
