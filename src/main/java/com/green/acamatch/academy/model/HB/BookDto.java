@@ -14,4 +14,5 @@ public class BookDto {
     private int bookPrice;
     private String manager;
     private long classId;
+    private long productId;
 }

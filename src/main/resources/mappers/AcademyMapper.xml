@@ -646,6 +646,7 @@
 
         <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
             <result property="bookId" column="bookId"/>
+            <result property="productId" column="productId"/>
             <result property="bookName" column="bookName"/>
             <result property="bookAmount" column="bookAmount"/>
             <result property="bookComment" column="bookComment"/>
@@ -790,7 +791,8 @@
         -- 클래스별 교재 정보
         BookByClass AS (
         SELECT
-        P.product_id AS bookId,
+        B.book_id AS bookId,
+        P.product_id AS productId,
         B.book_name AS bookName,
         B.book_amount AS bookAmount,
         B.book_comment AS bookComment,
@@ -842,6 +844,7 @@
 
         -- 교재 정보
         COALESCE(BC.bookId, 0) AS bookId,
+        COALESCE(BC.productId, 0) AS productId,
         COALESCE(BC.bookName, '') AS bookName,
         COALESCE(BC.bookAmount, 0) AS bookAmount,
         COALESCE(BC.bookComment, '') AS bookComment,
