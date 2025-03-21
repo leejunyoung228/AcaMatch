@@ -42,8 +42,7 @@
     <!-- 학원관리 - 강의 관리 -> 테스트 목록 -->
     <select id="selGradeStatus">
         SELECT GROUP_CONCAT(DISTINCT B.aca_pic ORDER BY B.aca_pic SEPARATOR ',') AS aca_pics,
-        B.aca_pic, D.exam_id, D.exam_name, E.exam_date, E.processing_status, G.user_id AS teacher_id, H.user_id AS academy_id,
-        G.name AS teacher_name
+        B.aca_pic, D.exam_id, D.exam_name, E.exam_date, E.processing_status, H.user_id AS academy_id
         FROM academy A
         LEFT JOIN academy_pic B
         ON A.aca_id = B.aca_id
@@ -53,10 +52,6 @@
         ON C.class_id = D.class_id
         LEFT JOIN grade E
         ON D.exam_id = E.exam_id
-        LEFT JOIN teacher F
-        ON C.class_id = F.class_id
-        LEFT JOIN `user` G
-        ON F.user_id = G.user_id
         LEFT JOIN `user` H
         ON A.user_id = H.user_id
         <where>
@@ -80,7 +75,7 @@
                 AND D.exam_name LIKE '%${keyword3}%'
             </if>
         </where>
-        GROUP BY D.exam_id, D.exam_name, E.exam_date, E.processing_status, G.user_id, H.user_id, G.name
+        GROUP BY D.exam_id, D.exam_name, E.exam_date, E.processing_status, H.user_id
         ORDER BY D.exam_id
         LIMIT #{startIdx}, #{size}
     </select>
