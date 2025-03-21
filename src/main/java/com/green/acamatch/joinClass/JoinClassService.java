@@ -69,7 +69,7 @@ public class JoinClassService {
                     -> new CustomException(AcaClassErrorCode.NOT_FOUND_JOIN_CLASS));
             joinClass.setJoinClassId(p.getJoinClassId());
 
-            if (p.getCertification() > 0) {
+            if (p.getCertification() > 1) {
                 throw new CustomException(AcaClassErrorCode.FAIL_TO_UPD);
             }
 
