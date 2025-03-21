@@ -21,10 +21,6 @@ public class GradeStatusGetDto {
     private String examDate;
     @Schema(title = "처리 상태", example = "0")
     private int processingStatus;
-    @Schema(title = "선생님 ID", example = "1")
-    private long teacherId;
     @Schema(title = "학원관계자 ID", example = "1")
     private long academyId;
-    @Schema(title = "선생님 이름", example = "홍길동")
-    private String teacherName;
 }
