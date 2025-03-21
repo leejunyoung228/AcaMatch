@@ -646,7 +646,7 @@
 
         <collection property="books" ofType="com.green.acamatch.academy.model.HB.BookDto" javaType="ArrayList" notNullColumn="bookId">
             <result property="bookId" column="bookId"/>
-            <result property="productId" column="productId"/>
+            <result property="productId" column="productIds"/>
             <result property="bookName" column="bookName"/>
             <result property="bookAmount" column="bookAmount"/>
             <result property="bookComment" column="bookComment"/>
@@ -844,7 +844,7 @@
 
         -- 교재 정보
         COALESCE(BC.bookId, 0) AS bookId,
-        COALESCE(BC.productId, 0) AS productId,
+        COALESCE(BC.productId, 0) AS productIds,
         COALESCE(BC.bookName, '') AS bookName,
         COALESCE(BC.bookAmount, 0) AS bookAmount,
         COALESCE(BC.bookComment, '') AS bookComment,
