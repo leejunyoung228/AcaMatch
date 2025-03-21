@@ -370,7 +370,7 @@
         SELECT 1
         FROM reports r
         WHERE r.aca_id = A.aca_id
-        AND (r.r.processing_status = 1 AND r.exposure_end_date > NOW())
+        AND (r.processing_status = 1 AND r.exposure_end_date > NOW())
         )
         AND (#{dongId} IS NULL OR A.dong_id = #{dongId})
         AND (#{searchName} IS NULL OR A.aca_name LIKE CONCAT('%', #{searchName}, '%'))
